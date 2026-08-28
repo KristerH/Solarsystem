@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Solarsystem.MainPage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="Black">
+
+    <Grid RowDefinitions="*,Auto">
+
+        <!-- 3D-vyn -->
+        <GraphicsView x:Name="SpaceView" Grid.Row="0">
+            <GraphicsView.GestureRecognizers>
+                <PanGestureRecognizer PanUpdated="OnPanUpdated" />
+                <PinchGestureRecognizer PinchUpdated="OnPinchUpdated" />
+            </GraphicsView.GestureRecognizers>
+        </GraphicsView>
+
+        <!-- Klocka och hjälptext ovanpå vyn -->
+        <VerticalStackLayout Grid.Row="0"
+                             Margin="14"
+                             Spacing="2"
+                             HorizontalOptions="Start"
+                             VerticalOptions="Start"
+                             InputTransparent="True">
+            <Label x:Name="DateLabel" TextColor="White" FontSize="20" FontAttributes="Bold" />
+            <Label x:Name="ElapsedLabel" TextColor="#9EC1E8" FontSize="14" />
+            <Label TextColor="#5E6E80" FontSize="12"
+                   Text="Dra med musen = rotera &#8226; Skrollhjul = zooma &#8226; Piltangenter = rotera &#8226; W/S = zooma &#8226; Mellanslag = starta/pausa &#8226; R = återställ vyn" />
+        </VerticalStackLayout>
+
+        <!-- Kontrollpanel -->
+        <FlexLayout Grid.Row="1"
+                    BackgroundColor="#12161C"
+                    Padding="12,8"
+                    Wrap="Wrap"
+                    AlignItems="Center"
+                    JustifyContent="Start">
+
+            <Button x:Name="StartStopButton"
+                    Text="&#9208; Pausa"
+                    Clicked="OnStartStopClicked"
+                    BackgroundColor="#2E4A66"
+                    TextColor="White"
+                    Margin="0,0,16,0"
+                    WidthRequest="120" />
+
+            <Label Text="Hastighet:" TextColor="#C8D4E0" Margin="0,0,6,0" />
+            <Slider x:Name="SpeedSlider"
+                    Minimum="0" Maximum="1" Value="0.62"
+                    WidthRequest="200"
+                    ValueChanged="OnSpeedChanged"
+                    Margin="0,0,6,0" />
+            <Label x:Name="SpeedLabel" TextColor="#C8D4E0" WidthRequest="130" Margin="0,0,16,0" />
+
+            <CheckBox x:Name="OrbitsCheck" IsChecked="True" CheckedChanged="OnOrbitsChanged" Color="#6FA8DC" />
+            <Label Text="Visa banor" TextColor="#C8D4E0" Margin="0,0,16,0" />
+
+            <CheckBox x:Name="RealScaleCheck" IsChecked="False" CheckedChanged="OnRealScaleChanged" Color="#6FA8DC" />
+            <Label Text="Verklig storlek" TextColor="#C8D4E0" Margin="0,0,16,0" />
+
+            <Label Text="Fokus:" TextColor="#C8D4E0" Margin="0,0,6,0" />
+            <Picker x:Name="FocusPicker"
+                    TextColor="White"
+                    BackgroundColor="#1C2430"
+                    WidthRequest="140"
+                    SelectedIndexChanged="OnFocusChanged"
+                    Margin="0,0,16,0" />
+
+            <Button Text="Återställ vy"
+                    Clicked="OnResetClicked"
+                    BackgroundColor="#26303C"
+                    TextColor="White" />
+        </FlexLayout>
+    </Grid>
+</ContentPage>
