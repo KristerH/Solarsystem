@@ -58,6 +58,12 @@
             <CheckBox x:Name="RealScaleCheck" IsChecked="False" CheckedChanged="OnRealScaleChanged" Color="#6FA8DC" />
             <Label Text="Verklig storlek" TextColor="#C8D4E0" Margin="0,0,16,0" />
 
+            <CheckBox x:Name="ConstellationsCheck" IsChecked="True" CheckedChanged="OnConstellationsChanged" Color="#6FA8DC" />
+            <Label Text="Stjärnbilder" TextColor="#C8D4E0" Margin="0,0,16,0" />
+
+            <CheckBox x:Name="StarNamesCheck" IsChecked="False" CheckedChanged="OnStarNamesChanged" Color="#6FA8DC" />
+            <Label Text="Stjärnnamn" TextColor="#C8D4E0" Margin="0,0,16,0" />
+
             <Label Text="Fokus:" TextColor="#C8D4E0" Margin="0,0,6,0" />
             <Picker x:Name="FocusPicker"
                     TextColor="White"

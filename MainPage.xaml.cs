@@ -122,6 +122,12 @@ public partial class MainPage : ContentPage
     void OnRealScaleChanged(object? sender, CheckedChangedEventArgs e) =>
         _drawable.RealScale = e.Value;
 
+    void OnConstellationsChanged(object? sender, CheckedChangedEventArgs e) =>
+        _drawable.ShowConstellations = e.Value;
+
+    void OnStarNamesChanged(object? sender, CheckedChangedEventArgs e) =>
+        _drawable.ShowStarNames = e.Value;
+
     void OnFocusChanged(object? sender, EventArgs e)
     {
         _focusIndex = Math.Max(0, FocusPicker.SelectedIndex);

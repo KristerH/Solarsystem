@@ -25,9 +25,11 @@ public sealed class SolarSystemDrawable : IDrawable
     public double DaysSinceJ2000 { get; set; }
     public bool ShowOrbits { get; set; } = true;
     public bool RealScale { get; set; }
+    public bool ShowConstellations { get; set; } = true;
+    public bool ShowStarNames { get; set; }
 
+    readonly StarSky _sky = new();
     Vector3[][]? _orbitPaths;
-    (Vector3 Dir, float Size, float Alpha)[]? _stars;
     readonly List<(string Name, float X, float Y)> _labels = new(16);
 
     public void Draw(ICanvas canvas, RectF rect)
@@ -40,69 +42,12 @@ public sealed class SolarSystemDrawable : IDrawable
         Camera.UpdateFrame(rect.Width, rect.Height);
         _labels.Clear();
 
-        DrawStars(canvas);
+        _sky.Draw(canvas, Camera, ShowConstellations, ShowStarNames);
         if (ShowOrbits)
             DrawOrbits(canvas);
         DrawBodies(canvas, rect);
         DrawLabels(canvas);
     }
-
-    // ---------------------------------------------------------------- stjärnor
-
-    void DrawStars(ICanvas canvas)
-    {
-        _stars ??= CreateStars();
-        foreach (var (dir, size, alpha) in _stars)
-        {
-            if (!Camera.ProjectDirection(dir, out float sx, out float sy))
-                continue;
-            canvas.FillColor = Colors.White.WithAlpha(alpha);
-            canvas.FillCircle(sx, sy, size);
-        }
-    }
-
-    static (Vector3, float, float)[] CreateStars()
-    {
-        var rnd = new Random(42);
-        var list = new List<(Vector3, float, float)>(3200);
-
-        // Jämnt spridda stjärnor över hela himlen.
-        for (int i = 0; i < 1700; i++)
-        {
-            list.Add((RandomDirection(rnd),
-                      0.5f + (float)rnd.NextDouble() * 1.1f,
-                      0.25f + (float)rnd.NextDouble() * 0.75f));
-        }
-
-        // Ett tätare, svagare band av stjärnor som antyder Vintergatan
-        // (galaktiska planet lutar ca 60° mot ekliptikan).
-        var pole = Vector3.Normalize(new Vector3(0.55f, 0.50f, 0.67f));
-        var u = Vector3.Normalize(Vector3.Cross(pole, Vector3.UnitY));
-        var v = Vector3.Cross(pole, u);
-        for (int i = 0; i < 1500; i++)
-        {
-            double ang = rnd.NextDouble() * Math.PI * 2;
-            float off = Gauss(rnd) * 0.13f;
-            var dir = Vector3.Normalize(
-                u * MathF.Cos((float)ang) + v * MathF.Sin((float)ang) + pole * off);
-            list.Add((dir,
-                      0.4f + (float)rnd.NextDouble() * 0.8f,
-                      0.10f + (float)rnd.NextDouble() * 0.45f));
-        }
-        return [.. list];
-    }
-
-    static Vector3 RandomDirection(Random rnd)
-    {
-        double z = rnd.NextDouble() * 2 - 1;
-        double t = rnd.NextDouble() * Math.PI * 2;
-        double r = Math.Sqrt(1 - z * z);
-        return new Vector3((float)(r * Math.Cos(t)), (float)z, (float)(r * Math.Sin(t)));
-    }
-
-    static float Gauss(Random rnd) =>
-        (float)(Math.Sqrt(-2.0 * Math.Log(1 - rnd.NextDouble())) *
-                Math.Cos(2.0 * Math.PI * rnd.NextDouble()));
 
     // ------------------------------------------------------------------- banor
 
@@ -304,11 +249,43 @@ public sealed class SolarSystemDrawable : IDrawable
 
     // --------------------------------------------------------------- etiketter
 
+    /// <summary>
+    /// Ritar namnen. När planeterna trängs ihop (t.ex. det inre solsystemet sett
+    /// på långt håll) staplas etiketterna nedåt i stället för att skriva över
+    /// varandra, och den som flyttats får en tunn streckad linje till sin planet.
+    /// </summary>
     void DrawLabels(ICanvas canvas)
     {
+        const float lineHeight = 16f;
+        const float minSeparation = 70f;
+
         canvas.FontSize = 13f;
-        foreach (var (name, x, y) in _labels)
+        var placed = new List<(float X, float Y)>(_labels.Count);
+
+        foreach (var (name, x, anchorY) in _labels.OrderBy(l => l.Y))
         {
+            float y = anchorY;
+            for (bool moved = true; moved;)
+            {
+                moved = false;
+                foreach (var (px, py) in placed)
+                {
+                    if (Math.Abs(px - x) < minSeparation && Math.Abs(py - y) < lineHeight)
+                    {
+                        y = py + lineHeight;
+                        moved = true;
+                    }
+                }
+            }
+            placed.Add((x, y));
+
+            if (y - anchorY > 2f)
+            {
+                canvas.StrokeSize = 1f;
+                canvas.StrokeColor = Colors.White.WithAlpha(0.28f);
+                canvas.DrawLine(x, anchorY - 5, x, y + 1);
+            }
+
             canvas.FontColor = Colors.Black.WithAlpha(0.8f);
             canvas.DrawString(name, x + 1, y + 13, HorizontalAlignment.Center);
             canvas.FontColor = Colors.White;
