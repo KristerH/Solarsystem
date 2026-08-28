@@ -5,10 +5,12 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
 
 ## Funktioner
 
-- **Verkliga banor**: Planeterna följer keplerska ellipsbanor med verklig
-  excentricitet, banlutning och omloppstid. Startpositionerna beräknas från
-  banelement vid epok J2000, så planeternas lägen stämmer ungefär med
-  verkligheten för det simulerade datumet.
+- **Verkliga banor**: De åtta planeterna samt dvärgplaneten Pluto följer
+  keplerska ellipsbanor med verklig excentricitet, banlutning och omloppstid.
+  Startpositionerna beräknas från banelement vid epok J2000, så lägena stämmer
+  ungefär med verkligheten för det simulerade datumet. Plutos bana är en bra
+  kontrast till planeternas: 17° lutning, 248 års omloppstid och så excentrisk
+  att den tidvis går innanför Neptunus bana.
 - **Skalenliga avstånd**: Avstånden mellan banorna är alltid skalenliga (1 AU =
   60 enheter). Planeternas storlekar är inbördes skalenliga men förstorade så
   att de syns – bocka i **Verklig storlek** för att se hur små planeterna
