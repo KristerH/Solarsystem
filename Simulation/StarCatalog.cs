@@ -347,12 +347,12 @@ public static class StarCatalog
             ("Mintaka", "Alnilam"), ("Alnilam", "Alnitak"), ("Alnitak", "Saiph"),
             ("Mintaka", "Rigel"), ("Meissa", "Betelgeuse"), ("Meissa", "Bellatrix"),
         ]),
-        new("Karlavagnen",
+        new("Karlavagnen - Stora björn",
         [
             ("Dubhe", "Merak"), ("Merak", "Phecda"), ("Phecda", "Megrez"), ("Megrez", "Dubhe"),
             ("Megrez", "Alioth"), ("Alioth", "Mizar"), ("Mizar", "Alkaid"),
         ]),
-        new("Lilla björnen",
+        new("Lilla björn",
         [
             ("Polaris", "Yildun"), ("Yildun", "EpsilonUMi"), ("EpsilonUMi", "ZetaUMi"),
             ("ZetaUMi", "Kochab"), ("Kochab", "Pherkad"), ("Pherkad", "EtaUMi"), ("EtaUMi", "ZetaUMi"),

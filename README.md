@@ -24,7 +24,8 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
 - **Riktig stjärnhimmel**: 225 av himlens ljusstarkaste stjärnor med verkliga
   koordinater (epok J2000), verklig skenbar magnitud och verklig färg (räknad
   ur färgindex B-V, så Betelgeuse blir röd och Rigel blåvit). 27 stjärnbilder
-  kan visas med figurlinjer och svenska namn – Orion, Karlavagnen, Södra
+  kan visas med figurlinjer och svenska namn – Orion, Karlavagnen - Stora
+  björn, Södra
   korset, Skorpionen och så vidare. Vintergatan ligger längs det verkliga
   galaktiska planet och är som ljusast mot galaktiska centrum i Skytten.
   Eftersom stjärnorna räknas om från ekvatorial- till ekliptikakoordinater
