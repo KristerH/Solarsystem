@@ -29,7 +29,15 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
   galaktiska planet och är som ljusast mot galaktiska centrum i Skytten.
   Eftersom stjärnorna räknas om från ekvatorial- till ekliptikakoordinater
   hamnar de rätt i förhållande till planetbanorna: planeterna rör sig genom
-  zodiakens stjärnbilder, precis som på riktigt.
+  zodiakens stjärnbilder, precis som på riktigt. Med **Stjärnor**-väljaren
+  styr man tätheten: "Få" visar bara katalogens riktiga stjärnor, "Normalt"
+  och "Många" lägger till bakgrundsstjärnor och Vintergatan.
+
+Prestanda: stjärnhimlen ligger på oändligt avstånd, så alla skärmpositioner
+cachas och räknas bara om när kameran roteras – zoom och planetrörelser rör
+den inte. Banornas skärmfigurer cachas på samma sätt, alla färger är
+förberäknade och allt utanför skärmen hoppas över. Appen ritar i 30 bilder/s
+och hoppar över omritningen helt när den är pausad och kameran står stilla.
 
 ## Bygga och köra
 

@@ -28,55 +28,111 @@ public sealed class SolarSystemDrawable : IDrawable
     public bool ShowConstellations { get; set; } = true;
     public bool ShowStarNames { get; set; }
 
+    /// <summary>Hur många stjärnor som ritas (inställning i appen).</summary>
+    public StarDensity StarDensity
+    {
+        get => _sky.Density;
+        set => _sky.Density = value;
+    }
+
     readonly StarSky _sky = new();
     Vector3[][]? _orbitPaths;
     readonly List<(string Name, float X, float Y)> _labels = new(16);
 
+    // Cache av banornas skärmfigurer – giltig tills kameran flyttas.
+    float _orbYaw = float.NaN, _orbPitch, _orbDist, _orbW, _orbH;
+    Vector3 _orbTarget;
+    PathF[] _orbitScreenPaths = [];
+    static readonly Color[] OrbitColors =
+        [.. SolarSystemData.Planets.Select(p => p.BodyColor.WithAlpha(0.35f))];
+
     public void Draw(ICanvas canvas, RectF rect)
     {
-        canvas.FillColor = Colors.Black;
-        canvas.FillRectangle(rect);
-        if (rect.Width < 10 || rect.Height < 10)
-            return;
+        try
+        {
+            canvas.FillColor = Colors.Black;
+            canvas.FillRectangle(rect);
+            if (rect.Width < 10 || rect.Height < 10)
+                return;
 
-        Camera.UpdateFrame(rect.Width, rect.Height);
-        _labels.Clear();
+            Camera.UpdateFrame(rect.Width, rect.Height);
+            _labels.Clear();
 
-        _sky.Draw(canvas, Camera, ShowConstellations, ShowStarNames);
-        if (ShowOrbits)
-            DrawOrbits(canvas);
-        DrawBodies(canvas, rect);
-        DrawLabels(canvas);
+            _sky.Draw(canvas, Camera, rect, ShowConstellations, ShowStarNames);
+            if (ShowOrbits)
+                DrawOrbits(canvas, rect);
+            DrawBodies(canvas, rect);
+            DrawLabels(canvas);
+        }
+        catch (Exception ex)
+        {
+            System.IO.File.AppendAllText(
+                System.IO.Path.Combine(System.IO.Path.GetTempPath(), "solarsystem-draw.log"),
+                $"[{DateTime.Now:HH:mm:ss}] {ex}\n\n");
+            throw;
+        }
     }
 
     // ------------------------------------------------------------------- banor
 
-    void DrawOrbits(ICanvas canvas)
+    void DrawOrbits(ICanvas canvas, RectF rect)
     {
         _orbitPaths ??= [.. SolarSystemData.Planets
             .Select(p => p.OrbitPath(OrbitSamples, UnitsPerAu))];
 
-        canvas.StrokeSize = 1f;
-        for (int i = 0; i < _orbitPaths.Length; i++)
+        // Banorna ligger stilla i världen, så deras skärmfigurer behöver bara
+        // byggas om när kameran faktiskt flyttas.
+        if (Camera.Yaw != _orbYaw || Camera.Pitch != _orbPitch ||
+            Camera.Distance != _orbDist || Camera.Target != _orbTarget ||
+            rect.Width != _orbW || rect.Height != _orbH)
         {
-            canvas.StrokeColor = SolarSystemData.Planets[i].BodyColor.WithAlpha(0.35f);
-            var pts = _orbitPaths[i];
-            var path = new PathF();
-            bool started = false;
-            for (int k = 0; k <= pts.Length; k++)
+            _orbYaw = Camera.Yaw;
+            _orbPitch = Camera.Pitch;
+            _orbDist = Camera.Distance;
+            _orbTarget = Camera.Target;
+            _orbW = rect.Width;
+            _orbH = rect.Height;
+
+            if (_orbitScreenPaths.Length != _orbitPaths.Length)
+                _orbitScreenPaths = new PathF[_orbitPaths.Length];
+
+            for (int i = 0; i < _orbitPaths.Length; i++)
             {
-                var p = pts[k % pts.Length];
-                if (Camera.Project(p, out float sx, out float sy, out _))
+                var pts = _orbitPaths[i];
+                var path = new PathF();
+                // En delfigur får bara börja när minst två punkter i rad är
+                // synliga – en ensam MoveTo utan LineTo är ogiltig i Win2D.
+                bool started = false, hasPrev = false;
+                float px = 0, py = 0;
+                for (int k = 0; k <= pts.Length; k++)
                 {
-                    if (!started) { path.MoveTo(sx, sy); started = true; }
-                    else path.LineTo(sx, sy);
+                    var p = pts[k % pts.Length];
+                    if (Camera.Project(p, out float sx, out float sy, out _))
+                    {
+                        if (hasPrev)
+                        {
+                            if (!started) { path.MoveTo(px, py); started = true; }
+                            path.LineTo(sx, sy);
+                        }
+                        hasPrev = true;
+                        px = sx;
+                        py = sy;
+                    }
+                    else
+                    {
+                        hasPrev = false;
+                        started = false;
+                    }
                 }
-                else
-                {
-                    started = false;
-                }
+                _orbitScreenPaths[i] = path;
             }
-            canvas.DrawPath(path);
+        }
+
+        canvas.StrokeSize = 1f;
+        for (int i = 0; i < _orbitScreenPaths.Length; i++)
+        {
+            canvas.StrokeColor = OrbitColors[i];
+            canvas.DrawPath(_orbitScreenPaths[i]);
         }
     }
 
@@ -119,10 +175,16 @@ public sealed class SolarSystemDrawable : IDrawable
             {
                 r = MathF.Max(r, RealScale ? 0.45f : 1.1f);
                 if (body.Name == "Saturnus")
-                    DrawSaturnRing(canvas, pos, worldR, depth, nearHalf: false);
-                DrawPlanet(canvas, body, sx, sy, r, sunX, sunY);
-                if (body.Name == "Saturnus")
-                    DrawSaturnRing(canvas, pos, worldR, depth, nearHalf: true);
+                {
+                    BuildSaturnRingPaths(pos, worldR, depth, out var farRing, out var nearRing);
+                    FillRing(canvas, farRing);
+                    DrawPlanet(canvas, body, sx, sy, r, sunX, sunY);
+                    FillRing(canvas, nearRing);
+                }
+                else
+                {
+                    DrawPlanet(canvas, body, sx, sy, r, sunX, sunY);
+                }
                 _labels.Add((body.Name, sx, sy + r + 6));
             }
         }
@@ -196,12 +258,27 @@ public sealed class SolarSystemDrawable : IDrawable
         canvas.FillCircle(x, y, r);
     }
 
-    /// <summary>
-    /// Saturnus ringar som ett band i planetens ekvatorsplan. Ritas i två halvor:
-    /// den bortre bakom planeten och den främre framför.
-    /// </summary>
-    void DrawSaturnRing(ICanvas canvas, Vector3 center, float worldR, float planetDepth, bool nearHalf)
+    static readonly Color RingColor = Color.FromRgba(0.85f, 0.78f, 0.60f, 0.55f);
+
+    static void FillRing(ICanvas canvas, PathF? ring)
     {
+        if (ring is null)
+            return;
+        canvas.FillColor = RingColor;
+        canvas.FillPath(ring);
+    }
+
+    /// <summary>
+    /// Saturnus ringar som ett band i planetens ekvatorsplan, uppdelat i två
+    /// figurer: den bortre halvan (ritas bakom planeten) och den främre (ritas
+    /// framför). Segmenten samlas i två banor så att hela ringen fylls med två
+    /// anrop i stället för ett per segment.
+    /// </summary>
+    void BuildSaturnRingPaths(Vector3 center, float worldR, float planetDepth,
+        out PathF? farRing, out PathF? nearRing)
+    {
+        farRing = nearRing = null;
+
         float inner = worldR * 1.24f;
         float outer = worldR * 2.27f;
         if (Camera.ScreenRadius(outer, planetDepth) < 3f)
@@ -213,8 +290,6 @@ public sealed class SolarSystemDrawable : IDrawable
         var v = Vector3.Cross(normal, u);
 
         const int segments = 72;
-        canvas.FillColor = Color.FromRgba(0.85f, 0.78f, 0.60f, 0.55f);
-
         for (int i = 0; i < segments; i++)
         {
             float a0 = i * MathF.PI * 2f / segments;
@@ -234,16 +309,15 @@ public sealed class SolarSystemDrawable : IDrawable
                 continue;
 
             float segDepth = (z00 + z01 + z11 + z10) * 0.25f;
-            if ((segDepth < planetDepth) != nearHalf)
-                continue;
+            var path = segDepth < planetDepth
+                ? nearRing ??= new PathF()
+                : farRing ??= new PathF();
 
-            var path = new PathF();
             path.MoveTo(x00, y00);
             path.LineTo(x01, y01);
             path.LineTo(x11, y11);
             path.LineTo(x10, y10);
             path.Close();
-            canvas.FillPath(path);
         }
     }
 
@@ -254,6 +328,9 @@ public sealed class SolarSystemDrawable : IDrawable
     /// på långt håll) staplas etiketterna nedåt i stället för att skriva över
     /// varandra, och den som flyttats får en tunn streckad linje till sin planet.
     /// </summary>
+    static readonly Color LabelShadowColor = Colors.Black.WithAlpha(0.8f);
+    static readonly Color LabelLineColor = Colors.White.WithAlpha(0.28f);
+
     void DrawLabels(ICanvas canvas)
     {
         const float lineHeight = 16f;
@@ -282,11 +359,11 @@ public sealed class SolarSystemDrawable : IDrawable
             if (y - anchorY > 2f)
             {
                 canvas.StrokeSize = 1f;
-                canvas.StrokeColor = Colors.White.WithAlpha(0.28f);
+                canvas.StrokeColor = LabelLineColor;
                 canvas.DrawLine(x, anchorY - 5, x, y + 1);
             }
 
-            canvas.FontColor = Colors.Black.WithAlpha(0.8f);
+            canvas.FontColor = LabelShadowColor;
             canvas.DrawString(name, x + 1, y + 13, HorizontalAlignment.Center);
             canvas.FontColor = Colors.White;
             canvas.DrawString(name, x, y + 12, HorizontalAlignment.Center);

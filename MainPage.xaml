@@ -64,6 +64,14 @@
             <CheckBox x:Name="StarNamesCheck" IsChecked="False" CheckedChanged="OnStarNamesChanged" Color="#6FA8DC" />
             <Label Text="Stjärnnamn" TextColor="#C8D4E0" Margin="0,0,16,0" />
 
+            <Label Text="Stjärnor:" TextColor="#C8D4E0" Margin="0,0,6,0" />
+            <Picker x:Name="StarDensityPicker"
+                    TextColor="White"
+                    BackgroundColor="#1C2430"
+                    WidthRequest="110"
+                    SelectedIndexChanged="OnStarDensityChanged"
+                    Margin="0,0,16,0" />
+
             <Label Text="Fokus:" TextColor="#C8D4E0" Margin="0,0,6,0" />
             <Picker x:Name="FocusPicker"
                     TextColor="White"

@@ -23,16 +23,25 @@ public partial class MainPage : ContentPage
     double _panLastX, _panLastY;
     int _focusIndex;                       // 0 = solen, 1.. = planeter
 
+    // Senast ritade tillstånd – när inget ändrats hoppas omritningen över helt.
+    float _drawnYaw = float.NaN, _drawnPitch, _drawnDist;
+    Vector3 _drawnTarget;
+    double _drawnSimDays = double.NaN;
+
     public MainPage()
     {
         InitializeComponent();
 
         SpaceView.Drawable = _drawable;
+        SpaceView.SizeChanged += (_, _) => _settingsChanged = true;
 
         var names = new List<string> { "Solen" };
         names.AddRange(SolarSystemData.Planets.Select(p => p.Name));
         FocusPicker.ItemsSource = names;
         FocusPicker.SelectedIndex = 0;
+
+        StarDensityPicker.ItemsSource = new List<string> { "Få", "Normalt", "Många" };
+        StarDensityPicker.SelectedIndex = (int)_drawable.StarDensity;
 
         UpdateSpeedFromSlider();
         Loaded += OnPageLoaded;
@@ -45,8 +54,9 @@ public partial class MainPage : ContentPage
 
         HookPlatformInput();
 
+        // 30 bildrutor/sekund räcker gott och halverar CPU-lasten mot 60.
         _timer = Dispatcher.CreateTimer();
-        _timer.Interval = TimeSpan.FromMilliseconds(16);
+        _timer.Interval = TimeSpan.FromMilliseconds(33);
         _timer.Tick += OnTick;
         _lastSeconds = _clock.Elapsed.TotalSeconds;
         _timer.Start();
@@ -76,8 +86,24 @@ public partial class MainPage : ContentPage
         DateLabel.Text = simDate.ToString("dddd d MMMM yyyy, HH:mm", Swedish);
         ElapsedLabel.Text = FormatElapsed(_simDays);
 
-        SpaceView.Invalidate();
+        // Rita bara om när något faktiskt har ändrats (tiden gått framåt eller
+        // kameran flyttats). Pausad och stillastående vy kostar då nästan inget.
+        var cam = _drawable.Camera;
+        if (_simDays != _drawnSimDays || cam.Yaw != _drawnYaw ||
+            cam.Pitch != _drawnPitch || cam.Distance != _drawnDist ||
+            cam.Target != _drawnTarget || _settingsChanged)
+        {
+            _drawnSimDays = _simDays;
+            _drawnYaw = cam.Yaw;
+            _drawnPitch = cam.Pitch;
+            _drawnDist = cam.Distance;
+            _drawnTarget = cam.Target;
+            _settingsChanged = false;
+            SpaceView.Invalidate();
+        }
     }
+
+    bool _settingsChanged = true;
 
     static string FormatElapsed(double days)
     {
@@ -116,17 +142,35 @@ public partial class MainPage : ContentPage
         _ => string.Create(Swedish, $"{dps / 365.25:0.##} år/sek"),
     };
 
-    void OnOrbitsChanged(object? sender, CheckedChangedEventArgs e) =>
+    void OnOrbitsChanged(object? sender, CheckedChangedEventArgs e)
+    {
         _drawable.ShowOrbits = e.Value;
+        _settingsChanged = true;
+    }
 
-    void OnRealScaleChanged(object? sender, CheckedChangedEventArgs e) =>
+    void OnRealScaleChanged(object? sender, CheckedChangedEventArgs e)
+    {
         _drawable.RealScale = e.Value;
+        _settingsChanged = true;
+    }
 
-    void OnConstellationsChanged(object? sender, CheckedChangedEventArgs e) =>
+    void OnConstellationsChanged(object? sender, CheckedChangedEventArgs e)
+    {
         _drawable.ShowConstellations = e.Value;
+        _settingsChanged = true;
+    }
 
-    void OnStarNamesChanged(object? sender, CheckedChangedEventArgs e) =>
+    void OnStarNamesChanged(object? sender, CheckedChangedEventArgs e)
+    {
         _drawable.ShowStarNames = e.Value;
+        _settingsChanged = true;
+    }
+
+    void OnStarDensityChanged(object? sender, EventArgs e)
+    {
+        _drawable.StarDensity = (StarDensity)Math.Max(0, StarDensityPicker.SelectedIndex);
+        _settingsChanged = true;
+    }
 
     void OnFocusChanged(object? sender, EventArgs e)
     {

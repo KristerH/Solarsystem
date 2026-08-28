@@ -3,11 +3,26 @@ using Solarsystem.Simulation;
 
 namespace Solarsystem.Rendering;
 
+/// <summary>Hur många stjärnor som ritas – en inställning i appen.</summary>
+public enum StarDensity
+{
+    /// <summary>Endast katalogens riktiga, namngivna stjärnor.</summary>
+    Low = 0,
+    /// <summary>Riktiga stjärnor plus ett måttligt bakgrundsbrus och Vintergatan.</summary>
+    Medium = 1,
+    /// <summary>Full stjärnhimmel.</summary>
+    High = 2,
+}
+
 /// <summary>
-/// Stjärnhimlen: verkliga stjärnor ur katalogen, ett svagare bakgrundsbrus av
-/// ljussvaga stjärnor och Vintergatans band längs det galaktiska planet.
-/// Allt ritas "på oändligt avstånd", så himlen står stilla när kameran flyttas
-/// mellan planeterna – precis som i verkligheten.
+/// Stjärnhimlen: verkliga stjärnor ur katalogen, ett svagare bakgrundsbrus och
+/// Vintergatans band längs det galaktiska planet.
+///
+/// Prestanda: himlen ligger "på oändligt avstånd", så skärmpositionerna beror
+/// bara på kamerans riktning och vyns storlek – inte på zoom, panorering mot
+/// mål eller planeternas rörelse. Alla positioner cachas därför och räknas om
+/// först när riktningen faktiskt ändras. Alla färger är förberäknade och allt
+/// som hamnar utanför skärmen hoppas över.
 /// </summary>
 public sealed class StarSky
 {
@@ -18,29 +33,50 @@ public sealed class StarSky
     /// </summary>
     const double NameMagnitudeLimit = 2.10;
 
-    readonly record struct RenderStar(Vector3 Dir, Color Color, float Radius, bool Glow, string? Name);
-    readonly record struct FaintStar(Vector3 Dir, float Radius, float Alpha);
-    readonly record struct MilkyBlob(Vector3 Dir, float Radius, float Alpha);
+    /// <summary>Marginal utanför skärmkanten innan något kastas bort.</summary>
+    const float Margin = 80f;
 
-    readonly RenderStar[] _stars;
-    readonly FaintStar[] _faint;
-    readonly MilkyBlob[] _milkyWay;
+    readonly record struct CatalogEntry(
+        Vector3 Dir, Color Color, Color GlowColor, float Radius, bool Glow, string? Name);
+    readonly record struct PointEntry(Vector3 Dir, Color Color, float Radius);
+    readonly record struct BlobEntry(Vector3 Dir, Color Color, float WorldRadius);
+
+    readonly CatalogEntry[] _catalog;
+    readonly PointEntry[] _uniform;   // jämnt spridda svaga stjärnor
+    readonly PointEntry[] _band;      // svaga stjärnor längs Vintergatan
+    readonly BlobEntry[] _blobs;      // Vintergatans mjuka glöd
     readonly (Vector3 A, Vector3 B)[] _lines;
     readonly (string Name, Vector3 Dir)[] _constellationLabels;
 
-    static readonly RadialGradientPaint MilkyPaint = new(
-    [
-        new PaintGradientStop(0f, Color.FromRgba(0.74f, 0.78f, 0.92f, 0.055f)),
-        new PaintGradientStop(0.55f, Color.FromRgba(0.66f, 0.70f, 0.90f, 0.022f)),
-        new PaintGradientStop(1f, Colors.Transparent),
-    ])
-    { Center = new Point(0.5, 0.5), Radius = 0.5 };
+    public StarDensity Density { get; set; } = StarDensity.Medium;
+
+    // ---------------- positionscache (ogiltig först när kameran roteras) ----
+    float _sigYaw = float.NaN, _sigPitch, _sigFocal, _sigW, _sigH;
+    readonly PointF[] _catalogPos;
+    readonly bool[] _catalogVis;
+    readonly PointF[] _uniformPos;
+    readonly bool[] _uniformVis;
+    readonly PointF[] _bandPos;
+    readonly bool[] _bandVis;
+    readonly PointF[] _blobPos;
+    readonly bool[] _blobVis;
+    readonly float[] _blobRadius;
+    readonly PointF[] _labelPos;
+    readonly bool[] _labelVis;
+    PathF _linesPath = new();
+    bool _linesAny;
+
+    static readonly Color LineColor = Color.FromRgba(0.45f, 0.65f, 0.95f, 0.30f);
+    static readonly Color ConstellationLabelColor = Color.FromRgba(0.45f, 0.62f, 0.85f, 0.65f);
+    static readonly Color StarNameColor = Color.FromRgba(0.80f, 0.86f, 0.95f, 0.75f);
 
     public StarSky()
     {
-        _stars = [.. StarCatalog.Stars.Select(ToRenderStar)];
-        _faint = CreateFaintStars();
-        _milkyWay = CreateMilkyWay();
+        _catalog = [.. StarCatalog.Stars
+            .OrderBy(s => s.Magnitude)
+            .Select(ToCatalogEntry)];
+        (_uniform, _band) = CreateFaintStars();
+        _blobs = CreateMilkyWay();
 
         var byId = StarCatalog.Stars.ToDictionary(s => s.Id);
         _lines = [.. StarCatalog.Constellations
@@ -55,102 +91,219 @@ public sealed class StarSky
                 .Aggregate(Vector3.Zero, (acc, id) => acc + byId[id].Direction);
             return (c.Name, Vector3.Normalize(sum));
         })];
+
+        _catalogPos = new PointF[_catalog.Length];
+        _catalogVis = new bool[_catalog.Length];
+        _uniformPos = new PointF[_uniform.Length];
+        _uniformVis = new bool[_uniform.Length];
+        _bandPos = new PointF[_band.Length];
+        _bandVis = new bool[_band.Length];
+        _blobPos = new PointF[_blobs.Length];
+        _blobVis = new bool[_blobs.Length];
+        _blobRadius = new float[_blobs.Length];
+        _labelPos = new PointF[_constellationLabels.Length];
+        _labelVis = new bool[_constellationLabels.Length];
     }
 
-    public void Draw(ICanvas canvas, OrbitCamera camera, bool showConstellations, bool showStarNames)
+    public void Draw(ICanvas canvas, OrbitCamera camera, RectF rect,
+        bool showConstellations, bool showStarNames)
     {
-        DrawMilkyWay(canvas, camera);
+        RefreshCache(camera, rect);
 
-        foreach (var (dir, radius, alpha) in _faint)
+        (int uniformCount, int bandCount, int blobCount) = Density switch
         {
-            if (!camera.ProjectDirection(dir, out float x, out float y))
+            StarDensity.Low => (0, 0, 0),
+            StarDensity.High => (_uniform.Length, _band.Length, _blobs.Length),
+            _ => (Math.Min(900, _uniform.Length), Math.Min(800, _band.Length),
+                  Math.Min(40, _blobs.Length)),
+        };
+
+        // Vintergatans glöd (längst bak). Tre koncentriska, mycket svaga cirklar
+        // per fläck ger en mjuk avtoning utan dyra gradientpenslar.
+        for (int i = 0; i < blobCount; i++)
+        {
+            if (!_blobVis[i])
                 continue;
-            canvas.FillColor = Colors.White.WithAlpha(alpha);
-            canvas.FillCircle(x, y, radius);
+            float x = _blobPos[i].X, y = _blobPos[i].Y, r = _blobRadius[i];
+            canvas.FillColor = _blobs[i].Color;
+            canvas.FillCircle(x, y, r);
+            canvas.FillCircle(x, y, r * 0.68f);
+            canvas.FillCircle(x, y, r * 0.42f);
+        }
+
+        // Svaga bakgrundsstjärnor.
+        for (int i = 0; i < uniformCount; i++)
+        {
+            if (!_uniformVis[i])
+                continue;
+            canvas.FillColor = _uniform[i].Color;
+            canvas.FillCircle(_uniformPos[i].X, _uniformPos[i].Y, _uniform[i].Radius);
+        }
+        for (int i = 0; i < bandCount; i++)
+        {
+            if (!_bandVis[i])
+                continue;
+            canvas.FillColor = _band[i].Color;
+            canvas.FillCircle(_bandPos[i].X, _bandPos[i].Y, _band[i].Radius);
         }
 
         if (showConstellations)
-            DrawConstellations(canvas, camera);
-
-        foreach (var star in _stars)
         {
-            if (!camera.ProjectDirection(star.Dir, out float x, out float y))
-                continue;
+            if (_linesAny)
+            {
+                canvas.StrokeSize = 1f;
+                canvas.StrokeColor = LineColor;
+                canvas.DrawPath(_linesPath);
+            }
+            canvas.FontSize = 11f;
+            canvas.FontColor = ConstellationLabelColor;
+            for (int i = 0; i < _constellationLabels.Length; i++)
+            {
+                if (_labelVis[i])
+                    canvas.DrawString(_constellationLabels[i].Name,
+                        _labelPos[i].X, _labelPos[i].Y, HorizontalAlignment.Center);
+            }
+        }
 
+        // Katalogens riktiga stjärnor (alltid alla – de är få och billiga).
+        for (int i = 0; i < _catalog.Length; i++)
+        {
+            if (!_catalogVis[i])
+                continue;
+            var star = _catalog[i];
+            var p = _catalogPos[i];
             if (star.Glow)
             {
-                canvas.FillColor = star.Color.WithAlpha(0.16f);
-                canvas.FillCircle(x, y, star.Radius * 2.6f);
+                canvas.FillColor = star.GlowColor;
+                canvas.FillCircle(p.X, p.Y, star.Radius * 2.6f);
             }
             canvas.FillColor = star.Color;
-            canvas.FillCircle(x, y, star.Radius);
+            canvas.FillCircle(p.X, p.Y, star.Radius);
         }
 
         if (showStarNames)
-            DrawStarNames(canvas, camera);
-    }
-
-    // ------------------------------------------------------------- Vintergatan
-
-    void DrawMilkyWay(ICanvas canvas, OrbitCamera camera)
-    {
-        foreach (var (dir, radius, alpha) in _milkyWay)
         {
-            if (!camera.ProjectDirection(dir, out float x, out float y))
-                continue;
-            // Blobbarnas storlek följer projektionen så att bandet håller ihop.
-            float r = camera.ScreenRadius(radius, 1f);
-            canvas.Alpha = alpha;
-            canvas.SetFillPaint(MilkyPaint, new RectF(x - r, y - r, r * 2, r * 2));
-            canvas.FillCircle(x, y, r);
+            canvas.FontSize = 11f;
+            canvas.FontColor = StarNameColor;
+            for (int i = 0; i < _catalog.Length; i++)
+            {
+                if (_catalogVis[i] && _catalog[i].Name is string name)
+                    canvas.DrawString(name,
+                        _catalogPos[i].X + 7, _catalogPos[i].Y + 4, HorizontalAlignment.Left);
+            }
         }
-        canvas.Alpha = 1f;
     }
 
-    static MilkyBlob[] CreateMilkyWay()
-    {
-        var rnd = new Random(7);
-        var (u, v, pole) = GalacticBasis();
-        var blobs = new List<MilkyBlob>(260);
+    // --------------------------------------------------------------- cachning
 
-        for (int i = 0; i < 260; i++)
+    void RefreshCache(OrbitCamera camera, RectF rect)
+    {
+        if (camera.Yaw == _sigYaw && camera.Pitch == _sigPitch &&
+            camera.Focal == _sigFocal && rect.Width == _sigW && rect.Height == _sigH)
+            return;
+
+        _sigYaw = camera.Yaw;
+        _sigPitch = camera.Pitch;
+        _sigFocal = camera.Focal;
+        _sigW = rect.Width;
+        _sigH = rect.Height;
+
+        float maxX = rect.Width + Margin;
+        float maxY = rect.Height + Margin;
+
+        for (int i = 0; i < _catalog.Length; i++)
         {
-            double lon = rnd.NextDouble() * Math.PI * 2;
-            float offset = Gauss(rnd) * 0.075f;
-            var dir = Vector3.Normalize(
-                u * (float)Math.Cos(lon) + v * (float)Math.Sin(lon) + pole * offset);
-
-            // Bandet är ljusast mot galaktiska centrum (longitud 0) och tunnas
-            // ut mot ytterkanterna, så att det blir ett band och inte moln.
-            float towardCenter = (float)((Math.Cos(lon) + 1.0) * 0.5);
-            float alpha = (0.30f + towardCenter * 0.70f) * MathF.Exp(-offset * offset * 45f);
-            blobs.Add(new MilkyBlob(dir, 0.045f + (float)rnd.NextDouble() * 0.045f, alpha));
+            _catalogVis[i] = ProjectVisible(camera, _catalog[i].Dir, maxX, maxY, out var p);
+            _catalogPos[i] = p;
         }
-        return [.. blobs];
+        for (int i = 0; i < _uniform.Length; i++)
+        {
+            _uniformVis[i] = ProjectVisible(camera, _uniform[i].Dir, maxX, maxY, out var p);
+            _uniformPos[i] = p;
+        }
+        for (int i = 0; i < _band.Length; i++)
+        {
+            _bandVis[i] = ProjectVisible(camera, _band[i].Dir, maxX, maxY, out var p);
+            _bandPos[i] = p;
+        }
+        for (int i = 0; i < _blobs.Length; i++)
+        {
+            float r = _blobs[i].WorldRadius * camera.Focal;
+            _blobRadius[i] = r;
+            bool ok = camera.ProjectDirection(_blobs[i].Dir, out float x, out float y);
+            _blobVis[i] = ok && x > -Margin - r && x < maxX + r && y > -Margin - r && y < maxY + r;
+            _blobPos[i] = new PointF(x, y);
+        }
+        for (int i = 0; i < _constellationLabels.Length; i++)
+        {
+            _labelVis[i] = ProjectVisible(camera, _constellationLabels[i].Dir, maxX, maxY, out var p);
+            _labelPos[i] = p;
+        }
+
+        RebuildLinesPath(camera, maxX, maxY);
     }
 
-    /// <summary>Ortogonal bas där u pekar mot galaktiska centrum och pole mot galaktiska nordpolen.</summary>
-    static (Vector3 U, Vector3 V, Vector3 Pole) GalacticBasis()
+    static bool ProjectVisible(OrbitCamera camera, Vector3 dir, float maxX, float maxY, out PointF p)
     {
-        var pole = StarCatalog.GalacticNorthPole;
-        var center = StarCatalog.GalacticCenter;
-        var u = Vector3.Normalize(center - pole * Vector3.Dot(center, pole));
-        return (u, Vector3.Cross(pole, u), pole);
+        bool ok = camera.ProjectDirection(dir, out float x, out float y);
+        p = new PointF(x, y);
+        return ok && x > -Margin && x < maxX && y > -Margin && y < maxY;
     }
 
-    // ---------------------------------------------------------- katalogstjärnor
+    /// <summary>
+    /// Bygger alla stjärnbildslinjer som en enda figur. Varje linje delas upp i
+    /// steg så att långa linjer följer himmelssfären i stället för att skära
+    /// rakt igenom den.
+    /// </summary>
+    void RebuildLinesPath(OrbitCamera camera, float maxX, float maxY)
+    {
+        const int steps = 8;
+        var path = new PathF();
+        _linesAny = false;
 
-    static RenderStar ToRenderStar(Star s)
+        foreach (var (a, b) in _lines)
+        {
+            // En delfigur får bara börja när minst två punkter i rad är synliga –
+            // en ensam MoveTo utan efterföljande LineTo är ogiltig i Win2D.
+            bool started = false, hasPrev = false;
+            float px = 0, py = 0;
+            for (int i = 0; i <= steps; i++)
+            {
+                var dir = Vector3.Normalize(Vector3.Lerp(a, b, i / (float)steps));
+                if (camera.ProjectDirection(dir, out float x, out float y) &&
+                    x > -Margin && x < maxX && y > -Margin && y < maxY)
+                {
+                    if (hasPrev)
+                    {
+                        if (!started) { path.MoveTo(px, py); started = true; }
+                        path.LineTo(x, y);
+                        _linesAny = true;
+                    }
+                    hasPrev = true;
+                    px = x;
+                    py = y;
+                }
+                else
+                {
+                    hasPrev = false;
+                    started = false;
+                }
+            }
+        }
+        _linesPath = path;
+    }
+
+    // ---------------------------------------------------------- uppbyggnad
+
+    static CatalogEntry ToCatalogEntry(Star s)
     {
         // Ljusstarka stjärnor ritas större; skalan är komprimerad så att
         // Sirius inte blir en skiva medan magnitud 4 fortfarande syns.
         float radius = Math.Clamp((float)(2.6 - s.Magnitude * 0.42), 0.7f, 3.4f);
-        return new RenderStar(
-            s.Direction,
-            ColorFromColorIndex(s.ColorIndex, s.Magnitude),
-            radius,
-            Glow: s.Magnitude < 1.6,
-            s.ProperName);
+        var color = ColorFromColorIndex(s.ColorIndex, s.Magnitude);
+        string? name = s.Magnitude <= NameMagnitudeLimit ? s.ProperName : null;
+        return new CatalogEntry(s.Direction, color, color.WithAlpha(0.16f),
+            radius, Glow: s.Magnitude < 1.6, name);
     }
 
     /// <summary>
@@ -180,36 +333,70 @@ public sealed class StarSky
         return color.WithAlpha(alpha);
     }
 
-    // ------------------------------------------------------------ bakgrundsbrus
-
-    static FaintStar[] CreateFaintStars()
+    static (PointEntry[] Uniform, PointEntry[] Band) CreateFaintStars()
     {
         var rnd = new Random(42);
         var (u, v, pole) = GalacticBasis();
-        var list = new List<FaintStar>(2400);
 
-        // Jämnt spridda ljussvaga stjärnor över hela himlen.
-        for (int i = 0; i < 1500; i++)
+        var uniform = new PointEntry[1500];
+        for (int i = 0; i < uniform.Length; i++)
         {
-            list.Add(new FaintStar(
+            uniform[i] = new PointEntry(
                 RandomDirection(rnd),
-                0.4f + (float)rnd.NextDouble() * 0.6f,
-                0.12f + (float)rnd.NextDouble() * 0.38f));
+                Colors.White.WithAlpha(0.12f + (float)rnd.NextDouble() * 0.38f),
+                0.4f + (float)rnd.NextDouble() * 0.6f);
         }
 
         // Extra täthet längs det galaktiska planet – där ligger de flesta stjärnorna.
-        for (int i = 0; i < 1900; i++)
+        var band = new PointEntry[1900];
+        for (int i = 0; i < band.Length; i++)
         {
             double lon = rnd.NextDouble() * Math.PI * 2;
             float offset = Gauss(rnd) * 0.07f;
             var dir = Vector3.Normalize(
                 u * (float)Math.Cos(lon) + v * (float)Math.Sin(lon) + pole * offset);
-            list.Add(new FaintStar(
+            band[i] = new PointEntry(
                 dir,
-                0.35f + (float)rnd.NextDouble() * 0.5f,
-                0.10f + (float)rnd.NextDouble() * 0.32f));
+                Colors.White.WithAlpha(0.10f + (float)rnd.NextDouble() * 0.32f),
+                0.35f + (float)rnd.NextDouble() * 0.5f);
         }
-        return [.. list];
+        return (uniform, band);
+    }
+
+    static BlobEntry[] CreateMilkyWay()
+    {
+        var rnd = new Random(7);
+        var (u, v, pole) = GalacticBasis();
+        var blobs = new BlobEntry[80];
+
+        for (int i = 0; i < blobs.Length; i++)
+        {
+            double lon = rnd.NextDouble() * Math.PI * 2;
+            float offset = Gauss(rnd) * 0.075f;
+            var dir = Vector3.Normalize(
+                u * (float)Math.Cos(lon) + v * (float)Math.Sin(lon) + pole * offset);
+
+            // Bandet är ljusast mot galaktiska centrum (longitud 0) och tunnas
+            // ut mot kanterna. Mjukheten kommer av att många mycket svaga
+            // cirklar överlappar – inga gradienter behövs.
+            float towardCenter = (float)((Math.Cos(lon) + 1.0) * 0.5);
+            float alpha = (0.010f + towardCenter * 0.014f) *
+                          MathF.Exp(-offset * offset * 45f);
+            blobs[i] = new BlobEntry(
+                dir,
+                Color.FromRgba(0.72f, 0.76f, 0.92f, MathF.Max(alpha, 0.004f)),
+                0.05f + (float)rnd.NextDouble() * 0.05f);
+        }
+        return blobs;
+    }
+
+    /// <summary>Ortogonal bas där u pekar mot galaktiska centrum och pole mot galaktiska nordpolen.</summary>
+    static (Vector3 U, Vector3 V, Vector3 Pole) GalacticBasis()
+    {
+        var pole = StarCatalog.GalacticNorthPole;
+        var center = StarCatalog.GalacticCenter;
+        var u = Vector3.Normalize(center - pole * Vector3.Dot(center, pole));
+        return (u, Vector3.Cross(pole, u), pole);
     }
 
     static Vector3 RandomDirection(Random rnd)
@@ -223,63 +410,4 @@ public sealed class StarSky
     static float Gauss(Random rnd) =>
         (float)(Math.Sqrt(-2.0 * Math.Log(1 - rnd.NextDouble())) *
                 Math.Cos(2.0 * Math.PI * rnd.NextDouble()));
-
-    // -------------------------------------------------------------- stjärnbilder
-
-    void DrawConstellations(ICanvas canvas, OrbitCamera camera)
-    {
-        canvas.StrokeSize = 1f;
-        canvas.StrokeColor = Color.FromRgba(0.45f, 0.65f, 0.95f, 0.30f);
-
-        foreach (var (a, b) in _lines)
-            DrawGreatCircleSegment(canvas, camera, a, b);
-
-        canvas.FontSize = 11f;
-        canvas.FontColor = Color.FromRgba(0.45f, 0.62f, 0.85f, 0.65f);
-        foreach (var (name, dir) in _constellationLabels)
-        {
-            if (camera.ProjectDirection(dir, out float x, out float y))
-                canvas.DrawString(name, x, y, HorizontalAlignment.Center);
-        }
-    }
-
-    /// <summary>
-    /// Ritar en linje mellan två himmelsriktningar. Bågen delas upp i steg så att
-    /// långa linjer följer himmelssfären i stället för att skära rakt igenom den.
-    /// </summary>
-    static void DrawGreatCircleSegment(ICanvas canvas, OrbitCamera camera, Vector3 a, Vector3 b)
-    {
-        const int steps = 8;
-        float px = 0, py = 0;
-        bool hasPrev = false;
-
-        for (int i = 0; i <= steps; i++)
-        {
-            var dir = Vector3.Normalize(Vector3.Lerp(a, b, i / (float)steps));
-            if (camera.ProjectDirection(dir, out float x, out float y))
-            {
-                if (hasPrev)
-                    canvas.DrawLine(px, py, x, y);
-                px = x; py = y; hasPrev = true;
-            }
-            else
-            {
-                hasPrev = false;
-            }
-        }
-    }
-
-    void DrawStarNames(ICanvas canvas, OrbitCamera camera)
-    {
-        canvas.FontSize = 11f;
-        canvas.FontColor = Color.FromRgba(0.80f, 0.86f, 0.95f, 0.75f);
-
-        foreach (var star in StarCatalog.Stars)
-        {
-            if (star.ProperName is null || star.Magnitude > NameMagnitudeLimit)
-                continue;
-            if (camera.ProjectDirection(star.Direction, out float x, out float y))
-                canvas.DrawString(star.ProperName, x + 7, y + 4, HorizontalAlignment.Left);
-        }
-    }
 }
