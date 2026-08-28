@@ -28,6 +28,13 @@ public sealed class SolarSystemDrawable : IDrawable
     public bool ShowConstellations { get; set; } = true;
     public bool ShowStarNames { get; set; }
 
+    /// <summary>
+    /// Sant medan fönstret håller på att ändra storlek. Då ritas bara svart –
+    /// plattformen ritar om vid varje storlekssteg, och att projicera om hela
+    /// scenen för varje sådant steg är det som annars fryser fönsterhanteraren.
+    /// </summary>
+    public bool Suspended { get; set; }
+
     /// <summary>Hur många stjärnor som ritas (inställning i appen).</summary>
     public StarDensity StarDensity
     {
@@ -52,7 +59,9 @@ public sealed class SolarSystemDrawable : IDrawable
         {
             canvas.FillColor = Colors.Black;
             canvas.FillRectangle(rect);
-            if (rect.Width < 10 || rect.Height < 10)
+            // Negerad jämförelse så att även NaN-mått (mitt under en pågående
+            // storleksändring) stoppas här.
+            if (Suspended || !(rect.Width >= 10 && rect.Height >= 10))
                 return;
 
             Camera.UpdateFrame(rect.Width, rect.Height);
@@ -62,7 +71,7 @@ public sealed class SolarSystemDrawable : IDrawable
             if (ShowOrbits)
                 DrawOrbits(canvas, rect);
             DrawBodies(canvas, rect);
-            DrawLabels(canvas);
+            DrawLabels(canvas, rect);
         }
         catch (Exception ex)
         {
@@ -331,7 +340,7 @@ public sealed class SolarSystemDrawable : IDrawable
     static readonly Color LabelShadowColor = Colors.Black.WithAlpha(0.8f);
     static readonly Color LabelLineColor = Colors.White.WithAlpha(0.28f);
 
-    void DrawLabels(ICanvas canvas)
+    void DrawLabels(ICanvas canvas, RectF rect)
     {
         const float lineHeight = 16f;
         const float minSeparation = 70f;
@@ -341,18 +350,28 @@ public sealed class SolarSystemDrawable : IDrawable
 
         foreach (var (name, x, anchorY) in _labels.OrderBy(l => l.Y))
         {
+            // Etiketter långt utanför skärmen behöver varken staplas eller ritas.
+            if (!(x > -200 && x < rect.Width + 200 && anchorY > -200 && anchorY < rect.Height + 200))
+                continue;
+
             float y = anchorY;
-            for (bool moved = true; moved;)
+            // Hårt tak på antalet omflyttningsvarv: varje varv ska flytta
+            // etiketten strikt nedåt, men flyttalsavrundning i extremfall får
+            // aldrig kunna låsa UI-tråden i en evig loop igen.
+            for (int pass = 0; pass < 16; pass++)
             {
-                moved = false;
+                bool moved = false;
                 foreach (var (px, py) in placed)
                 {
-                    if (Math.Abs(px - x) < minSeparation && Math.Abs(py - y) < lineHeight)
+                    if (Math.Abs(px - x) < minSeparation && Math.Abs(py - y) < lineHeight &&
+                        py + lineHeight > y)
                     {
                         y = py + lineHeight;
                         moved = true;
                     }
                 }
+                if (!moved)
+                    break;
             }
             placed.Add((x, y));
 

@@ -27,13 +27,23 @@ public partial class MainPage : ContentPage
     float _drawnYaw = float.NaN, _drawnPitch, _drawnDist;
     Vector3 _drawnTarget;
     double _drawnSimDays = double.NaN;
+    double _resizeQuietUntil;              // klocktid då renderingen får vakna igen
 
     public MainPage()
     {
         InitializeComponent();
 
         SpaceView.Drawable = _drawable;
-        SpaceView.SizeChanged += (_, _) => _settingsChanged = true;
+
+        // Pausa renderingen medan fönstret ändrar storlek. Varje storlekssteg
+        // hade annars tvingat fram ombyggda cachar och en full omritning, i takt
+        // med att fönsterhanteraren väntar – det var det som frös hela systemet.
+        // 300 ms efter sista steget vaknar renderingen och räknar om allt en gång.
+        SpaceView.SizeChanged += (_, _) =>
+        {
+            _drawable.Suspended = true;
+            _resizeQuietUntil = _clock.Elapsed.TotalSeconds + 0.3;
+        };
 
         var names = new List<string> { "Solen" };
         names.AddRange(SolarSystemData.Planets.Select(p => p.Name));
@@ -69,6 +79,14 @@ public partial class MainPage : ContentPage
         double now = _clock.Elapsed.TotalSeconds;
         double dt = now - _lastSeconds;
         _lastSeconds = now;
+
+        if (_drawable.Suspended)
+        {
+            if (now < _resizeQuietUntil)
+                return; // storleksändring pågår – varken simulera eller rita
+            _drawable.Suspended = false;
+            _settingsChanged = true;
+        }
 
         if (_running)
             _simDays += dt * _daysPerSecond;

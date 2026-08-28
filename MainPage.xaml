@@ -28,62 +28,71 @@
                    Text="Dra med musen = rotera &#8226; Skrollhjul = zooma &#8226; Piltangenter = rotera &#8226; W/S = zooma &#8226; Mellanslag = starta/pausa &#8226; R = återställ vyn" />
         </VerticalStackLayout>
 
-        <!-- Kontrollpanel -->
-        <FlexLayout Grid.Row="1"
-                    BackgroundColor="#12161C"
-                    Padding="12,8"
-                    Wrap="Wrap"
-                    AlignItems="Center"
-                    JustifyContent="Start">
+        <!-- Kontrollpanel. Två fasta rader i en horisontell ScrollView i stället
+             för FlexLayout med Wrap – FlexLayout kan hamna i en oändlig
+             mätloop när fönsterbredden ändras, vilket frös hela appen. -->
+        <ScrollView Grid.Row="1"
+                    Orientation="Horizontal"
+                    HorizontalScrollBarVisibility="Never"
+                    VerticalScrollBarVisibility="Never"
+                    BackgroundColor="#12161C">
+            <VerticalStackLayout Padding="12,8" Spacing="6">
 
-            <Button x:Name="StartStopButton"
-                    Text="&#9208; Pausa"
-                    Clicked="OnStartStopClicked"
-                    BackgroundColor="#2E4A66"
-                    TextColor="White"
-                    Margin="0,0,16,0"
-                    WidthRequest="120" />
+                <HorizontalStackLayout Spacing="6">
+                    <Button x:Name="StartStopButton"
+                            Text="&#9208; Pausa"
+                            Clicked="OnStartStopClicked"
+                            BackgroundColor="#2E4A66"
+                            TextColor="White"
+                            Margin="0,0,10,0"
+                            WidthRequest="120" />
 
-            <Label Text="Hastighet:" TextColor="#C8D4E0" Margin="0,0,6,0" />
-            <Slider x:Name="SpeedSlider"
-                    Minimum="0" Maximum="1" Value="0.62"
-                    WidthRequest="200"
-                    ValueChanged="OnSpeedChanged"
-                    Margin="0,0,6,0" />
-            <Label x:Name="SpeedLabel" TextColor="#C8D4E0" WidthRequest="130" Margin="0,0,16,0" />
+                    <Label Text="Hastighet:" TextColor="#C8D4E0" VerticalOptions="Center" />
+                    <!-- Startvärde 0,25 på den logaritmiska skalan = 1 dygn/sekund -->
+                    <Slider x:Name="SpeedSlider"
+                            Minimum="0" Maximum="1" Value="0.25"
+                            WidthRequest="200"
+                            VerticalOptions="Center"
+                            ValueChanged="OnSpeedChanged" />
+                    <Label x:Name="SpeedLabel" TextColor="#C8D4E0" WidthRequest="120"
+                           VerticalOptions="Center" Margin="0,0,10,0" />
 
-            <CheckBox x:Name="OrbitsCheck" IsChecked="True" CheckedChanged="OnOrbitsChanged" Color="#6FA8DC" />
-            <Label Text="Visa banor" TextColor="#C8D4E0" Margin="0,0,16,0" />
+                    <CheckBox x:Name="OrbitsCheck" IsChecked="True" CheckedChanged="OnOrbitsChanged" Color="#6FA8DC" />
+                    <Label Text="Visa banor" TextColor="#C8D4E0" VerticalOptions="Center" Margin="0,0,10,0" />
 
-            <CheckBox x:Name="RealScaleCheck" IsChecked="False" CheckedChanged="OnRealScaleChanged" Color="#6FA8DC" />
-            <Label Text="Verklig storlek" TextColor="#C8D4E0" Margin="0,0,16,0" />
+                    <CheckBox x:Name="RealScaleCheck" IsChecked="False" CheckedChanged="OnRealScaleChanged" Color="#6FA8DC" />
+                    <Label Text="Verklig storlek" TextColor="#C8D4E0" VerticalOptions="Center" />
+                </HorizontalStackLayout>
 
-            <CheckBox x:Name="ConstellationsCheck" IsChecked="True" CheckedChanged="OnConstellationsChanged" Color="#6FA8DC" />
-            <Label Text="Stjärnbilder" TextColor="#C8D4E0" Margin="0,0,16,0" />
+                <HorizontalStackLayout Spacing="6">
+                    <CheckBox x:Name="ConstellationsCheck" IsChecked="True" CheckedChanged="OnConstellationsChanged" Color="#6FA8DC" />
+                    <Label Text="Stjärnbilder" TextColor="#C8D4E0" VerticalOptions="Center" Margin="0,0,10,0" />
 
-            <CheckBox x:Name="StarNamesCheck" IsChecked="False" CheckedChanged="OnStarNamesChanged" Color="#6FA8DC" />
-            <Label Text="Stjärnnamn" TextColor="#C8D4E0" Margin="0,0,16,0" />
+                    <CheckBox x:Name="StarNamesCheck" IsChecked="False" CheckedChanged="OnStarNamesChanged" Color="#6FA8DC" />
+                    <Label Text="Stjärnnamn" TextColor="#C8D4E0" VerticalOptions="Center" Margin="0,0,10,0" />
 
-            <Label Text="Stjärnor:" TextColor="#C8D4E0" Margin="0,0,6,0" />
-            <Picker x:Name="StarDensityPicker"
-                    TextColor="White"
-                    BackgroundColor="#1C2430"
-                    WidthRequest="110"
-                    SelectedIndexChanged="OnStarDensityChanged"
-                    Margin="0,0,16,0" />
+                    <Label Text="Stjärnor:" TextColor="#C8D4E0" VerticalOptions="Center" />
+                    <Picker x:Name="StarDensityPicker"
+                            TextColor="White"
+                            BackgroundColor="#1C2430"
+                            WidthRequest="110"
+                            SelectedIndexChanged="OnStarDensityChanged"
+                            Margin="0,0,10,0" />
 
-            <Label Text="Fokus:" TextColor="#C8D4E0" Margin="0,0,6,0" />
-            <Picker x:Name="FocusPicker"
-                    TextColor="White"
-                    BackgroundColor="#1C2430"
-                    WidthRequest="140"
-                    SelectedIndexChanged="OnFocusChanged"
-                    Margin="0,0,16,0" />
+                    <Label Text="Fokus:" TextColor="#C8D4E0" VerticalOptions="Center" />
+                    <Picker x:Name="FocusPicker"
+                            TextColor="White"
+                            BackgroundColor="#1C2430"
+                            WidthRequest="140"
+                            SelectedIndexChanged="OnFocusChanged"
+                            Margin="0,0,10,0" />
 
-            <Button Text="Återställ vy"
-                    Clicked="OnResetClicked"
-                    BackgroundColor="#26303C"
-                    TextColor="White" />
-        </FlexLayout>
+                    <Button Text="Återställ vy"
+                            Clicked="OnResetClicked"
+                            BackgroundColor="#26303C"
+                            TextColor="White" />
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
     </Grid>
 </ContentPage>
