@@ -26,6 +26,12 @@ public sealed class OrbitCamera
     /// <summary>Fokallängd i pixlar för senaste bildrutan (sätts i UpdateFrame).</summary>
     public float Focal => _focal;
 
+    /// <summary>Kamerans högerriktning i världskoordinater (senaste bildrutan).</summary>
+    public Vector3 RightAxis => _right;
+
+    /// <summary>Kamerans uppriktning i världskoordinater (senaste bildrutan).</summary>
+    public Vector3 UpAxis => _up;
+
     public OrbitCamera() => ResetView();
 
     public void ResetView()

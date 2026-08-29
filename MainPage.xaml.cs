@@ -28,6 +28,7 @@ public partial class MainPage : ContentPage
     Vector3 _drawnTarget;
     double _drawnSimDays = double.NaN;
     double _resizeQuietUntil;              // klocktid då renderingen får vakna igen
+    bool _settingsChanged = true;
 
     public MainPage()
     {
@@ -120,8 +121,6 @@ public partial class MainPage : ContentPage
             SpaceView.Invalidate();
         }
     }
-
-    bool _settingsChanged = true;
 
     static string FormatElapsed(double days)
     {

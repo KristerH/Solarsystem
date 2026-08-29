@@ -98,4 +98,13 @@ public static class SolarSystemData
         // tidvis går innanför Neptunus. Ett varv tar nästan 248 år.
         new("Pluto",     Color.FromArgb("#C4AB94"),  1_188.3, 39.48212, 0.24883, 17.140, 110.304, 224.069, 238.929, 90_560.0),
     ];
+
+    /// <summary>
+    /// Månen med geocentriska medelbanelement (J2000): banan beräknas kring
+    /// jorden i stället för kring solen, med samma Kepler-matematik.
+    /// Ett varv tar 27,3 dygn (siderisk månad).
+    /// </summary>
+    public static readonly CelestialBody Moon = new(
+        "Månen", Color.FromArgb("#BEBEB6"), 1_737.4,
+        0.0025696, 0.0549, 5.145, 125.045, 83.353, 218.316, 27.32166);
 }

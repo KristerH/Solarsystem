@@ -168,6 +168,8 @@ public sealed class SolarSystemDrawable : IDrawable
             bodies.Add((planet, pos, VisualRadius(planet.RadiusKm, isSun: false), depth, sx, sy));
         }
 
+        AddMoon(bodies, t);
+
         // Måla bakifrån och fram (painter's algorithm).
         bodies.Sort((a, b) => b.Depth.CompareTo(a.Depth));
 
@@ -190,13 +192,49 @@ public sealed class SolarSystemDrawable : IDrawable
                     DrawPlanet(canvas, body, sx, sy, r, sunX, sunY);
                     FillRing(canvas, nearRing);
                 }
+                else if (ReferenceEquals(body, Earth) && r >= 14f)
+                {
+                    DrawEarthGlobe(canvas, pos, sx, sy, r, sunX, sunY);
+                }
                 else
                 {
                     DrawPlanet(canvas, body, sx, sy, r, sunX, sunY);
                 }
-                _labels.Add((body.Name, sx, sy + r + 6));
+                // Månen ritas utan namnetikett – den känns igen på sin plats vid jorden.
+                if (!ReferenceEquals(body, SolarSystemData.Moon))
+                    _labels.Add((body.Name, sx, sy + r + 6));
             }
         }
+    }
+
+    static readonly CelestialBody Earth =
+        SolarSystemData.Planets.First(p => p.Name == "Jorden");
+
+    /// <summary>
+    /// Månen kretsar kring jorden med sina riktiga banelement. I förstorat läge
+    /// vore det verkliga avståndet (60 jordradier) missvisande stort, så där
+    /// visas den på 3 x jordens visuella radie – riktning, fart och
+    /// storleksförhållande mot jorden är fortfarande korrekta. Månen ritas bara
+    /// när man zoomat in så nära att dess bana täcker något tiotal pixlar.
+    /// </summary>
+    void AddMoon(List<(CelestialBody? Body, Vector3 Pos, float WorldRadius, float Depth, float Sx, float Sy)> bodies, double t)
+    {
+        var earthPos = Earth.PositionAt(t, UnitsPerAu);
+        var offset = SolarSystemData.Moon.PositionAt(t, UnitsPerAu); // geocentriskt
+        float orbitRadius = RealScale
+            ? offset.Length()
+            : VisualRadius(Earth.RadiusKm, isSun: false) * 3f;
+        var moonPos = RealScale
+            ? earthPos + offset
+            : earthPos + Vector3.Normalize(offset) * orbitRadius;
+
+        if (!Camera.Project(moonPos, out float sx, out float sy, out float depth))
+            return;
+        if (Camera.ScreenRadius(orbitRadius, depth) < 10f)
+            return; // för utzoomat – månen skulle bara smeta ihop med jorden
+
+        bodies.Add((SolarSystemData.Moon, moonPos,
+            VisualRadius(SolarSystemData.Moon.RadiusKm, isSun: false), depth, sx, sy));
     }
 
     float VisualRadius(double radiusKm, bool isSun)
@@ -265,6 +303,122 @@ public sealed class SolarSystemDrawable : IDrawable
         };
         canvas.SetFillPaint(paint, rectF);
         canvas.FillCircle(x, y, r);
+    }
+
+    // ------------------------------------------------------------ jordgloben
+
+    static readonly Color OceanColor = Color.FromArgb("#2C5D9E");
+    const double ObliquityRad = 23.4392911 * Math.PI / 180.0;
+
+    readonly List<Vector3> _globeDirs = new(256);
+    readonly List<Vector3> _globeClipped = new(256);
+
+    /// <summary>
+    /// Jorden som glob med världsdelar, polarisar och verklig rotation, synlig
+    /// när man zoomat in (samma zoomnivå som gör månen synlig). Varje ytpunkts
+    /// riktning beräknas ur stjärntiden (GMST): därmed lutar jordaxeln 23,4°
+    /// mot Polstjärnan och rätt kontinent är vänd mot solen vid rätt klockslag,
+    /// med ett varv per stjärndygn (23 h 56 min).
+    /// </summary>
+    void DrawEarthGlobe(ICanvas canvas, Vector3 center,
+        float sx, float sy, float r, float sunX, float sunY)
+    {
+        canvas.FillColor = OceanColor;
+        canvas.FillCircle(sx, sy, r);
+
+        double gmst = (280.46061837 + 360.98564736629 * DaysSinceJ2000) * Math.PI / 180.0;
+        double cosE = Math.Cos(ObliquityRad), sinE = Math.Sin(ObliquityRad);
+
+        // Ytpunkterna ritas med ortografisk projektion inom den ritade cirkeln:
+        // skärmläget ges av riktningens komposanter längs kamerans höger- och
+        // uppaxlar gånger cirkelns radie. Då kan land aldrig hamna utanför
+        // globen (perspektivprojektion av randpunkter gjorde precis det när
+        // kameran var nära). Synligt är det halvklot som vetter mot kameran.
+        var toCam = Vector3.Normalize(Camera.Position - center);
+        const float cosLimb = 0.02f;
+
+        foreach (var region in EarthMap.Regions)
+        {
+            _globeDirs.Clear();
+            for (int i = 0; i < region.LonRad.Length; i++)
+            {
+                // RA = GMST + longitud, deklination = latitud -> ekvatorial
+                // riktning, sedan samma rotation till världskoordinater som
+                // för stjärnorna.
+                double ra = gmst + region.LonRad[i];
+                double xq = region.CosLat[i] * Math.Cos(ra);
+                double yq = region.CosLat[i] * Math.Sin(ra);
+                double zq = region.SinLat[i];
+                double ye = yq * cosE + zq * sinE;
+                double ze = -yq * sinE + zq * cosE;
+                _globeDirs.Add(new Vector3((float)xq, (float)ze, (float)-ye));
+            }
+
+            ClipToVisibleCap(_globeDirs, _globeClipped, toCam, cosLimb);
+            if (_globeClipped.Count < 3)
+                continue;
+
+            var path = new PathF();
+            int drawn = 0;
+            foreach (var dir in _globeClipped)
+            {
+                float px = sx + Vector3.Dot(dir, Camera.RightAxis) * r;
+                float py = sy - Vector3.Dot(dir, Camera.UpAxis) * r;
+                if (drawn == 0) path.MoveTo(px, py);
+                else path.LineTo(px, py);
+                drawn++;
+            }
+            if (drawn < 3)
+                continue;
+            path.Close();
+            canvas.FillColor = region.Fill;
+            canvas.FillPath(path);
+        }
+
+        // Dag/natt: ljus ton mot solsidan, mörk skugga på nattsidan.
+        float dx = sunX - sx, dy = sunY - sy;
+        float len = MathF.Sqrt(dx * dx + dy * dy);
+        if (len > 1e-3f) { dx /= len; dy /= len; }
+        var rectF = new RectF(sx - r, sy - r, r * 2, r * 2);
+        var shade = new RadialGradientPaint(
+        [
+            new PaintGradientStop(0f, Color.FromRgba(1f, 1f, 0.95f, 0.16f)),
+            new PaintGradientStop(0.55f, Colors.Transparent),
+            new PaintGradientStop(1f, Color.FromRgba(0f, 0f, 0.02f, 0.62f)),
+        ])
+        {
+            Center = new Point(0.5 + dx * 0.30, 0.5 + dy * 0.30),
+            Radius = 0.75,
+        };
+        canvas.SetFillPaint(shade, rectF);
+        canvas.FillCircle(sx, sy, r);
+    }
+
+    /// <summary>
+    /// Sutherland-Hodgman-klippning av en polygon på klotytan mot den synliga
+    /// kalotten (dot(riktning, mot kameran) >= cosLimb).
+    /// </summary>
+    static void ClipToVisibleCap(List<Vector3> dirs, List<Vector3> result,
+        Vector3 toCam, float cosLimb)
+    {
+        result.Clear();
+        int n = dirs.Count;
+        for (int i = 0; i < n; i++)
+        {
+            var a = dirs[i];
+            var b = dirs[(i + 1) % n];
+            float da = Vector3.Dot(a, toCam) - cosLimb;
+            float db = Vector3.Dot(b, toCam) - cosLimb;
+
+            if (da >= 0)
+                result.Add(a);
+            if (da >= 0 != db >= 0)
+            {
+                // Kanten korsar randen – interpolera fram skärningspunkten.
+                float t = da / (da - db);
+                result.Add(Vector3.Normalize(Vector3.Lerp(a, b, t)));
+            }
+        }
     }
 
     static readonly Color RingColor = Color.FromRgba(0.85f, 0.78f, 0.60f, 0.55f);
