@@ -154,26 +154,25 @@ public sealed class SolarSystemDrawable : IDrawable
         // Solens skärmposition behövs för planeternas ljussättning.
         bool sunVisible = Camera.Project(Vector3.Zero, out float sunX, out float sunY, out float sunDepth);
 
-        var bodies = new List<(CelestialBody? Body, Vector3 Pos, float WorldRadius, float Depth, float Sx, float Sy)>(9);
+        var bodies = new List<(CelestialBody? Body, bool IsMoon, Vector3 Pos, float WorldRadius, float Depth, float Sx, float Sy)>(16);
 
         float sunWorldR = VisualRadius(SolarSystemData.SunRadiusKm, isSun: true);
         if (sunVisible)
-            bodies.Add((null, Vector3.Zero, sunWorldR, sunDepth, sunX, sunY));
+            bodies.Add((null, false, Vector3.Zero, sunWorldR, sunDepth, sunX, sunY));
 
         foreach (var planet in SolarSystemData.Planets)
         {
             var pos = planet.PositionAt(t, UnitsPerAu);
-            if (!Camera.Project(pos, out float sx, out float sy, out float depth))
-                continue;
-            bodies.Add((planet, pos, VisualRadius(planet.RadiusKm, isSun: false), depth, sx, sy));
+            if (Camera.Project(pos, out float sx, out float sy, out float depth))
+                bodies.Add((planet, false, pos, VisualRadius(planet.RadiusKm, isSun: false), depth, sx, sy));
+            if (planet.Moons.Length > 0)
+                AddMoons(bodies, planet, pos, t);
         }
-
-        AddMoon(bodies, t);
 
         // Måla bakifrån och fram (painter's algorithm).
         bodies.Sort((a, b) => b.Depth.CompareTo(a.Depth));
 
-        foreach (var (body, pos, worldR, depth, sx, sy) in bodies)
+        foreach (var (body, isMoon, pos, worldR, depth, sx, sy) in bodies)
         {
             float r = Camera.ScreenRadius(worldR, depth);
             if (body is null)
@@ -200,8 +199,8 @@ public sealed class SolarSystemDrawable : IDrawable
                 {
                     DrawPlanet(canvas, body, sx, sy, r, sunX, sunY);
                 }
-                // Månen ritas utan namnetikett – den känns igen på sin plats vid jorden.
-                if (!ReferenceEquals(body, SolarSystemData.Moon))
+                // Månar ritas utan namnetikett – de känns igen på sin plats vid planeten.
+                if (!isMoon)
                     _labels.Add((body.Name, sx, sy + r + 6));
             }
         }
@@ -211,30 +210,39 @@ public sealed class SolarSystemDrawable : IDrawable
         SolarSystemData.Planets.First(p => p.Name == "Jorden");
 
     /// <summary>
-    /// Månen kretsar kring jorden med sina riktiga banelement. I förstorat läge
-    /// vore det verkliga avståndet (60 jordradier) missvisande stort, så där
-    /// visas den på 3 x jordens visuella radie – riktning, fart och
-    /// storleksförhållande mot jorden är fortfarande korrekta. Månen ritas bara
-    /// när man zoomat in så nära att dess bana täcker något tiotal pixlar.
+    /// Lägger till en planets månar. Varje måne kretsar med sina riktiga
+    /// banelement kring planeten. I förstorat läge vore de verkliga avstånden
+    /// missvisande stora (jordens måne ligger på 60 jordradier), så där
+    /// komprimeras systemet: den innersta månen hamnar på 3 x planetens
+    /// visuella radie och de övriga behåller sina inbördes avståndsproportioner.
+    /// Banornas form, riktning och fart är fortfarande korrekta. Månarna ritas
+    /// bara när man zoomat in så nära att banan täcker något tiotal pixlar.
     /// </summary>
-    void AddMoon(List<(CelestialBody? Body, Vector3 Pos, float WorldRadius, float Depth, float Sx, float Sy)> bodies, double t)
+    void AddMoons(List<(CelestialBody? Body, bool IsMoon, Vector3 Pos, float WorldRadius, float Depth, float Sx, float Sy)> bodies,
+        CelestialBody planet, Vector3 planetPos, double t)
     {
-        var earthPos = Earth.PositionAt(t, UnitsPerAu);
-        var offset = SolarSystemData.Moon.PositionAt(t, UnitsPerAu); // geocentriskt
-        float orbitRadius = RealScale
-            ? offset.Length()
-            : VisualRadius(Earth.RadiusKm, isSun: false) * 3f;
-        var moonPos = RealScale
-            ? earthPos + offset
-            : earthPos + Vector3.Normalize(offset) * orbitRadius;
+        float displayScale = 1f;
+        if (!RealScale)
+        {
+            double innermostAu = planet.Moons.Min(m => m.SemiMajorAu);
+            float parentVisR = VisualRadius(planet.RadiusKm, isSun: false);
+            displayScale = parentVisR * 3f / (float)(innermostAu * UnitsPerAu);
+        }
 
-        if (!Camera.Project(moonPos, out float sx, out float sy, out float depth))
-            return;
-        if (Camera.ScreenRadius(orbitRadius, depth) < 10f)
-            return; // för utzoomat – månen skulle bara smeta ihop med jorden
+        foreach (var moon in planet.Moons)
+        {
+            var offset = moon.PositionAt(t, UnitsPerAu) * displayScale; // planetcentriskt
+            var moonPos = planetPos + offset;
 
-        bodies.Add((SolarSystemData.Moon, moonPos,
-            VisualRadius(SolarSystemData.Moon.RadiusKm, isSun: false), depth, sx, sy));
+            if (!Camera.Project(moonPos, out float sx, out float sy, out float depth))
+                continue;
+            float orbitRadius = (float)(moon.SemiMajorAu * UnitsPerAu) * displayScale;
+            if (Camera.ScreenRadius(orbitRadius, depth) < 10f)
+                continue; // för utzoomat – månen skulle bara smeta ihop med planeten
+
+            bodies.Add((moon, true, moonPos,
+                VisualRadius(moon.RadiusKm, isSun: false), depth, sx, sy));
+        }
     }
 
     float VisualRadius(double radiusKm, bool isSun)

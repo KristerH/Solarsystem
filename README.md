@@ -56,6 +56,11 @@ dotnet build Solarsystem.csproj
 dotnet run --project Solarsystem.csproj -f net10.0-windows10.0.19041.0
 ```
 
+## Planerade utbyggnader
+
+Se [TODO.md](TODO.md) – en etappindelad lista för fler månar, ringar och
+asteroid-/Kuiperbälten, tänkt att byggas och verifieras en etapp i taget.
+
 ## Kodöversikt
 
 - `Simulation/SolarSystemData.cs` – planetdata (banelement J2000) och
