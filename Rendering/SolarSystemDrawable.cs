@@ -28,6 +28,9 @@ public sealed class SolarSystemDrawable : IDrawable
     public bool ShowConstellations { get; set; } = true;
     public bool ShowStarNames { get; set; }
 
+    /// <summary>Om planeternas månar ska ritas alls.</summary>
+    public bool ShowMoons { get; set; } = true;
+
     /// <summary>
     /// Sant medan fönstret håller på att ändra storlek. Då ritas bara svart –
     /// plattformen ritar om vid varje storlekssteg, och att projicera om hela
@@ -165,7 +168,7 @@ public sealed class SolarSystemDrawable : IDrawable
             var pos = planet.PositionAt(t, UnitsPerAu);
             if (Camera.Project(pos, out float sx, out float sy, out float depth))
                 bodies.Add((planet, false, pos, VisualRadius(planet.RadiusKm, isSun: false), depth, sx, sy));
-            if (planet.Moons.Length > 0)
+            if (ShowMoons && planet.Moons.Length > 0)
                 AddMoons(bodies, planet, pos, t);
         }
 

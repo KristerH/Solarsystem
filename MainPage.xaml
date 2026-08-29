@@ -60,6 +60,9 @@
                     <CheckBox x:Name="OrbitsCheck" IsChecked="True" CheckedChanged="OnOrbitsChanged" Color="#6FA8DC" />
                     <Label Text="Visa banor" TextColor="#C8D4E0" VerticalOptions="Center" Margin="0,0,10,0" />
 
+                    <CheckBox x:Name="MoonsCheck" IsChecked="True" CheckedChanged="OnMoonsChanged" Color="#6FA8DC" />
+                    <Label Text="Visa månar" TextColor="#C8D4E0" VerticalOptions="Center" Margin="0,0,10,0" />
+
                     <CheckBox x:Name="RealScaleCheck" IsChecked="False" CheckedChanged="OnRealScaleChanged" Color="#6FA8DC" />
                     <Label Text="Verklig storlek" TextColor="#C8D4E0" VerticalOptions="Center" />
                 </HorizontalStackLayout>

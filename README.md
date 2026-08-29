@@ -29,6 +29,8 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
   60 enheter). Planeternas storlekar är inbördes skalenliga men förstorade så
   att de syns – bocka i **Verklig storlek** för att se hur små planeterna
   faktiskt är jämfört med avstånden.
+- **Visa/dölj månar**: en kryssruta slår av och på alla planeters månar
+  på en gång, för en renare översiktsvy.
 - **Start/paus** av rotationen (knapp eller mellanslag) och justerbar
   hastighet (0,1–1000 dygn per sekund).
 - **Klocka**: Simulerat datum (år-månad-dag, timme:minut) samt förfluten tid,

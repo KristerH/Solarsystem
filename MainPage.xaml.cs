@@ -165,6 +165,12 @@ public partial class MainPage : ContentPage
         _settingsChanged = true;
     }
 
+    void OnMoonsChanged(object? sender, CheckedChangedEventArgs e)
+    {
+        _drawable.ShowMoons = e.Value;
+        _settingsChanged = true;
+    }
+
     void OnRealScaleChanged(object? sender, CheckedChangedEventArgs e)
     {
         _drawable.RealScale = e.Value;
