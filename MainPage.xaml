@@ -48,13 +48,14 @@
                             WidthRequest="120" />
 
                     <Label Text="Hastighet:" TextColor="#C8D4E0" VerticalOptions="Center" />
-                    <!-- Startvärde 0,25 på den logaritmiska skalan = 1 dygn/sekund -->
+                    <!-- Skalan går från -1 till 1: mitten står still, vänster halva
+                         spelar tiden baklänges. 0,25 = 1 dygn/sekund framåt. -->
                     <Slider x:Name="SpeedSlider"
-                            Minimum="0" Maximum="1" Value="0.25"
-                            WidthRequest="200"
+                            Minimum="-1" Maximum="1" Value="0.25"
+                            WidthRequest="220"
                             VerticalOptions="Center"
                             ValueChanged="OnSpeedChanged" />
-                    <Label x:Name="SpeedLabel" TextColor="#C8D4E0" WidthRequest="120"
+                    <Label x:Name="SpeedLabel" TextColor="#C8D4E0" WidthRequest="150"
                            VerticalOptions="Center" Margin="0,0,10,0" />
 
                     <CheckBox x:Name="OrbitsCheck" IsChecked="True" CheckedChanged="OnOrbitsChanged" Color="#6FA8DC" />
@@ -100,6 +101,35 @@
                             Clicked="OnResetClicked"
                             BackgroundColor="#26303C"
                             TextColor="White" />
+                </HorizontalStackLayout>
+
+                <HorizontalStackLayout Spacing="6">
+                    <Label Text="Datum:" TextColor="#C8D4E0" VerticalOptions="Center" />
+                    <Entry x:Name="DateEntry"
+                           Placeholder="ÅÅÅÅ-MM-DD"
+                           PlaceholderColor="#5E6E80"
+                           TextColor="White"
+                           BackgroundColor="#1C2430"
+                           WidthRequest="140"
+                           VerticalOptions="Center"
+                           Completed="OnDateEntryCompleted" />
+                    <Button Text="Gå dit" Clicked="OnGoToDateClicked"
+                            BackgroundColor="#2E4A66" TextColor="White" Margin="0,0,10,0" />
+
+                    <Button Text="‹‹ År" CommandParameter="y-" Clicked="OnStepDateClicked"
+                            BackgroundColor="#26303C" TextColor="White" WidthRequest="70" />
+                    <Button Text="‹ Mån" CommandParameter="m-" Clicked="OnStepDateClicked"
+                            BackgroundColor="#26303C" TextColor="White" WidthRequest="75" />
+                    <Button Text="‹ Dag" CommandParameter="d-" Clicked="OnStepDateClicked"
+                            BackgroundColor="#26303C" TextColor="White" WidthRequest="70" />
+                    <Button Text="Idag" Clicked="OnTodayClicked"
+                            BackgroundColor="#2E4A66" TextColor="White" WidthRequest="70" />
+                    <Button Text="Dag ›" CommandParameter="d+" Clicked="OnStepDateClicked"
+                            BackgroundColor="#26303C" TextColor="White" WidthRequest="70" />
+                    <Button Text="Mån ›" CommandParameter="m+" Clicked="OnStepDateClicked"
+                            BackgroundColor="#26303C" TextColor="White" WidthRequest="75" />
+                    <Button Text="År ››" CommandParameter="y+" Clicked="OnStepDateClicked"
+                            BackgroundColor="#26303C" TextColor="White" WidthRequest="70" />
                 </HorizontalStackLayout>
             </VerticalStackLayout>
         </ScrollView>

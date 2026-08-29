@@ -76,8 +76,13 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
   på en gång, för en renare översiktsvy.
 - **Start/paus** av rotationen (knapp eller mellanslag) och justerbar
   hastighet (0,1–1000 dygn per sekund).
-- **Klocka**: Simulerat datum (år-månad-dag, timme:minut) samt förfluten tid,
-  så man t.ex. kan se att jorden går ett varv på 365 dagar.
+- **Klocka och datumstyrning**: Simulerat datum (år-månad-dag, timme:minut)
+  samt förfluten tid, så man t.ex. kan se att jorden går ett varv på
+  365 dagar. Man kan hoppa till vilket datum som helst genom att skriva in
+  det, stega ± dag, månad eller år med knappar, och återvända till nuet med
+  "Idag". Hastighetsreglaget går åt båda hållen: mitten står still, höger
+  halva spelar tiden framåt och vänster baklänges. Banberäkningen fungerar
+  lika bra bakåt – kontrollerad mot solens läge ända tillbaka till 1977.
 - **Namnetiketter** under varje himlakropp.
 - **Fri kamera**: dra med musen för att rotera, skrollhjul/W/S för att zooma,
   piltangenter för att rotera, R återställer vyn. Med **Fokus**-väljaren kan

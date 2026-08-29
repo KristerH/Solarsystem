@@ -18,7 +18,7 @@ public partial class MainPage : ContentPage
     bool _running = true;
     double _simDays;                       // simulerade dygn sedan start
     double _daysPerSecond = 30;
-    readonly DateTime _startDate = DateTime.Now;
+    DateTime _startDate = DateTime.Now;
 
     double _panLastX, _panLastY;
     int _focusIndex;                       // 0 = solen, 1.. = planeter
@@ -124,13 +124,16 @@ public partial class MainPage : ContentPage
 
     static string FormatElapsed(double days)
     {
-        if (days < 1.0)
-            return $"Förflutet: {days * 24:0.0} timmar";
-        int years = (int)(days / 365.25);
-        int rest = (int)(days - years * 365.25);
+        // Tiden kan numera gå åt båda hållen, så negativa värden räknas som "tillbaka".
+        string label = days < 0 ? "Tillbaka" : "Förflutet";
+        double span = Math.Abs(days);
+        if (span < 1.0)
+            return $"{label}: {span * 24:0.0} timmar";
+        int years = (int)(span / 365.25);
+        int rest = (int)(span - years * 365.25);
         return years > 0
-            ? $"Förflutet: {years} år, {rest} dagar"
-            : $"Förflutet: {rest} dagar";
+            ? $"{label}: {years} år, {rest} dagar"
+            : $"{label}: {rest} dagar";
     }
 
     // ---------------------------------------------------------------- reglage
@@ -147,17 +150,91 @@ public partial class MainPage : ContentPage
 
     void UpdateSpeedFromSlider()
     {
-        // Logaritmisk skala: 0,1 dygn/s upp till 1000 dygn/s.
-        _daysPerSecond = Math.Pow(10, -1 + SpeedSlider.Value * 4);
+        // Logaritmisk skala: 0,1 dygn/s upp till 1000 dygn/s. Reglaget går från
+        // -1 till 1, där negativa värden spelar tiden baklänges och mitten står still.
+        double v = SpeedSlider.Value;
+        _daysPerSecond = Math.Abs(v) < 0.02
+            ? 0.0
+            : Math.Sign(v) * Math.Pow(10, -1 + Math.Abs(v) * 4);
         SpeedLabel.Text = FormatSpeed(_daysPerSecond);
     }
 
-    static string FormatSpeed(double dps) => dps switch
+    static string FormatSpeed(double dps)
     {
-        < 1.0 => string.Create(Swedish, $"{dps * 24:0.#} timmar/sek"),
-        < 365.25 => string.Create(Swedish, $"{dps:0.#} dygn/sek"),
-        _ => string.Create(Swedish, $"{dps / 365.25:0.##} år/sek"),
-    };
+        if (dps == 0)
+            return "stillastående";
+
+        string direction = dps < 0 ? " bakåt" : "";
+        double rate = Math.Abs(dps);
+        return rate switch
+        {
+            < 1.0 => string.Create(Swedish, $"{rate * 24:0.#} timmar/sek{direction}"),
+            < 365.25 => string.Create(Swedish, $"{rate:0.#} dygn/sek{direction}"),
+            _ => string.Create(Swedish, $"{rate / 365.25:0.##} år/sek{direction}"),
+        };
+    }
+
+    // ------------------------------------------------------------------ datum
+
+    /// <summary>Det datum simuleringen just nu står på.</summary>
+    DateTime CurrentDate => _startDate.AddDays(_simDays);
+
+    /// <summary>Flyttar simuleringen till ett givet datum, bakåt eller framåt.</summary>
+    void GoToDate(DateTime date)
+    {
+        _simDays = (date - _startDate).TotalDays;
+        _settingsChanged = true;
+    }
+
+    void OnGoToDateClicked(object? sender, EventArgs e) => ApplyTypedDate();
+
+    void OnDateEntryCompleted(object? sender, EventArgs e) => ApplyTypedDate();
+
+    /// <summary>
+    /// Läser datumfältet och hoppar dit. Accepterar både "2026-09-06" och andra
+    /// format som svensk kultur förstår; vid felskrivning händer ingenting mer än
+    /// att fältet markeras.
+    /// </summary>
+    void ApplyTypedDate()
+    {
+        string text = DateEntry.Text?.Trim() ?? string.Empty;
+        if (DateTime.TryParse(text, Swedish, DateTimeStyles.None, out var date))
+        {
+            DateEntry.TextColor = Colors.White;
+            GoToDate(date);
+        }
+        else
+        {
+            DateEntry.TextColor = Color.FromArgb("#E8927C");
+        }
+    }
+
+    /// <summary>Stegar datumet en dag, månad eller ett år i taget.</summary>
+    void OnStepDateClicked(object? sender, EventArgs e)
+    {
+        if (sender is not Button { CommandParameter: string step })
+            return;
+
+        var date = CurrentDate;
+        GoToDate(step switch
+        {
+            "y-" => date.AddYears(-1),
+            "y+" => date.AddYears(1),
+            "m-" => date.AddMonths(-1),
+            "m+" => date.AddMonths(1),
+            "d-" => date.AddDays(-1),
+            "d+" => date.AddDays(1),
+            _ => date,
+        });
+    }
+
+    /// <summary>Återställer klockan till nuet.</summary>
+    void OnTodayClicked(object? sender, EventArgs e)
+    {
+        _startDate = DateTime.Now;
+        _simDays = 0;
+        _settingsChanged = true;
+    }
 
     void OnOrbitsChanged(object? sender, CheckedChangedEventArgs e)
     {
