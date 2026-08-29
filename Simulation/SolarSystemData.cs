@@ -31,7 +31,10 @@ public sealed record CelestialBody(
     {
         double meanMotion = 360.0 / OrbitalPeriodDays;
         double mDeg = MeanLonJ2000Deg + meanMotion * daysSinceJ2000 - PerihelionLonDeg;
-        double M = DegToRad(mDeg);
+        // Vik ned till ett varv innan omvandlingen till radianer. Snabba månar
+        // (Phobos hinner tre varv per dygn) ger annars miljontals grader, vilket
+        // tär på flyttalsprecisionen. Banpositionen är oförändrad.
+        double M = DegToRad(mDeg % 360.0);
         double E = SolveKepler(M, Eccentricity);
         return ToWorld(E, unitsPerAu);
     }
@@ -96,7 +99,29 @@ public static class SolarSystemData
     /// </summary>
     public static readonly CelestialBody Moon = new(
         "Månen", Color.FromArgb("#BEBEB6"), 1_737.4,
-        0.0025696, 0.0549, 5.145, 125.045, 83.353, 218.316, 27.32166);
+        0.0025696 /* = 384 399 km */, 0.0549, 5.145, 125.045, 83.353, 218.316, 27.32166);
+
+    // Mars två små, oregelbundna månar – troligen infångade asteroider. De
+    // kretsar mycket nära Mars: Phobos på bara 2,8 marsradier (jämför Månens
+    // 60 jordradier). Banorna ligger i Mars ekvatorsplan, som lutar 26,7° mot
+    // ekliptikan – det är därför banlutningen nedan inte är nära noll.
+    // Not: faslägena (medellongituderna) är approximativa. Med omloppstider på
+    // timmar hinner även ett mycket litet periodfel bli hela varv över de
+    // årtionden appen kan simulera, så månarnas exakta placering i banan vid
+    // ett givet datum går ändå inte att lita på. Avstånd, storlekar, banplan
+    // och omloppstider är däremot verkliga.
+    const double MarsEquatorInclinationDeg = 26.74;
+    const double MarsEquatorNodeDeg = 262.85;
+
+    public static readonly CelestialBody Phobos = new(
+        "Phobos", Color.FromArgb("#A89684"), 11.267,
+        9_376.0 / AuKm, 0.0151, MarsEquatorInclinationDeg, MarsEquatorNodeDeg,
+        0.0, 0.0, 0.3189100);
+
+    public static readonly CelestialBody Deimos = new(
+        "Deimos", Color.FromArgb("#B8A794"), 6.2,
+        23_463.2 / AuKm, 0.00033, MarsEquatorInclinationDeg, MarsEquatorNodeDeg,
+        0.0, 180.0, 1.2624407);
 
     // Banelement vid J2000 (NASA/JPL, medelvärden). Tillräckligt noggranna för att
     // planeternas positioner ungefär ska stämma med verkligheten för ett givet datum.
@@ -105,7 +130,7 @@ public static class SolarSystemData
         new("Merkurius", Color.FromArgb("#B5A79B"),  2_439.7, 0.38710, 0.20563, 7.005,  48.331,  77.456, 252.251,    87.969),
         new("Venus",     Color.FromArgb("#E8CDA0"),  6_051.8, 0.72333, 0.00677, 3.395,  76.680, 131.564, 181.980,   224.701),
         new("Jorden",    Color.FromArgb("#4C8CE8"),  6_371.0, 1.00000, 0.01671, 0.000, -11.261, 102.947, 100.464,   365.256) { Moons = [Moon] },
-        new("Mars",      Color.FromArgb("#D96C4A"),  3_389.5, 1.52371, 0.09339, 1.850,  49.559, 336.041, 355.445,   686.980),
+        new("Mars",      Color.FromArgb("#D96C4A"),  3_389.5, 1.52371, 0.09339, 1.850,  49.559, 336.041, 355.445,   686.980) { Moons = [Phobos, Deimos] },
         new("Jupiter",   Color.FromArgb("#D8B48A"), 69_911.0, 5.20289, 0.04839, 1.304, 100.474,  14.728,  34.397, 4_332.59),
         new("Saturnus",  Color.FromArgb("#E8D5A8"), 58_232.0, 9.53668, 0.05386, 2.486, 113.662,  92.599,  49.954, 10_759.22),
         new("Uranus",    Color.FromArgb("#9BD4E4"), 25_362.0, 19.18916, 0.04726, 0.773, 74.017, 170.954, 313.238, 30_688.5),

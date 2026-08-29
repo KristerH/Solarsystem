@@ -26,8 +26,8 @@ liksom Saturnus ringar. De fungerar som mall för resten.
 
 ## Etapp 2 – Mars månar
 
-- [ ] Phobos (radie 11 km, omloppstid 7,7 timmar – snabbare än Mars rotation!)
-- [ ] Deimos (radie 6 km, omloppstid 30,3 timmar)
+- [x] Phobos (radie 11 km, omloppstid 7,7 timmar – snabbare än Mars rotation!)
+- [x] Deimos (radie 6 km, omloppstid 30,3 timmar)
 
 **Verifiera:** Fokusera Mars, sänk hastigheten till några timmar/sek.
 Phobos ska hinna flera varv per Mars-dygn. Båda är oregelbundna småstenar –

@@ -183,7 +183,9 @@ public sealed class SolarSystemDrawable : IDrawable
             }
             else
             {
-                r = MathF.Max(r, RealScale ? 0.45f : 1.1f);
+                // Småmånar som Phobos (11 km radie) blir försvinnande små även
+                // förstorade, så de garanteras en synlig prick.
+                r = MathF.Max(r, RealScale ? 0.45f : isMoon ? 2.5f : 1.1f);
                 if (body.Name == "Saturnus")
                 {
                     BuildSaturnRingPaths(pos, worldR, depth, out var farRing, out var nearRing);
@@ -224,9 +226,17 @@ public sealed class SolarSystemDrawable : IDrawable
         float displayScale = 1f;
         if (!RealScale)
         {
+            // Följ i första hand planeternas egen förstoring – då blir
+            // månsystemets geometri exakt rätt i förhållande till planeten
+            // (Mars månar ligger verkligen så nära som de ser ut). Först när
+            // den innersta månen skulle hamna längre bort än 3 planetradier
+            // komprimeras systemet, vilket är fallet för vår egen måne på
+            // 60 jordradier.
             double innermostAu = planet.Moons.Min(m => m.SemiMajorAu);
             float parentVisR = VisualRadius(planet.RadiusKm, isSun: false);
-            displayScale = parentVisR * 3f / (float)(innermostAu * UnitsPerAu);
+            displayScale = MathF.Min(
+                PlanetBoost,
+                parentVisR * 3f / (float)(innermostAu * UnitsPerAu));
         }
 
         foreach (var moon in planet.Moons)
