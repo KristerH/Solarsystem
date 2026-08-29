@@ -64,9 +64,9 @@ till Pluto jämfört med andra månar.
 
 ## Etapp 5 – Saturnus och isjättarnas största månar
 
-- [ ] Saturnus: Titan (15,9 dygn; ev. även Rhea, Enceladus)
-- [ ] Uranus: Titania, Oberon, ev. Miranda
-- [ ] Neptunus: Triton (5,88 dygn, **retrograd** – kretsar baklänges!)
+- [x] Saturnus: Titan (15,9 dygn; ev. även Rhea, Enceladus)
+- [x] Uranus: Titania, Oberon, ev. Miranda
+- [x] Neptunus: Triton (5,88 dygn, **retrograd** – kretsar baklänges!)
 
 **Verifiera:** Triton ska gå åt motsatt håll mot allt annat i appen –
 tydligast beviset på att den är infångad från Kuiperbältet.
@@ -77,10 +77,10 @@ tydligast beviset på att den är infångad från Kuiperbältet.
 
 Samma teknik som Saturnus befintliga ringar, men tunnare och svagare:
 
-- [ ] Jupiter: mycket tunn, mörk dammring
-- [ ] Uranus: smala mörka ringar – och Uranus extrema axellutning (98°!)
+- [x] Jupiter: mycket tunn, mörk dammring
+- [x] Uranus: smala mörka ringar – och Uranus extrema axellutning (98°!)
       bör läggas in samtidigt så att ringarna står "på högkant"
-- [ ] Neptunus: svag ring (bågarna/klumparna kan förenklas bort)
+- [x] Neptunus: svag ring (bågarna/klumparna kan förenklas bort)
 
 **Verifiera:** Ringarna syns bara vid inzoomning och skymmer inte planeterna
 i översiktsvyn. Uranus ringar ska stå nästan vinkelrätt mot banplanet.
@@ -146,6 +146,103 @@ att fler språk (t.ex. tyska) bara blir en fil till – ingen kodändring.
 stjärnbildsnamn byter språk direkt, datumet formateras rätt ("fredag 5
 september" / "Friday, September 5") och inga texter blir avklippta i
 kontrollpanelen. Svenska ska se exakt ut som i dag.
+
+---
+
+## Etapp 10 – Rymdfärd till Mars eller månen
+
+En egen liten rymdfärd: eleverna väljer mål, skjuter upp en farkost och följer
+den hela vägen fram. Här möts allt appen redan kan – banor, tid och skala –
+i något eleverna själva styr.
+
+- [ ] **Ställ om vilket datum man befinner sig på**. Detta behövs först, och
+      är användbart även utan rymdfärder: man ska kunna hoppa till vilket datum
+      som helst, både bakåt och framåt, i stället för att som i dag alltid
+      starta på dagens datum och bara kunna gå framåt.
+      - [ ] Ett datumfält där man skriver in år, månad och dag, och vyn hoppar dit.
+      - [ ] Knappar för att stega ± dag, ± månad och ± år, så att man kan bläddra
+            sig fram utan att skriva.
+      - [ ] Knappen "Idag" som återställer till nuet.
+      - [ ] Låt hastighetsreglaget kunna gå bakåt, så att tiden kan spelas baklänges.
+      Kepler-matematiken klarar redan negativ tid, så arbetet ligger i
+      gränssnittet och i klockan (`_startDate` plus `_simDays` i `MainPage`).
+      Detta är också grunden för "Hoppa till nästa startfönster" nedan, och
+      behövs i etapp 11 för att spola tillbaka till Voyagers uppskjutning 1977.
+      Rolig bieffekt: eleverna kan slå upp sin egen födelsedag och se var
+      planeterna stod då.
+
+- [ ] **Farkosten som himlakropp**: en liten prick med namn och ett spår efter
+      sig (de senaste par hundra positionerna), som följer en Kepler-bana precis
+      som planeterna. Ingen ny banmatematik behövs – samma `CelestialBody`.
+- [ ] **Hohmann-bana till Mars**: den energisnålaste vägen är en halv ellips
+      med perihelium vid jordens bana (1,00 AU) och aphelium vid Mars
+      (1,52 AU). Halva storaxeln blir då 1,26 AU, vilket ger en restid på
+      ungefär 259 dygn – hälften av den banans omloppstid.
+- [ ] **Startfönster**: farkosten måste skjutas upp när Mars ligger 44,3°
+      framför jorden. Under de 259 dygnen hinner Mars nämligen bara 135,7° av
+      sitt varv, medan farkosten går 180° – och 44,3 + 135,7 = 180. Ligger Mars
+      fel vid uppskjutningen anländer farkosten till tom rymd: 20° fel motsvarar
+      80 miljoner km. Läget upprepas var 780:e dygn (25,6 månader), vilket är
+      varför verkliga Mars-uppdrag alltid skjuts upp i klungor – sommaren 2020
+      skickade USA, Kina och Förenade arabemiraten var sin sond inom två veckor,
+      och sedan hände ingenting på två år. Knappen "Skjut upp" bör vara inaktiv
+      däremellan, med "Hoppa till nästa startfönster" bredvid.
+- [ ] **Färd till månen**: samma sak fast kring jorden – en ellips från låg
+      omloppsbana ut till månens avstånd, restid ca 3 dygn. Kräver att
+      farkosten kan kretsa kring en planet i stället för kring solen, ungefär
+      som månarna gör i dag. Bra kontrast till Mars: månen är tillbaka på samma
+      ställe var 27:e dygn, så dit kan man åka i stort sett när som helst.
+- [ ] **Panel under färden**: förfluten restid, återstående tid, avstånd kvar
+      till målet och farkostens fart.
+- [ ] **Ankomst**: farkosten möter målet, färden markeras som avslutad och
+      kameran kan följa med ner till planeten.
+
+**Verifiera:** Restiden till Mars ska bli ungefär 259 dygn, och farkosten ska
+faktiskt möta Mars – inte komma fram till den punkt där Mars *var* vid
+uppskjutningen. Testa gärna att skjuta upp vid fel tidpunkt om det går: då ska
+farkosten anlända till tom rymd, vilket är hela poängen med startfönster.
+Månfärden ska ta ca 3 dygn.
+
+---
+
+## Etapp 11 – Voyager och de andra rymdsonderna
+
+De farkoster mänskligheten faktiskt har skickat ut. Etapp 10 handlar om en
+påhittad resa som eleven själv styr; den här handlar om de verkliga färderna,
+med riktiga datum. Voyager 1 är det avlägsnaste föremål människan har byggt.
+
+- [ ] **Hyperboliska banor i Kepler-koden**. Sonderna har fått så hög fart att
+      de aldrig kommer tillbaka: deras banor har excentricitet större än 1 och
+      är alltså hyperbler, inte ellipser. `SolveKepler` löser i dag bara
+      `E - e*sin E = M`, som gäller för ellipser. För hyperbler behövs
+      `e*sinh H - H = M` och en egen positionsformel. Detta är etappens enda
+      riktiga matematikarbete och bör göras först.
+- [ ] **Voyager 1 och Voyager 2** (uppskjutna 1977) med verkliga riktningar och
+      farter. Voyager 2 är den enda farkost som besökt alla fyra
+      jätteplaneterna – möjligt tack vare en planetuppställning som bara
+      återkommer vart 176:e år.
+- [ ] **Pioneer 10 och 11 samt New Horizons** (Pluto 2015). Fem farkoster är
+      på väg ut ur solsystemet.
+- [ ] **Planetpassagerna som milstolpar** med datum, t.ex. Voyager 1 vid
+      Jupiter i mars 1979 och vid Saturnus i november 1980, Voyager 2 vid
+      Neptunus i augusti 1989. Kan visas som markerade punkter längs banan.
+- [ ] **Gravitationsslunga**: sonderna fick fart genom att svänga förbi
+      planeterna. Visa farten i en panel så att hoppen vid varje passage syns –
+      det är själva förklaringen till hur de kunde nå så långt.
+- [ ] **Ut ur ekliptikan**: efter Saturnus böjde Voyager 1 av brant uppåt
+      (ca 35°) och Voyager 2 nedåt (ca 48°). Bra tillfälle att visa att
+      solsystemet är en skiva som sonderna nu lämnat.
+- [ ] **Kretsande sonder** som Cassini vid Saturnus (1997–2017) och Juno vid
+      Jupiter – enklare fall, vanliga ellipser kring en planet.
+- [ ] **Skalan**: sonderna är i dag över 100 AU bort, tre gånger längre än
+      Neptunus. Kameran måste kunna zooma ut så långt, och då krymper hela
+      planetsystemet till en prick – vilket i sig är poängen.
+
+**Verifiera:** Spola tiden till mars 1979 – Voyager 1 ska då vara vid Jupiter,
+inte någon annanstans. Samma sak för Voyager 2 vid Neptunus i augusti 1989.
+Kontrollera dagens avstånd mot NASA:s siffror (Voyager 1 ligger kring 167 AU
+och Voyager 2 kring 140 AU år 2026). Luta kameran och se att de två Voyager-
+sonderna lämnat ekliptikan åt var sitt håll.
 
 ---
 
