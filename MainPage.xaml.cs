@@ -194,13 +194,11 @@ public partial class MainPage : ContentPage
         _focusIndex = Math.Max(0, FocusPicker.SelectedIndex);
         if (_focusIndex > 0)
         {
-            // Zooma in lagom nära planeten när den väljs.
+            // Zooma så att planeten – och hela dess månsystem – syns.
             var planet = SolarSystemData.Planets[_focusIndex - 1];
-            float visualR = (float)(planet.RadiusKm / SolarSystemData.AuKm)
-                            * SolarSystemDrawable.UnitsPerAu * 1000f;
-            _drawable.Camera.Distance = Math.Min(_drawable.Camera.Distance,
-                Math.Max(visualR * 12f, 8f));
+            _drawable.Camera.Distance = _drawable.SuggestedFocusDistance(planet);
         }
+        _settingsChanged = true;
     }
 
     void OnResetClicked(object? sender, EventArgs e) => ResetView();

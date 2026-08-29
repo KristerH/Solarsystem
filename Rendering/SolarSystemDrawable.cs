@@ -211,6 +211,53 @@ public sealed class SolarSystemDrawable : IDrawable
     static readonly CelestialBody Earth =
         SolarSystemData.Planets.First(p => p.Name == "Jorden");
 
+    /// <summary>Innersta månen får som mest hamna så här långt ut (planetradier).</summary>
+    const float MoonInnerMaxRadii = 3f;
+
+    /// <summary>Yttersta månen får som mest hamna så här långt ut (planetradier).</summary>
+    const float MoonOuterMaxRadii = 10f;
+
+    /// <summary>
+    /// Hur månbanorna skalas i förhållande till planeten. Utgångspunkten är att
+    /// följa planeternas egen förstoring, så att systemets geometri blir exakt
+    /// rätt (Mars månar ligger verkligen så nära som de ser ut). Systemet
+    /// komprimeras först när det behövs: när innersta månen skulle hamna
+    /// längre ut än 3 planetradier (vår egen måne ligger på 60) eller yttersta
+    /// månen längre ut än 10 (Callisto ligger på 27 jupiterradier).
+    /// </summary>
+    float MoonDisplayScale(CelestialBody planet)
+    {
+        if (RealScale || planet.Moons.Length == 0)
+            return 1f;
+
+        float parentVisR = VisualRadius(planet.RadiusKm, isSun: false);
+        double innerAu = planet.Moons.Min(m => m.SemiMajorAu);
+        double outerAu = planet.Moons.Max(m => m.SemiMajorAu);
+
+        return MathF.Min(PlanetBoost, MathF.Min(
+            parentVisR * MoonInnerMaxRadii / (float)(innerAu * UnitsPerAu),
+            parentVisR * MoonOuterMaxRadii / (float)(outerAu * UnitsPerAu)));
+    }
+
+    /// <summary>
+    /// Lämpligt kameraavstånd när en kropp väljs i fokusväljaren: nära nog för
+    /// att se planeten, men tillräckligt långt bort för att hela månsystemet
+    /// ska rymmas i bild.
+    /// </summary>
+    public float SuggestedFocusDistance(CelestialBody planet)
+    {
+        float visR = VisualRadius(planet.RadiusKm, isSun: false);
+        float distance = visR * 12f;
+
+        if (planet.Moons.Length > 0)
+        {
+            float outer = (float)(planet.Moons.Max(m => m.SemiMajorAu) * UnitsPerAu)
+                          * MoonDisplayScale(planet);
+            distance = MathF.Max(distance, outer * 2.7f);
+        }
+        return MathF.Max(distance, 8f);
+    }
+
     /// <summary>
     /// Lägger till en planets månar. Varje måne kretsar med sina riktiga
     /// banelement kring planeten. I förstorat läge vore de verkliga avstånden
@@ -223,21 +270,7 @@ public sealed class SolarSystemDrawable : IDrawable
     void AddMoons(List<(CelestialBody? Body, bool IsMoon, Vector3 Pos, float WorldRadius, float Depth, float Sx, float Sy)> bodies,
         CelestialBody planet, Vector3 planetPos, double t)
     {
-        float displayScale = 1f;
-        if (!RealScale)
-        {
-            // Följ i första hand planeternas egen förstoring – då blir
-            // månsystemets geometri exakt rätt i förhållande till planeten
-            // (Mars månar ligger verkligen så nära som de ser ut). Först när
-            // den innersta månen skulle hamna längre bort än 3 planetradier
-            // komprimeras systemet, vilket är fallet för vår egen måne på
-            // 60 jordradier.
-            double innermostAu = planet.Moons.Min(m => m.SemiMajorAu);
-            float parentVisR = VisualRadius(planet.RadiusKm, isSun: false);
-            displayScale = MathF.Min(
-                PlanetBoost,
-                parentVisR * 3f / (float)(innermostAu * UnitsPerAu));
-        }
+        float displayScale = MoonDisplayScale(planet);
 
         foreach (var moon in planet.Moons)
         {

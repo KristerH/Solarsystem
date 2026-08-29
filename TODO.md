@@ -37,10 +37,10 @@ i appen blir de prickar.
 
 ## Etapp 3 – Jupiters galileiska månar (störst pedagogiskt värde!)
 
-- [ ] Io (omloppstid 1,77 dygn)
-- [ ] Europa (3,55 dygn)
-- [ ] Ganymedes (7,15 dygn – större än Merkurius)
-- [ ] Callisto (16,69 dygn)
+- [x] Io (omloppstid 1,77 dygn)
+- [x] Europa (3,55 dygn)
+- [x] Ganymedes (7,15 dygn – större än Merkurius)
+- [x] Callisto (16,69 dygn)
 
 Omloppstiderna bildar nästan exakt 1:2:4-resonans (Io:Europa:Ganymedes) –
 värt att kunna visa. Det var dessa fyra Galilei såg 1610.

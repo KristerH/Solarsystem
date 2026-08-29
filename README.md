@@ -11,14 +11,20 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
   ungefär med verkligheten för det simulerade datumet. Plutos bana är en bra
   kontrast till planeternas: 17° lutning, 248 års omloppstid och så excentrisk
   att den tidvis går innanför Neptunus bana.
-- **Månar**: Jordens måne (27,3 dygn per varv) samt Mars Phobos och Deimos
-  kretsar kring sina planeter med riktiga banelement, och visas när man
-  zoomar in. Phobos gör ett varv på 7,7 timmar – snabbare än Mars snurrar
-  runt sin egen axel. Månsystemens geometri följer planeternas förstoring, så
-  att avstånden blir rätt i förhållande till planeten; först när en måne
-  skulle hamna längre bort än 3 planetradier komprimeras avståndet, vilket
-  behövs för vår egen måne på 60 jordradier. I läget "Verklig storlek"
-  används äkta geometri rakt igenom.
+- **Månar**: Jordens måne (27,3 dygn per varv), Mars Phobos och Deimos samt
+  Jupiters fyra galileiska månar Io, Europa, Ganymedes och Callisto kretsar
+  kring sina planeter med riktiga banelement, och visas när man zoomar in.
+  Phobos gör ett varv på 7,7 timmar – snabbare än Mars snurrar runt sin egen
+  axel. Jupitermånarnas faslägen är valda så att Laplace-resonansen gäller:
+  Io, Europa och Ganymedes har omloppstider i förhållandet 1:2:4 och kan
+  därför aldrig stå på linje samtidigt – när Io och Europa möts står
+  Ganymedes alltid 90° bort. Månsystemens geometri följer planeternas förstoring, så
+  att avstånden blir rätt i förhållande till planeten; systemet komprimeras
+  först när det behövs – när innersta månen skulle hamna längre ut än
+  3 planetradier (vår egen måne ligger på 60) eller yttersta månen längre ut
+  än 10 (Callisto ligger på 27 jupiterradier). I läget "Verklig storlek"
+  används äkta geometri rakt igenom. Väljer man en planet i fokusväljaren
+  zoomar kameran så att hela dess månsystem ryms i bild.
 - **Skalenliga avstånd**: Avstånden mellan banorna är alltid skalenliga (1 AU =
   60 enheter). Planeternas storlekar är inbördes skalenliga men förstorade så
   att de syns – bocka i **Verklig storlek** för att se hur små planeterna
