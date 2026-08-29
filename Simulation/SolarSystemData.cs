@@ -7,6 +7,25 @@ namespace Solarsystem.Simulation;
 /// Vinklar i grader: banlutning i, uppstigande nodens longitud Ω,
 /// perihelielongitud ϖ samt medellongitud L0 vid epoken.
 /// </summary>
+/// <summary>
+/// Ett ringsystem kring en planet. Radierna anges i planetradier och planet
+/// beskrivs med samma lutning och nod som planetens ekvator, så att ringarna
+/// hamnar i samma plan som månarna.
+/// </summary>
+/// <param name="MinScreenRadius">
+/// Ringen ritas först när den når så här många pixlar på skärmen. Saturnus
+/// ringar syns med blotta ögat i ett litet teleskop och får därför ett lågt
+/// värde; de övriga tre är så svaga att de upptäcktes först med rymdsonder,
+/// och dyker därför upp först vid rejäl inzoomning.
+/// </param>
+public sealed record PlanetRing(
+    float InnerRadii,
+    float OuterRadii,
+    double InclinationDeg,
+    double AscNodeDeg,
+    Color Color,
+    float MinScreenRadius);
+
 public sealed record CelestialBody(
     string Name,
     Color BodyColor,
@@ -32,6 +51,9 @@ public sealed record CelestialBody(
     /// att moderkroppen står stilla, vilket räcker för alla lätta månar.
     /// </summary>
     public double MassFraction { get; init; }
+
+    /// <summary>Planetens ringsystem, eller null för kroppar utan ringar.</summary>
+    public PlanetRing? Ring { get; init; }
 
     /// <summary>Position i världskoordinater (Y = norr om ekliptikan) vid given tid.</summary>
     public Vector3 PositionAt(double daysSinceJ2000, float unitsPerAu)
@@ -232,9 +254,38 @@ public static class SolarSystemData
     // Banlutningen över 90 grader är just det som gör rörelsen retrograd.
     // Not: banplanet precesserar med ca 640 års period, så orienteringen nedan
     // är läget vid epoken snarare än en bestående egenskap.
+    // Neptunus ekvatorsplan, räknat ur planetens polriktning. Används av
+    // ringarna; Triton har eget banplan eftersom den inte följer ekvatorn.
+    const double NeptuneEquatorInclinationDeg = 28.03;
+    const double NeptuneEquatorNodeDeg = 229.24;
+
     public static readonly CelestialBody Triton = new(
         "Triton", Color.FromArgb("#D8CFC8"), 1_353.4,
         354_759.0 / AuKm, 0.000016, 130.0, 60.93, 0.0, 0.0, 5.876854);
+
+    // Ringsystemen. Alla fyra jätteplaneter har ringar – inte bara Saturnus.
+    // Radierna är verkliga, uttryckta i planetradier:
+    //   Jupiter   122 500 – 129 000 km  (den tunna huvudringen av damm)
+    //   Saturnus   74 700 – 136 800 km  (C-ringen ut till A-ringens ytterkant)
+    //   Uranus     38 000 –  51 150 km  (de smala, kolmörka ringarna)
+    //   Neptunus   41 900 –  62 933 km  (ut till Adams-ringen)
+    // Saturnus ringar är ljusa isPartiklar; de tre andra är så mörka att de
+    // upptäcktes först på 1970- och 80-talen.
+    static readonly PlanetRing JupiterRing = new(
+        1.75f, 1.85f, JupiterEquatorInclinationDeg, JupiterEquatorNodeDeg,
+        Color.FromRgba(0.58f, 0.45f, 0.36f, 0.30f), 25f);
+
+    static readonly PlanetRing SaturnRing = new(
+        1.283f, 2.349f, SaturnEquatorInclinationDeg, SaturnEquatorNodeDeg,
+        Color.FromRgba(0.85f, 0.78f, 0.60f, 0.55f), 3f);
+
+    static readonly PlanetRing UranusRing = new(
+        1.50f, 2.02f, UranusEquatorInclinationDeg, UranusEquatorNodeDeg,
+        Color.FromRgba(0.55f, 0.63f, 0.70f, 0.30f), 25f);
+
+    static readonly PlanetRing NeptuneRing = new(
+        1.70f, 2.56f, NeptuneEquatorInclinationDeg, NeptuneEquatorNodeDeg,
+        Color.FromRgba(0.50f, 0.58f, 0.74f, 0.26f), 25f);
 
     // Banelement vid J2000 (NASA/JPL, medelvärden). Tillräckligt noggranna för att
     // planeternas positioner ungefär ska stämma med verkligheten för ett givet datum.
@@ -244,10 +295,10 @@ public static class SolarSystemData
         new("Venus",     Color.FromArgb("#E8CDA0"),  6_051.8, 0.72333, 0.00677, 3.395,  76.680, 131.564, 181.980,   224.701),
         new("Jorden",    Color.FromArgb("#4C8CE8"),  6_371.0, 1.00000, 0.01671, 0.000, -11.261, 102.947, 100.464,   365.256) { Moons = [Moon] },
         new("Mars",      Color.FromArgb("#D96C4A"),  3_389.5, 1.52371, 0.09339, 1.850,  49.559, 336.041, 355.445,   686.980) { Moons = [Phobos, Deimos] },
-        new("Jupiter",   Color.FromArgb("#D8B48A"), 69_911.0, 5.20289, 0.04839, 1.304, 100.474,  14.728,  34.397, 4_332.59) { Moons = [Io, Europa, Ganymedes, Callisto] },
-        new("Saturnus",  Color.FromArgb("#E8D5A8"), 58_232.0, 9.53668, 0.05386, 2.486, 113.662,  92.599,  49.954, 10_759.22) { Moons = [Enceladus, Rhea, Titan] },
-        new("Uranus",    Color.FromArgb("#9BD4E4"), 25_362.0, 19.18916, 0.04726, 0.773, 74.017, 170.954, 313.238, 30_688.5) { Moons = [Miranda, Titania, Oberon] },
-        new("Neptunus",  Color.FromArgb("#5A78E8"), 24_622.0, 30.06992, 0.00859, 1.770, 131.784,  44.965, 304.880, 60_182.0) { Moons = [Triton] },
+        new("Jupiter",   Color.FromArgb("#D8B48A"), 69_911.0, 5.20289, 0.04839, 1.304, 100.474,  14.728,  34.397, 4_332.59) { Moons = [Io, Europa, Ganymedes, Callisto], Ring = JupiterRing },
+        new("Saturnus",  Color.FromArgb("#E8D5A8"), 58_232.0, 9.53668, 0.05386, 2.486, 113.662,  92.599,  49.954, 10_759.22) { Moons = [Enceladus, Rhea, Titan], Ring = SaturnRing },
+        new("Uranus",    Color.FromArgb("#9BD4E4"), 25_362.0, 19.18916, 0.04726, 0.773, 74.017, 170.954, 313.238, 30_688.5) { Moons = [Miranda, Titania, Oberon], Ring = UranusRing },
+        new("Neptunus",  Color.FromArgb("#5A78E8"), 24_622.0, 30.06992, 0.00859, 1.770, 131.784,  44.965, 304.880, 60_182.0) { Moons = [Triton], Ring = NeptuneRing },
         // Dvärgplaneten Pluto: kraftigt lutande (17°) och excentrisk bana som
         // tidvis går innanför Neptunus. Ett varv tar nästan 248 år.
         new("Pluto",     Color.FromArgb("#C4AB94"),  1_188.3, 39.48212, 0.24883, 17.140, 110.304, 224.069, 238.929, 90_560.0) { Moons = [Charon] },

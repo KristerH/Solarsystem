@@ -19,7 +19,6 @@ public sealed class SolarSystemDrawable : IDrawable
     const float SunBoost = 30f;
 
     const int OrbitSamples = 240;
-    const float SaturnRingTiltDeg = 26.73f;
 
     public OrbitCamera Camera { get; } = new();
     public double DaysSinceJ2000 { get; set; }
@@ -204,12 +203,14 @@ public sealed class SolarSystemDrawable : IDrawable
                 // Småmånar som Phobos (11 km radie) blir försvinnande små även
                 // förstorade, så de garanteras en synlig prick.
                 r = MathF.Max(r, RealScale ? 0.45f : isMoon ? 2.5f : 1.1f);
-                if (body.Name == "Saturnus")
+                if (body.Ring is PlanetRing ring)
                 {
-                    BuildSaturnRingPaths(pos, worldR, depth, out var farRing, out var nearRing);
-                    FillRing(canvas, farRing);
+                    // Den bortre ringhalvan målas före planeten och den främre efter,
+                    // så att ringen ser ut att gå bakom och framför klotet.
+                    BuildRingPaths(ring, pos, worldR, depth, out var farRing, out var nearRing);
+                    FillRing(canvas, ring, farRing);
                     DrawPlanet(canvas, body, sx, sy, r, sunX, sunY);
-                    FillRing(canvas, nearRing);
+                    FillRing(canvas, ring, nearRing);
                 }
                 else if (ReferenceEquals(body, Earth) && r >= 14f)
                 {
@@ -502,14 +503,12 @@ public sealed class SolarSystemDrawable : IDrawable
         }
     }
 
-    static readonly Color RingColor = Color.FromRgba(0.85f, 0.78f, 0.60f, 0.55f);
-
-    static void FillRing(ICanvas canvas, PathF? ring)
+    static void FillRing(ICanvas canvas, PlanetRing ring, PathF? path)
     {
-        if (ring is null)
+        if (path is null)
             return;
-        canvas.FillColor = RingColor;
-        canvas.FillPath(ring);
+        canvas.FillColor = ring.Color;
+        canvas.FillPath(path);
     }
 
     /// <summary>
@@ -518,19 +517,27 @@ public sealed class SolarSystemDrawable : IDrawable
     /// framför). Segmenten samlas i två banor så att hela ringen fylls med två
     /// anrop i stället för ett per segment.
     /// </summary>
-    void BuildSaturnRingPaths(Vector3 center, float worldR, float planetDepth,
+    void BuildRingPaths(PlanetRing ring, Vector3 center, float worldR, float planetDepth,
         out PathF? farRing, out PathF? nearRing)
     {
         farRing = nearRing = null;
 
-        float inner = worldR * 1.24f;
-        float outer = worldR * 2.27f;
-        if (Camera.ScreenRadius(outer, planetDepth) < 3f)
+        float inner = worldR * ring.InnerRadii;
+        float outer = worldR * ring.OuterRadii;
+        if (Camera.ScreenRadius(outer, planetDepth) < ring.MinScreenRadius)
             return;
 
-        float tilt = SaturnRingTiltDeg * MathF.PI / 180f;
-        var normal = new Vector3(0, MathF.Cos(tilt), MathF.Sin(tilt));
-        var u = Vector3.UnitX;
+        // Ringplanets normal ur lutning och nod, samma formel som för en banpol,
+        // omräknad till världskoordinater (Y = norr om ekliptikan).
+        double incl = ring.InclinationDeg * Math.PI / 180.0;
+        double node = ring.AscNodeDeg * Math.PI / 180.0;
+        float si = (float)Math.Sin(incl), ci = (float)Math.Cos(incl);
+        float sO = (float)Math.Sin(node), cO = (float)Math.Cos(node);
+
+        var normal = new Vector3(si * sO, ci, si * cO);
+        // Nodlinjen ligger per definition i ringplanet och är vinkelrät mot
+        // normalen, så den duger som första basvektor.
+        var u = new Vector3(cO, 0f, -sO);
         var v = Vector3.Cross(normal, u);
 
         const int segments = 72;

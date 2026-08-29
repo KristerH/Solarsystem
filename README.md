@@ -41,6 +41,15 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
   har samma effekt men mycket svagare: den tyngdpunkten ligger inuti
   jorden. Charon kretsar dessutom retrograd, eftersom Pluto själv roterar
   åt "fel" håll.
+- **Ringar kring alla fyra jätteplaneter** – inte bara Saturnus. Radierna
+  är verkliga: Jupiters tunna dammring (122 500–129 000 km), Saturnus
+  breda isringar (74 700–136 800 km), Uranus smala kolmörka ringar
+  (38 000–51 150 km) och Neptunus svaga ringar ut till Adams-ringen
+  (41 900–62 933 km). Ringarna ligger i planetens ekvatorsplan, samma
+  plan som månarna, så Uranus ringar står på högkant – 82° mot ekliptikan.
+  Saturnus ringar syns även i översiktsvyn, medan de tre andra är så
+  svaga att de upptäcktes först med rymdsonder och därför bara ritas när
+  man zoomat in ordentligt.
 - **Skalenliga avstånd**: Avstånden mellan banorna är alltid skalenliga (1 AU =
   60 enheter). Planeternas storlekar är inbördes skalenliga men förstorade så
   att de syns – bocka i **Verklig storlek** för att se hur små planeterna
