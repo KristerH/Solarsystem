@@ -11,10 +11,15 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
   ungefär med verkligheten för det simulerade datumet. Plutos bana är en bra
   kontrast till planeternas: 17° lutning, 248 års omloppstid och så excentrisk
   att den tidvis går innanför Neptunus bana.
-- **Månar**: Jordens måne (27,3 dygn per varv), Mars Phobos och Deimos,
-  Jupiters fyra galileiska månar Io, Europa, Ganymedes och Callisto samt
-  Plutos Charon kretsar kring sina planeter med riktiga banelement, och
-  visas när man zoomar in.
+- **Månar**: 15 månar kretsar kring sina planeter med riktiga banelement och
+  visas när man zoomar in – jordens måne, Mars Phobos och Deimos, Jupiters
+  fyra galileiska månar, Saturnus Enceladus, Rhea och Titan, Uranus
+  Miranda, Titania och Oberon, Neptunus Triton samt Plutos Charon.
+  Titan är större än Merkurius, och Enceladus är solsystemets ljusaste
+  kropp. Fem av månarna kretsar **retrograd**, alltså åt motsatt håll mot
+  allt annat: Uranus tre månar (planeten ligger på sidan), Charon (Pluto
+  roterar baklänges) och framför allt Triton, som med all sannolikhet är
+  en infångad dvärgplanet från Kuiperbältet.
   Phobos gör ett varv på 7,7 timmar – snabbare än Mars snurrar runt sin egen
   axel. Jupitermånarnas faslägen är valda så att Laplace-resonansen gäller:
   Io, Europa och Ganymedes har omloppstider i förhållandet 1:2:4 och kan
@@ -23,7 +28,9 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
   att avstånden blir rätt i förhållande till planeten; systemet komprimeras
   först när det behövs – när innersta månen skulle hamna längre ut än
   3 planetradier (vår egen måne ligger på 60) eller yttersta månen längre ut
-  än 10 (Callisto ligger på 27 jupiterradier). I läget "Verklig storlek"
+  än 10 (Callisto ligger på 27 jupiterradier). En måne trycks aldrig
+  närmare än 2,5 planetradier, så att Enceladus håller sig utanför
+  Saturnus ringar. I läget "Verklig storlek"
   används äkta geometri rakt igenom. Väljer man en planet i fokusväljaren
   zoomar kameran så att hela dess månsystem ryms i bild.
 - **Dubbelplaneten Pluto–Charon**: Charon har halva Plutos diameter och en

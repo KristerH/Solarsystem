@@ -179,6 +179,63 @@ public static class SolarSystemData
         MassFraction = 0.1085,
     };
 
+    // Saturnus tre mest kända månar. Banorna ligger i Saturnus ekvatorsplan,
+    // samma plan som ringarna lutar i (28,0 grader mot ekliptikan).
+    // Enceladus är solsystemets ljusaste kropp – en isvit måne med gejsrar som
+    // sprutar vatten från ett hav under isen. Titan är större än Merkurius och
+    // den enda månen med tät atmosfär, med sjöar av flytande metan.
+    const double SaturnEquatorInclinationDeg = 28.05;
+    const double SaturnEquatorNodeDeg = 349.53;
+
+    public static readonly CelestialBody Enceladus = new(
+        "Enceladus", Color.FromArgb("#F0F4F5"), 252.1,
+        237_948.0 / AuKm, 0.0047, SaturnEquatorInclinationDeg, SaturnEquatorNodeDeg,
+        0.0, 0.0, 1.370218);
+
+    public static readonly CelestialBody Rhea = new(
+        "Rhea", Color.FromArgb("#C8C6C0"), 763.8,
+        527_108.0 / AuKm, 0.0010, SaturnEquatorInclinationDeg, SaturnEquatorNodeDeg,
+        0.0, 120.0, 4.518212);
+
+    public static readonly CelestialBody Titan = new(
+        "Titan", Color.FromArgb("#D9A05B"), 2_574.7,
+        1_221_870.0 / AuKm, 0.0288, SaturnEquatorInclinationDeg, SaturnEquatorNodeDeg,
+        0.0, 240.0, 15.945421);
+
+    // Uranus månar, uppkallade efter figurer hos Shakespeare och Pope. Eftersom
+    // Uranus ligger på sidan står hela månsystemet nästan på högkant mot
+    // ekliptikan. Banlutningen är satt till 97,7 grader, alltså över 90: Uranus
+    // roterar retrograd, och månarna följer sin planets rotation. Samma plan med
+    // lutningen 82,3 grader hade gett rätt plan men fel färdriktning.
+    const double UranusEquatorInclinationDeg = 97.72;
+    const double UranusEquatorNodeDeg = 347.67;
+
+    public static readonly CelestialBody Miranda = new(
+        "Miranda", Color.FromArgb("#A8A5A0"), 235.8,
+        129_390.0 / AuKm, 0.0013, UranusEquatorInclinationDeg, UranusEquatorNodeDeg,
+        0.0, 0.0, 1.413479);
+
+    public static readonly CelestialBody Titania = new(
+        "Titania", Color.FromArgb("#B5AAA0"), 788.4,
+        435_910.0 / AuKm, 0.0011, UranusEquatorInclinationDeg, UranusEquatorNodeDeg,
+        0.0, 140.0, 8.706234);
+
+    public static readonly CelestialBody Oberon = new(
+        "Oberon", Color.FromArgb("#9C9088"), 761.4,
+        583_520.0 / AuKm, 0.0014, UranusEquatorInclinationDeg, UranusEquatorNodeDeg,
+        0.0, 260.0, 13.463234);
+
+    // Triton är solsystemets stora undantag: den kretsar RETROGRAD, alltså åt
+    // motsatt håll mot Neptunus rotation och mot allt annat i den här appen.
+    // En måne som bildats tillsammans med sin planet kan inte göra så – Triton
+    // är därför med all sannolikhet en infångad dvärgplanet från Kuiperbältet.
+    // Banlutningen över 90 grader är just det som gör rörelsen retrograd.
+    // Not: banplanet precesserar med ca 640 års period, så orienteringen nedan
+    // är läget vid epoken snarare än en bestående egenskap.
+    public static readonly CelestialBody Triton = new(
+        "Triton", Color.FromArgb("#D8CFC8"), 1_353.4,
+        354_759.0 / AuKm, 0.000016, 130.0, 60.93, 0.0, 0.0, 5.876854);
+
     // Banelement vid J2000 (NASA/JPL, medelvärden). Tillräckligt noggranna för att
     // planeternas positioner ungefär ska stämma med verkligheten för ett givet datum.
     public static readonly CelestialBody[] Planets =
@@ -188,9 +245,9 @@ public static class SolarSystemData
         new("Jorden",    Color.FromArgb("#4C8CE8"),  6_371.0, 1.00000, 0.01671, 0.000, -11.261, 102.947, 100.464,   365.256) { Moons = [Moon] },
         new("Mars",      Color.FromArgb("#D96C4A"),  3_389.5, 1.52371, 0.09339, 1.850,  49.559, 336.041, 355.445,   686.980) { Moons = [Phobos, Deimos] },
         new("Jupiter",   Color.FromArgb("#D8B48A"), 69_911.0, 5.20289, 0.04839, 1.304, 100.474,  14.728,  34.397, 4_332.59) { Moons = [Io, Europa, Ganymedes, Callisto] },
-        new("Saturnus",  Color.FromArgb("#E8D5A8"), 58_232.0, 9.53668, 0.05386, 2.486, 113.662,  92.599,  49.954, 10_759.22),
-        new("Uranus",    Color.FromArgb("#9BD4E4"), 25_362.0, 19.18916, 0.04726, 0.773, 74.017, 170.954, 313.238, 30_688.5),
-        new("Neptunus",  Color.FromArgb("#5A78E8"), 24_622.0, 30.06992, 0.00859, 1.770, 131.784,  44.965, 304.880, 60_182.0),
+        new("Saturnus",  Color.FromArgb("#E8D5A8"), 58_232.0, 9.53668, 0.05386, 2.486, 113.662,  92.599,  49.954, 10_759.22) { Moons = [Enceladus, Rhea, Titan] },
+        new("Uranus",    Color.FromArgb("#9BD4E4"), 25_362.0, 19.18916, 0.04726, 0.773, 74.017, 170.954, 313.238, 30_688.5) { Moons = [Miranda, Titania, Oberon] },
+        new("Neptunus",  Color.FromArgb("#5A78E8"), 24_622.0, 30.06992, 0.00859, 1.770, 131.784,  44.965, 304.880, 60_182.0) { Moons = [Triton] },
         // Dvärgplaneten Pluto: kraftigt lutande (17°) och excentrisk bana som
         // tidvis går innanför Neptunus. Ett varv tar nästan 248 år.
         new("Pluto",     Color.FromArgb("#C4AB94"),  1_188.3, 39.48212, 0.24883, 17.140, 110.304, 224.069, 238.929, 90_560.0) { Moons = [Charon] },

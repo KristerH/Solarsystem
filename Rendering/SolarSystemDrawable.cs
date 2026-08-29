@@ -236,6 +236,13 @@ public sealed class SolarSystemDrawable : IDrawable
     const float MoonOuterMaxRadii = 10f;
 
     /// <summary>
+    /// Innersta månen får aldrig tryckas närmare än så här (planetradier).
+    /// Utan den här spärren skulle Titans stora bana pressa in Enceladus i
+    /// Saturnus ringar, som når ut till 2,3 planetradier.
+    /// </summary>
+    const float MoonInnerMinRadii = 2.5f;
+
+    /// <summary>
     /// Hur månbanorna skalas i förhållande till planeten. Utgångspunkten är att
     /// följa planeternas egen förstoring, så att systemets geometri blir exakt
     /// rätt (Mars månar ligger verkligen så nära som de ser ut). Systemet
@@ -252,9 +259,14 @@ public sealed class SolarSystemDrawable : IDrawable
         double innerAu = planet.Moons.Min(m => m.SemiMajorAu);
         double outerAu = planet.Moons.Max(m => m.SemiMajorAu);
 
-        return MathF.Min(PlanetBoost, MathF.Min(
+        float scale = MathF.Min(PlanetBoost, MathF.Min(
             parentVisR * MoonInnerMaxRadii / (float)(innerAu * UnitsPerAu),
             parentVisR * MoonOuterMaxRadii / (float)(outerAu * UnitsPerAu)));
+
+        // ... men aldrig så hårt att innersta månen hamnar inne i planeten
+        // eller dess ringar.
+        return MathF.Max(scale,
+            parentVisR * MoonInnerMinRadii / (float)(innerAu * UnitsPerAu));
     }
 
     /// <summary>
