@@ -51,7 +51,7 @@ public partial class MainPage : ContentPage
         FocusPicker.ItemsSource = names;
         FocusPicker.SelectedIndex = 0;
 
-        StarDensityPicker.ItemsSource = new List<string> { "Få", "Normalt", "Många" };
+        StarDensityPicker.ItemsSource = new List<string> { "Inga", "Få", "Normalt", "Många" };
         StarDensityPicker.SelectedIndex = (int)_drawable.StarDensity;
 
         UpdateSpeedFromSlider();
@@ -180,6 +180,12 @@ public partial class MainPage : ContentPage
     void OnAsteroidsChanged(object? sender, CheckedChangedEventArgs e)
     {
         _drawable.ShowAsteroidBelt = e.Value;
+        _settingsChanged = true;
+    }
+
+    void OnKuiperChanged(object? sender, CheckedChangedEventArgs e)
+    {
+        _drawable.ShowKuiperBelt = e.Value;
         _settingsChanged = true;
     }
 

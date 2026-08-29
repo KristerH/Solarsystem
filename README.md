@@ -63,6 +63,15 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
   upprepade knuffar har rensat bort asteroiderna genom resonanser.
   Dvärgplaneten **Ceres**, som ensam rymmer en fjärdedel av bältets massa,
   ritas med namn på sin verkliga bana.
+- **Kuiperbältet** bortom Neptunus, också med egen kryssruta. 1 100 isiga
+  kroppar i två befolkningar: *plutinos* låsta i 3:2-resonans med Neptunus
+  vid 39,4 AU – de hinner två varv medan Neptunus hinner tre, och Pluto
+  själv är en av dem – och det *klassiska bältet* mellan 42 och 47,8 AU,
+  där det tar abrupt slut vid "Kuiperklippan". Banlutningarna är ungefär
+  som asteroidbältets, men eftersom bältet ligger sexton gånger längre bort
+  blir det i absoluta mått femton gånger tjockare: kropparna når 18 AU upp
+  och ner mot asteroidbältets 1,2. Luta kameran och zooma ut så syns
+  skillnaden tydligt.
 - **Visa/dölj månar**: en kryssruta slår av och på alla planeters månar
   på en gång, för en renare översiktsvy.
 - **Start/paus** av rotationen (knapp eller mellanslag) och justerbar
@@ -83,8 +92,10 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
   Eftersom stjärnorna räknas om från ekvatorial- till ekliptikakoordinater
   hamnar de rätt i förhållande till planetbanorna: planeterna rör sig genom
   zodiakens stjärnbilder, precis som på riktigt. Med **Stjärnor**-väljaren
-  styr man tätheten: "Få" visar bara katalogens riktiga stjärnor, "Normalt"
-  och "Många" lägger till bakgrundsstjärnor och Vintergatan.
+  styr man tätheten: "Inga" släcker hela stjärnhimlen för en helt svart
+  bakgrund – bra när eleverna ska titta enbart på solsystemet – medan "Få"
+  visar bara katalogens riktiga stjärnor och "Normalt" och "Många" lägger
+  till bakgrundsstjärnor och Vintergatan.
 
 Prestanda: stjärnhimlen ligger på oändligt avstånd, så alla skärmpositioner
 cachas och räknas bara om när kameran roteras – zoom och planetrörelser rör
@@ -112,8 +123,8 @@ asteroid-/Kuiperbälten, tänkt att byggas och verifieras en etapp i taget.
 
 - `Simulation/SolarSystemData.cs` – planetdata (banelement J2000) och
   Kepler-beräkning av positioner.
-- `Simulation/AsteroidBelt.cs` – asteroidbältets slumpade banor, med
-  förberäknad rotation så att en position kostar en Kepler-lösning.
+- `Simulation/SmallBodyBelt.cs` – asteroid- och Kuiperbältets slumpade banor,
+  med förberäknad rotation så att en position kostar en Kepler-lösning.
 - `Simulation/StarCatalog.cs` – stjärnkatalogen och stjärnbildernas figurer,
   samt omräkningen från ekvatorial- till världskoordinater.
 - `Rendering/StarSky.cs` – ritar stjärnor, stjärnbilder och Vintergatan.

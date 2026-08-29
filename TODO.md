@@ -4,8 +4,13 @@ Planen är att lägga till en eller några punkter i taget, så att varje steg
 hinner verifieras innan nästa påbörjas. Bocka av med `[x]` när en etapp är
 klar och godkänd.
 
-**Klart hittills:** Jordens måne (etapp 0) är redan inlagd och verifierad,
-liksom Saturnus ringar. De fungerar som mall för resten.
+**Klart hittills:** Etapp 1–8 är genomförda och verifierade – månar, ringar
+och båda småkroppsbältena finns på plats.
+
+**Ordningen på de kvarvarande** är vald med flit: rymdfärden (9) börjar med
+att man ska kunna ställa om datumet, vilket Voyager-etappen (10) behöver för
+att kunna spola tillbaka till 1977. Språkstödet (11) ligger sist, så att
+alla texter finns på plats och bara behöver flyttas ut en enda gång.
 
 ---
 
@@ -89,13 +94,13 @@ i översiktsvyn. Uranus ringar ska stå nästan vinkelrätt mot banplanet.
 
 ## Etapp 7 – Asteroidbältet (runt solen)
 
-- [ ] Ett diskret band av små prickar mellan Mars (1,52 AU) och Jupiter
+- [x] Ett diskret band av små prickar mellan Mars (1,52 AU) och Jupiter
       (5,20 AU), tätast kring 2,2–3,3 AU. Slumpade banor med spridning i
       lutning (± ett par grader) och excentricitet, som roterar med
       keplerska hastigheter (inre varvet snabbare än yttre).
-- [ ] Kryssruta "Visa asteroidbältet" (av som standard, så att vyn inte blir
+- [x] Kryssruta "Visa asteroidbältet" (av som standard, så att vyn inte blir
       plottrig).
-- [ ] Eventuellt: dvärgplaneten Ceres som namngiven prick i bältet.
+- [x] Eventuellt: dvärgplaneten Ceres som namngiven prick i bältet.
 
 **Verifiera:** Bältet ska se glest ut även i appen – en pedagogisk poäng är
 att asteroidbältet i verkligheten mest är tomrum (rymdsonder flyger igenom
@@ -106,9 +111,9 @@ utan problem). Prestanda: ingen märkbar försämring vid rotation/zoom
 
 ## Etapp 8 – Kuiperbältet (runt solen, bortom Neptunus)
 
-- [ ] Glest band av isprickar ca 30–50 AU, med större spridning i lutning
+- [x] Glest band av isprickar ca 30–50 AU, med större spridning i lutning
       än asteroidbältet. Pluto ligger mitt i det – bra att kunna visa.
-- [ ] Samma kryssruta som asteroidbältet eller en egen.
+- [x] Samma kryssruta som asteroidbältet eller en egen.
 
 **Verifiera:** Zooma ut och luta kameran: Kuiperbältet ska vara tjockare/
 "luddigare" i höjdled än asteroidbältet, och Plutos lutande bana ska ligga
@@ -116,40 +121,7 @@ inom dess svärm.
 
 ---
 
-## Etapp 9 – Språkstöd (inför publik release)
-
-Appen ska kunna visas på svenska och engelska, med språken i egna filer så
-att fler språk (t.ex. tyska) bara blir en fil till – ingen kodändring.
-
-- [ ] Lägg alla texter i .resx-resursfiler (standardmekanismen i .NET):
-      `Resources/Strings/AppStrings.resx` (engelska som grundspråk) och
-      `AppStrings.sv.resx` (svenska). Ett nytt språk = en ny
-      `AppStrings.xx.resx`.
-- [ ] Flytta ut och översätt:
-      - [ ] Menyer och reglage (Pausa/Starta, Hastighet, Visa banor,
-            Verklig storlek, Stjärnbilder, Stjärnnamn, Stjärnor, Fokus,
-            Återställ vy, Få/Normalt/Många)
-      - [ ] Klock- och infotexter (Förflutet, dygn/sek, hjälpraden, fönstertitel)
-      - [ ] Himlakroppsnamn (Solen/The Sun, Jorden/Earth, Månen/The Moon ...) –
-            datat i `SolarSystemData` får språkneutrala nycklar, namnen slås
-            upp i resurserna
-      - [ ] Stjärnbildsnamn (Karlavagnen - Stora björn / Big Dipper - Ursa
-            Major, Lilla björn / Little Bear ...). Stjärnornas egennamn
-            (Betelgeuse, Sirius, Polaris/Polstjärnan) är internationella och
-            behöver bara översättas i undantagsfall.
-- [ ] Språkval: följ operativsystemets språk som standard, plus en väljare i
-      kontrollpanelen så att läraren kan byta språk direkt på lektionen.
-- [ ] Datum- och talformat följer valt språk (i dag hårdkodat sv-SE).
-- [ ] README på båda språken (eller engelsk README med svensk sektion).
-
-**Verifiera:** Byt språk i väljaren: alla texter, planetnamn och
-stjärnbildsnamn byter språk direkt, datumet formateras rätt ("fredag 5
-september" / "Friday, September 5") och inga texter blir avklippta i
-kontrollpanelen. Svenska ska se exakt ut som i dag.
-
----
-
-## Etapp 10 – Rymdfärd till Mars eller månen
+## Etapp 9 – Rymdfärd till Mars eller månen
 
 En egen liten rymdfärd: eleverna väljer mål, skjuter upp en farkost och följer
 den hela vägen fram. Här möts allt appen redan kan – banor, tid och skala –
@@ -167,7 +139,7 @@ i något eleverna själva styr.
       Kepler-matematiken klarar redan negativ tid, så arbetet ligger i
       gränssnittet och i klockan (`_startDate` plus `_simDays` i `MainPage`).
       Detta är också grunden för "Hoppa till nästa startfönster" nedan, och
-      behövs i etapp 11 för att spola tillbaka till Voyagers uppskjutning 1977.
+      behövs i etapp 10 för att spola tillbaka till Voyagers uppskjutning 1977.
       Rolig bieffekt: eleverna kan slå upp sin egen födelsedag och se var
       planeterna stod då.
 
@@ -205,9 +177,9 @@ Månfärden ska ta ca 3 dygn.
 
 ---
 
-## Etapp 11 – Voyager och de andra rymdsonderna
+## Etapp 10 – Voyager och de andra rymdsonderna
 
-De farkoster mänskligheten faktiskt har skickat ut. Etapp 10 handlar om en
+De farkoster mänskligheten faktiskt har skickat ut. Etapp 9 handlar om en
 påhittad resa som eleven själv styr; den här handlar om de verkliga färderna,
 med riktiga datum. Voyager 1 är det avlägsnaste föremål människan har byggt.
 
@@ -246,6 +218,39 @@ sonderna lämnat ekliptikan åt var sitt håll.
 
 ---
 
+## Etapp 11 – Språkstöd (inför publik release)
+
+Appen ska kunna visas på svenska och engelska, med språken i egna filer så
+att fler språk (t.ex. tyska) bara blir en fil till – ingen kodändring.
+
+- [ ] Lägg alla texter i .resx-resursfiler (standardmekanismen i .NET):
+      `Resources/Strings/AppStrings.resx` (engelska som grundspråk) och
+      `AppStrings.sv.resx` (svenska). Ett nytt språk = en ny
+      `AppStrings.xx.resx`.
+- [ ] Flytta ut och översätt:
+      - [ ] Menyer och reglage (Pausa/Starta, Hastighet, Visa banor,
+            Verklig storlek, Stjärnbilder, Stjärnnamn, Stjärnor, Fokus,
+            Återställ vy, Få/Normalt/Många)
+      - [ ] Klock- och infotexter (Förflutet, dygn/sek, hjälpraden, fönstertitel)
+      - [ ] Himlakroppsnamn (Solen/The Sun, Jorden/Earth, Månen/The Moon ...) –
+            datat i `SolarSystemData` får språkneutrala nycklar, namnen slås
+            upp i resurserna
+      - [ ] Stjärnbildsnamn (Karlavagnen - Stora björn / Big Dipper - Ursa
+            Major, Lilla björn / Little Bear ...). Stjärnornas egennamn
+            (Betelgeuse, Sirius, Polaris/Polstjärnan) är internationella och
+            behöver bara översättas i undantagsfall.
+- [ ] Språkval: följ operativsystemets språk som standard, plus en väljare i
+      kontrollpanelen så att läraren kan byta språk direkt på lektionen.
+- [ ] Datum- och talformat följer valt språk (i dag hårdkodat sv-SE).
+- [ ] README på båda språken (eller engelsk README med svensk sektion).
+
+**Verifiera:** Byt språk i väljaren: alla texter, planetnamn och
+stjärnbildsnamn byter språk direkt, datumet formateras rätt ("fredag 5
+september" / "Friday, September 5") och inga texter blir avklippta i
+kontrollpanelen. Svenska ska se exakt ut som i dag.
+
+---
+
 ## Anteckningar och beslut
 
 - **Skala:** månar följer Månens princip – i förstorat läge komprimerat
@@ -257,6 +262,6 @@ sonderna lämnat ekliptikan åt var sitt håll.
   inga gradienter i stora mängder (läxan från Vintergatan).
 - **Månantal:** vi ritar bara de stora/pedagogiska månarna. Att Jupiter har
   ~95 och Saturnus ~274 kända månar kan i stället nämnas i en infotext.
-- **Nya texter under etapp 2–8:** skrivs tills vidare på svenska som i dag,
-  men samlas gärna på få ställen i koden så att etapp 9 (språkstöd) blir
-  enkel att genomföra.
+- **Nya texter fram till språkstödet:** skrivs tills vidare på svenska som i
+  dag, men samlas gärna på få ställen i koden så att etapp 11 (språkstöd)
+  blir enkel att genomföra.

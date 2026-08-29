@@ -6,12 +6,17 @@ namespace Solarsystem.Rendering;
 /// <summary>Hur många stjärnor som ritas – en inställning i appen.</summary>
 public enum StarDensity
 {
+    /// <summary>
+    /// Ingen stjärnhimmel alls – helt svart bakgrund. Bra när man vill att
+    /// eleverna ska titta enbart på solsystemet utan att distraheras.
+    /// </summary>
+    None = 0,
     /// <summary>Endast katalogens riktiga, namngivna stjärnor.</summary>
-    Low = 0,
+    Low = 1,
     /// <summary>Riktiga stjärnor plus ett måttligt bakgrundsbrus och Vintergatan.</summary>
-    Medium = 1,
+    Medium = 2,
     /// <summary>Full stjärnhimmel.</summary>
-    High = 2,
+    High = 3,
 }
 
 /// <summary>
@@ -108,6 +113,11 @@ public sealed class StarSky
     public void Draw(ICanvas canvas, OrbitCamera camera, RectF rect,
         bool showConstellations, bool showStarNames)
     {
+        // Vid "Inga" ritas ingenting alls – varken stjärnor, stjärnbilder eller
+        // Vintergata. Linjer mellan osynliga stjärnor vore ändå meningslösa.
+        if (Density == StarDensity.None)
+            return;
+
         RefreshCache(camera, rect);
 
         (int uniformCount, int bandCount, int blobCount) = Density switch
