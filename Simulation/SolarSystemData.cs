@@ -287,6 +287,15 @@ public static class SolarSystemData
         1.70f, 2.56f, NeptuneEquatorInclinationDeg, NeptuneEquatorNodeDeg,
         Color.FromRgba(0.50f, 0.58f, 0.74f, 0.26f), 25f);
 
+    /// <summary>
+    /// Dvärgplaneten Ceres, den i särklass största kroppen i asteroidbältet –
+    /// den rymmer ungefär en fjärdedel av hela bältets massa. Ligger utanför
+    /// planetlistan och ritas tillsammans med bältet.
+    /// </summary>
+    public static readonly CelestialBody Ceres = new(
+        "Ceres", Color.FromArgb("#A79C90"), 469.7,
+        2.7675, 0.0758, 10.593, 80.393, 153.990, 249.979, 1_681.63);
+
     // Banelement vid J2000 (NASA/JPL, medelvärden). Tillräckligt noggranna för att
     // planeternas positioner ungefär ska stämma med verkligheten för ett givet datum.
     public static readonly CelestialBody[] Planets =

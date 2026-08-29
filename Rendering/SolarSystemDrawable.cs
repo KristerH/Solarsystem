@@ -30,6 +30,9 @@ public sealed class SolarSystemDrawable : IDrawable
     /// <summary>Om planeternas månar ska ritas alls.</summary>
     public bool ShowMoons { get; set; } = true;
 
+    /// <summary>Om asteroidbältet mellan Mars och Jupiter ska ritas.</summary>
+    public bool ShowAsteroidBelt { get; set; }
+
     /// <summary>
     /// Sant medan fönstret håller på att ändra storlek. Då ritas bara svart –
     /// plattformen ritar om vid varje storlekssteg, och att projicera om hela
@@ -45,6 +48,14 @@ public sealed class SolarSystemDrawable : IDrawable
     }
 
     readonly StarSky _sky = new();
+
+    // Bältet byggs först när det efterfrågas, så att appen startar lika snabbt
+    // som förut för den som aldrig slår på det.
+    AsteroidBelt? _belt;
+    Vector3[]? _beltPositions;
+    double _beltPositionsTime = double.NaN;
+    static readonly Color AsteroidColor = Color.FromArgb("#B4A794");
+    static readonly Color CeresLabelColor = Color.FromRgba(0.82f, 0.78f, 0.72f, 0.85f);
     Vector3[][]? _orbitPaths;
     readonly List<(string Name, float X, float Y)> _labels = new(16);
 
@@ -72,6 +83,8 @@ public sealed class SolarSystemDrawable : IDrawable
             _sky.Draw(canvas, Camera, rect, ShowConstellations, ShowStarNames);
             if (ShowOrbits)
                 DrawOrbits(canvas, rect);
+            if (ShowAsteroidBelt)
+                DrawAsteroidBelt(canvas, rect);
             DrawBodies(canvas, rect);
             DrawLabels(canvas, rect);
         }
@@ -146,6 +159,68 @@ public sealed class SolarSystemDrawable : IDrawable
             canvas.DrawPath(_orbitScreenPaths[i]);
         }
     }
+
+    // --------------------------------------------------------- asteroidbältet
+
+    /// <summary>Hur många asteroider som ritas.</summary>
+    const int AsteroidCount = 1400;
+
+    /// <summary>
+    /// Ritar asteroidbältet som ett fint stoft av prickar. Varje asteroid får
+    /// sin plats ur en egen Kepler-bana, så att bältet roterar med inre varv
+    /// snabbare än yttre precis som i verkligheten. Prickar utanför bildkanten
+    /// hoppas över innan de ritas.
+    /// </summary>
+    void DrawAsteroidBelt(ICanvas canvas, RectF rect)
+    {
+        _belt ??= new AsteroidBelt(AsteroidCount, UnitsPerAu);
+        _beltPositions ??= new Vector3[_belt.Bodies.Length];
+
+        // Asteroiderna kryper framåt i sina banor – ett varv tar flera år. Deras
+        // världspositioner behöver därför inte lösas ur Keplers ekvation varje
+        // bildruta, utan först när rörelsen hunnit bli en pixel på skärmen.
+        // Toleransen följer zoomen: inzoomad räknas de om oftare.
+        float tolerance = MathF.Max(0.02f, Camera.Distance / (0.63f * Camera.Focal));
+        if (double.IsNaN(_beltPositionsTime) ||
+            Math.Abs(DaysSinceJ2000 - _beltPositionsTime) > tolerance)
+        {
+            _beltPositionsTime = DaysSinceJ2000;
+            var bodies = _belt.Bodies;
+            for (int i = 0; i < bodies.Length; i++)
+                _beltPositions[i] = AsteroidBelt.PositionOf(bodies[i], DaysSinceJ2000);
+        }
+
+        float maxX = rect.Width + 40f, maxY = rect.Height + 40f;
+        float currentAlpha = -1f;
+        for (int i = 0; i < _beltPositions.Length; i++)
+        {
+            if (!Camera.Project(_beltPositions[i], out float sx, out float sy, out _))
+                continue;
+            if (sx < -40f || sx > maxX || sy < -40f || sy > maxY)
+                continue;
+
+            // Listan är sorterad efter ljusstyrka, så detta slår till tre gånger.
+            float alpha = _belt.Bodies[i].Alpha;
+            if (alpha != currentAlpha)
+            {
+                currentAlpha = alpha;
+                canvas.FillColor = AsteroidColor.WithAlpha(alpha);
+            }
+            canvas.FillCircle(sx, sy, 1.1f);
+        }
+
+        // Ceres är så mycket större än allt annat i bältet att den får namn.
+        var ceres = SolarSystemData.Ceres.PositionAt(DaysSinceJ2000, UnitsPerAu);
+        if (Camera.Project(ceres, out float cx, out float cy, out _))
+        {
+            canvas.FillColor = SolarSystemData.Ceres.BodyColor;
+            canvas.FillCircle(cx, cy, 2.6f);
+            canvas.FontSize = 11f;
+            canvas.FontColor = CeresLabelColor;
+            canvas.DrawString("Ceres", cx, cy + 16f, HorizontalAlignment.Center);
+        }
+    }
+
 
     // ------------------------------------------------------------ himlakroppar
 

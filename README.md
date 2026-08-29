@@ -54,6 +54,15 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
   60 enheter). Planeternas storlekar är inbördes skalenliga men förstorade så
   att de syns – bocka i **Verklig storlek** för att se hur små planeterna
   faktiskt är jämfört med avstånden.
+- **Asteroidbältet** kan slås på med en kryssruta (av från start). 1 400
+  småkroppar mellan Mars och Jupiter, med samma statistiska fördelning som
+  det verkliga bältet: halva storaxlar 2,06–3,27 AU, medelexcentricitet
+  0,14 och medelbanlutning 9,5°. Varje asteroid följer sin egen
+  Kepler-bana, så inre delen av bältet roterar snabbare än den yttre.
+  **Kirkwood-gapen** är utsparade – de tomma spalter där Jupiters
+  upprepade knuffar har rensat bort asteroiderna genom resonanser.
+  Dvärgplaneten **Ceres**, som ensam rymmer en fjärdedel av bältets massa,
+  ritas med namn på sin verkliga bana.
 - **Visa/dölj månar**: en kryssruta slår av och på alla planeters månar
   på en gång, för en renare översiktsvy.
 - **Start/paus** av rotationen (knapp eller mellanslag) och justerbar
@@ -103,6 +112,8 @@ asteroid-/Kuiperbälten, tänkt att byggas och verifieras en etapp i taget.
 
 - `Simulation/SolarSystemData.cs` – planetdata (banelement J2000) och
   Kepler-beräkning av positioner.
+- `Simulation/AsteroidBelt.cs` – asteroidbältets slumpade banor, med
+  förberäknad rotation så att en position kostar en Kepler-lösning.
 - `Simulation/StarCatalog.cs` – stjärnkatalogen och stjärnbildernas figurer,
   samt omräkningen från ekvatorial- till världskoordinater.
 - `Rendering/StarSky.cs` – ritar stjärnor, stjärnbilder och Vintergatan.

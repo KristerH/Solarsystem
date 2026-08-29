@@ -177,6 +177,12 @@ public partial class MainPage : ContentPage
         _settingsChanged = true;
     }
 
+    void OnAsteroidsChanged(object? sender, CheckedChangedEventArgs e)
+    {
+        _drawable.ShowAsteroidBelt = e.Value;
+        _settingsChanged = true;
+    }
+
     void OnConstellationsChanged(object? sender, CheckedChangedEventArgs e)
     {
         _drawable.ShowConstellations = e.Value;
