@@ -52,10 +52,10 @@ Callisto långsammast. Kolla resonansen: två Io-varv per Europa-varv.
 
 ## Etapp 4 – Pluto och Charon (dubbelplaneten)
 
-- [ ] Charon (omloppstid 6,39 dygn, radie 606 km – halva Plutos!)
-- [ ] Eventuellt: gemensam tyngdpunkt utanför Pluto, så att även Pluto
+- [x] Charon (omloppstid 6,39 dygn, radie 606 km – halva Plutos!)
+- [x] Eventuellt: gemensam tyngdpunkt utanför Pluto, så att även Pluto
       "vaggar" – det är det som gör paret nästan till en dubbelplanet.
-- [ ] Småmånarna Styx, Nix, Kerberos, Hydra (prickar, kan hoppas över)
+- [x] Småmånarna Styx, Nix, Kerberos, Hydra (prickar, kan hoppas över)
 
 **Verifiera:** Fokusera Pluto. Charon ska vara påfallande stor i förhållande
 till Pluto jämfört med andra månar.

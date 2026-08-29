@@ -11,9 +11,10 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
   ungefär med verkligheten för det simulerade datumet. Plutos bana är en bra
   kontrast till planeternas: 17° lutning, 248 års omloppstid och så excentrisk
   att den tidvis går innanför Neptunus bana.
-- **Månar**: Jordens måne (27,3 dygn per varv), Mars Phobos och Deimos samt
-  Jupiters fyra galileiska månar Io, Europa, Ganymedes och Callisto kretsar
-  kring sina planeter med riktiga banelement, och visas när man zoomar in.
+- **Månar**: Jordens måne (27,3 dygn per varv), Mars Phobos och Deimos,
+  Jupiters fyra galileiska månar Io, Europa, Ganymedes och Callisto samt
+  Plutos Charon kretsar kring sina planeter med riktiga banelement, och
+  visas när man zoomar in.
   Phobos gör ett varv på 7,7 timmar – snabbare än Mars snurrar runt sin egen
   axel. Jupitermånarnas faslägen är valda så att Laplace-resonansen gäller:
   Io, Europa och Ganymedes har omloppstider i förhållandet 1:2:4 och kan
@@ -25,6 +26,14 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
   än 10 (Callisto ligger på 27 jupiterradier). I läget "Verklig storlek"
   används äkta geometri rakt igenom. Väljer man en planet i fokusväljaren
   zoomar kameran så att hela dess månsystem ryms i bild.
+- **Dubbelplaneten Pluto–Charon**: Charon har halva Plutos diameter och en
+  åttondel av dess massa, så parets gemensamma tyngdpunkt hamnar 2 126 km
+  från Plutos centrum – alltså utanför Pluto självt, som har radien
+  1 188 km. Appen räknar därför Kepler-banan som tyngdpunktens bana och
+  låter Pluto vagga kring den, i stället för att stå stilla. Jorden–månen
+  har samma effekt men mycket svagare: den tyngdpunkten ligger inuti
+  jorden. Charon kretsar dessutom retrograd, eftersom Pluto själv roterar
+  åt "fel" håll.
 - **Skalenliga avstånd**: Avstånden mellan banorna är alltid skalenliga (1 AU =
   60 enheter). Planeternas storlekar är inbördes skalenliga men förstorade så
   att de syns – bocka i **Verklig storlek** för att se hur små planeterna

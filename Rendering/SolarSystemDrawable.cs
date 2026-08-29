@@ -165,11 +165,26 @@ public sealed class SolarSystemDrawable : IDrawable
 
         foreach (var planet in SolarSystemData.Planets)
         {
-            var pos = planet.PositionAt(t, UnitsPerAu);
+            // Kepler-banan beskriver egentligen systemets tyngdpunkt. Med en så
+            // tung måne som Charon ligger den utanför moderkroppen, som då
+            // vaggar synligt kring den i stället för att stå stilla.
+            var barycentre = planet.PositionAt(t, UnitsPerAu);
+            var pos = barycentre;
+            float moonScale = 0f;
+            if (ShowMoons && planet.Moons.Length > 0)
+            {
+                moonScale = MoonDisplayScale(planet);
+                foreach (var moon in planet.Moons)
+                {
+                    if (moon.MassFraction > 0)
+                        pos -= moon.PositionAt(t, UnitsPerAu) * moonScale * (float)moon.MassFraction;
+                }
+            }
+
             if (Camera.Project(pos, out float sx, out float sy, out float depth))
                 bodies.Add((planet, false, pos, VisualRadius(planet.RadiusKm, isSun: false), depth, sx, sy));
             if (ShowMoons && planet.Moons.Length > 0)
-                AddMoons(bodies, planet, pos, t);
+                AddMoons(bodies, planet, barycentre, moonScale, t);
         }
 
         // Måla bakifrån och fram (painter's algorithm).
@@ -271,14 +286,14 @@ public sealed class SolarSystemDrawable : IDrawable
     /// bara när man zoomat in så nära att banan täcker något tiotal pixlar.
     /// </summary>
     void AddMoons(List<(CelestialBody? Body, bool IsMoon, Vector3 Pos, float WorldRadius, float Depth, float Sx, float Sy)> bodies,
-        CelestialBody planet, Vector3 planetPos, double t)
+        CelestialBody planet, Vector3 barycentre, float displayScale, double t)
     {
-        float displayScale = MoonDisplayScale(planet);
-
         foreach (var moon in planet.Moons)
         {
+            // Separationen mäts från moderkroppen; månen placeras på sin sida om
+            // tyngdpunkten så att avståndet mellan kropparna blir det rätta.
             var offset = moon.PositionAt(t, UnitsPerAu) * displayScale; // planetcentriskt
-            var moonPos = planetPos + offset;
+            var moonPos = barycentre + offset * (1f - (float)moon.MassFraction);
 
             if (!Camera.Project(moonPos, out float sx, out float sy, out float depth))
                 continue;

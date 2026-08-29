@@ -26,6 +26,13 @@ public sealed record CelestialBody(
     /// </summary>
     public CelestialBody[] Moons { get; init; } = [];
 
+    /// <summary>
+    /// Månens andel av systemets totala massa. Styr hur mycket moderkroppen
+    /// själv vaggar kring den gemensamma tyngdpunkten. Noll (standard) betyder
+    /// att moderkroppen står stilla, vilket räcker för alla lätta månar.
+    /// </summary>
+    public double MassFraction { get; init; }
+
     /// <summary>Position i världskoordinater (Y = norr om ekliptikan) vid given tid.</summary>
     public Vector3 PositionAt(double daysSinceJ2000, float unitsPerAu)
     {
@@ -155,6 +162,23 @@ public static class SolarSystemData
         1_882_700.0 / AuKm, 0.0074, JupiterEquatorInclinationDeg, JupiterEquatorNodeDeg,
         0.0, 180.0, 16.689018);
 
+    // Charon, Plutos stora följeslagare. Med halva Plutos diameter och en
+    // åttondel av dess massa är paret nästan en dubbelplanet: systemets
+    // gemensamma tyngdpunkt ligger 2 126 km från Plutos centrum, alltså
+    // utanför Pluto självt (som har radien 1 188 km). Därför vaggar Pluto
+    // synligt kring tyngdpunkten i stället för att stå stilla.
+    //
+    // Banan ligger i Plutos ekvatorsplan. Eftersom Pluto roterar retrograd
+    // lutar det planet mer än 90 grader mot ekliptikan – Charon går alltså
+    // "baklänges" jämfört med de flesta månar. De två är dessutom helt
+    // tidvattenlåsta: de vänder ständigt samma sida mot varandra.
+    public static readonly CelestialBody Charon = new(
+        "Charon", Color.FromArgb("#9A9188"), 606.0,
+        19_591.4 / AuKm, 0.0002, 112.82, 47.32, 0.0, 0.0, 6.387230)
+    {
+        MassFraction = 0.1085,
+    };
+
     // Banelement vid J2000 (NASA/JPL, medelvärden). Tillräckligt noggranna för att
     // planeternas positioner ungefär ska stämma med verkligheten för ett givet datum.
     public static readonly CelestialBody[] Planets =
@@ -169,6 +193,6 @@ public static class SolarSystemData
         new("Neptunus",  Color.FromArgb("#5A78E8"), 24_622.0, 30.06992, 0.00859, 1.770, 131.784,  44.965, 304.880, 60_182.0),
         // Dvärgplaneten Pluto: kraftigt lutande (17°) och excentrisk bana som
         // tidvis går innanför Neptunus. Ett varv tar nästan 248 år.
-        new("Pluto",     Color.FromArgb("#C4AB94"),  1_188.3, 39.48212, 0.24883, 17.140, 110.304, 224.069, 238.929, 90_560.0),
+        new("Pluto",     Color.FromArgb("#C4AB94"),  1_188.3, 39.48212, 0.24883, 17.140, 110.304, 224.069, 238.929, 90_560.0) { Moons = [Charon] },
     ];
 }
