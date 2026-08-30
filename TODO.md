@@ -173,12 +173,12 @@ ankomst ska sammanfalla med Mars – inte bara ligga på rätt avstånd från so
 
 ### 9.3 – Startfönster
 
-- [ ] Farkosten måste skjutas upp när Mars ligger 44,3° framför jorden. Under
+- [x] Farkosten måste skjutas upp när Mars ligger 44,3° framför jorden. Under
       de 259 dygnen hinner Mars nämligen bara 135,7° av sitt varv, medan
       farkosten går 180° – och 44,3 + 135,7 = 180.
-- [ ] Läget upprepas var 780:e dygn (25,6 månader). Knappen "Skjut upp" bör
+- [x] Läget upprepas var 780:e dygn (25,6 månader). Knappen "Skjut upp" bör
       vara inaktiv däremellan, med "Hoppa till nästa startfönster" bredvid.
-- [ ] Visa hur långt det är kvar till nästa fönster.
+- [x] Visa hur långt det är kvar till nästa fönster.
 
 Det är därför verkliga Mars-uppdrag alltid skjuts upp i klungor: sommaren 2020
 skickade USA, Kina och Förenade arabemiraten var sin sond inom två veckor, och
