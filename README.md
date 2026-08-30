@@ -69,8 +69,18 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
   stående kvar där Mars råkade vara – en verklig sond går ju in i omloppsbana
   eller landar. Etiketten byts till "Farkost framme".
 
-  Under stora delar av året finns ingen bana alls – det är själva skälet
-  till att uppskjutningar bara kan ske under vissa startfönster.
+  **Startfönster**: knappen är bara aktiv när en energisnål färd faktiskt går
+  att göra, och "Nästa startfönster" hoppar fram till nästa tillfälle. Kravet
+  är att banan sveper minst 170° kring solen, alltså ligger nära en halv
+  ellips; då blir fönstren 30–50 dygn långa och återkommer var 780:e dygn,
+  precis som i verkligheten. Det är därför Mars-uppdrag alltid skjuts upp i
+  klungor – sommaren 2020 skickade USA, Kina och Förenade arabemiraten var
+  sin sond inom två veckor, och sedan hände ingenting på två år.
+
+  Både restid och fasvinkel varierar mellan fönstren – 235 till 264 dygn,
+  och Mars ligger mellan 29° och 63° framför jorden vid uppskjutningen.
+  Lärobokens 259 dygn och 44° gäller cirkulära banor; Mars excentricitet
+  gör att de faktiska värdena pendlar kring dem.
 - **Skalenliga avstånd**: Avstånden mellan banorna är alltid skalenliga (1 AU =
   60 enheter). Planeternas storlekar är inbördes skalenliga men förstorade så
   att de syns – bocka i **Verklig storlek** för att se hur små planeterna

@@ -30,6 +30,13 @@ public partial class MainPage : ContentPage
     double _resizeQuietUntil;              // klocktid då renderingen får vakna igen
     bool _settingsChanged = true;
 
+    // Startfönster: varje prövning kräver att en hel bana räknas fram, så
+    // resultatet cachas och kontrolleras högst några gånger per sekund.
+    double _windowCheckedDay = double.NaN;
+    double _windowCheckedAt;
+    bool _inLaunchWindow;
+    double? _nextWindowDay;
+
     public MainPage()
     {
         InitializeComponent();
@@ -73,6 +80,7 @@ public partial class MainPage : ContentPage
         _timer.Start();
     }
 
+
     // ------------------------------------------------------------- simulering
 
     void OnTick(object? sender, EventArgs e)
@@ -104,6 +112,7 @@ public partial class MainPage : ContentPage
 
         DateLabel.Text = simDate.ToString("dddd d MMMM yyyy, HH:mm", Swedish);
         ElapsedLabel.Text = FormatElapsed(_simDays);
+        UpdateLaunchWindow(daysSinceJ2000);
 
         // Rita bara om när något faktiskt har ändrats (tiden gått framåt eller
         // kameran flyttats). Pausad och stillastående vy kostar då nästan inget.
@@ -183,6 +192,7 @@ public partial class MainPage : ContentPage
     void GoToDate(DateTime date)
     {
         _simDays = (date - _startDate).TotalDays;
+        _windowCheckedDay = double.NaN;
         _settingsChanged = true;
     }
 
@@ -238,6 +248,13 @@ public partial class MainPage : ContentPage
 
     // --------------------------------------------------------------- rymdfärd
 
+    // MAUI gråar inte själv en knapp som fått en egen bakgrundsfärg, så de
+    // avstängda lägena målas om för hand.
+    static readonly Color LaunchReady = Color.FromArgb("#2E5A4A");
+    static readonly Color LaunchClosed = Color.FromArgb("#222A28");
+    static readonly Color StepReady = Color.FromArgb("#26303C");
+    static readonly Color StepClosed = Color.FromArgb("#1B2028");
+
     static readonly CelestialBody EarthBody =
         SolarSystemData.Planets.First(p => p.Name == "Jorden");
     static readonly CelestialBody MarsBody =
@@ -247,13 +264,90 @@ public partial class MainPage : ContentPage
     /// Skjuter upp en farkost mot Mars från det datum vyn står på, eller avbryter
     /// en pågående färd.
     /// </summary>
+    /// <summary>
+    /// Håller reda på om ett startfönster är öppet just nu och när nästa infaller.
+    /// Kontrollen är dyr – varje prövning räknar fram en hel överföringsbana –
+    /// så den görs bara när datumet flyttat sig märkbart, och högst fyra gånger
+    /// per sekund oavsett hur snabbt tiden spolas.
+    /// </summary>
+    void UpdateLaunchWindow(double day)
+    {
+        double realNow = _clock.Elapsed.TotalSeconds;
+        bool dayMoved = double.IsNaN(_windowCheckedDay) || Math.Abs(day - _windowCheckedDay) >= 0.5;
+        if (!dayMoved || realNow - _windowCheckedAt < 0.25)
+            return;
+
+        _windowCheckedDay = day;
+        _windowCheckedAt = realNow;
+
+        _inLaunchWindow = Mission.IsLaunchWindow(EarthBody, MarsBody, day);
+        if (_inLaunchWindow)
+        {
+            _nextWindowDay = null;
+        }
+        else if (_nextWindowDay is not double cached || day > cached || day < cached - 900)
+        {
+            _nextWindowDay = Mission.NextLaunchWindow(EarthBody, MarsBody, day);
+        }
+
+        UpdateMissionUi(day);
+    }
+
+    /// <summary>Uppdaterar knappar och statustext efter färdens och fönstrets läge.</summary>
+    void UpdateMissionUi(double day)
+    {
+        if (_drawable.Mission is { } mission)
+        {
+            LaunchButton.Text = "Avbryt färden";
+            LaunchButton.IsEnabled = true;
+            LaunchButton.BackgroundColor = LaunchReady;
+            NextWindowButton.IsEnabled = false;
+            NextWindowButton.BackgroundColor = StepClosed;
+
+            var arrival = SolarSystemData.EpochJ2000.AddDays(mission.ArrivalDay);
+            MissionLabel.Text = mission.HasArrived(day)
+                ? string.Create(Swedish, $"Framme vid Mars {arrival:yyyy-MM-dd}")
+                : string.Create(Swedish,
+                    $"Restid {mission.TravelDays:0} dygn, framme {arrival:yyyy-MM-dd}");
+            return;
+        }
+
+        LaunchButton.Text = "Skjut upp mot Mars";
+        LaunchButton.IsEnabled = _inLaunchWindow;
+        LaunchButton.BackgroundColor = _inLaunchWindow ? LaunchReady : LaunchClosed;
+        NextWindowButton.IsEnabled = _nextWindowDay is not null;
+        NextWindowButton.BackgroundColor = _nextWindowDay is not null ? StepReady : StepClosed;
+
+        if (_inLaunchWindow)
+        {
+            MissionLabel.Text = "Startfönstret är öppet";
+        }
+        else if (_nextWindowDay is double next)
+        {
+            var date = SolarSystemData.EpochJ2000.AddDays(next);
+            MissionLabel.Text = string.Create(Swedish,
+                $"Stängt – nästa fönster om {next - day:0} dygn ({date:yyyy-MM-dd})");
+        }
+        else
+        {
+            MissionLabel.Text = "Stängt";
+        }
+    }
+
+    /// <summary>Hoppar fram till nästa uppskjutningstillfälle.</summary>
+    void OnNextWindowClicked(object? sender, EventArgs e)
+    {
+        if (_nextWindowDay is not double next)
+            return;
+        GoToDate(SolarSystemData.EpochJ2000.AddDays(next));
+    }
+
     void OnLaunchClicked(object? sender, EventArgs e)
     {
         if (_drawable.Mission is not null)
         {
             _drawable.Mission = null;
-            LaunchButton.Text = "Skjut upp mot Mars";
-            MissionLabel.Text = string.Empty;
+            _windowCheckedDay = double.NaN;
             _settingsChanged = true;
             return;
         }
@@ -267,10 +361,7 @@ public partial class MainPage : ContentPage
         }
 
         _drawable.Mission = mission;
-        LaunchButton.Text = "Avbryt färden";
-        var arrival = SolarSystemData.EpochJ2000.AddDays(mission.ArrivalDay);
-        MissionLabel.Text = string.Create(Swedish,
-            $"Restid {mission.TravelDays:0} dygn, framme {arrival:yyyy-MM-dd}");
+        UpdateMissionUi(launchDay);
         _settingsChanged = true;
     }
 

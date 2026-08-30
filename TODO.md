@@ -156,14 +156,14 @@ födelsedag och se var planeterna stod då.
 
 ### 9.2 – Farkosten och överföringsbanan till Mars
 
-- [ ] **Farkosten som himlakropp**: en liten prick med namn och ett spår efter
+- [x] **Farkosten som himlakropp**: en liten prick med namn och ett spår efter
       sig (de senaste par hundra positionerna), som följer en Kepler-bana precis
       som planeterna.
-- [ ] **Hohmann-bana**: den energisnålaste vägen är en halv ellips med
+- [x] **Hohmann-bana**: den energisnålaste vägen är en halv ellips med
       perihelium vid jordens bana (1,00 AU) och aphelium vid Mars (1,52 AU).
       Halva storaxeln blir då 1,26 AU, vilket ger en restid på ungefär
       259 dygn – hälften av den banans omloppstid.
-- [ ] Banplanet ska luta så att farkosten möter Mars även i höjdled; Mars
+- [x] Banplanet ska luta så att farkosten möter Mars även i höjdled; Mars
       ligger upp till 1,85° ur ekliptikan.
 
 **Verifiera:** Restiden ska bli ungefär 259 dygn, och farkostens läge vid
@@ -206,8 +206,11 @@ som helst.
 
 - [ ] **Panel**: förfluten restid, återstående tid, avstånd kvar till målet
       och farkostens fart.
-- [ ] **Ankomst**: farkosten möter målet, färden markeras som avslutad och
-      kameran kan följa med ner till planeten.
+- [x] **Ankomst**: farkosten möter målet och färden markeras som avslutad.
+      Gjordes redan i 9.2: farkosten följer med planeten efter framkomsten i
+      stället för att bli stående kvar där planeten råkade vara, och etiketten
+      byts till "Farkost framme".
+- [ ] Att kameran kan följa med ner till planeten vid ankomst återstår.
 
 **Verifiera:** Farten ska variera längs banan – snabbast vid uppskjutningen
 nära solen och långsammast vid ankomsten, precis som Keplers andra lag säger.

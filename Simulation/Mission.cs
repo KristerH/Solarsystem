@@ -48,6 +48,14 @@ public sealed class Mission
     /// <summary>Banans excentricitet.</summary>
     public double Eccentricity { get; }
 
+    /// <summary>
+    /// Hur många grader farkosten sveper kring solen på vägen. En ren
+    /// Hohmann-överföring – den energisnålaste – sveper exakt 180 grader. Ju
+    /// längre ifrån det, desto mer bränsle skulle färden kräva, så vinkeln
+    /// duger som mått på hur bra ett uppskjutningstillfälle är.
+    /// </summary>
+    public double SweepDegrees { get; }
+
     // Banplanets bas: periheliets riktning och den vinkelräta i rörelseriktningen.
     readonly Vector3 _periDir;
     readonly Vector3 _sideDir;
@@ -55,7 +63,7 @@ public sealed class Mission
 
     Mission(string name, CelestialBody target, double launchDay, double arrivalDay,
         double semiMajorAu, double eccentricity, double periodDays,
-        Vector3 periDir, Vector3 sideDir)
+        double sweepDegrees, Vector3 periDir, Vector3 sideDir)
     {
         Name = name;
         Target = target;
@@ -63,6 +71,7 @@ public sealed class Mission
         ArrivalDay = arrivalDay;
         SemiMajorAu = semiMajorAu;
         Eccentricity = eccentricity;
+        SweepDegrees = sweepDegrees;
         _periodDays = periodDays;
         _periDir = periDir;
         _sideDir = sideDir;
@@ -155,11 +164,12 @@ public sealed class Mission
 
         return new Mission(name, target, launchDay, launchDay + travelDays,
             solution.SemiMajor, solution.Eccentricity, solution.Period,
-            r1Dir, Vector3.Normalize(sideDir));
+            solution.SweepDegrees, r1Dir, Vector3.Normalize(sideDir));
     }
 
     readonly record struct Solution(
-        double SemiMajor, double Eccentricity, double Period, Vector3 TargetDir);
+        double SemiMajor, double Eccentricity, double Period,
+        Vector3 TargetDir, double SweepDegrees);
 
     /// <summary>
     /// För en antagen restid: bygg den ellips som både startar vid r1 och når
@@ -201,7 +211,7 @@ public sealed class Mission
         double computed = (ecc - e * Math.Sin(ecc)) / (Math.PI * 2) * period;
 
         residual = computed - travel;
-        solution = new Solution(a, e, period, r2Dir);
+        solution = new Solution(a, e, period, r2Dir, sweep * 180.0 / Math.PI);
         return true;
     }
 
@@ -236,6 +246,51 @@ public sealed class Mission
         double y = SemiMajorAu * Math.Sqrt(1.0 - e * e) * Math.Sin(ecc);
 
         return (_periDir * (float)x + _sideDir * (float)y) * unitsPerAu;
+    }
+
+    // ------------------------------------------------------------ startfönster
+
+    /// <summary>
+    /// Hur nära en halv ellips banan måste ligga för att räknas som ett
+    /// startfönster. Sveper farkosten mycket mindre än 180 grader behöver den
+    /// en snabbare och mycket bränsletörstigare bana.
+    ///
+    /// Värdet är valt så att fönstren blir ungefär tre veckor långa, vilket är
+    /// vad verkliga Mars-uppdrag har att röra sig med. En lösare gräns på 150
+    /// grader gav fönster på över hundra dygn, alltså mest banor som i praktiken
+    /// vore alldeles för bränslekrävande.
+    /// </summary>
+    public const double WindowSweepDegrees = 170.0;
+
+    /// <summary>Sant om en energisnål färd kan påbörjas just den dagen.</summary>
+    public static bool IsLaunchWindow(CelestialBody origin, CelestialBody target, double day)
+        => Plan("", origin, target, day) is { } m && m.SweepDegrees >= WindowSweepDegrees;
+
+    /// <summary>
+    /// Letar upp nästa dag då en färd kan påbörjas. Söker först grovt i
+    /// femdygnssteg och finjusterar sedan dag för dag, eftersom varje prövning
+    /// kräver att en hel bana räknas fram. Returnerar null om inget fönster
+    /// hittas inom sökhorisonten.
+    /// </summary>
+    public static double? NextLaunchWindow(CelestialBody origin, CelestialBody target,
+        double fromDay, double horizonDays = 900.0)
+    {
+        for (double coarse = 0; coarse <= horizonDays; coarse += 5.0)
+        {
+            if (!IsLaunchWindow(origin, target, fromDay + coarse))
+                continue;
+
+            // Backa dag för dag till fönstrets första dag.
+            double day = fromDay + coarse;
+            for (int back = 0; back < 5; back++)
+            {
+                if (day - 1.0 < fromDay || !IsLaunchWindow(origin, target, day - 1.0))
+                    break;
+                day -= 1.0;
+            }
+            return day;
+        }
+        return null;
     }
 
     /// <summary>Sant när farkosten har nått fram.</summary>
