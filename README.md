@@ -50,6 +50,27 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
   Saturnus ringar syns även i översiktsvyn, medan de tre andra är så
   svaga att de upptäcktes först med rymdsonder och därför bara ritas när
   man zoomat in ordentligt.
+- **Rymdfärd till Mars**: knappen "Skjut upp mot Mars" skickar i väg en
+  farkost från jordens läge det datum vyn står på. Farkosten följer sedan
+  sin överföringsbana utan att styra, precis som en verklig sond mellan
+  raketmotorns två korta brinntider. Den tillryggalagda sträckan ritas
+  ljusare än den som återstår.
+
+  Banan är i grunden en Hohmann-överföring – den energisnålaste vägen – men
+  en sådan kan bara nå punkter exakt 180° bort, och Mars ligger 1,85° ur
+  ekliptikan och är därför nästan aldrig exakt antiparallell med jorden.
+  Därför löses banan ur sina randvillkor i stället, vilket ger träffar inom
+  några hundra kilometer – gott och väl innanför Mars radie på 3 390 km.
+  Vid det bästa fönstret i slutet av 2026 blir restiden 264 dygn, något
+  längre än lärobokens 259 eftersom Mars just då står 1,57 AU ut i stället
+  för sitt medelavstånd 1,52.
+
+  Vid framkomsten följer farkosten med planeten i stället för att bli
+  stående kvar där Mars råkade vara – en verklig sond går ju in i omloppsbana
+  eller landar. Etiketten byts till "Farkost framme".
+
+  Under stora delar av året finns ingen bana alls – det är själva skälet
+  till att uppskjutningar bara kan ske under vissa startfönster.
 - **Skalenliga avstånd**: Avstånden mellan banorna är alltid skalenliga (1 AU =
   60 enheter). Planeternas storlekar är inbördes skalenliga men förstorade så
   att de syns – bocka i **Verklig storlek** för att se hur små planeterna
@@ -128,8 +149,10 @@ asteroid-/Kuiperbälten, tänkt att byggas och verifieras en etapp i taget.
 
 - `Simulation/SolarSystemData.cs` – planetdata (banelement J2000) och
   Kepler-beräkning av positioner.
+- `Simulation/Mission.cs` – överföringsbanan till Mars, löst ur randvillkoren.
 - `Simulation/SmallBodyBelt.cs` – asteroid- och Kuiperbältets slumpade banor,
   med förberäknad rotation så att en position kostar en Kepler-lösning.
+- `Simulation/Mission.cs` – planerar och räknar överföringsbanor.
 - `Simulation/StarCatalog.cs` – stjärnkatalogen och stjärnbildernas figurer,
   samt omräkningen från ekvatorial- till världskoordinater.
 - `Rendering/StarSky.cs` – ritar stjärnor, stjärnbilder och Vintergatan.

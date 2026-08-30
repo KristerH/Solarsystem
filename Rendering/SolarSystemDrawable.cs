@@ -33,6 +33,9 @@ public sealed class SolarSystemDrawable : IDrawable
     /// <summary>Om asteroidbältet mellan Mars och Jupiter ska ritas.</summary>
     public bool ShowAsteroidBelt { get; set; }
 
+    /// <summary>Pågående rymdfärd, eller null när ingen farkost är på väg.</summary>
+    public Mission? Mission { get; set; }
+
     /// <summary>Om Kuiperbältet bortom Neptunus ska ritas.</summary>
     public bool ShowKuiperBelt { get; set; }
 
@@ -99,6 +102,8 @@ public sealed class SolarSystemDrawable : IDrawable
             if (ShowAsteroidBelt)
                 DrawAsteroidBelt(canvas, rect);
             DrawBodies(canvas, rect);
+            if (Mission is not null)
+                DrawMission(canvas, Mission);
             DrawLabels(canvas, rect);
         }
         catch (Exception ex)
@@ -662,6 +667,80 @@ public sealed class SolarSystemDrawable : IDrawable
             path.LineTo(x10, y10);
             path.Close();
         }
+    }
+
+    // ---------------------------------------------------------------- rymdfärd
+
+    static readonly Color CraftTrailColor = Color.FromRgba(0.55f, 0.85f, 1.00f, 0.75f);
+    static readonly Color CraftFutureColor = Color.FromRgba(0.45f, 0.70f, 0.90f, 0.28f);
+    static readonly Color CraftColor = Color.FromArgb("#E8F4FF");
+
+    /// <summary>
+    /// Ritar farkostens bana och dess nuvarande läge. Spåret räknas fram ur
+    /// banan i stället för att sparas undan bildruta för bildruta – då ser det
+    /// likadant ut även om man hoppar i tiden eller spelar den baklänges.
+    /// </summary>
+    void DrawMission(ICanvas canvas, Mission mission)
+    {
+        double now = Math.Clamp(DaysSinceJ2000, mission.LaunchDay, mission.ArrivalDay);
+
+        canvas.StrokeSize = 1.4f;
+        canvas.StrokeColor = CraftFutureColor;
+        DrawMissionArc(canvas, mission, now, mission.ArrivalDay);   // vad som återstår
+
+        canvas.StrokeSize = 1.8f;
+        canvas.StrokeColor = CraftTrailColor;
+        DrawMissionArc(canvas, mission, mission.LaunchDay, now);    // det redan tillryggalagda
+
+        if (DaysSinceJ2000 < mission.LaunchDay)
+            return;
+
+        // Efter ankomsten följer farkosten med målet i stället för att bli stående
+        // kvar där planeten råkade vara – en sond går ju in i omloppsbana eller landar.
+        var pos = mission.PositionAt(DaysSinceJ2000, UnitsPerAu);
+        if (!Camera.Project(pos, out float sx, out float sy, out _))
+            return;
+
+        canvas.FillColor = CraftColor;
+        canvas.FillCircle(sx, sy, 3f);
+        _labels.Add((mission.HasArrived(DaysSinceJ2000)
+            ? $"{mission.Name} framme"
+            : mission.Name, sx, sy + 9f));
+    }
+
+    /// <summary>Ritar en del av banan som en polylinje.</summary>
+    void DrawMissionArc(ICanvas canvas, Mission mission, double fromDay, double toDay)
+    {
+        const int steps = 160;
+        if (toDay - fromDay < 1e-6)
+            return;
+
+        var path = new PathF();
+        bool started = false, hasPrev = false;
+        float px = 0, py = 0;
+        for (int i = 0; i <= steps; i++)
+        {
+            double day = fromDay + (toDay - fromDay) * i / steps;
+            if (Camera.Project(mission.TransferPositionAt(day, UnitsPerAu),
+                    out float x, out float y, out _))
+            {
+                if (hasPrev)
+                {
+                    if (!started) { path.MoveTo(px, py); started = true; }
+                    path.LineTo(x, y);
+                }
+                hasPrev = true;
+                px = x;
+                py = y;
+            }
+            else
+            {
+                hasPrev = false;
+                started = false;
+            }
+        }
+        if (started)
+            canvas.DrawPath(path);
     }
 
     // --------------------------------------------------------------- etiketter

@@ -236,6 +236,44 @@ public partial class MainPage : ContentPage
         _settingsChanged = true;
     }
 
+    // --------------------------------------------------------------- rymdfärd
+
+    static readonly CelestialBody EarthBody =
+        SolarSystemData.Planets.First(p => p.Name == "Jorden");
+    static readonly CelestialBody MarsBody =
+        SolarSystemData.Planets.First(p => p.Name == "Mars");
+
+    /// <summary>
+    /// Skjuter upp en farkost mot Mars från det datum vyn står på, eller avbryter
+    /// en pågående färd.
+    /// </summary>
+    void OnLaunchClicked(object? sender, EventArgs e)
+    {
+        if (_drawable.Mission is not null)
+        {
+            _drawable.Mission = null;
+            LaunchButton.Text = "Skjut upp mot Mars";
+            MissionLabel.Text = string.Empty;
+            _settingsChanged = true;
+            return;
+        }
+
+        double launchDay = (CurrentDate - SolarSystemData.EpochJ2000).TotalDays;
+        var mission = Mission.Plan("Farkost", EarthBody, MarsBody, launchDay);
+        if (mission is null)
+        {
+            MissionLabel.Text = "Ingen bana gick att räkna fram just nu";
+            return;
+        }
+
+        _drawable.Mission = mission;
+        LaunchButton.Text = "Avbryt färden";
+        var arrival = SolarSystemData.EpochJ2000.AddDays(mission.ArrivalDay);
+        MissionLabel.Text = string.Create(Swedish,
+            $"Restid {mission.TravelDays:0} dygn, framme {arrival:yyyy-MM-dd}");
+        _settingsChanged = true;
+    }
+
     void OnOrbitsChanged(object? sender, CheckedChangedEventArgs e)
     {
         _drawable.ShowOrbits = e.Value;

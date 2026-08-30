@@ -130,6 +130,15 @@
                             BackgroundColor="#26303C" TextColor="White" WidthRequest="75" />
                     <Button Text="År ››" CommandParameter="y+" Clicked="OnStepDateClicked"
                             BackgroundColor="#26303C" TextColor="White" WidthRequest="70" />
+
+                    <BoxView WidthRequest="1" Color="#2A3340" Margin="10,2" />
+
+                    <Button x:Name="LaunchButton"
+                            Text="Skjut upp mot Mars"
+                            Clicked="OnLaunchClicked"
+                            BackgroundColor="#2E5A4A" TextColor="White" />
+                    <Label x:Name="MissionLabel" TextColor="#9EC1E8"
+                           VerticalOptions="Center" Margin="10,0,0,0" />
                 </HorizontalStackLayout>
             </VerticalStackLayout>
         </ScrollView>
