@@ -60,6 +60,24 @@ public sealed record ProbeLeg(string From, string To, double StartDay, double En
 }
 
 /// <summary>
+/// En milstolpe längs färden: uppskjutningen, eller en planetpassage.
+///
+/// Farten före och efter är hämtad från de två ben som möts i punkten. De möts
+/// i samma läge men med olika hastighet, och skillnaden är gravitationsslungan:
+/// sonden lånar fart av planetens rörelse kring solen. Vid uppskjutningen finns
+/// inget ben före, och farten före är då noll.
+/// </summary>
+public sealed record Milestone(
+    string Name, double Day, Vector3 PositionAu, double SpeedBeforeKmS, double SpeedAfterKmS)
+{
+    /// <summary>Sant för uppskjutningen, som inte är någon passage.</summary>
+    public bool IsLaunch => SpeedBeforeKmS <= 0;
+
+    /// <summary>Hur mycket fart planeten gav – eller tog, vilket också händer.</summary>
+    public double SpeedGainKmS => IsLaunch ? 0 : SpeedAfterKmS - SpeedBeforeKmS;
+}
+
+/// <summary>
 /// En verklig rymdsond, byggd ur de datum den faktiskt passerade planeterna.
 ///
 /// Banelement matas alltså inte in. I stället får varje ben av färden vara den
@@ -85,6 +103,9 @@ public sealed class Probe
     /// <summary>Färdens ben, i tidsordning.</summary>
     public IReadOnlyList<ProbeLeg> Legs { get; }
 
+    /// <summary>Uppskjutningen och planetpassagerna, i tidsordning.</summary>
+    public IReadOnlyList<Milestone> Milestones { get; }
+
     /// <summary>Uppskjutningsdagen, i dygn sedan J2000.</summary>
     public double LaunchDay { get; }
 
@@ -94,6 +115,50 @@ public sealed class Probe
         Color = color;
         Legs = legs;
         LaunchDay = legs.Count > 0 ? legs[0].StartDay : 0;
+        Milestones = BuildMilestones(legs);
+    }
+
+    /// <summary>
+    /// Milstolparna faller ut ur benen: varje ben börjar i en, och farthoppet
+    /// är skillnaden mellan det avslutande och det påbörjade benets fart i just
+    /// den punkten.
+    /// </summary>
+    static Milestone[] BuildMilestones(IReadOnlyList<ProbeLeg> legs)
+    {
+        var milestones = new Milestone[legs.Count];
+
+        for (int i = 0; i < legs.Count; i++)
+        {
+            double day = legs[i].StartDay;
+            milestones[i] = new Milestone(
+                legs[i].From, day, legs[i].Path.PositionAt(day, 1f),
+                i == 0 ? 0.0 : legs[i - 1].Path.SpeedKmPerSecond(day),
+                legs[i].Path.SpeedKmPerSecond(day));
+        }
+
+        return milestones;
+    }
+
+    /// <summary>Den senast passerade milstolpen, eller null före uppskjutningen.</summary>
+    public Milestone? LastMilestone(double day)
+    {
+        Milestone? last = null;
+        foreach (var milestone in Milestones)
+        {
+            if (milestone.Day > day)
+                break;
+            last = milestone;
+        }
+        return last;
+    }
+
+    /// <summary>Nästa milstolpe sonden är på väg mot, eller null när alla passerats.</summary>
+    public Milestone? NextMilestone(double day)
+    {
+        foreach (var milestone in Milestones)
+            if (milestone.Day > day)
+                return milestone;
+        return null;
     }
 
     /// <summary>

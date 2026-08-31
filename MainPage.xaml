@@ -47,6 +47,26 @@
                     <Label x:Name="CraftSpeedLabel" TextColor="#8FD3B6" FontSize="13" />
                 </VerticalStackLayout>
             </Border>
+
+            <!-- Sondpanelen: syns när en rymdsond är vald i fokusväljaren. -->
+            <Border x:Name="ProbePanel"
+                    IsVisible="False"
+                    Margin="0,12,0,0"
+                    Padding="12,9"
+                    HorizontalOptions="Start"
+                    BackgroundColor="#C6101822"
+                    Stroke="#2A3F52"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 6">
+                <VerticalStackLayout Spacing="3">
+                    <Label x:Name="ProbeTitleLabel" TextColor="#E8F4FF" FontSize="15"
+                           FontAttributes="Bold" Margin="0,0,0,3" />
+                    <Label x:Name="ProbeDistanceLabel" TextColor="#9EC1E8" FontSize="13" />
+                    <Label x:Name="ProbeSpeedLabel" TextColor="#8FD3B6" FontSize="13" />
+                    <Label x:Name="ProbeLastLabel" TextColor="#9EC1E8" FontSize="13" />
+                    <Label x:Name="ProbeNextLabel" TextColor="#7E93A8" FontSize="13" />
+                </VerticalStackLayout>
+            </Border>
         </VerticalStackLayout>
 
         <!-- Kontrollpanel. Två fasta rader i en horisontell ScrollView i stället
@@ -117,7 +137,7 @@
                     <Picker x:Name="FocusPicker"
                             TextColor="White"
                             BackgroundColor="#1C2430"
-                            WidthRequest="140"
+                            WidthRequest="150"
                             SelectedIndexChanged="OnFocusChanged"
                             Margin="0,0,10,0" />
 
@@ -155,7 +175,11 @@
                     <Button Text="År ››" CommandParameter="y+" Clicked="OnStepDateClicked"
                             BackgroundColor="#26303C" TextColor="White" WidthRequest="70" />
 
-                    <BoxView WidthRequest="1" Color="#2A3340" Margin="10,2" />
+                </HorizontalStackLayout>
+
+                <HorizontalStackLayout Spacing="6">
+                    <Label Text="Rymdfärd:" TextColor="#C8D4E0" VerticalOptions="Center"
+                           Margin="0,0,4,0" />
 
                     <Button x:Name="LaunchButton"
                             Text="Skjut upp mot Mars"

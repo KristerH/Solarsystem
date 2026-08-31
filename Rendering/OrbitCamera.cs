@@ -9,7 +9,10 @@ namespace Solarsystem.Rendering;
 public sealed class OrbitCamera
 {
     public const float MinDistance = 1.5f;
-    public const float MaxDistance = 25_000f;
+    // 40 000 enheter är 666 AU. Rymdsonderna ligger på 65 till 170 AU, och för
+    // att se en av dem med solen kvar i bild måste kameran backa ett par gånger
+    // sondens avstånd – därav takhöjden.
+    public const float MaxDistance = 40_000f;
     public const float MaxPitch = 1.55f;
 
     public float Yaw { get; set; }

@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Numerics;
 using Solarsystem.Simulation;
 
@@ -41,6 +42,13 @@ public sealed class SolarSystemDrawable : IDrawable
 
     /// <summary>Om de verkliga rymdsonderna och deras spår ska ritas.</summary>
     public bool ShowProbes { get; set; } = true;
+
+    /// <summary>
+    /// Sonden som är vald i fokusväljaren, eller null. Dess milstolpar skrivs
+    /// ut med planetnamn och datum; de övrigas markeras bara med årtal, annars
+    /// blir vyn full av text.
+    /// </summary>
+    public Probe? FocusedProbe { get; set; }
 
     /// <summary>
     /// Sant medan fönstret håller på att ändra storlek. Då ritas bara svart –
@@ -91,6 +99,7 @@ public sealed class SolarSystemDrawable : IDrawable
 
             Camera.UpdateFrame(rect.Width, rect.Height);
             _labels.Clear();
+            _milestoneText.Clear();
 
             _sky.Draw(canvas, Camera, rect, ShowConstellations, ShowStarNames);
             if (ShowOrbits)
@@ -707,6 +716,8 @@ public sealed class SolarSystemDrawable : IDrawable
                 DrawProbeTrail(canvas, leg, Math.Min(leg.EndDay, now));
             }
 
+            DrawMilestones(canvas, probe, now);
+
             if (probe.PositionAt(now, UnitsPerAu) is not { } pos ||
                 !Camera.Project(pos, out float sx, out float sy, out _))
                 continue;
@@ -715,6 +726,72 @@ public sealed class SolarSystemDrawable : IDrawable
             canvas.FillCircle(sx, sy, 2.5f);
             _labels.Add((probe.Name, sx, sy + 9f));
         }
+    }
+
+    /// <summary>
+    /// Ritar milstolparna – uppskjutningen och planetpassagerna – som ringar
+    /// längs spåret. Den valda sondens milstolpar får planetnamn och datum,
+    /// de övriga bara årtalet.
+    ///
+    /// Årtalen ritas direkt i stället för att gå via etikettstaplingen, som är
+    /// gjord för himlakroppar: elva passager som staplas nedåt hade blivit en
+    /// textpelare tvärs över vyn. I stället hoppas ett årtal över när det skulle
+    /// hamna ovanpå ett som redan skrivits.
+    /// </summary>
+    void DrawMilestones(ICanvas canvas, Probe probe, double now)
+    {
+        bool focused = ReferenceEquals(probe, FocusedProbe);
+        canvas.FontSize = 11f;
+
+        foreach (var milestone in probe.Milestones)
+        {
+            if (milestone.Day > now)
+                break;      // milstolparna ligger i tidsordning
+
+            if (!Camera.Project(milestone.PositionAu * UnitsPerAu,
+                    out float x, out float y, out _))
+                continue;
+
+            canvas.StrokeSize = 1.4f;
+            canvas.StrokeColor = probe.Color.WithAlpha(0.9f);
+            canvas.DrawCircle(x, y, 3.5f);
+
+            var date = SolarSystemData.EpochJ2000.AddDays(milestone.Day);
+            if (focused)
+            {
+                // Den valda sonden får hela historien utskriven.
+                string text = milestone.IsLaunch
+                    ? $"Uppskjuten {date:MMM yyyy}"
+                    : string.Create(SwedishText,
+                        $"{milestone.Name} {date:MMM yyyy}  {milestone.SpeedGainKmS:+0.0;-0.0} km/s");
+                DrawMilestoneText(canvas, text, x, y, probe.Color, minSeparation: 0f);
+            }
+            else
+            {
+                DrawMilestoneText(canvas, date.Year.ToString(), x, y,
+                    probe.Color.WithAlpha(0.7f), minSeparation: 26f);
+            }
+        }
+    }
+
+    /// <summary>Var milstolpstexterna hamnade den här bildrutan.</summary>
+    readonly List<(float X, float Y)> _milestoneText = new(16);
+
+    static readonly CultureInfo SwedishText = new("sv-SE");
+
+    void DrawMilestoneText(ICanvas canvas, string text, float x, float y, Color color,
+        float minSeparation)
+    {
+        foreach (var (px, py) in _milestoneText)
+            if (Math.Abs(px - x) < minSeparation && Math.Abs(py - y) < minSeparation)
+                return;     // krockar med en text som redan står där
+
+        _milestoneText.Add((x, y));
+
+        canvas.FontColor = LabelShadowColor;
+        canvas.DrawString(text, x + 7f, y - 4f, HorizontalAlignment.Left);
+        canvas.FontColor = color;
+        canvas.DrawString(text, x + 6f, y - 5f, HorizontalAlignment.Left);
     }
 
     /// <summary>Ritar ett ben av en sondbana fram till en given dag.</summary>

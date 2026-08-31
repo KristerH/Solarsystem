@@ -56,6 +56,7 @@ public partial class MainPage : ContentPage
 
         var names = new List<string> { "Solen" };
         names.AddRange(SolarSystemData.Planets.Select(p => p.Name));
+        names.AddRange(ProbeData.All.Select(p => p.Name));
         FocusPicker.ItemsSource = names;
         FocusPicker.SelectedIndex = 0;
 
@@ -106,6 +107,7 @@ public partial class MainPage : ContentPage
         _drawable.DaysSinceJ2000 = daysSinceJ2000;
 
         UpdateMissionPanel(daysSinceJ2000);
+        UpdateProbePanel(daysSinceJ2000);
         _drawable.Camera.Target = CameraTarget(daysSinceJ2000);
 
         DateLabel.Text = simDate.ToString("dddd d MMMM yyyy, HH:mm", Swedish);
@@ -364,10 +366,95 @@ public partial class MainPage : ContentPage
         if (_followCraft && _drawable.CraftPosition() is { } craft)
             return craft;
 
+        // Före uppskjutningen finns sonden inte, och kameran står kvar vid solen.
+        if (FocusedProbe is { } probe)
+            return probe.PositionAt(day, SolarSystemDrawable.UnitsPerAu) ?? Vector3.Zero;
+
         return _focusIndex <= 0
             ? Vector3.Zero
             : SolarSystemData.Planets[_focusIndex - 1]
                 .PositionAt(day, SolarSystemDrawable.UnitsPerAu);
+    }
+
+    /// <summary>
+    /// Sonden som är vald i fokusväljaren, eller null. Väljaren räknar solen
+    /// först, sedan planeterna och sist sonderna.
+    /// </summary>
+    Probe? FocusedProbe => _focusIndex > SolarSystemData.Planets.Length
+        ? ProbeData.All[_focusIndex - SolarSystemData.Planets.Length - 1]
+        : null;
+
+    /// <summary>
+    /// Sondpanelen: var sonden är, hur fort den går och vad den senaste
+    /// planetpassagen gav. Farthoppet är hela poängen – det är slungan, och utan
+    /// den hade ingen av sonderna kommit längre än till Jupiter.
+    /// </summary>
+    void UpdateProbePanel(double day)
+    {
+        if (FocusedProbe is not { } probe)
+        {
+            ProbePanel.IsVisible = false;
+            return;
+        }
+
+        ProbePanel.IsVisible = true;
+        ProbeTitleLabel.Text = probe.Name;
+
+        if (!probe.Exists(day))
+        {
+            var launch = SolarSystemData.EpochJ2000.AddDays(probe.LaunchDay);
+            ProbeDistanceLabel.Text = string.Create(Swedish, $"Skjuts upp {launch:yyyy-MM-dd}");
+            ProbeSpeedLabel.Text = "Spola tiden framåt för att följa färden";
+            ProbeLastLabel.Text = string.Empty;
+            ProbeNextLabel.Text = string.Empty;
+            return;
+        }
+
+        double au = probe.DistanceAu(day);
+        ProbeDistanceLabel.Text = string.Create(Swedish,
+            $"Avstånd från solen: {au:0.0} AU ({au * SolarSystemData.AuKm / 1e9:0.0} miljarder km)");
+        ProbeSpeedLabel.Text = string.Create(Swedish, $"Fart: {probe.SpeedKmPerSecond(day):0.00} km/s");
+
+        ProbeLastLabel.Text = probe.LastMilestone(day) is { } last
+            ? MilestoneText(last)
+            : string.Empty;
+
+        if (probe.NextMilestone(day) is { } next)
+        {
+            var date = SolarSystemData.EpochJ2000.AddDays(next.Day);
+            ProbeNextLabel.Text = string.Create(Swedish,
+                $"Nästa: {next.Name} {date:yyyy-MM-dd}, om {next.Day - day:0} dygn");
+        }
+        else
+        {
+            ProbeNextLabel.Text = "Inga fler passager – på väg ut ur solsystemet";
+        }
+    }
+
+    /// <summary>Beskriver en passerad milstolpe, med farten planeten gav eller tog.</summary>
+    static string MilestoneText(Milestone milestone)
+    {
+        var date = SolarSystemData.EpochJ2000.AddDays(milestone.Day);
+        if (milestone.IsLaunch)
+            return string.Create(Swedish, $"Uppskjuten {date:yyyy-MM-dd}");
+
+        string verb = milestone.SpeedGainKmS >= 0 ? "gav" : "tog";
+        return string.Create(Swedish,
+            $"Förbi {milestone.Name} {date:yyyy-MM-dd}: {verb} {Math.Abs(milestone.SpeedGainKmS):0.0} km/s");
+    }
+
+    /// <summary>
+    /// Zoomar ut så att både sonden och solen ryms i bild när en sond väljs.
+    /// Sonderna är över hundra gånger längre bort än jorden, så hela
+    /// planetsystemet krymper då till en prick kring solen – vilket i sig är
+    /// det man ska se.
+    /// </summary>
+    void ZoomToProbe(Probe probe)
+    {
+        double day = (CurrentDate - SolarSystemData.EpochJ2000).TotalDays;
+        float distance = (float)probe.DistanceAu(day) * SolarSystemDrawable.UnitsPerAu;
+        _drawable.Camera.Distance =
+            Math.Clamp(distance * 2.2f, 200f, OrbitCamera.MaxDistance);
     }
 
     /// <summary>
@@ -570,12 +657,19 @@ public partial class MainPage : ContentPage
     {
         _focusIndex = Math.Max(0, FocusPicker.SelectedIndex);
         _followCraft = false;
-        if (_focusIndex > 0)
+        _drawable.FocusedProbe = FocusedProbe;
+
+        if (FocusedProbe is { } probe)
+        {
+            ZoomToProbe(probe);
+        }
+        else if (_focusIndex > 0)
         {
             // Zooma så att planeten – och hela dess månsystem – syns.
             var planet = SolarSystemData.Planets[_focusIndex - 1];
             _drawable.Camera.Distance = _drawable.SuggestedFocusDistance(planet);
         }
+
         _settingsChanged = true;
     }
 

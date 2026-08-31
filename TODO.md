@@ -418,19 +418,42 @@ den snabbaste som gjorts.
 
 ### 10.4 – Milstolpar, panel och skala
 
-- [ ] **Planetpassagerna som milstolpar** med datum, t.ex. Voyager 1 vid
+- [x] **Planetpassagerna som milstolpar** med datum, t.ex. Voyager 1 vid
       Jupiter i mars 1979 och vid Saturnus i november 1980, Voyager 2 vid
       Neptunus i augusti 1989. Kan visas som markerade punkter längs banan.
-- [ ] **Gravitationsslunga**: sonderna fick fart genom att svänga förbi
+- [x] **Gravitationsslunga**: sonderna fick fart genom att svänga förbi
       planeterna. Visa farten i en panel så att hoppen vid varje passage syns –
       det är själva förklaringen till hur de kunde nå så långt.
-- [ ] **Skalan**: sonderna är i dag över 100 AU bort, tre gånger längre än
+- [x] **Skalan**: sonderna är i dag över 100 AU bort, tre gånger längre än
       Neptunus. Kameran måste kunna zooma ut så långt, och då krymper hela
       planetsystemet till en prick – vilket i sig är poängen. Sonderna bör också
       gå att välja i fokusväljaren, annars är de svåra att hitta där ute.
 
+Milstolparna faller ut ur benen i stället för att matas in: varje ben börjar i
+en, och farthoppet är skillnaden mellan det avslutande och det påbörjade benets
+fart i samma punkt. De ritas som ringar längs spåret, med årtal – och för den
+sond som är vald i fokusväljaren med planetnamn, datum och farthopp. Årtalen
+går inte via etikettstaplingen som himlakropparna använder; elva passager som
+staplas nedåt hade blivit en textpelare tvärs över vyn, så ett årtal hoppas
+i stället över när det skulle hamna ovanpå ett som redan skrivits.
+
+Väljer man en sond i fokusväljaren följer kameran den och zoomar ut till drygt
+två gånger sondens avstånd, så att solen precis ryms i bild och hela
+planetsystemet krymper till en prick. Kamerans tak höjdes från 25 000 till
+40 000 enheter (666 AU) för att det ska gå.
+
 **Verifiera:** Farten ska hoppa uppåt vid varje passage och sedan sjunka långsamt
 medan sonden klättrar ur solens gravitation.
+
+Kontrollerat: farten faller monotont på sista benet för alla fem sonderna.
+Voyager 1 går från 27,4 km/s strax efter uppskjutningen till 20,4 vid Saturnus
+1982, 17,7 år 1990 och 16,67 i dag – kurvan planar ut, precis som den ska när
+solens grepp avtar med avståndet. Hoppen vid passagerna: Pioneer 10 fick
++12,1 km/s av Jupiter, Voyager 1 +10,8, Voyager 2 +10,0 och Pioneer 11 +7,1
+följt av +5,6 vid Saturnus. Två passager gav ingen fart alls: Neptunus tog
+2,3 km/s från Voyager 2, och Pluto tog 0,3 från New Horizons – dvärgplaneten är
+helt enkelt för lätt för att slunga något. Kameran klarar alla fem sonderna
+inom takhöjden, med solen kvar i bild.
 
 ---
 

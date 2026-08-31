@@ -161,6 +161,20 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
   Pluto-passagen 2015 är också provet på att banorna räknas i tre dimensioner.
   Pluto låg då 1,10 AU utanför ekliptikans plan – mer än hela jordens banradie –
   och New Horizons möter den där, inte i planet.
+
+  **Milstolpar och panel**: uppskjutningen och varje planetpassage markeras med
+  en ring längs spåret, med årtal. Väljer man en sond i fokusväljaren får den
+  fullständiga etiketter – planet, månad och farthopp – och en panel visar
+  avstånd, fart, vad den senaste passagen gav och när nästa infaller. Farten är
+  raden att titta på: den hoppar vid varje passage och sjunker sedan långsamt
+  medan sonden klättrar ur solens gravitation. Voyager 1 går från 27,4 km/s
+  efter uppskjutningen till 20,4 vid Saturnus 1982, 17,7 år 1990 och 16,67 i
+  dag, och kurvan planar ut.
+
+  **Skalan**: väljer man en sond zoomar kameran ut till drygt två gånger dess
+  avstånd, så att solen precis ryms i bild. Då krymper hela planetsystemet till
+  en prick i mitten, vilket i sig är poängen: Voyager 1 är 167 gånger längre
+  bort än jorden och fyra gånger längre än Neptunus.
 - **Skalenliga avstånd**: Avstånden mellan banorna är alltid skalenliga (1 AU =
   60 enheter). Planeternas storlekar är inbördes skalenliga men förstorade så
   att de syns – bocka i **Verklig storlek** för att se hur små planeterna
