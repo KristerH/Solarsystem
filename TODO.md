@@ -188,6 +188,18 @@ sedan hände ingenting på två år.
 tom rymd – 20° fel motsvarar 80 miljoner km. Det är hela poängen med
 startfönster och något eleverna kan prova själva.
 
+**Rättat i efterhand (upptäckt i 10.1):** både banan och fönsterkriteriet
+byggde på antagandet att färden sveper den kortaste vägen mellan jorden och
+Mars. I samtliga åtta prövade fönster var den kortaste vägen baklänges runt
+solen, så farkosten flög åt fel håll och skulle ha krävt 63 km/s i förhållande
+till jorden i stället för verklighetens 3–4. Ankomsten till Mars stämde ändå,
+vilket är skälet att det inte syntes i verifieringen. Banan löses nu med
+Lambert-lösaren från 10.1, och restiden väljs så att uppskjutningen blir så
+billig som möjligt. Fönsterkriteriet är samtidigt bytt från sveptvinkeln – som
+pekade rakt in i den punkt där banplanet blir obestämt – till kostnaden:
+fönstret är öppet när uppskjutningen kostar högst 0,1 km/s mer än fönstrets
+bästa dag.
+
 ---
 
 ### 9.4 – Färd till månen
@@ -253,38 +265,136 @@ De farkoster mänskligheten faktiskt har skickat ut. Etapp 9 handlar om en
 påhittad resa som eleven själv styr; den här handlar om de verkliga färderna,
 med riktiga datum. Voyager 1 är det avlägsnaste föremål människan har byggt.
 
-- [ ] **Hyperboliska banor i Kepler-koden**. Sonderna har fått så hög fart att
-      de aldrig kommer tillbaka: deras banor har excentricitet större än 1 och
-      är alltså hyperbler, inte ellipser. `SolveKepler` löser i dag bara
+Etappen är den största hittills och är därför uppdelad i fem delar, som var och
+en går att bygga och verifiera för sig – samma upplägg som etapp 9.
+
+Grundtanken för hela etappen: sondernas banor byggs inte ur inmatade banelement
+utan ur de verkliga datumen. Varje ben av färden är banan som går från en planet
+till nästa på exakt den tid passagerna faktiskt tog, och den räknas fram ur
+appens egna planetpositioner. Då hamnar sonderna vid rätt planet rätt dag av sig
+själva, och gravitationsslungan syns som ett språng i farten mellan två ben –
+vilket är precis vad den är.
+
+### 10.1 – Hyperboliska banor i Kepler-koden
+
+- [x] **Hyperbolisk Kepler-ekvation**. Sonderna har fått så hög fart att de
+      aldrig kommer tillbaka: deras banor har excentricitet större än 1 och är
+      alltså hyperbler, inte ellipser. `SolveKepler` löser i dag bara
       `E - e*sin E = M`, som gäller för ellipser. För hyperbler behövs
       `e*sinh H - H = M` och en egen positionsformel. Detta är etappens enda
       riktiga matematikarbete och bör göras först.
+- [x] **Kägelsnitt ur ett tillstånd**. En sond byter bana vid varje
+      planetpassage, så banan måste gå att bygga ur läge och hastighet i stället
+      för ur fasta banelement som planeternas. Samma klass ska klara både
+      ellipser och hyperbler; halva storaxeln blir negativ för de senare.
+- [x] **Lambert-lösaren**: banan som går från ett läge till ett annat på en
+      given tid. Det är den som gör att sonderna kan byggas ur verkliga datum.
+
+Ligger i `Simulation/Kepler.cs`, `Simulation/Conic.cs` och
+`Simulation/Lambert.cs`. Ingenting av det syns ännu i appen – det är kärnan som
+10.2 och framåt bygger på. Lambert använder universella variabler, där en enda
+variabel z beskriver alla kägelsnitt: positiv för ellipser, negativ för
+hyperbler och noll för parabeln mitt emellan. Restiden växer monotont med z, så
+rätt bana kläms in med intervallhalvering.
+
+Två fällor visade sig på vägen. Startgissningen till den hyperboliska Kepler-
+ekvationen måste vara arsinh(M/e) och inte det närmare till hands liggande
+M/(e-1): för banor strax över parabeln blir den senare enorm, och sinh av ett
+stort tal spränger flyttalen direkt. Och under en viss gräns för z finns ingen
+bana alls – kägelsnittet når helt enkelt inte fram – vilket sökningen måste
+räkna som "snabbare än allt annat" för att inte fastna där.
+
+**Verifiera:** Går att göra helt utan gränssnitt. En bana som byggs ur ett
+tillstånd ska ge tillbaka samma läge och fart som den byggdes ur. Lambert ska
+reproducera Mars-banan från 9.2, och en hyperbolisk bana ska gå att räkna både
+framåt och bakåt i tiden.
+
+Kontrollerat: den hyperboliska Kepler-ekvationen löses med ett relativt fel
+under 1e-12 i 66 fall, med excentricitet från 1,0001 till 12 och medelanomali
+upp till 4000, åt båda tidshållen. En bana byggd ur ett tillstånd ger tillbaka
+samma läge på ett par kilometer när och samma fart på en hundradels meter per
+sekund. Alla sju verkliga sondben som 10.2 och 10.3 behöver går att lösa, och
+sonden hamnar vid rätt planet på passagedagen: sämst är Voyager 2 vid Jupiter
+med 21 000 km, alltså en tredjedels Jupiterradie, och de övriga ligger under
+1 000 km. Fem av de sju benen är hyperbler.
+
+**Not:** Lambert avslöjade samtidigt ett fel i etapp 9.2. Mars-farkosten där
+antar att färden sveper den kortaste vägen mellan start och mål, men i alla
+åtta startfönster som testats är den kortaste vägen baklänges runt solen. Banan
+går alltså åt fel håll, och skulle kräva 63 km/s i förhållande till jorden i
+stället för verklighetens 3–4. Ankomsten till Mars stämmer ändå, vilket är
+skälet att det inte upptäcktes tidigare. Rätt lösning är samma sveptvinkel fast
+åt andra hållet – 190° i stället för 170° – och den får man gratis genom att
+låta `Mission` använda Lambert-lösaren. Månfärden i 9.4 är inte drabbad; den
+bygger sin riktning ur månens egen bana.
+
+Fixen är gjord: se noten under 9.3. Efteråt går alla fem närmaste fönster åt
+rätt håll, kostar 2,90–3,20 km/s och infaller i samma rytm som de verkliga
+Mars-fönstren.
+
+---
+
+### 10.2 – Voyager 1 och 2
+
 - [ ] **Voyager 1 och Voyager 2** (uppskjutna 1977) med verkliga riktningar och
       farter. Voyager 2 är den enda farkost som besökt alla fyra
       jätteplaneterna – möjligt tack vare en planetuppställning som bara
       återkommer vart 176:e år.
-- [ ] **Pioneer 10 och 11 samt New Horizons** (Pluto 2015). Fem farkoster är
-      på väg ut ur solsystemet.
-- [ ] **Planetpassagerna som milstolpar** med datum, t.ex. Voyager 1 vid
-      Jupiter i mars 1979 och vid Saturnus i november 1980, Voyager 2 vid
-      Neptunus i augusti 1989. Kan visas som markerade punkter längs banan.
-- [ ] **Gravitationsslunga**: sonderna fick fart genom att svänga förbi
-      planeterna. Visa farten i en panel så att hoppen vid varje passage syns –
-      det är själva förklaringen till hur de kunde nå så långt.
 - [ ] **Ut ur ekliptikan**: efter Saturnus böjde Voyager 1 av brant uppåt
       (ca 35°) och Voyager 2 nedåt (ca 48°). Bra tillfälle att visa att
       solsystemet är en skiva som sonderna nu lämnat.
-- [ ] **Kretsande sonder** som Cassini vid Saturnus (1997–2017) och Juno vid
-      Jupiter – enklare fall, vanliga ellipser kring en planet.
-- [ ] **Skalan**: sonderna är i dag över 100 AU bort, tre gånger längre än
-      Neptunus. Kameran måste kunna zooma ut så långt, och då krymper hela
-      planetsystemet till en prick – vilket i sig är poängen.
+- [ ] Sonderna ritas i vyn med sitt spår efter sig.
 
 **Verifiera:** Spola tiden till mars 1979 – Voyager 1 ska då vara vid Jupiter,
 inte någon annanstans. Samma sak för Voyager 2 vid Neptunus i augusti 1989.
 Kontrollera dagens avstånd mot NASA:s siffror (Voyager 1 ligger kring 167 AU
 och Voyager 2 kring 140 AU år 2026). Luta kameran och se att de två Voyager-
 sonderna lämnat ekliptikan åt var sitt håll.
+
+---
+
+### 10.3 – Pioneer 10 och 11 samt New Horizons
+
+- [ ] **Pioneer 10 och 11 samt New Horizons** (Pluto 2015). Fem farkoster är
+      på väg ut ur solsystemet.
+
+**Verifiera:** New Horizons ska passera Pluto i juli 2015 – och Pluto ligger då
+långt under ekliptikan, så det är också ett prov på att banorna verkligen
+räknas i tre dimensioner.
+
+---
+
+### 10.4 – Milstolpar, panel och skala
+
+- [ ] **Planetpassagerna som milstolpar** med datum, t.ex. Voyager 1 vid
+      Jupiter i mars 1979 och vid Saturnus i november 1980, Voyager 2 vid
+      Neptunus i augusti 1989. Kan visas som markerade punkter längs banan.
+- [ ] **Gravitationsslunga**: sonderna fick fart genom att svänga förbi
+      planeterna. Visa farten i en panel så att hoppen vid varje passage syns –
+      det är själva förklaringen till hur de kunde nå så långt.
+- [ ] **Skalan**: sonderna är i dag över 100 AU bort, tre gånger längre än
+      Neptunus. Kameran måste kunna zooma ut så långt, och då krymper hela
+      planetsystemet till en prick – vilket i sig är poängen. Sonderna bör också
+      gå att välja i fokusväljaren, annars är de svåra att hitta där ute.
+
+**Verifiera:** Farten ska hoppa uppåt vid varje passage och sedan sjunka långsamt
+medan sonden klättrar ur solens gravitation.
+
+---
+
+### 10.5 – Kretsande sonder
+
+- [ ] **Kretsande sonder** som Cassini vid Saturnus (1997–2017) och Juno vid
+      Jupiter – enklare fall, vanliga ellipser kring en planet.
+
+Not: Cassinis resa ut till Saturnus (1997–2004) gick via Venus, Venus, jorden
+och Jupiter, och de benen svarvar mer än ett helt varv kring solen. Sådana banor
+klarar inte Lambert-lösaren i 10.1, som bara hanterar mindre än ett varv. Därför
+visas Cassini från ankomsten 2004, och Juno från ankomsten 2016.
+
+**Verifiera:** Cassinis varv kring Saturnus ska ta ett par tiotal dygn och Junos
+kring Jupiter ungefär 53 – och Junos bana ska gå över polerna, inte längs
+ekvatorn som månarnas.
 
 ---
 

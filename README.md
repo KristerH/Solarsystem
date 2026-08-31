@@ -57,30 +57,41 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
   ljusare än den som återstår.
 
   Banan är i grunden en Hohmann-överföring – den energisnålaste vägen – men
-  en sådan kan bara nå punkter exakt 180° bort, och Mars ligger 1,85° ur
-  ekliptikan och är därför nästan aldrig exakt antiparallell med jorden.
-  Därför löses banan ur sina randvillkor i stället, vilket ger träffar inom
-  några hundra kilometer – gott och väl innanför Mars radie på 3 390 km.
-  Vid det bästa fönstret i slutet av 2026 blir restiden 264 dygn, något
-  längre än lärobokens 259 eftersom Mars just då står 1,57 AU ut i stället
-  för sitt medelavstånd 1,52.
+  en sådan kan bara nå punkter exakt 180° bort, och just där blir banplanet
+  obestämt: Mars ligger 1,85° ur ekliptikan och är nästan aldrig exakt
+  antiparallell med jorden. Därför löses banan i stället ur sina randvillkor
+  med en Lambert-lösare, som ger den bana som går från jordens läge på
+  uppskjutningsdagen till Mars läge på ankomstdagen. Träffen hamnar inom någon
+  tusendels AU, alltså gott och väl innanför Mars radie på 3 390 km.
+
+  Restiden väljs så att uppskjutningen blir så billig som möjligt, mätt som den
+  fart farkosten måste ha i förhållande till jorden när den lämnar. Det ger
+  omkring 3 km/s, vilket också är vad verkliga Mars-uppdrag kostar. Den
+  billigaste banan sveper kring 200° i stället för exakt 180 – lite mer än ett
+  halvt varv, eftersom Mars ska hinna fram till mötet – och restiden blir
+  294 dygn i fönstret hösten 2026, med ankomst i augusti 2027.
 
   Vid framkomsten följer farkosten med planeten i stället för att bli
   stående kvar där Mars råkade vara – en verklig sond går ju in i omloppsbana
   eller landar. Etiketten byts till "Farkost framme".
 
   **Startfönster**: knappen är bara aktiv när en energisnål färd faktiskt går
-  att göra, och "Nästa startfönster" hoppar fram till nästa tillfälle. Kravet
-  är att banan sveper minst 170° kring solen, alltså ligger nära en halv
-  ellips; då blir fönstren 30–50 dygn långa och återkommer var 780:e dygn,
-  precis som i verkligheten. Det är därför Mars-uppdrag alltid skjuts upp i
-  klungor – sommaren 2020 skickade USA, Kina och Förenade arabemiraten var
-  sin sond inom två veckor, och sedan hände ingenting på två år.
+  att göra, och "Nästa startfönster" hoppar fram till nästa tillfälle. Kravet är
+  att uppskjutningen kostar högst 0,1 km/s mer än fönstrets allra bästa dag. Det
+  ger fönster på 11–34 dygn som återkommer var 780:e dygn, precis som i
+  verkligheten: de fem närmaste infaller i oktober 2026, november 2028, januari
+  2031, mars 2033 och juni 2035, vilket är samma rytm som de verkliga
+  Mars-fönstren. Det är därför Mars-uppdrag alltid skjuts upp i klungor –
+  sommaren 2020 skickade USA, Kina och Förenade arabemiraten var sin sond inom
+  två veckor, och sedan hände ingenting på två år.
 
-  Både restid och fasvinkel varierar mellan fönstren – 235 till 264 dygn,
-  och Mars ligger mellan 29° och 63° framför jorden vid uppskjutningen.
-  Lärobokens 259 dygn och 44° gäller cirkulära banor; Mars excentricitet
-  gör att de faktiska värdena pendlar kring dem.
+  Måttet är medvetet relativt i stället för en fast gräns i km/s, eftersom
+  fönstren är olika bra: det billigaste tillfället pendlar mellan 2,90 och
+  3,20 km/s beroende på var Mars står i sin excentriska bana. Restiden varierar
+  ännu mer, mellan 178 och 318 dygn, för ibland är den korta vägen strax under
+  ett halvt varv billigast och ibland den långa strax över. Lärobokens 259 dygn
+  och 44° fasvinkel gäller cirkulära banor; verklighetens värden pendlar kring
+  dem.
 - **Rymdfärd till månen**: knappen "Skjut upp mot Månen" skickar i väg en
   farkost från en låg omloppsbana på 400 km höjd, och vyn hoppar samtidigt in
   till jorden – hela färden ryms inom 0,003 AU och vore annars mindre än en
@@ -192,9 +203,19 @@ asteroid-/Kuiperbälten, tänkt att byggas och verifieras en etapp i taget.
   Kepler-beräkning av positioner.
 - `Simulation/SmallBodyBelt.cs` – asteroid- och Kuiperbältets slumpade banor,
   med förberäknad rotation så att en position kostar en Kepler-lösning.
-- `Simulation/Mission.cs` – planerar och räknar överföringsbanor: till Mars
-  löst ur randvillkoren, till månen ur en given restid. Samma klass klarar
-  banor kring solen och kring en planet.
+- `Simulation/Mission.cs` – planerar och räknar överföringsbanor: till Mars med
+  Lambert-lösaren och den billigaste restiden, till månen ur en given restid.
+  Samma klass klarar banor kring solen och kring en planet.
+- `Simulation/Kepler.cs` – Keplers ekvation i sina två former: `E - e·sin E = M`
+  för ellipser och `e·sinh H - H = M` för hyperbler. Den senare behövs för
+  rymdsonder som fått så hög fart att de aldrig kommer tillbaka.
+- `Simulation/Conic.cs` – ett kägelsnitt byggt ur ett tillstånd, alltså ett läge
+  och en hastighet vid en tidpunkt. Klarar både ellipser och hyperbler, och är
+  det som beskriver en sonds bana mellan två planetpassager.
+- `Simulation/Lambert.cs` – banan som går från ett läge till ett annat på exakt
+  en given tid, löst med universella variabler. Det är den som gör att sonderna
+  kan byggas ur verkliga uppskjutnings- och passagedatum i stället för ur
+  inmatade banelement.
 - `Simulation/StarCatalog.cs` – stjärnkatalogen och stjärnbildernas figurer,
   samt omräkningen från ekvatorial- till världskoordinater.
 - `Rendering/StarSky.cs` – ritar stjärnor, stjärnbilder och Vintergatan.

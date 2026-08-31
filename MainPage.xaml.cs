@@ -36,6 +36,7 @@ public partial class MainPage : ContentPage
     double _windowCheckedAt;
     bool _inLaunchWindow;
     double? _nextWindowDay;
+    double _departureSpeedKmS;             // vad uppskjutningen kostar just nu
 
     public MainPage()
     {
@@ -286,6 +287,7 @@ public partial class MainPage : ContentPage
         if (_inLaunchWindow)
         {
             _nextWindowDay = null;
+            _departureSpeedKmS = Mission.CheapestDeparture(EarthBody, MarsBody, day).SpeedKmS;
         }
         else if (_nextWindowDay is not double cached || day > cached || day < cached - 900)
         {
@@ -333,7 +335,10 @@ public partial class MainPage : ContentPage
 
         if (_inLaunchWindow)
         {
-            MissionLabel.Text = "Startfönstret är öppet";
+            // Farten i förhållande till jorden är måttet på hur stor raket som
+            // behövs, och det är den som avgör om fönstret räknas som öppet.
+            MissionLabel.Text = string.Create(Swedish,
+                $"Startfönstret är öppet – uppskjutningen kräver {_departureSpeedKmS:0.0} km/s");
         }
         else if (_nextWindowDay is double next)
         {
