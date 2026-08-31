@@ -376,12 +376,43 @@ Triton, och skälet till att den lämnade ekliptikan brantare än sin tvilling.
 
 ### 10.3 – Pioneer 10 och 11 samt New Horizons
 
-- [ ] **Pioneer 10 och 11 samt New Horizons** (Pluto 2015). Fem farkoster är
+- [x] **Pioneer 10 och 11 samt New Horizons** (Pluto 2015). Fem farkoster är
       på väg ut ur solsystemet.
 
+Byggda på samma sätt som Voyagerna i 10.2, med sina verkliga passagedatum:
+Pioneer 10 förbi Jupiter 4 december 1973, Pioneer 11 förbi Jupiter 3 december
+1974 och Saturnus 1 september 1979, New Horizons förbi Jupiter 28 februari 2007
+och Pluto 14 juli 2015.
+
 **Verifiera:** New Horizons ska passera Pluto i juli 2015 – och Pluto ligger då
-långt under ekliptikan, så det är också ett prov på att banorna verkligen
-räknas i tre dimensioner.
+långt utanför ekliptikans plan, så det är också ett prov på att banorna
+verkligen räknas i tre dimensioner.
+
+Kontrollerat: alla elva planetpassager träffar rätt planet rätt dag. Sämst är
+Voyager 2 vid Neptunus med 602 km; New Horizons möter Pluto på 319 km, vilket
+är en fjärdedels Plutoradie. Lägena i dag stämmer med de kända: Pioneer 10 på
+142 AU med 11,8 km/s (facit ~140 AU och 11,9), Pioneer 11 på 120 AU med
+11,3 km/s (~118 och 11,2), New Horizons på 65 AU med 13,3 km/s (~63 och 13,9).
+Samtliga tretton ben går prograd.
+
+**Rättelse till verifieringen ovan:** Pluto låg i juli 2015 inte under utan
+strax *över* ekliptikan, och inte "långt" räknat i vinkel – bara 1,91°. Räknat
+i sträcka är det ändå 1,10 AU utanför planet, alltså mer än hela jordens
+banradie, så provet på tre dimensioner håller. Pluto var på väg ned och korsade
+planet några år senare. Att sonden möter Pluto där, och inte i planet, är just
+vad som skulle visas.
+
+Pioneer 11 blev etappens intressanta fall. Jupiter slungade den inte utåt utan
+inåt och tvärs över solsystemet: banan faller från 4,97 AU in till 3,79 AU,
+går ett halvt varv runt solen – från longitud 351° till 167° – och klättrar
+sedan ut till Saturnus på 9,38 AU, som mest 11,6° över ekliptikan. Benet sveper
+alltså 176°, farligt nära den punkt där banplanet blir obestämt, men lösningen
+träffar Saturnus på 144 km. Det benet är dessutom en ellips: efter Jupiter hade
+Pioneer 11 inte fart nog att lämna solsystemet, utan hade kommit tillbaka om
+inte Saturnus slungat ut den. Samma sak gäller Pioneer 10 och de båda
+Voyagersonderna vid Jupiter – deras första ben är ellipser, resten hyperbler.
+New Horizons är undantaget: den var på en hyperbel redan från uppskjutningen,
+den snabbaste som gjorts.
 
 ---
 

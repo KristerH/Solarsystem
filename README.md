@@ -123,26 +123,44 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
   man ser den komma fram. Det sker en gång, i själva ankomstögonblicket –
   därefter styr man fritt igen, och ett nytt val i fokusväljaren eller
   "Återställ vy" släpper greppet.
-- **Voyager 1 och 2**: de två verkliga sonderna, med spår efter sig och en egen
+- **De fem rymdsonderna** som är på väg ut ur solsystemet – Voyager 1 och 2,
+  Pioneer 10 och 11 samt New Horizons – med spår efter sig och en egen
   kryssruta. De är inte inmatade som banelement utan byggda ur sina verkliga
   datum: varje ben av färden är banan som går från en planet till nästa på exakt
   den tid passagerna tog, räknad ur appens egna planetpositioner. Sonderna
   hamnar därför vid rätt planet rätt dag av sig själva – sämsta träffen av de
-  sex passagerna är 602 km vid Neptunus, alltså två hundradels planetradie.
+  elva passagerna är 602 km vid Neptunus, alltså två hundradels planetradie, och
+  New Horizons möter Pluto på 319 km.
 
   Sista benet går ut till sondens kända läge i dag, och därmed blir också
   lutningen ut ur ekliptikan ett resultat i stället för en inmatning: +35,6° för
   Voyager 1 och −47,9° för Voyager 2, mot de vedertagna 35° och 48°. Luta
   kameran så syns det direkt att de lämnat solsystemets skiva åt var sitt håll.
   I dag ligger de på 169 och 142 AU med farterna 16,7 och 15,0 km/s (NASA:s
-  siffror: 167 och 140 AU, 17,0 och 15,4 km/s).
+  siffror: 167 och 140 AU, 17,0 och 15,4 km/s). Pioneer 10 och 11 följer nästan
+  ekliptikan, på 142 respektive 120 AU, och New Horizons har hunnit 65 AU.
+  Pioneer 10 tystnade 2003 och Pioneer 11 redan 1995, så deras lägen är
+  framräknade snarare än mätta.
 
   Gravitationsslungan följer på köpet, eftersom benen möts i samma läge men med
-  olika hastighet: Jupiter gav Voyager 1 hela 10,8 km/s. Just de två benen från
-  jorden till Jupiter är ellipser medan allt efter Jupiter är hyperbler – det
-  var alltså Jupiter som gav sonderna fart nog att aldrig komma tillbaka. Vid
-  Neptunus *bromsades* Voyager 2 i stället med 2,3 km/s, priset för att svänga
-  ner mot månen Triton.
+  olika hastighet: Jupiter gav Voyager 1 hela 10,8 km/s och Pioneer 10 så mycket
+  som 12,1. Vid Neptunus *bromsades* Voyager 2 i stället med 2,3 km/s, priset
+  för att svänga ner mot månen Triton, och vid Pluto händer i praktiken
+  ingenting med New Horizons – Pluto är för liten för att slunga något.
+
+  Banornas form berättar samma sak: sondernas första ben, från jorden till
+  Jupiter, är ellipser medan allt efter Jupiter är hyperbler. Det var alltså
+  Jupiter som gav dem fart nog att aldrig komma tillbaka. Två undantag finns.
+  Pioneer 11 slungades av Jupiter inte utåt utan inåt och tvärs över
+  solsystemet – banan faller in till 3,8 AU, går ett halvt varv runt solen och
+  klättrar ut till Saturnus, elva grader över ekliptikan – och först Saturnus
+  gav den fart nog att lämna. New Horizons är det motsatta undantaget: den var
+  på en hyperbel redan från uppskjutningen, den snabbaste som gjorts, och
+  passerade månens bana efter nio timmar mot Apollos tre dygn.
+
+  Pluto-passagen 2015 är också provet på att banorna räknas i tre dimensioner.
+  Pluto låg då 1,10 AU utanför ekliptikans plan – mer än hela jordens banradie –
+  och New Horizons möter den där, inte i planet.
 - **Skalenliga avstånd**: Avstånden mellan banorna är alltid skalenliga (1 AU =
   60 enheter). Planeternas storlekar är inbördes skalenliga men förstorade så
   att de syns – bocka i **Verklig storlek** för att se hur små planeterna

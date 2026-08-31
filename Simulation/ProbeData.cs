@@ -53,6 +53,57 @@ public static class ProbeData
         Waypoint.At(Planet("Neptunus"), new DateTime(1989, 8, 25)),
         Waypoint.InSky("Voyager 2 i dag", Today, 140.0, 20.12, -59.5));
 
-    /// <summary>Alla sonder appen ritar.</summary>
-    public static readonly Probe[] All = [Voyager1, Voyager2];
+    /// <summary>
+    /// Pioneer 10: uppskjuten 3 mars 1972, förbi Jupiter 4 december 1973. Den
+    /// var först med allt – först genom asteroidbältet, först vid Jupiter och
+    /// först ut ur planetsystemet. Radiokontakten tystnade 2003, så läget i dag
+    /// är framräknat och inte mätt.
+    ///
+    /// Sonden lämnar solsystemet nästan längs ekliptikan, i riktning mot
+    /// Aldebaran i Oxen. Dit tar det över två miljoner år.
+    /// </summary>
+    public static readonly Probe Pioneer10 = Probe.Build(
+        "Pioneer 10", Color.FromArgb("#E4A98F"),
+        Waypoint.At(Planet("Jorden"), new DateTime(1972, 3, 3)),
+        Waypoint.At(Planet("Jupiter"), new DateTime(1973, 12, 4)),
+        Waypoint.InSky("Pioneer 10 i dag", Today, 140.0, 4.60, 16.5));
+
+    /// <summary>
+    /// Pioneer 11: uppskjuten 6 april 1973, förbi Jupiter 3 december 1974 och
+    /// Saturnus 1 september 1979 – den första sond som besökte Saturnus.
+    ///
+    /// Vägen mellan de två var udda: Jupiter slungade sonden uppåt och tvärs
+    /// över solsystemet, så att den mötte Saturnus på andra sidan solen. Det
+    /// benet sveper därför mer än ett halvt varv, vilket Lambert-lösaren klarar
+    /// eftersom den väljer den långa vägen när den korta skulle gå baklänges.
+    /// </summary>
+    public static readonly Probe Pioneer11 = Probe.Build(
+        "Pioneer 11", Color.FromArgb("#C3CE9E"),
+        Waypoint.At(Planet("Jorden"), new DateTime(1973, 4, 6)),
+        Waypoint.At(Planet("Jupiter"), new DateTime(1974, 12, 3)),
+        Waypoint.At(Planet("Saturnus"), new DateTime(1979, 9, 1)),
+        Waypoint.InSky("Pioneer 11 i dag", Today, 118.0, 18.50, -8.9));
+
+    /// <summary>
+    /// New Horizons: uppskjuten 19 januari 2006, förbi Jupiter 28 februari 2007
+    /// och Pluto 14 juli 2015. Den snabbaste uppskjutningen någonsin – den
+    /// passerade månens bana efter nio timmar, mot Apollos tre dygn.
+    ///
+    /// Pluto-passagen är ett bra prov på att banorna räknas i tre dimensioner:
+    /// Plutos bana lutar 17 grader, så mötet skedde långt utanför ekliptikans
+    /// plan.
+    /// </summary>
+    public static readonly Probe NewHorizons = Probe.Build(
+        "New Horizons", Color.FromArgb("#D9AEE6"),
+        Waypoint.At(Planet("Jorden"), new DateTime(2006, 1, 19)),
+        Waypoint.At(Planet("Jupiter"), new DateTime(2007, 2, 28)),
+        Waypoint.At(Planet("Pluto"), new DateTime(2015, 7, 14)),
+        Waypoint.InSky("New Horizons i dag", Today, 63.0, 19.25, -20.5));
+
+    /// <summary>
+    /// Alla sonder appen ritar. Fem farkoster är på väg ut ur solsystemet, och
+    /// det här är allihop.
+    /// </summary>
+    public static readonly Probe[] All =
+        [Voyager1, Voyager2, Pioneer10, Pioneer11, NewHorizons];
 }
