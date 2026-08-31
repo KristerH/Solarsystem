@@ -15,6 +15,9 @@ public sealed class OrbitCamera
     public const float MaxDistance = 40_000f;
     public const float MaxPitch = 1.55f;
 
+    /// <summary>Kameraavståndet i översiktsvyn, som "Återställ vy" går tillbaka till.</summary>
+    public const float DefaultDistance = 900f;
+
     public float Yaw { get; set; }
     public float Pitch { get; set; }
     public float Distance { get; set; }
@@ -41,7 +44,7 @@ public sealed class OrbitCamera
     {
         Yaw = 0.6f;
         Pitch = 0.55f;
-        Distance = 900f;
+        Distance = DefaultDistance;
         Target = Vector3.Zero;
     }
 

@@ -513,12 +513,12 @@ steg för att se hela ellipsen.
 
 ### 10.6 – Välj vilka sonder som visas
 
-- [ ] En väljare där varje sond kan bockas i för sig, i stället för dagens
+- [x] En väljare där varje sond kan bockas i för sig, i stället för dagens
       kryssruta "Rymdsonder" som tänder och släcker allihop. Man ska kunna visa
       bara Voyager 1, eller Voyager 1 och 2, eller vilken annan kombination som
       helst.
-- [ ] Valet ska gälla sondens allt: pricken, spåret och milstolparna.
-- [ ] Släcks den sond som är vald i fokusväljaren faller fokus tillbaka till
+- [x] Valet ska gälla sondens allt: pricken, spåret och milstolparna.
+- [x] Släcks den sond som är vald i fokusväljaren faller fokus tillbaka till
       solen. Kameran ska aldrig bli stående och följa något som inte ritas.
 
 Behovet kommer av 10.2–10.4. Fem sonder med spår och elva passageringar gör
@@ -551,12 +551,36 @@ i tur och ordning. Den kopplingen måste byggas om så att den utgår från de
 synliga sonderna och görs om varje gång valet ändras, annars pekar indexet på
 fel sond så fort någon släcks.
 
+Byggt som väg 2 i listan ovan: knappen "Rymdsonder 7/7" fäller ut en ruta med en
+kryssruta per sond, namnen i sondens egen färg, plus "Alla" och "Inga" för att
+slippa sju klick. Rutan ligger som en egen ruta ovanpå vyn och inte i
+kontrollpanelen, dels för att panelen är trång, dels för att textstapeln där
+panelerna ligger är genomsläpplig för klick och kryssrutorna då inte hade gått
+att träffa. Raderna byggs ur sonddata, så en ny sond dyker upp i väljaren av sig
+själv.
+
+De två kretsande sonderna från 10.5 kom med i samma väljare – de är också
+sonder, och den gamla kryssrutan styrde dem också. De står däremot inte i
+fokusväljaren, eftersom man tittar på dem genom att välja deras planet.
+
+`ShowProbes` i `SolarSystemDrawable` är ersatt av `VisibleProbes`, en mängd med
+namnen på de sonder som ska ritas. Tom mängd släcker allihop, precis som den
+gamla kryssrutan gjorde.
+
 **Verifiera:** Bocka i bara Voyager 1 och kontrollera att spår, prick och
 milstolpar för de andra fyra försvinner, medan Voyager 1 ser ut precis som förut.
 Bocka i båda Voyagersonderna och luta kameran: nu ska de två motsatta vägarna ut
 ur ekliptikan gå att jämföra utan att Pioneersonderna och New Horizons ligger i
 vägen. Bocka ur allihop och jämför med hur vyn ser ut när dagens kryssruta
 "Rymdsonder" släcks – det ska vara samma bild.
+
+Kontrollerat: fokusväljarens indexlogik provad i 22 fall mot riktig sonddata.
+Fällan som förutsågs i planen är den viktigaste: följer man Voyager 2 och
+släcker Voyager 1 flyttar Voyager 2 från plats 11 till plats 10 i väljaren, och
+eftersom valet bevaras på namn i stället för index följs rätt sond även efteråt.
+Släcker man den sond man följer faller fokus till solen och vyn zoomar ut till
+översikten; följer man en planet påverkas ingenting; "Inga" följt av "Alla" ger
+tillbaka utgångsläget.
 
 ---
 

@@ -124,8 +124,7 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
   därefter styr man fritt igen, och ett nytt val i fokusväljaren eller
   "Återställ vy" släpper greppet.
 - **De fem rymdsonderna** som är på väg ut ur solsystemet – Voyager 1 och 2,
-  Pioneer 10 och 11 samt New Horizons – med spår efter sig och en egen
-  kryssruta. De är inte inmatade som banelement utan byggda ur sina verkliga
+  Pioneer 10 och 11 samt New Horizons – med spår efter sig. De är inte inmatade som banelement utan byggda ur sina verkliga
   datum: varje ben av färden är banan som går från en planet till nästa på exakt
   den tid passagerna tog, räknad ur appens egna planetpositioner. Sonderna
   hamnar därför vid rätt planet rätt dag av sig själva – sämsta träffen av de
@@ -170,6 +169,13 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
   medan sonden klättrar ur solens gravitation. Voyager 1 går från 27,4 km/s
   efter uppskjutningen till 20,4 vid Saturnus 1982, 17,7 år 1990 och 16,67 i
   dag, och kurvan planar ut.
+
+  **Välja sonder**: knappen "Rymdsonder" fäller ut en ruta där varje sond bockas
+  i för sig, så att man kan visa bara Voyager 1, eller båda Voyagersonderna för
+  att jämföra deras motsatta vägar ut ur ekliptikan, utan att de andra ligger i
+  vägen. Valet gäller prick, spår och milstolpar, och de två kretsande sonderna
+  finns i samma lista. Släcker man den sond kameran följer faller fokus tillbaka
+  till solen och vyn zoomar ut till översikten.
 
   **Skalan**: väljer man en sond zoomar kameran ut till drygt två gånger dess
   avstånd, så att solen precis ryms i bild. Då krymper hela planetsystemet till

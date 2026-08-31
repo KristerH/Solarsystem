@@ -54,11 +54,8 @@ public partial class MainPage : ContentPage
             _resizeQuietUntil = _clock.Elapsed.TotalSeconds + 0.3;
         };
 
-        var names = new List<string> { "Solen" };
-        names.AddRange(SolarSystemData.Planets.Select(p => p.Name));
-        names.AddRange(ProbeData.All.Select(p => p.Name));
-        FocusPicker.ItemsSource = names;
-        FocusPicker.SelectedIndex = 0;
+        BuildProbeMenu();
+        RebuildFocusPicker(keep: "Solen");
 
         StarDensityPicker.ItemsSource = new List<string> { "Inga", "Få", "Normalt", "Många" };
         StarDensityPicker.SelectedIndex = (int)_drawable.StarDensity;
@@ -378,11 +375,16 @@ public partial class MainPage : ContentPage
 
     /// <summary>
     /// Sonden som är vald i fokusväljaren, eller null. Väljaren räknar solen
-    /// först, sedan planeterna och sist sonderna.
+    /// först, sedan planeterna och sist de sonder som visas.
     /// </summary>
-    Probe? FocusedProbe => _focusIndex > SolarSystemData.Planets.Length
-        ? ProbeData.All[_focusIndex - SolarSystemData.Planets.Length - 1]
-        : null;
+    Probe? FocusedProbe
+    {
+        get
+        {
+            int index = _focusIndex - SolarSystemData.Planets.Length - 1;
+            return index >= 0 && index < _focusProbes.Count ? _focusProbes[index] : null;
+        }
+    }
 
     /// <summary>
     /// Sondpanelen: var sonden är, hur fort den går och vad den senaste
@@ -629,10 +631,144 @@ public partial class MainPage : ContentPage
         _settingsChanged = true;
     }
 
-    void OnProbesChanged(object? sender, CheckedChangedEventArgs e)
+    // ----------------------------------------------------------- sondväljaren
+
+    /// <summary>
+    /// Sonderna som just nu går att välja i fokusväljaren, i väljarens ordning.
+    /// Listan förs parallellt eftersom väljarens innehåll ändras när sonder
+    /// tänds och släcks – index går alltså inte längre att räkna ur ProbeData.
+    /// </summary>
+    readonly List<Probe> _focusProbes = new();
+
+    /// <summary>Sant medan fokusväljaren byggs om, så att bytet inte tolkas som ett val.</summary>
+    bool _rebuildingFocus;
+
+    /// <summary>
+    /// Bygger sondväljarens rader ur sonddata: först de fem som lämnat
+    /// solsystemet, sedan de två som kretsar kring en planet.
+    /// </summary>
+    void BuildProbeMenu()
     {
-        _drawable.ShowProbes = e.Value;
+        foreach (var probe in ProbeData.All)
+            ProbeMenuItems.Children.Add(ProbeMenuRow(probe.Name, probe.Color));
+
+        ProbeMenuItems.Children.Add(new BoxView
+        {
+            HeightRequest = 1,
+            Color = Color.FromArgb("#2A3340"),
+            Margin = new Thickness(0, 4),
+        });
+
+        foreach (var orbiter in ProbeData.Orbiters)
+            ProbeMenuItems.Children.Add(ProbeMenuRow(orbiter.Name, orbiter.Color));
+
+        UpdateProbeMenuButton();
+    }
+
+    /// <summary>En rad i väljaren: kryssruta och namn i sondens egen färg.</summary>
+    View ProbeMenuRow(string name, Color color)
+    {
+        var check = new CheckBox
+        {
+            IsChecked = _drawable.VisibleProbes.Contains(name),
+            Color = Color.FromArgb("#6FA8DC"),
+            VerticalOptions = LayoutOptions.Center,
+        };
+        check.CheckedChanged += (_, e) => OnProbeToggled(name, e.Value);
+
+        return new HorizontalStackLayout
+        {
+            Spacing = 2,
+            Children =
+            {
+                check,
+                new Label
+                {
+                    Text = name,
+                    TextColor = color,
+                    FontSize = 14,
+                    VerticalOptions = LayoutOptions.Center,
+                },
+            },
+        };
+    }
+
+    void OnProbeMenuClicked(object? sender, EventArgs e)
+        => ProbeMenu.IsVisible = !ProbeMenu.IsVisible;
+
+    void OnAllProbesClicked(object? sender, EventArgs e) => SetAllProbes(true);
+
+    void OnNoProbesClicked(object? sender, EventArgs e) => SetAllProbes(false);
+
+    /// <summary>Tänder eller släcker allihop via kryssrutorna, som i sin tur gör jobbet.</summary>
+    void SetAllProbes(bool visible)
+    {
+        foreach (var row in ProbeMenuItems.Children.OfType<HorizontalStackLayout>())
+            if (row.Children.OfType<CheckBox>().FirstOrDefault() is { } check)
+                check.IsChecked = visible;
+    }
+
+    /// <summary>
+    /// En sond tänds eller släcks. Släcks den sond kameran följer faller fokus
+    /// tillbaka till solen och vyn zoomar ut till översikten – kameran ska aldrig
+    /// bli stående och följa något som inte ritas.
+    /// </summary>
+    void OnProbeToggled(string name, bool visible)
+    {
+        if (visible)
+            _drawable.VisibleProbes.Add(name);
+        else
+            _drawable.VisibleProbes.Remove(name);
+
+        string? keep = FocusPicker.SelectedItem as string;
+        if (FocusedProbe is { } followed && !_drawable.VisibleProbes.Contains(followed.Name))
+            keep = null;
+
+        RebuildFocusPicker(keep);
+        UpdateProbeMenuButton();
         _settingsChanged = true;
+    }
+
+    /// <summary>Knappens text visar hur många sonder som är ivalda.</summary>
+    void UpdateProbeMenuButton()
+    {
+        int total = ProbeData.All.Length + ProbeData.Orbiters.Length;
+        ProbeMenuButton.Text = string.Create(Swedish,
+            $"Rymdsonder {_drawable.VisibleProbes.Count}/{total} ▾");
+    }
+
+    /// <summary>
+    /// Bygger om fokusväljaren så att den bara listar de sonder som visas – man
+    /// ska inte kunna välja att följa något som inte ritas. Går det tidigare
+    /// valet inte att behålla faller det tillbaka till solen, och då zoomar vyn
+    /// ut till översikten; annars hade kameran blivit stående hundra AU ut i
+    /// tomma rymden.
+    /// </summary>
+    void RebuildFocusPicker(string? keep)
+    {
+        _focusProbes.Clear();
+        _focusProbes.AddRange(ProbeData.All.Where(p => _drawable.VisibleProbes.Contains(p.Name)));
+
+        var names = new List<string> { "Solen" };
+        names.AddRange(SolarSystemData.Planets.Select(p => p.Name));
+        names.AddRange(_focusProbes.Select(p => p.Name));
+
+        // Tappas valet – för att sonden släckts, eller för att namnet inte finns
+        // kvar av något annat skäl – faller det tillbaka till solen.
+        int found = keep is null ? -1 : names.IndexOf(keep);
+        bool lostFocus = found < 0;
+        int index = lostFocus ? 0 : found;
+
+        _rebuildingFocus = true;
+        FocusPicker.ItemsSource = names;
+        FocusPicker.SelectedIndex = index;
+        _rebuildingFocus = false;
+
+        _focusIndex = index;
+        _drawable.FocusedProbe = FocusedProbe;
+
+        if (lostFocus)
+            _drawable.Camera.Distance = OrbitCamera.DefaultDistance;
     }
 
     void OnConstellationsChanged(object? sender, CheckedChangedEventArgs e)
@@ -655,6 +791,9 @@ public partial class MainPage : ContentPage
 
     void OnFocusChanged(object? sender, EventArgs e)
     {
+        if (_rebuildingFocus)
+            return;     // väljaren byggs om, inget användaren klickat på
+
         _focusIndex = Math.Max(0, FocusPicker.SelectedIndex);
         _followCraft = false;
         _drawable.FocusedProbe = FocusedProbe;

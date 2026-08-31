@@ -69,6 +69,35 @@
             </Border>
         </VerticalStackLayout>
 
+        <!-- Sondväljaren, utfälld från knappen i kontrollpanelen. Ligger utanför
+             textstapeln ovan, som är genomsläpplig för klick. -->
+        <Border x:Name="ProbeMenu"
+                Grid.Row="0"
+                IsVisible="False"
+                HorizontalOptions="Start"
+                VerticalOptions="End"
+                Margin="14,0,0,12"
+                Padding="14,10"
+                BackgroundColor="#F2121820"
+                Stroke="#33445A"
+                StrokeThickness="1"
+                StrokeShape="RoundRectangle 8">
+            <VerticalStackLayout Spacing="5">
+                <HorizontalStackLayout Spacing="6" Margin="0,0,0,4">
+                    <Label Text="Visa sonder" TextColor="#E8F4FF" FontSize="14"
+                           FontAttributes="Bold" VerticalOptions="Center"
+                           Margin="0,0,8,0" />
+                    <Button Text="Alla" Clicked="OnAllProbesClicked"
+                            BackgroundColor="#26303C" TextColor="White"
+                            FontSize="12" Padding="10,2" HeightRequest="30" />
+                    <Button Text="Inga" Clicked="OnNoProbesClicked"
+                            BackgroundColor="#26303C" TextColor="White"
+                            FontSize="12" Padding="10,2" HeightRequest="30" />
+                </HorizontalStackLayout>
+                <VerticalStackLayout x:Name="ProbeMenuItems" Spacing="2" />
+            </VerticalStackLayout>
+        </Border>
+
         <!-- Kontrollpanel. Två fasta rader i en horisontell ScrollView i stället
              för FlexLayout med Wrap – FlexLayout kan hamna i en oändlig
              mätloop när fönsterbredden ändras, vilket frös hela appen. -->
@@ -116,8 +145,11 @@
                     <CheckBox x:Name="KuiperCheck" IsChecked="False" CheckedChanged="OnKuiperChanged" Color="#6FA8DC" />
                     <Label Text="Kuiperbälte" TextColor="#C8D4E0" VerticalOptions="Center" Margin="0,0,10,0" />
 
-                    <CheckBox x:Name="ProbesCheck" IsChecked="True" CheckedChanged="OnProbesChanged" Color="#6FA8DC" />
-                    <Label Text="Rymdsonder" TextColor="#C8D4E0" VerticalOptions="Center" Margin="0,0,10,0" />
+                    <Button x:Name="ProbeMenuButton"
+                            Text="Rymdsonder ▾"
+                            Clicked="OnProbeMenuClicked"
+                            BackgroundColor="#26303C" TextColor="White"
+                            Margin="0,0,10,0" />
 
                     <CheckBox x:Name="ConstellationsCheck" IsChecked="True" CheckedChanged="OnConstellationsChanged" Color="#6FA8DC" />
                     <Label Text="Stjärnbilder" TextColor="#C8D4E0" VerticalOptions="Center" Margin="0,0,10,0" />

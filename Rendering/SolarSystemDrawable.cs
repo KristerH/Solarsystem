@@ -40,8 +40,17 @@ public sealed class SolarSystemDrawable : IDrawable
     /// <summary>Om Kuiperbältet bortom Neptunus ska ritas.</summary>
     public bool ShowKuiperBelt { get; set; }
 
-    /// <summary>Om de verkliga rymdsonderna och deras spår ska ritas.</summary>
-    public bool ShowProbes { get; set; } = true;
+    /// <summary>
+    /// Namnen på de rymdsonder som ska ritas – både de fem som lämnat
+    /// solsystemet och de två som kretsar kring en planet. Sonder som inte finns
+    /// i mängden ritas inte alls: varken prick, spår eller milstolpar. Tom mängd
+    /// släcker allihop.
+    ///
+    /// Namnen duger som nyckel eftersom de är unika och redan används för att
+    /// identifiera kroppar på andra håll i appen, till exempel i fokusväljaren.
+    /// </summary>
+    public HashSet<string> VisibleProbes { get; } =
+        [.. ProbeData.All.Select(p => p.Name), .. ProbeData.Orbiters.Select(o => o.Name)];
 
     /// <summary>
     /// Sonden som är vald i fokusväljaren, eller null. Dess milstolpar skrivs
@@ -114,7 +123,7 @@ public sealed class SolarSystemDrawable : IDrawable
             if (ShowAsteroidBelt)
                 DrawAsteroidBelt(canvas, rect);
             DrawBodies(canvas, rect);
-            if (ShowProbes)
+            if (VisibleProbes.Count > 0)
             {
                 DrawProbes(canvas);
                 DrawOrbiters(canvas);
@@ -707,6 +716,8 @@ public sealed class SolarSystemDrawable : IDrawable
 
         foreach (var probe in ProbeData.All)
         {
+            if (!VisibleProbes.Contains(probe.Name))
+                continue;   // bortvald i sondväljaren
             if (!probe.Exists(now))
                 continue;   // ännu inte uppskjuten
 
@@ -793,6 +804,8 @@ public sealed class SolarSystemDrawable : IDrawable
 
         foreach (var orbiter in ProbeData.Orbiters)
         {
+            if (!VisibleProbes.Contains(orbiter.Name))
+                continue;   // bortvald i sondväljaren
             if (!orbiter.Exists(now))
                 continue;   // ännu inte framme, eller uppdraget slut
 
