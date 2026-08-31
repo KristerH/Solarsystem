@@ -115,7 +115,10 @@ public sealed class SolarSystemDrawable : IDrawable
                 DrawAsteroidBelt(canvas, rect);
             DrawBodies(canvas, rect);
             if (ShowProbes)
+            {
                 DrawProbes(canvas);
+                DrawOrbiters(canvas);
+            }
             if (Mission is not null)
                 DrawMission(canvas, Mission);
             DrawLabels(canvas, rect);
@@ -772,6 +775,76 @@ public sealed class SolarSystemDrawable : IDrawable
                     probe.Color.WithAlpha(0.7f), minSeparation: 26f);
             }
         }
+    }
+
+    /// <summary>
+    /// Ritar sonderna som kretsar kring en planet: hela banellipsen och sondens
+    /// läge på den. Banan trycks ihop med samma faktor som planetens månar, så
+    /// att den hamnar i samma storleksordning som dem i stället för att
+    /// försvinna inne i det förstorade klotet. Cassinis varv är ungefär lika
+    /// stort som Titans bana, och det syns nu också i vyn.
+    ///
+    /// Ritas bara när man zoomat in så nära att banan täcker något tiotal
+    /// pixlar – på håll skulle den ändå bara bli en prick ovanpå planeten.
+    /// </summary>
+    void DrawOrbiters(ICanvas canvas)
+    {
+        double now = DaysSinceJ2000;
+
+        foreach (var orbiter in ProbeData.Orbiters)
+        {
+            if (!orbiter.Exists(now))
+                continue;   // ännu inte framme, eller uppdraget slut
+
+            var center = orbiter.Center;
+            float scale = MoonDisplayScale(center);
+            var origin = center.PositionAt(now, UnitsPerAu);
+
+            if (!Camera.Project(origin, out _, out _, out float depth))
+                continue;
+
+            float radius = (float)orbiter.Path.SemiMajorAu * UnitsPerAu * scale;
+            if (Camera.ScreenRadius(radius, depth) < 10f)
+                continue;   // för utzoomat
+
+            DrawOrbiterPath(canvas, orbiter, origin, scale);
+
+            var pos = origin + orbiter.PositionAt(now, UnitsPerAu) * scale;
+            if (!Camera.Project(pos, out float sx, out float sy, out _))
+                continue;
+
+            canvas.FillColor = orbiter.Color;
+            canvas.FillCircle(sx, sy, 2.5f);
+            _labels.Add((orbiter.Name, sx, sy + 9f));
+        }
+    }
+
+    /// <summary>Ritar banellipsen som en sluten polylinje.</summary>
+    void DrawOrbiterPath(ICanvas canvas, Orbiter orbiter, Vector3 origin, float scale)
+    {
+        const int samples = 180;
+
+        var path = new PathF();
+        bool started = false;
+
+        foreach (var point in orbiter.OrbitPath(samples, UnitsPerAu))
+        {
+            if (!Camera.Project(origin + point * scale, out float x, out float y, out _))
+            {
+                started = false;
+                continue;
+            }
+
+            if (started)
+                path.LineTo(x, y);
+            else
+                path.MoveTo(x, y);
+            started = true;
+        }
+
+        canvas.StrokeSize = 1.2f;
+        canvas.StrokeColor = orbiter.Color.WithAlpha(0.55f);
+        canvas.DrawPath(path);
     }
 
     /// <summary>Var milstolpstexterna hamnade den här bildrutan.</summary>

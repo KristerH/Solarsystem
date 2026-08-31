@@ -175,6 +175,25 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
   avstånd, så att solen precis ryms i bild. Då krymper hela planetsystemet till
   en prick i mitten, vilket i sig är poängen: Voyager 1 är 167 gånger längre
   bort än jorden och fyra gånger längre än Neptunus.
+- **Kretsande sonder**: Cassini vid Saturnus (2004–2017) och Juno vid Jupiter
+  (från 2016) ritas med hela sin banellips kring planeten. De är enklare fall än
+  de fem som lämnat solsystemet – vanliga ellipser – men banorna är också av ett
+  annat slag: de är representativa snarare än återskapade. Cassini flög nästan
+  trehundra olika varv, så storlek, form, omloppstid och banplan är verkliga
+  medan sondens plats i banan ett givet datum inte är det.
+
+  Kontrasten mellan de två är poängen. Cassinis varv tar 16 dygn och lutar
+  20° mot ringplanet; Junos tar 53 dygn och går rakt över polerna, till skillnad
+  från månarna som ligger i ekvatorsplanet. Junos bana är dessutom extrem: ned
+  till 1,08 Jupiterradier, alltså några tusen kilometer över molntopparna, och ut
+  igen till 116 radier. Farten växlar därefter, mellan 57,7 km/s vid närmaste
+  punkt – vilket gör Juno till det snabbaste föremål människan skickat i
+  förhållande till en planet – och 0,54 km/s längst ut.
+
+  Banorna trycks ihop med samma faktor som månbanorna, så proportionerna hålls:
+  Cassinis varv är nästan exakt lika stort som Titans bana, och Junos sträcker
+  sig drygt fyra gånger längre ut än Callisto. Välj Saturnus eller Jupiter i
+  fokusväljaren vid ett datum inom uppdragstiden för att se dem.
 - **Skalenliga avstånd**: Avstånden mellan banorna är alltid skalenliga (1 AU =
   60 enheter). Planeternas storlekar är inbördes skalenliga men förstorade så
   att de syns – bocka i **Verklig storlek** för att se hur små planeterna

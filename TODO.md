@@ -459,7 +459,7 @@ inom takhöjden, med solen kvar i bild.
 
 ### 10.5 – Kretsande sonder
 
-- [ ] **Kretsande sonder** som Cassini vid Saturnus (1997–2017) och Juno vid
+- [x] **Kretsande sonder** som Cassini vid Saturnus (1997–2017) och Juno vid
       Jupiter – enklare fall, vanliga ellipser kring en planet.
 
 Not: Cassinis resa ut till Saturnus (1997–2004) gick via Venus, Venus, jorden
@@ -467,9 +467,96 @@ och Jupiter, och de benen svarvar mer än ett helt varv kring solen. Sådana ban
 klarar inte Lambert-lösaren i 10.1, som bara hanterar mindre än ett varv. Därför
 visas Cassini från ankomsten 2004, och Juno från ankomsten 2016.
 
+En viktig skillnad mot resten av etappen: de här två banorna är **inte**
+återskapade ur verkliga datum. Cassini flög nästan trehundra olika varv under
+tretton år, med omloppstider från en vecka till fyra månader och lutningar från
+ringplanet upp till 75 grader, så det finns ingen enda bana att visa. Det som
+ritas är ett representativt varv – storlek, form, omloppstid och banplan är
+verkliga, men var sonden befinner sig i banan ett givet datum är det inte.
+Banorna anges därför i planetradier och lutning mot planetens ekvator, vilket
+är måtten sådana här banor brukar beskrivas med, i stället för i banelement.
+
+Lutningen räknas mot planetens ekvator och inte mot ekliptikan: en polär bana
+är 90 grader mot ekvatorn oavsett hur planeten själv lutar. Det ordnas genom att
+lägga lutningen till planetens egen med samma uppstigande nod – att vrida
+ekvatorsplanet ett kvarts varv kring nodlinjen ger just ett plan genom båda
+polerna.
+
+Banorna trycks ihop med samma faktor som planetens månar, annars skulle de
+försvinna inne i det förstorade klotet. Det blir riktigt även proportionellt:
+Cassinis varv är nästan exakt lika stort som Titans bana, och Junos sträcker sig
+drygt fyra gånger längre ut än Callisto.
+
 **Verifiera:** Cassinis varv kring Saturnus ska ta ett par tiotal dygn och Junos
 kring Jupiter ungefär 53 – och Junos bana ska gå över polerna, inte längs
 ekvatorn som månarnas.
+
+Kontrollerat: Cassini 16,00 dygn och Juno 53,42. Banplanen mätta mot planetens
+ekvator ger Cassini 20,0° och Juno 90,0°, alltså exakt polär, medan kontrollen
+Io ger 0,0° – månen ligger i ekvatorsplanet, precis som den ska. Junos fart vid
+perijovium blir 57,7 km/s, vilket stämmer med de omkring 58 km/s som gör Juno
+till det snabbaste föremål människan skickat i förhållande till en planet; vid
+apojovium är den nere i 0,54 km/s. Ett helt varv för tillbaka sonden till samma
+punkt på mindre än en meter.
+
+**Att tänka på:** ingen av de två syns vid appens startdatum. Cassini avslutades
+15 september 2017 genom att styras ned i Saturnus atmosfär, för att en sond med
+jordbakterier inte skulle riskera att en dag krascha på Enceladus med sitt hav
+under isen. För Juno är slutdatumet satt till det förlängda uppdragets planerade
+slut 30 september 2025; fortsatte det efter det är slutdatumet en rad att ändra
+i `ProbeData`. Vill man se dem får man alltså ställa datumet tillbaka – Cassini
+mellan 2004 och 2017, Juno mellan 2016 och 2025 – och välja Saturnus respektive
+Jupiter i fokusväljaren. Junos bana är så vid att man behöver zooma ut ett par
+steg för att se hela ellipsen.
+
+---
+
+### 10.6 – Välj vilka sonder som visas
+
+- [ ] En väljare där varje sond kan bockas i för sig, i stället för dagens
+      kryssruta "Rymdsonder" som tänder och släcker allihop. Man ska kunna visa
+      bara Voyager 1, eller Voyager 1 och 2, eller vilken annan kombination som
+      helst.
+- [ ] Valet ska gälla sondens allt: pricken, spåret och milstolparna.
+- [ ] Släcks den sond som är vald i fokusväljaren faller fokus tillbaka till
+      solen. Kameran ska aldrig bli stående och följa något som inte ritas.
+
+Behovet kommer av 10.2–10.4. Fem sonder med spår och elva passageringar gör
+översikten rörig, och det mesta man vill titta på handlar om en eller två i
+taget: de båda Voyagersondernas motsatta lutningar ut ur ekliptikan, eller
+Pioneer 11:s omväg tvärs över solsystemet jämförd med Voyagernas raka väg. I dag
+är enda valet alla fem eller inga.
+
+MAUI:s `Picker` kan bara välja ett alternativ, så en flervalslista finns inte
+färdig. Tre vägar, i tur och ordning från enklast till trevligast:
+
+1. Fem kryssrutor rakt i kontrollpanelen. Enklast, men panelen är redan trång –
+   det var just därför rymdfärdsknapparna behövde en egen rad i 10.4.
+2. En knapp som fäller ut en ruta med kryssrutorna i, alltså en egenbyggd
+   rullgardin: en `Border` med en `VerticalStackLayout` som visas och döljs.
+   Håller nere bredden och är närmast det som efterfrågas.
+3. `CollectionView` med `SelectionMode="Multiple"` i samma utfällda ruta, om
+   markeringsläget känns bättre än kryssrutor.
+
+I koden räcker det inte längre med `ShowProbes` i `SolarSystemDrawable`, som är
+en enda av/på-flagga. Ritningen går i dag igenom `ProbeData.All`, så den behöver
+i stället fråga vilka sonder som är valda – förslagsvis en mängd med namnen,
+eller en `HashSet<Probe>`.
+
+Fokusväljaren bör därför bara lista de sonder som visas, så att man inte kan
+välja en sond som inte finns i bild. Det för med sig en sak att se upp med:
+väljarens innehåll blir föränderligt, medan `MainPage` i dag räknar ut vilken
+sond som är vald ur ett fast index – solen, planeterna och sedan `ProbeData.All`
+i tur och ordning. Den kopplingen måste byggas om så att den utgår från de
+synliga sonderna och görs om varje gång valet ändras, annars pekar indexet på
+fel sond så fort någon släcks.
+
+**Verifiera:** Bocka i bara Voyager 1 och kontrollera att spår, prick och
+milstolpar för de andra fyra försvinner, medan Voyager 1 ser ut precis som förut.
+Bocka i båda Voyagersonderna och luta kameran: nu ska de två motsatta vägarna ut
+ur ekliptikan gå att jämföra utan att Pioneersonderna och New Horizons ligger i
+vägen. Bocka ur allihop och jämför med hur vyn ser ut när dagens kryssruta
+"Rymdsonder" släcks – det ska vara samma bild.
 
 ---
 

@@ -106,4 +106,57 @@ public static class ProbeData
     /// </summary>
     public static readonly Probe[] All =
         [Voyager1, Voyager2, Pioneer10, Pioneer11, NewHorizons];
+
+    // ------------------------------------------------------- kretsande sonder
+
+    /// <summary>
+    /// Cassini vid Saturnus: i omloppsbana 1 juli 2004, och avslutad 15 september
+    /// 2017 genom att styras rakt ned i Saturnus atmosfär – för att inte riskera
+    /// att en obemannad sond med jordbakterier en dag kraschar på Enceladus, där
+    /// det finns ett hav under isen.
+    ///
+    /// Varvet som visas är ett representativt av de nästan trehundra Cassini
+    /// gjorde: periapsis knappt tre Saturnusradier ut, apoapsis knappt fyrtio,
+    /// vilket ger sexton dygns omloppstid. Banan lutar tjugo grader mot
+    /// ringplanet – Cassini växlade mellan att ligga i ringplanet och att luta
+    /// upp till 75 grader för att se ringarna uppifrån.
+    /// </summary>
+    public static readonly Orbiter Cassini = Orbiter.Build(
+        "Cassini", Color.FromArgb("#F2C86A"), Planet("Saturnus"),
+        periapsisRadii: 2.70, apoapsisRadii: 39.36,
+        inclinationToEquatorDeg: 20.0,
+        equatorInclinationDeg: SolarSystemData.SaturnEquatorInclinationDeg,
+        equatorNodeDeg: SolarSystemData.SaturnEquatorNodeDeg,
+        argPeriapsisDeg: 60.0,
+        arrival: new DateTime(2004, 7, 1),
+        end: new DateTime(2017, 9, 15),
+        ending: "Styrdes ned i Saturnus atmosfär")!;
+
+    /// <summary>
+    /// Juno vid Jupiter: i omloppsbana 5 juli 2016. Banan är extrem – den dyker
+    /// ned till drygt en Jupiterradie, alltså bara några tusen kilometer över
+    /// molntopparna, och ut igen till 116 radier, vilket är åtta miljoner
+    /// kilometer. Ett varv tar 53 dygn.
+    ///
+    /// Banan går över polerna, till skillnad från månarnas som ligger i
+    /// ekvatorsplanet. Det är själva poängen med Juno: den ska mäta Jupiters
+    /// magnetfält och inre, och den dyker dessutom mellan planeten och de
+    /// farligaste strålningsbältena, som ligger kring ekvatorn.
+    ///
+    /// Slutdatumet är det förlängda uppdragets planerade slut. Fortsatte Juno
+    /// efter det är det en rad att ändra här.
+    /// </summary>
+    public static readonly Orbiter Juno = Orbiter.Build(
+        "Juno", Color.FromArgb("#9FD8F2"), Planet("Jupiter"),
+        periapsisRadii: 1.08, apoapsisRadii: 115.90,
+        inclinationToEquatorDeg: 90.0,
+        equatorInclinationDeg: SolarSystemData.JupiterEquatorInclinationDeg,
+        equatorNodeDeg: SolarSystemData.JupiterEquatorNodeDeg,
+        argPeriapsisDeg: 0.0,
+        arrival: new DateTime(2016, 7, 5),
+        end: new DateTime(2025, 9, 30),
+        ending: "Det förlängda uppdragets planerade slut")!;
+
+    /// <summary>De sonder som kretsar kring en planet i stället för att lämna.</summary>
+    public static readonly Orbiter[] Orbiters = [Cassini, Juno];
 }

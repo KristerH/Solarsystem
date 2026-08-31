@@ -141,6 +141,19 @@ public static class SolarSystemData
     /// </summary>
     public const double EarthMu = 8.9971e-10;
 
+    /// <summary>
+    /// Jupiters gravitationsparameter (126 687 000 km³/s²), för sonder som
+    /// kretsar kring planeten. Att den stämmer syns på månarna: talet ger Io ett
+    /// varv på 1,770 dygn, mot uppmätta 1,769.
+    /// </summary>
+    public const double JupiterMu = 2.8248e-7;
+
+    /// <summary>
+    /// Saturnus gravitationsparameter (37 931 000 km³/s²). Ger Titan ett varv på
+    /// 15,95 dygn, vilket är precis dess uppmätta omloppstid.
+    /// </summary>
+    public const double SaturnMu = 8.4573e-8;
+
     public const double SunRadiusKm = 696_340.0;
     public static readonly DateTime EpochJ2000 = new(2000, 1, 1, 12, 0, 0, DateTimeKind.Utc);
 
@@ -184,8 +197,8 @@ public static class SolarSystemData
     // Eftersom omloppstiderna redan uppfyller resonansen i medelrörelse hålls
     // villkoret över tid. Följden är att de tre inre månarna aldrig kan stå på
     // linje samtidigt – när Io och Europa möts står Ganymedes alltid 90° bort.
-    const double JupiterEquatorInclinationDeg = 2.22;
-    const double JupiterEquatorNodeDeg = 157.82;
+    public const double JupiterEquatorInclinationDeg = 2.22;
+    public const double JupiterEquatorNodeDeg = 157.82;
 
     public static readonly CelestialBody Io = new(
         "Io", Color.FromArgb("#E0C96A"), 1_821.6,
@@ -229,8 +242,8 @@ public static class SolarSystemData
     // Enceladus är solsystemets ljusaste kropp – en isvit måne med gejsrar som
     // sprutar vatten från ett hav under isen. Titan är större än Merkurius och
     // den enda månen med tät atmosfär, med sjöar av flytande metan.
-    const double SaturnEquatorInclinationDeg = 28.05;
-    const double SaturnEquatorNodeDeg = 349.53;
+    public const double SaturnEquatorInclinationDeg = 28.05;
+    public const double SaturnEquatorNodeDeg = 349.53;
 
     public static readonly CelestialBody Enceladus = new(
         "Enceladus", Color.FromArgb("#F0F4F5"), 252.1,
@@ -327,8 +340,8 @@ public static class SolarSystemData
         new("Venus",     Color.FromArgb("#E8CDA0"),  6_051.8, 0.72333, 0.00677, 3.395,  76.680, 131.564, 181.980,   224.701),
         new("Jorden",    Color.FromArgb("#4C8CE8"),  6_371.0, 1.00000, 0.01671, 0.000, -11.261, 102.947, 100.464,   365.256) { Moons = [Moon], Mu = EarthMu },
         new("Mars",      Color.FromArgb("#D96C4A"),  3_389.5, 1.52371, 0.09339, 1.850,  49.559, 336.041, 355.445,   686.980) { Moons = [Phobos, Deimos] },
-        new("Jupiter",   Color.FromArgb("#D8B48A"), 69_911.0, 5.20289, 0.04839, 1.304, 100.474,  14.728,  34.397, 4_332.59) { Moons = [Io, Europa, Ganymedes, Callisto], Ring = JupiterRing },
-        new("Saturnus",  Color.FromArgb("#E8D5A8"), 58_232.0, 9.53668, 0.05386, 2.486, 113.662,  92.599,  49.954, 10_759.22) { Moons = [Enceladus, Rhea, Titan], Ring = SaturnRing },
+        new("Jupiter",   Color.FromArgb("#D8B48A"), 69_911.0, 5.20289, 0.04839, 1.304, 100.474,  14.728,  34.397, 4_332.59) { Moons = [Io, Europa, Ganymedes, Callisto], Ring = JupiterRing, Mu = JupiterMu },
+        new("Saturnus",  Color.FromArgb("#E8D5A8"), 58_232.0, 9.53668, 0.05386, 2.486, 113.662,  92.599,  49.954, 10_759.22) { Moons = [Enceladus, Rhea, Titan], Ring = SaturnRing, Mu = SaturnMu },
         new("Uranus",    Color.FromArgb("#9BD4E4"), 25_362.0, 19.18916, 0.04726, 0.773, 74.017, 170.954, 313.238, 30_688.5) { Moons = [Miranda, Titania, Oberon], Ring = UranusRing },
         new("Neptunus",  Color.FromArgb("#5A78E8"), 24_622.0, 30.06992, 0.00859, 1.770, 131.784,  44.965, 304.880, 60_182.0) { Moons = [Triton], Ring = NeptuneRing },
         // Dvärgplaneten Pluto: kraftigt lutande (17°) och excentrisk bana som
