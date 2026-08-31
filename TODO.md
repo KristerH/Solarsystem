@@ -604,14 +604,36 @@ sida mot oss.
 ### 11.1 – Infrastruktur: generell globrendering
 
 - [ ] Bryt ut `DrawEarthGlobe` till något alla kroppar kan använda, och
-      `EarthMap` till en ytkarta per kropp.
+      `EarthMap` till en ytkarta per kropp. Det rör sig om 73 respektive 98
+      rader, så själva utbrytningen är överkomlig. Det som kostar är att jorden
+      i dag är specialfall rakt igenom: axellutningen är en konstant i ritkoden
+      (`ObliquityRad`) och rotationen räknas ur stjärntid. Båda måste in i den
+      generella mekanismen utan att jorden ändrar utseende.
 - [ ] Lägg rotationsdata på `CelestialBody`: rotationsperiod (negativ för
-      retrograd) och nollmeridianens läge vid epoken. Polriktningarna finns
-      redan inlagda för Mars, Jupiter, Saturnus, Uranus, Neptunus och Pluto
-      sedan månetapperna – de ger axelläget gratis.
+      retrograd) och nollmeridianens läge vid epoken.
+- [ ] **Axeldata för de kroppar som saknar den.** Planen utgick från att
+      polriktningarna redan fanns sedan månetapperna, och det stämmer för Mars,
+      Jupiter, Saturnus, Uranus och Neptunus – samt Pluto, vars plan ligger i
+      Charons banelement. Men Merkurius, Venus och månen har varken månar eller
+      ringar och därför ingen ekvatorsdata alls. Den måste läggas in innan 11.5
+      och 11.6 går att göra:
+      - Merkurius lutar 0,03°, alltså praktiskt taget upprätt.
+      - Venus lutar 177,4°, nästan upp och ner. Det är hela förklaringen till
+        att den snurrar baklänges, så den siffran är etappens viktigaste.
+      - Månen lutar 6,7° mot ekliptikan, 1,5° mot sin egen bana.
+      Observera att lutningen ensam inte bestämmer axeln – nodens läge behövs
+      också, precis som för de ekvatorsplan som redan finns.
+- [ ] Passa på att flytta de befintliga ekvatorskonstanterna från
+      `SolarSystemData` till kropparna själva. I dag ligger de som lösa `const`
+      som månar, ringar och de kretsande sonderna hämtar var för sig – Cassini
+      och Juno sträcker sig ända in i `SolarSystemData.SaturnEquator...` för att
+      få tag i dem.
 - [ ] Samma tröskel som i dag: ytan ritas först när klotet är stort nog.
 
-**Verifiera:** Jorden ska se ut och rotera exakt som före ombyggnaden.
+**Verifiera:** Jorden ska se ut och rotera exakt som före ombyggnaden. Det är
+etappens viktigaste kontroll, eftersom allt annat bygger vidare på den koden.
+Månarnas och ringarnas plan ska också ligga kvar oförändrade när konstanterna
+flyttas – Uranus månar på högkant och Tritons retrograda bana är känsliga prov.
 
 ### 11.2 – Mars
 
@@ -663,6 +685,34 @@ så långsamt att man behöver skruva upp hastigheten för att se det.
 
 **Verifiera:** Zooma in på jorden och följ månen ett helt varv – samma sida
 ska vara vänd mot jorden hela tiden.
+
+---
+
+### 11.7 – De stora månarna
+
+De fyra galileiska månarna och Titan ritas redan som skivor när man zoomar in på
+sin planet, så de är stora nog att bära en yta. De har dessutom några av
+solsystemets mest särpräglade utseenden.
+
+- [ ] Io: svavelgul och orangefläckig, den vulkaniskt mest aktiva kroppen i
+      solsystemet. Inga kratrar alls – ytan görs om hela tiden.
+- [ ] Europa: nästan vit is, korsad av rödbruna sprickor. Slätast av allt vi
+      känner till.
+- [ ] Ganymedes: gråbrun, med ljusa yngre områden mot mörka äldre. Solsystemets
+      största måne, större än Merkurius.
+- [ ] Callisto: mörk och tätt kraterrik – den äldsta ytan av de fyra, som aldrig
+      förnyats.
+- [ ] Titan: jämnt orange dis. Här ska ingen yta synas alls, precis som hos
+      Venus, eftersom atmosfären är ogenomskinlig.
+- [ ] **Bunden rotation** för alla fem: de vänder samma sida mot sin planet,
+      precis som månen mot jorden. Mekanismen kommer från 11.6 och behöver bara
+      rotationsdata per måne.
+
+Alla fem ligger i sin planets ekvatorsplan, så axeldatan finns redan efter 11.1.
+
+**Verifiera:** Följ Io ett varv kring Jupiter – samma sida ska vara vänd mot
+planeten hela tiden, som månen mot jorden. Titan ska sakna synliga drag hur
+mycket man än zoomar, till skillnad från de andra fyra.
 
 ---
 
