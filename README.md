@@ -295,8 +295,12 @@ asteroid-/Kuiperbälten, tänkt att byggas och verifieras en etapp i taget.
   inmatade banelement.
 - `Simulation/Probe.cs` – en verklig rymdsond som en kedja av ben, där varje ben
   är den bana som går mellan två passager på den tid de faktiskt tog.
-- `Simulation/ProbeData.cs` – Voyager 1 och 2 med sina passagedatum och sina
-  kända lägen i dag.
+- `Simulation/ProbeData.cs` – de sju sondernas data: Voyager 1 och 2, Pioneer 10
+  och 11 samt New Horizons med sina passagedatum och sina kända lägen i dag,
+  plus Cassini och Juno med sina banor kring Saturnus och Jupiter.
+- `Simulation/Orbiter.cs` – en sond som kretsar kring en planet i stället för att
+  fara förbi. Banan anges i planetradier och lutning mot planetens ekvator, så
+  att en polär bana blir polär oavsett hur planeten själv lutar.
 - `Simulation/StarCatalog.cs` – stjärnkatalogen och stjärnbildernas figurer,
   samt omräkningen från ekvatorial- till världskoordinater.
 - `Rendering/StarSky.cs` – ritar stjärnor, stjärnbilder och Vintergatan.

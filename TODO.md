@@ -240,7 +240,7 @@ sammanfaller med månens inom 0,02°.
       Gjordes redan i 9.2: farkosten följer med planeten efter framkomsten i
       stället för att bli stående kvar där planeten råkade vara, och etiketten
       byts till "Farkost framme".
-- [x] Att kameran kan följa med ner till planeten vid ankomst återstår.
+- [x] **Kameran** följer med ner till planeten vid ankomsten.
 
 Panelen dyker upp uppe till vänster så snart en farkost är i väg och försvinner
 när färden avbryts. Vid ankomsten byter den till restid, ankomstdatum och farten
@@ -713,3 +713,109 @@ kontrollpanelen. Svenska ska se exakt ut som i dag.
 - **Nya texter fram till språkstödet:** skrivs tills vidare på svenska som i
   dag, men samlas gärna på få ställen i koden så att etapp 12 (språkstöd)
   blir enkel att genomföra.
+
+---
+
+## Restpunkter
+
+Sådant som är känt, medvetet lämnat och inte brådskande, men som någon gång bör
+tas om hand. Alla projekt har lite teknisk skuld – poängen med listan är att den
+är skriven i stället för bortglömd.
+
+### R1 – Prova gränssnittet på riktigt
+
+Etapp 9 och 10 är verifierade med siffror: banor, farter, restider, milstolpar,
+träffar på planeterna och indexlogiken i sondväljaren är alla kontrollerade i
+ett separat program utanför appen. Ritningen och gränssnittet är däremot bara
+provkörda så långt att de inte kraschar – ingen har sett efter hur det faktiskt
+ser ut. Det som står här är alltså inte känt fel, bara oprövat.
+
+Rymdfärderna (9.4 och 9.5):
+
+- [ ] Månfärdens bana syns när man skjutit upp och zoomat till jorden, och
+      farkosten möter månen vid ankomsten.
+- [ ] Färdpanelen uppe till vänster dyker upp vid uppskjutningen, försvinner när
+      färden avbryts och byter text vid framkomsten.
+- [ ] Kameran hakar på farkosten vid ankomsten och zoomar in till målet, en gång.
+
+Sonderna (10.2 till 10.4):
+
+- [ ] Sondernas prickar och spår ser rimliga ut, och färgerna går att skilja åt.
+- [ ] Milstolpsringarna hamnar rätt längs spåren.
+- [ ] Årtalen vid ringarna blir läsbara och inte en enda gröt när flera passager
+      trängs ihop – överhoppningen vid krock är den mekanism som ska hindra det,
+      och den är helt oprövad i praktiken.
+- [ ] Den valda sondens milstolpar får fullständig text (planet, månad, farthopp)
+      utan att skriva över annat.
+- [ ] Sondpanelen visar rätt när sonden ännu inte skjutits upp, under färden och
+      efter sista passagen.
+- [ ] Väljer man en sond zoomar vyn ut så att solen verkligen ryms i bild.
+
+De kretsande sonderna (10.5):
+
+- [ ] Cassinis ellips syns när man ställer datumet mellan 2004 och 2017 och
+      väljer Saturnus, och ligger i samma storleksordning som Titans bana.
+- [ ] Junos ellips syns vid Jupiter mellan 2016 och 2025, och det går att zooma
+      ut tillräckligt för att se hela det vida varvet.
+- [ ] Ingen av dem ritas utanför sin uppdragstid.
+
+Sondväljaren (10.6):
+
+- [ ] Rutan fälls ut och går att klicka i. Den ligger ovanpå vyn och inte i
+      kontrollpanelen, så det här är värt att prova först av allt i listan.
+- [ ] "Alla" och "Inga" gör vad de ska, och räknaren i knapptexten följer med.
+- [ ] Släcker man den sond kameran följer faller vyn tillbaka till solen och
+      zoomar ut, i stället för att bli stående ute i tomma rymden.
+
+Kontrollpanelen:
+
+- [ ] Raden "Rymdfärd:" med de tre knapparna får plats även i ett smalt fönster.
+      Det var just den raden som svämmade över kanten innan knapparna flyttades
+      till en egen rad i 10.4.
+
+### R2 – Bekräfta Junos slutdatum
+
+Juno ritas fram till 30 september 2025, vilket var det förlängda uppdragets
+planerade slut. Om det förlängdes ytterligare visar appen inte en sond som
+faktiskt kretsar kring Jupiter. Valet var medvetet – hellre missa en sond som
+flyger än visa en som inte finns – men det bygger på en uppgift som inte gick
+att kontrollera när koden skrevs.
+
+- [ ] Ta reda på om Juno fortsatte efter september 2025 och rätta slutdatumet i
+      `ProbeData`. Det är en rad.
+
+### R3 – Precisionen i den ritade Mars-banan
+
+Farkostens ritade bana slutar omkring 850 km från Mars, medan månfärdens slutar
+några centimeter från månen. Skillnaden ligger i hur banan byggs: månfärden går
+via `Conic.FromPeriapsis`, som räknar analytiskt i dubbel precision, medan
+Mars-färden går Lambert → `Vector3` i enkel precision → `Conic.FromState`, där
+energin blir en liten skillnad mellan två stora tal och precisionen tunnas ut.
+
+Det syns inte i dag, eftersom planeterna ritas tusen gånger för stora och 850 km
+då är en hundradels pixel. I läget "Verklig storlek" vid extrem inzoomning skulle
+det däremot märkas.
+
+- [ ] Lämna över tillståndet från Lambert i dubbel precision, eller låt lösaren
+      returnera kägelsnittet direkt.
+
+### R4 – "Verklig storlek" går inte att zooma in i
+
+Kameran kommer inte närmare än 1,5 enheter, och `SuggestedFocusDistance` har
+dessutom ett golv på 8. I verklig skala är jordens radie 0,0026 enheter, så när
+man väljer en planet i fokusväljaren eller följer med farkosten ner vid ankomsten
+hamnar man alldeles för långt bort för att se något. Lägena är riktiga – det är
+bara kameran som inte räcker till.
+
+- [ ] Låt både golvet och minimiavståndet bero på den valda kroppens visuella
+      radie i stället för att vara fasta tal.
+
+### R5 – Ett olösbart sondben hoppas över under tystnad
+
+`Probe.Build` hoppar över ett ben som Lambert inte klarar och bygger sonden av
+resten. Alla tretton ben går att lösa i dag, och det kontrolleras utanför appen,
+men lade någon in ett omöjligt datumpar skulle sonden tyst få en lucka i banan i
+stället för att felet syntes.
+
+- [ ] Låt ett olösbart ben märkas – returnera null från `Build`, eller åtminstone
+      skriv till samma logg som ritfel går till.
