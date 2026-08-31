@@ -259,6 +259,11 @@ public partial class MainPage : ContentPage
         SolarSystemData.Planets.First(p => p.Name == "Jorden");
     static readonly CelestialBody MarsBody =
         SolarSystemData.Planets.First(p => p.Name == "Mars");
+    static readonly CelestialBody MoonBody = SolarSystemData.Moon;
+
+    /// <summary>Jordens plats i fokusväljaren, som har solen först.</summary>
+    static readonly int EarthFocusIndex =
+        Array.FindIndex(SolarSystemData.Planets, p => p.Name == "Jorden") + 1;
 
     /// <summary>
     /// Skjuter upp en farkost mot Mars från det datum vyn står på, eller avbryter
@@ -298,15 +303,22 @@ public partial class MainPage : ContentPage
     {
         if (_drawable.Mission is { } mission)
         {
-            LaunchButton.Text = "Avbryt färden";
-            LaunchButton.IsEnabled = true;
-            LaunchButton.BackgroundColor = LaunchReady;
+            // En färd i taget: knappen för den pågående färden avbryter den, och
+            // den andra är avstängd så länge.
+            bool toMoon = ReferenceEquals(mission.Target, MoonBody);
+
+            LaunchButton.Text = toMoon ? "Skjut upp mot Mars" : "Avbryt färden";
+            LaunchButton.IsEnabled = !toMoon;
+            LaunchButton.BackgroundColor = toMoon ? LaunchClosed : LaunchReady;
+            MoonButton.Text = toMoon ? "Avbryt färden" : "Skjut upp mot Månen";
+            MoonButton.IsEnabled = toMoon;
+            MoonButton.BackgroundColor = toMoon ? LaunchReady : LaunchClosed;
             NextWindowButton.IsEnabled = false;
             NextWindowButton.BackgroundColor = StepClosed;
 
             var arrival = SolarSystemData.EpochJ2000.AddDays(mission.ArrivalDay);
             MissionLabel.Text = mission.HasArrived(day)
-                ? string.Create(Swedish, $"Framme vid Mars {arrival:yyyy-MM-dd}")
+                ? string.Create(Swedish, $"Framme vid {mission.Target.Name} {arrival:yyyy-MM-dd}")
                 : string.Create(Swedish,
                     $"Restid {mission.TravelDays:0} dygn, framme {arrival:yyyy-MM-dd}");
             return;
@@ -315,6 +327,13 @@ public partial class MainPage : ContentPage
         LaunchButton.Text = "Skjut upp mot Mars";
         LaunchButton.IsEnabled = _inLaunchWindow;
         LaunchButton.BackgroundColor = _inLaunchWindow ? LaunchReady : LaunchClosed;
+
+        // Månen är tillbaka på samma ställe var 27:e dygn, så dit går det att åka
+        // i stort sett vilken dag som helst – där behövs inga startfönster.
+        MoonButton.Text = "Skjut upp mot Månen";
+        MoonButton.IsEnabled = true;
+        MoonButton.BackgroundColor = LaunchReady;
+
         NextWindowButton.IsEnabled = _nextWindowDay is not null;
         NextWindowButton.BackgroundColor = _nextWindowDay is not null ? StepReady : StepClosed;
 
@@ -346,9 +365,7 @@ public partial class MainPage : ContentPage
     {
         if (_drawable.Mission is not null)
         {
-            _drawable.Mission = null;
-            _windowCheckedDay = double.NaN;
-            _settingsChanged = true;
+            CancelMission();
             return;
         }
 
@@ -362,6 +379,42 @@ public partial class MainPage : ContentPage
 
         _drawable.Mission = mission;
         UpdateMissionUi(launchDay);
+        _settingsChanged = true;
+    }
+
+    /// <summary>
+    /// Skjuter upp en farkost mot månen från det datum vyn står på, eller
+    /// avbryter en pågående månfärd. Vyn flyttas samtidigt till jorden: hela
+    /// månfärden ryms inom 0,003 AU, alltså under en femtedels pixel i
+    /// översiktsvyn, så utan inzoomning vore det ingenting att se.
+    /// </summary>
+    void OnMoonLaunchClicked(object? sender, EventArgs e)
+    {
+        if (_drawable.Mission is not null)
+        {
+            CancelMission();
+            return;
+        }
+
+        double launchDay = (CurrentDate - SolarSystemData.EpochJ2000).TotalDays;
+        var mission = Mission.PlanToMoon("Farkost", EarthBody, MoonBody, launchDay);
+        if (mission is null)
+        {
+            MissionLabel.Text = "Ingen bana gick att räkna fram just nu";
+            return;
+        }
+
+        _drawable.Mission = mission;
+        FocusPicker.SelectedIndex = EarthFocusIndex;    // zoomar in via OnFocusChanged
+        UpdateMissionUi(launchDay);
+        _settingsChanged = true;
+    }
+
+    /// <summary>Avbryter färden och tvingar fram en ny koll av startfönstret.</summary>
+    void CancelMission()
+    {
+        _drawable.Mission = null;
+        _windowCheckedDay = double.NaN;
         _settingsChanged = true;
     }
 

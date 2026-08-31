@@ -683,21 +683,22 @@ public sealed class SolarSystemDrawable : IDrawable
     void DrawMission(ICanvas canvas, Mission mission)
     {
         double now = Math.Clamp(DaysSinceJ2000, mission.LaunchDay, mission.ArrivalDay);
+        var origin = MissionOrigin(mission, out float scale);
 
         canvas.StrokeSize = 1.4f;
         canvas.StrokeColor = CraftFutureColor;
-        DrawMissionArc(canvas, mission, now, mission.ArrivalDay);   // vad som återstår
+        DrawMissionArc(canvas, mission, now, mission.ArrivalDay, origin, scale);   // vad som återstår
 
         canvas.StrokeSize = 1.8f;
         canvas.StrokeColor = CraftTrailColor;
-        DrawMissionArc(canvas, mission, mission.LaunchDay, now);    // det redan tillryggalagda
+        DrawMissionArc(canvas, mission, mission.LaunchDay, now, origin, scale);    // det tillryggalagda
 
         if (DaysSinceJ2000 < mission.LaunchDay)
             return;
 
         // Efter ankomsten följer farkosten med målet i stället för att bli stående
         // kvar där planeten råkade vara – en sond går ju in i omloppsbana eller landar.
-        var pos = mission.PositionAt(DaysSinceJ2000, UnitsPerAu);
+        var pos = origin + mission.PositionAt(DaysSinceJ2000, UnitsPerAu) * scale;
         if (!Camera.Project(pos, out float sx, out float sy, out _))
             return;
 
@@ -708,8 +709,29 @@ public sealed class SolarSystemDrawable : IDrawable
             : mission.Name, sx, sy + 9f));
     }
 
+    /// <summary>
+    /// Var farkostens bana hör hemma i världen. En färd kring solen ritas som
+    /// den är, medan en månfärd måste följa med planeten och tryckas ihop på
+    /// exakt samma sätt som månbanorna – annars skulle hela banan försvinna inne
+    /// i det kraftigt förstorade jordklotet. Den ritas dessutom kring planetens
+    /// nuvarande läge, alltså sedd från jorden precis som månarna, i stället för
+    /// att släpa efter längs jordens egen färd kring solen.
+    /// </summary>
+    Vector3 MissionOrigin(Mission mission, out float scale)
+    {
+        if (mission.Center is not { } center)
+        {
+            scale = 1f;
+            return Vector3.Zero;
+        }
+
+        scale = MoonDisplayScale(center);
+        return center.PositionAt(DaysSinceJ2000, UnitsPerAu);
+    }
+
     /// <summary>Ritar en del av banan som en polylinje.</summary>
-    void DrawMissionArc(ICanvas canvas, Mission mission, double fromDay, double toDay)
+    void DrawMissionArc(ICanvas canvas, Mission mission, double fromDay, double toDay,
+        Vector3 origin, float scale)
     {
         const int steps = 160;
         if (toDay - fromDay < 1e-6)
@@ -721,7 +743,7 @@ public sealed class SolarSystemDrawable : IDrawable
         for (int i = 0; i <= steps; i++)
         {
             double day = fromDay + (toDay - fromDay) * i / steps;
-            if (Camera.Project(mission.TransferPositionAt(day, UnitsPerAu),
+            if (Camera.Project(origin + mission.TransferPositionAt(day, UnitsPerAu) * scale,
                     out float x, out float y, out _))
             {
                 if (hasPrev)

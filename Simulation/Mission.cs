@@ -24,6 +24,11 @@ namespace Solarsystem.Simulation;
 /// vilket för sveptvinkeln 180 grader övergår i den vanliga Hohmann-formeln.
 /// Restiden följer sedan av Keplers ekvation. Eftersom målets läge i sin tur
 /// beror på restiden söks den fram som ett nollställe – se Plan nedan.
+///
+/// Samma klass beskriver också färder som kretsar kring en planet i stället
+/// för kring solen, som resan till månen – se PlanToMoon. Skillnaden ligger
+/// bara i vilken kropp banan räknas kring och hur hårt den drar (µ); ellipsen
+/// och Keplers ekvation är desamma.
 /// </summary>
 public sealed class Mission
 {
@@ -32,6 +37,13 @@ public sealed class Mission
 
     /// <summary>Målet som farkosten är på väg mot.</summary>
     public CelestialBody Target { get; }
+
+    /// <summary>
+    /// Kroppen banan kretsar kring: null för solen, eller planeten när färden
+    /// går till en av dess månar. Farkostens lägen räknas i förhållande till
+    /// den, precis som månarnas banelement är planetcentriska.
+    /// </summary>
+    public CelestialBody? Center { get; }
 
     /// <summary>Uppskjutningsögonblicket, i dygn sedan J2000.</summary>
     public double LaunchDay { get; }
@@ -49,7 +61,7 @@ public sealed class Mission
     public double Eccentricity { get; }
 
     /// <summary>
-    /// Hur många grader farkosten sveper kring solen på vägen. En ren
+    /// Hur många grader farkosten sveper kring centralkroppen på vägen. En ren
     /// Hohmann-överföring – den energisnålaste – sveper exakt 180 grader. Ju
     /// längre ifrån det, desto mer bränsle skulle färden kräva, så vinkeln
     /// duger som mått på hur bra ett uppskjutningstillfälle är.
@@ -61,12 +73,18 @@ public sealed class Mission
     readonly Vector3 _sideDir;
     readonly double _periodDays;
 
+    // Centralkroppens gravitationsparameter, i AU och dygn.
+    readonly double _mu;
+
     Mission(string name, CelestialBody target, double launchDay, double arrivalDay,
         double semiMajorAu, double eccentricity, double periodDays,
-        double sweepDegrees, Vector3 periDir, Vector3 sideDir)
+        double sweepDegrees, Vector3 periDir, Vector3 sideDir,
+        CelestialBody? center, double mu)
     {
         Name = name;
         Target = target;
+        Center = center;
+        _mu = mu;
         LaunchDay = launchDay;
         ArrivalDay = arrivalDay;
         SemiMajorAu = semiMajorAu;
@@ -76,6 +94,10 @@ public sealed class Mission
         _periDir = periDir;
         _sideDir = sideDir;
     }
+
+    /// <summary>Omloppstiden för en ellips med halva storaxeln a, ur Keplers tredje lag.</summary>
+    static double PeriodOf(double semiMajorAu, double mu)
+        => 2.0 * Math.PI * Math.Sqrt(semiMajorAu * semiMajorAu * semiMajorAu / mu);
 
     /// <summary>
     /// Planerar en färd från en kropp till en annan med uppskjutning vid given
@@ -164,7 +186,116 @@ public sealed class Mission
 
         return new Mission(name, target, launchDay, launchDay + travelDays,
             solution.SemiMajor, solution.Eccentricity, solution.Period,
-            solution.SweepDegrees, r1Dir, Vector3.Normalize(sideDir));
+            solution.SweepDegrees, r1Dir, Vector3.Normalize(sideDir),
+            center: null, SolarSystemData.SunMu);
+    }
+
+    // ---------------------------------------------------------------- månfärd
+
+    /// <summary>Höjden över jordytan där färden börjar: en låg parkeringsbana.</summary>
+    public const double ParkingOrbitAltitudeKm = 400.0;
+
+    /// <summary>
+    /// Restiden till månen i dygn. Apollo 11 var framme efter 76 timmar, alltså
+    /// drygt tre dygn.
+    /// </summary>
+    public const double MoonTravelDays = 3.0;
+
+    /// <summary>
+    /// Planerar en färd till en av planetens egna månar. Här kretsar farkosten
+    /// kring planeten i stället för kring solen, och skillnaden mot Mars-färden
+    /// är större än den ser ut.
+    ///
+    /// Uppskjutningen sker från en låg omloppsbana, och därifrån kan farkosten
+    /// lämna åt vilket håll som helst. Startpunkten är alltså inte given på
+    /// förhand, som jordens läge är vid en Mars-färd, utan väljs så att banan
+    /// möter månen. Det är därför en månfärd kan påbörjas nästan vilken dag som
+    /// helst medan Mars kräver ett startfönster vartannat år.
+    ///
+    /// Restiden bestäms i stället i förväg, och banan söks fram till den. En ren
+    /// Hohmann-bana ut till månen tar nästan fem dygn; för att hinna på tre måste
+    /// farkosten skjutas upp med mer fart, så att banans bortre ände hamnar en
+    /// bra bit bortom månen – 440 000 till 630 000 km beroende på var månen står
+    /// – och månen alltså hinns ikapp på vägen ut, före vändpunkten. Det var
+    /// precis så Apollo flög.
+    /// </summary>
+    public static Mission? PlanToMoon(string name, CelestialBody planet, CelestialBody moon,
+        double launchDay, double travelDays = MoonTravelDays)
+    {
+        double mu = planet.Mu;
+        if (mu <= 0 || travelDays <= 0)
+            return null;
+
+        // Parkeringsbanan blir banans perigeum, punkten närmast planeten.
+        double rp = (planet.RadiusKm + ParkingOrbitAltitudeKm) / SolarSystemData.AuKm;
+
+        double arrivalDay = launchDay + travelDays;
+        var r2 = moon.PositionAt(arrivalDay, 1f);   // planetcentriskt läge vid ankomsten
+        double r2Len = r2.Length();
+        if (r2Len <= rp)
+            return null;
+        var r2Dir = r2 / (float)r2Len;
+
+        // Sök halva storaxeln så att restiden blir den önskade. Restiden avtar
+        // när banan görs större – mer fart vid uppskjutningen – så en
+        // intervallhalvering hittar rätt utan omvägar. Undre gränsen är den
+        // energisnålaste ellipsen som överhuvudtaget når ut till målet, alltså
+        // den långsammaste; åtta gånger den är gott och väl snabbare än tre dygn.
+        double lo = 0.5 * (rp + r2Len);
+        double hi = lo * 8.0;
+        if (TimeToRadius(lo, rp, r2Len, mu) < travelDays ||
+            TimeToRadius(hi, rp, r2Len, mu) > travelDays)
+            return null;    // den önskade restiden går inte att uppfylla
+
+        for (int k = 0; k < 80; k++)
+        {
+            double mid = 0.5 * (lo + hi);
+            if (TimeToRadius(mid, rp, r2Len, mu) > travelDays)
+                lo = mid;   // för långsam – banan behöver göras större
+            else
+                hi = mid;
+        }
+
+        double a = 0.5 * (lo + hi);
+        double e = 1.0 - rp / a;
+
+        // Sveptvinkeln: hur långt runt planeten farkosten hinner på vägen ut.
+        double cosSweep = Math.Clamp((a * (1.0 - e * e) / r2Len - 1.0) / e, -1.0, 1.0);
+        double sweep = Math.Acos(cosSweep);
+
+        // Banplanet läggs i månens eget banplan, precis som Apollo-färderna gjorde.
+        // Normalen fås ur månens läge ett halvt dygn före och efter ankomsten och
+        // pekar då åt samma håll som månens eget rörelsemängdsmoment, så att
+        // farkosten går åt samma håll som månen.
+        var normalRaw = Vector3.Cross(
+            moon.PositionAt(arrivalDay - 0.5, 1f),
+            moon.PositionAt(arrivalDay + 0.5, 1f));
+        if (normalRaw.Length() < 1e-12f)
+            return null;
+        var normal = Vector3.Normalize(normalRaw);
+
+        // Uppskjutningspunkten fås genom att vrida ankomstriktningen tillbaka
+        // sveptvinkeln, alltså baklänges längs banan.
+        var forward = Vector3.Cross(normal, r2Dir);
+        var periDir = Vector3.Normalize(
+            r2Dir * (float)Math.Cos(sweep) - forward * (float)Math.Sin(sweep));
+        var sideDir = Vector3.Normalize(Vector3.Cross(normal, periDir));
+
+        return new Mission(name, moon, launchDay, arrivalDay, a, e,
+            PeriodOf(a, mu), sweep * 180.0 / Math.PI, periDir, sideDir, planet, mu);
+    }
+
+    /// <summary>
+    /// Restiden från perigeum ut till en given radie, för ellipsen med halva
+    /// storaxeln a och perigeum rp. Keplers ekvation baklänges mot hur den annars
+    /// används: först excentrisk anomali ur radien, sedan tiden ur den.
+    /// </summary>
+    static double TimeToRadius(double a, double rp, double r, double mu)
+    {
+        double e = 1.0 - rp / a;
+        double ecc = Math.Acos(Math.Clamp((1.0 - r / a) / e, -1.0, 1.0));
+        double meanAnomaly = ecc - e * Math.Sin(ecc);
+        return meanAnomaly / Math.Sqrt(mu / (a * a * a));
     }
 
     readonly record struct Solution(
@@ -201,7 +332,7 @@ public sealed class Mission
             return false;   // ingen ellips klarar båda randvillkoren
 
         double a = r1Len / (1.0 - e);
-        double period = 365.256 * Math.Pow(a, 1.5);
+        double period = PeriodOf(a, SolarSystemData.SunMu);
 
         // Restid ur Keplers ekvation: från perihelium fram till sveptvinkeln.
         double halfSweep = sweep * 0.5;
@@ -216,7 +347,8 @@ public sealed class Mission
     }
 
     /// <summary>
-    /// Farkostens läge vid given tid, i världskoordinater. Efter ankomsten
+    /// Farkostens läge vid given tid, räknat från centralkroppen – solen, eller
+    /// planeten när färden går till en måne. Efter ankomsten
     /// följer den med målet: en verklig sond går in i omloppsbana eller landar,
     /// och blir alltså kvar vid planeten. Utan det blir farkosten stående still
     /// i tomma rymden medan planeten åker vidare – efter ett halvt år ligger de
@@ -235,17 +367,47 @@ public sealed class Mission
     /// </summary>
     public Vector3 TransferPositionAt(double day, float unitsPerAu)
     {
-        double meanAnomaly = (day - LaunchDay) / _periodDays * Math.PI * 2;
-
         double e = Eccentricity;
-        double ecc = meanAnomaly;
-        for (int k = 0; k < 12; k++)
-            ecc -= (ecc - e * Math.Sin(ecc) - meanAnomaly) / (1.0 - e * Math.Cos(ecc));
+        double meanAnomaly = (day - LaunchDay) / _periodDays * Math.PI * 2;
+        double ecc = SolveKepler(meanAnomaly, e);
 
         double x = SemiMajorAu * (Math.Cos(ecc) - e);
         double y = SemiMajorAu * Math.Sqrt(1.0 - e * e) * Math.Sin(ecc);
 
         return (_periDir * (float)x + _sideDir * (float)y) * unitsPerAu;
+    }
+
+    /// <summary>
+    /// Löser Keplers ekvation E - e·sin E = M. Överföringsbanor är långt mer
+    /// utdragna än planetbanorna – månfärdens excentricitet ligger kring 0,97
+    /// mot jordens 0,017 – och där kan Newtons metod skena i väg, eftersom
+    /// nämnaren 1 - e·cos E går mot noll nära perigeum. Intervallhalvering tar
+    /// fler varv men kan inte missa: lösningen ligger alltid mellan M och M + e.
+    /// </summary>
+    static double SolveKepler(double meanAnomaly, double e)
+    {
+        double m = meanAnomaly % (Math.PI * 2);
+        if (m < 0)
+            m += Math.PI * 2;
+
+        // Ekvationen är spegelsymmetrisk kring M = π, så andra halvan av varvet
+        // löses som den första och speglas tillbaka.
+        bool mirrored = m > Math.PI;
+        if (mirrored)
+            m = Math.PI * 2 - m;
+
+        double lo = m, hi = m + e;
+        for (int k = 0; k < 40; k++)
+        {
+            double mid = 0.5 * (lo + hi);
+            if (mid - e * Math.Sin(mid) < m)
+                lo = mid;
+            else
+                hi = mid;
+        }
+
+        double ecc = 0.5 * (lo + hi);
+        return mirrored ? Math.PI * 2 - ecc : ecc;
     }
 
     // ------------------------------------------------------------ startfönster
@@ -307,9 +469,7 @@ public sealed class Mission
         if (r < 1e-9)
             return 0;
 
-        // Solens gravitationsparameter uttryckt i AU och dygn.
-        const double muAu = 2.959122082855911e-4;
-        double v = Math.Sqrt(Math.Max(0.0, muAu * (2.0 / r - 1.0 / SemiMajorAu)));
+        double v = Math.Sqrt(Math.Max(0.0, _mu * (2.0 / r - 1.0 / SemiMajorAu)));
         return v * SolarSystemData.AuKm / 86_400.0;
     }
 }

@@ -55,6 +55,14 @@ public sealed record CelestialBody(
     /// <summary>Planetens ringsystem, eller null för kroppar utan ringar.</summary>
     public PlanetRing? Ring { get; init; }
 
+    /// <summary>
+    /// Kroppens gravitationsparameter G·M i AU³/dygn² – måttet på hur hårt den
+    /// drar i det som kretsar kring den. Ur den följer omloppstiderna: ett varv
+    /// på halva storaxeln a tar 2π·√(a³/µ). Behövs bara för de kroppar som
+    /// något faktiskt kretsar kring i appen, och är noll för de övriga.
+    /// </summary>
+    public double Mu { get; init; }
+
     /// <summary>Position i världskoordinater (Y = norr om ekliptikan) vid given tid.</summary>
     public Vector3 PositionAt(double daysSinceJ2000, float unitsPerAu)
     {
@@ -118,6 +126,21 @@ public sealed record CelestialBody(
 public static class SolarSystemData
 {
     public const double AuKm = 149_597_870.7;
+
+    /// <summary>
+    /// Solens gravitationsparameter G·M i AU³/dygn². Att jordens bana med
+    /// a = 1 AU tar 365,26 dygn är just detta tal skrivet baklänges.
+    /// </summary>
+    public const double SunMu = 2.959122082855911e-4;
+
+    /// <summary>
+    /// Jordens och månens gemensamma gravitationsparameter, 403 503 km³/s²
+    /// omräknat till AU och dygn. Solens är 330 000 gånger större – därför tar
+    /// månens varv kring jorden 27 dygn medan jordens varv kring solen tar ett år,
+    /// trots att avstånden skiljer nästan 400 gånger.
+    /// </summary>
+    public const double EarthMu = 8.9971e-10;
+
     public const double SunRadiusKm = 696_340.0;
     public static readonly DateTime EpochJ2000 = new(2000, 1, 1, 12, 0, 0, DateTimeKind.Utc);
 
@@ -302,7 +325,7 @@ public static class SolarSystemData
     [
         new("Merkurius", Color.FromArgb("#B5A79B"),  2_439.7, 0.38710, 0.20563, 7.005,  48.331,  77.456, 252.251,    87.969),
         new("Venus",     Color.FromArgb("#E8CDA0"),  6_051.8, 0.72333, 0.00677, 3.395,  76.680, 131.564, 181.980,   224.701),
-        new("Jorden",    Color.FromArgb("#4C8CE8"),  6_371.0, 1.00000, 0.01671, 0.000, -11.261, 102.947, 100.464,   365.256) { Moons = [Moon] },
+        new("Jorden",    Color.FromArgb("#4C8CE8"),  6_371.0, 1.00000, 0.01671, 0.000, -11.261, 102.947, 100.464,   365.256) { Moons = [Moon], Mu = EarthMu },
         new("Mars",      Color.FromArgb("#D96C4A"),  3_389.5, 1.52371, 0.09339, 1.850,  49.559, 336.041, 355.445,   686.980) { Moons = [Phobos, Deimos] },
         new("Jupiter",   Color.FromArgb("#D8B48A"), 69_911.0, 5.20289, 0.04839, 1.304, 100.474,  14.728,  34.397, 4_332.59) { Moons = [Io, Europa, Ganymedes, Callisto], Ring = JupiterRing },
         new("Saturnus",  Color.FromArgb("#E8D5A8"), 58_232.0, 9.53668, 0.05386, 2.486, 113.662,  92.599,  49.954, 10_759.22) { Moons = [Enceladus, Rhea, Titan], Ring = SaturnRing },

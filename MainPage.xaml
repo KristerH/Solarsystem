@@ -142,6 +142,10 @@
                             Text="Nästa startfönster"
                             Clicked="OnNextWindowClicked"
                             BackgroundColor="#26303C" TextColor="White" Margin="6,0,0,0" />
+                    <Button x:Name="MoonButton"
+                            Text="Skjut upp mot Månen"
+                            Clicked="OnMoonLaunchClicked"
+                            BackgroundColor="#2E5A4A" TextColor="White" Margin="6,0,0,0" />
                 </HorizontalStackLayout>
             </VerticalStackLayout>
         </ScrollView>

@@ -192,13 +192,31 @@ startfönster och något eleverna kan prova själva.
 
 ### 9.4 – Färd till månen
 
-- [ ] Samma sak fast kring jorden: en ellips från låg omloppsbana ut till
+- [x] Samma sak fast kring jorden: en ellips från låg omloppsbana ut till
       månens avstånd, restid ca 3 dygn. Kräver att farkosten kan kretsa kring
       en planet i stället för kring solen, ungefär som månarna gör i dag.
+
+Knappen "Skjut upp mot Månen" går att trycka på vilken dag som helst, och vyn
+hoppar samtidigt till jorden – hela månfärden ryms inom 0,003 AU och vore
+annars mindre än en pixel. Farkosten kretsar kring jorden i stället för kring
+solen: banan räknas med jordens gravitationsparameter och läggs i månens eget
+banplan. Uppskjutningen sker från en låg omloppsbana på 400 km höjd, som blir
+banans perigeum.
+
+En ren Hohmann-bana ut till månen skulle ta 4,95 dygn. För att hinna på tre
+måste farkosten skjutas upp med mer fart, så att banans bortre ände hamnar
+440 000–630 000 km bort, alltså en bra bit bortom månen, och månen hinns ikapp
+på vägen ut – före vändpunkten. Det var precis så Apollo flög.
 
 **Verifiera:** Månfärden ska ta ca 3 dygn. Bra kontrast till Mars: månen är
 tillbaka på samma ställe var 27:e dygn, så dit kan man åka i stort sett när
 som helst.
+
+Kontrollerat: restiden blir 3,00 dygn och farkosten möter månen på metern när
+för 40 startdatum spridda över ett år. Startfarten blir 10,84 km/s, vilket är
+den verkliga farten vid en uppskjutning mot månen (Apollos raketsteg gav
+10,8 km/s), och farten faller till 0,6–0,9 km/s vid framkomsten. Banplanet
+sammanfaller med månens inom 0,02°.
 
 ---
 

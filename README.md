@@ -81,6 +81,24 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
   och Mars ligger mellan 29° och 63° framför jorden vid uppskjutningen.
   Lärobokens 259 dygn och 44° gäller cirkulära banor; Mars excentricitet
   gör att de faktiska värdena pendlar kring dem.
+- **Rymdfärd till månen**: knappen "Skjut upp mot Månen" skickar i väg en
+  farkost från en låg omloppsbana på 400 km höjd, och vyn hoppar samtidigt in
+  till jorden – hela färden ryms inom 0,003 AU och vore annars mindre än en
+  pixel. Här kretsar farkosten kring jorden i stället för kring solen: samma
+  ellips och samma Kepler-ekvation, men med jordens gravitationsparameter,
+  som är 330 000 gånger mindre än solens.
+
+  Restiden är tre dygn, som Apollo. En ren Hohmann-bana ut till månen skulle
+  ta 4,95 dygn, så farkosten måste skjutas upp med mer fart än så: banans
+  bortre ände hamnar 440 000–630 000 km bort, alltså långt bortom månen, och
+  månen hinns ikapp på vägen ut – före vändpunkten. Startfarten blir
+  10,84 km/s, precis som i verkligheten, och farten har fallit till under
+  1 km/s vid framkomsten.
+
+  Den stora skillnaden mot Mars är att uppskjutningen kan ske vilken dag som
+  helst. Från en omloppsbana kan farkosten lämna åt vilket håll som helst, så
+  startpunkten väljs så att banan möter månen – och månen är dessutom tillbaka
+  på samma ställe var 27:e dygn. Inga startfönster behövs.
 - **Skalenliga avstånd**: Avstånden mellan banorna är alltid skalenliga (1 AU =
   60 enheter). Planeternas storlekar är inbördes skalenliga men förstorade så
   att de syns – bocka i **Verklig storlek** för att se hur små planeterna
@@ -159,10 +177,11 @@ asteroid-/Kuiperbälten, tänkt att byggas och verifieras en etapp i taget.
 
 - `Simulation/SolarSystemData.cs` – planetdata (banelement J2000) och
   Kepler-beräkning av positioner.
-- `Simulation/Mission.cs` – överföringsbanan till Mars, löst ur randvillkoren.
 - `Simulation/SmallBodyBelt.cs` – asteroid- och Kuiperbältets slumpade banor,
   med förberäknad rotation så att en position kostar en Kepler-lösning.
-- `Simulation/Mission.cs` – planerar och räknar överföringsbanor.
+- `Simulation/Mission.cs` – planerar och räknar överföringsbanor: till Mars
+  löst ur randvillkoren, till månen ur en given restid. Samma klass klarar
+  banor kring solen och kring en planet.
 - `Simulation/StarCatalog.cs` – stjärnkatalogen och stjärnbildernas figurer,
   samt omräkningen från ekvatorial- till världskoordinater.
 - `Rendering/StarSky.cs` – ritar stjärnor, stjärnbilder och Vintergatan.
