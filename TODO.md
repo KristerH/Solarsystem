@@ -336,20 +336,41 @@ Mars-fönstren.
 
 ### 10.2 – Voyager 1 och 2
 
-- [ ] **Voyager 1 och Voyager 2** (uppskjutna 1977) med verkliga riktningar och
+- [x] **Voyager 1 och Voyager 2** (uppskjutna 1977) med verkliga riktningar och
       farter. Voyager 2 är den enda farkost som besökt alla fyra
       jätteplaneterna – möjligt tack vare en planetuppställning som bara
       återkommer vart 176:e år.
-- [ ] **Ut ur ekliptikan**: efter Saturnus böjde Voyager 1 av brant uppåt
+- [x] **Ut ur ekliptikan**: efter Saturnus böjde Voyager 1 av brant uppåt
       (ca 35°) och Voyager 2 nedåt (ca 48°). Bra tillfälle att visa att
       solsystemet är en skiva som sonderna nu lämnat.
-- [ ] Sonderna ritas i vyn med sitt spår efter sig.
+- [x] Sonderna ritas i vyn med sitt spår efter sig.
+
+Ligger i `Simulation/Probe.cs` och `Simulation/ProbeData.cs`, med kryssrutan
+"Rymdsonder" i panelen. Inga banelement matas in: varje ben är banan som går
+från en planet till nästa på exakt den tid passagerna tog, och sista benet går
+ut till sondens kända läge i dag (avstånd och riktning på himlen). Lutningen ut
+ur ekliptikan blir därför ett resultat och inte en inmatning.
 
 **Verifiera:** Spola tiden till mars 1979 – Voyager 1 ska då vara vid Jupiter,
 inte någon annanstans. Samma sak för Voyager 2 vid Neptunus i augusti 1989.
 Kontrollera dagens avstånd mot NASA:s siffror (Voyager 1 ligger kring 167 AU
 och Voyager 2 kring 140 AU år 2026). Luta kameran och se att de två Voyager-
 sonderna lämnat ekliptikan åt var sitt håll.
+
+Kontrollerat: alla sex planetpassager träffar rätt planet rätt dag, sämst
+602 km fel vid Neptunus, alltså två hundradels planetradie. I dag (augusti
+2026) ligger Voyager 1 på 169 AU och Voyager 2 på 142 AU, med farterna 16,7
+och 15,0 km/s – NASA:s siffror är 167 och 140 AU samt 17,0 och 15,4 km/s.
+Sonderna lutar +35,6° respektive −47,9° mot ekliptikan, mot de vedertagna 35°
+och 48°; eftersom lutningen inte matas in är det en kontroll av att hela
+kedjan stämmer. Två av de åtta benen är ellipser – just de två från jorden
+till Jupiter, för det var Jupiter som gav sonderna fart nog att aldrig komma
+tillbaka. Resten är hyperbler.
+
+Farthoppen syns redan nu i banorna, även om panelen som visar dem hör till
+10.4: Jupiter gav Voyager 1 +10,8 km/s och Voyager 2 +10,0. Vid Neptunus
+*bromsades* Voyager 2 med 2,3 km/s – priset för att svänga ner mot månen
+Triton, och skälet till att den lämnade ekliptikan brantare än sin tvilling.
 
 ---
 

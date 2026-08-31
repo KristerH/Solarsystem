@@ -96,6 +96,9 @@
                     <CheckBox x:Name="KuiperCheck" IsChecked="False" CheckedChanged="OnKuiperChanged" Color="#6FA8DC" />
                     <Label Text="Kuiperbälte" TextColor="#C8D4E0" VerticalOptions="Center" Margin="0,0,10,0" />
 
+                    <CheckBox x:Name="ProbesCheck" IsChecked="True" CheckedChanged="OnProbesChanged" Color="#6FA8DC" />
+                    <Label Text="Rymdsonder" TextColor="#C8D4E0" VerticalOptions="Center" Margin="0,0,10,0" />
+
                     <CheckBox x:Name="ConstellationsCheck" IsChecked="True" CheckedChanged="OnConstellationsChanged" Color="#6FA8DC" />
                     <Label Text="Stjärnbilder" TextColor="#C8D4E0" VerticalOptions="Center" Margin="0,0,10,0" />
 

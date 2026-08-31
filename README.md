@@ -123,6 +123,26 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
   man ser den komma fram. Det sker en gång, i själva ankomstögonblicket –
   därefter styr man fritt igen, och ett nytt val i fokusväljaren eller
   "Återställ vy" släpper greppet.
+- **Voyager 1 och 2**: de två verkliga sonderna, med spår efter sig och en egen
+  kryssruta. De är inte inmatade som banelement utan byggda ur sina verkliga
+  datum: varje ben av färden är banan som går från en planet till nästa på exakt
+  den tid passagerna tog, räknad ur appens egna planetpositioner. Sonderna
+  hamnar därför vid rätt planet rätt dag av sig själva – sämsta träffen av de
+  sex passagerna är 602 km vid Neptunus, alltså två hundradels planetradie.
+
+  Sista benet går ut till sondens kända läge i dag, och därmed blir också
+  lutningen ut ur ekliptikan ett resultat i stället för en inmatning: +35,6° för
+  Voyager 1 och −47,9° för Voyager 2, mot de vedertagna 35° och 48°. Luta
+  kameran så syns det direkt att de lämnat solsystemets skiva åt var sitt håll.
+  I dag ligger de på 169 och 142 AU med farterna 16,7 och 15,0 km/s (NASA:s
+  siffror: 167 och 140 AU, 17,0 och 15,4 km/s).
+
+  Gravitationsslungan följer på köpet, eftersom benen möts i samma läge men med
+  olika hastighet: Jupiter gav Voyager 1 hela 10,8 km/s. Just de två benen från
+  jorden till Jupiter är ellipser medan allt efter Jupiter är hyperbler – det
+  var alltså Jupiter som gav sonderna fart nog att aldrig komma tillbaka. Vid
+  Neptunus *bromsades* Voyager 2 i stället med 2,3 km/s, priset för att svänga
+  ner mot månen Triton.
 - **Skalenliga avstånd**: Avstånden mellan banorna är alltid skalenliga (1 AU =
   60 enheter). Planeternas storlekar är inbördes skalenliga men förstorade så
   att de syns – bocka i **Verklig storlek** för att se hur små planeterna
@@ -216,6 +236,10 @@ asteroid-/Kuiperbälten, tänkt att byggas och verifieras en etapp i taget.
   en given tid, löst med universella variabler. Det är den som gör att sonderna
   kan byggas ur verkliga uppskjutnings- och passagedatum i stället för ur
   inmatade banelement.
+- `Simulation/Probe.cs` – en verklig rymdsond som en kedja av ben, där varje ben
+  är den bana som går mellan två passager på den tid de faktiskt tog.
+- `Simulation/ProbeData.cs` – Voyager 1 och 2 med sina passagedatum och sina
+  kända lägen i dag.
 - `Simulation/StarCatalog.cs` – stjärnkatalogen och stjärnbildernas figurer,
   samt omräkningen från ekvatorial- till världskoordinater.
 - `Rendering/StarSky.cs` – ritar stjärnor, stjärnbilder och Vintergatan.

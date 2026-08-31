@@ -39,6 +39,9 @@ public sealed class SolarSystemDrawable : IDrawable
     /// <summary>Om Kuiperbältet bortom Neptunus ska ritas.</summary>
     public bool ShowKuiperBelt { get; set; }
 
+    /// <summary>Om de verkliga rymdsonderna och deras spår ska ritas.</summary>
+    public bool ShowProbes { get; set; } = true;
+
     /// <summary>
     /// Sant medan fönstret håller på att ändra storlek. Då ritas bara svart –
     /// plattformen ritar om vid varje storlekssteg, och att projicera om hela
@@ -102,6 +105,8 @@ public sealed class SolarSystemDrawable : IDrawable
             if (ShowAsteroidBelt)
                 DrawAsteroidBelt(canvas, rect);
             DrawBodies(canvas, rect);
+            if (ShowProbes)
+                DrawProbes(canvas);
             if (Mission is not null)
                 DrawMission(canvas, Mission);
             DrawLabels(canvas, rect);
@@ -667,6 +672,85 @@ public sealed class SolarSystemDrawable : IDrawable
             path.LineTo(x10, y10);
             path.Close();
         }
+    }
+
+    // --------------------------------------------------------------- rymdsonder
+
+    /// <summary>Antal punkter varje ben av en sondbana ritas med.</summary>
+    const int ProbeTrailSteps = 70;
+
+    /// <summary>
+    /// Ritar de verkliga sonderna med spåret efter sig. Spåret räknas fram ur
+    /// banan i stället för att sparas undan bildruta för bildruta, så det ser
+    /// likadant ut även om man hoppar i tiden eller spelar den baklänges.
+    ///
+    /// Sonderna är i dag över 150 AU bort, alltså fyra gånger längre ut än
+    /// Neptunus. I översiktsvyn syns därför bara spårets innersta del, och man
+    /// får zooma ut rejält för att se hela – vilket i sig är poängen med hur
+    /// långt de har kommit.
+    /// </summary>
+    void DrawProbes(ICanvas canvas)
+    {
+        double now = DaysSinceJ2000;
+
+        foreach (var probe in ProbeData.All)
+        {
+            if (!probe.Exists(now))
+                continue;   // ännu inte uppskjuten
+
+            canvas.StrokeSize = 1.4f;
+            canvas.StrokeColor = probe.Color.WithAlpha(0.55f);
+            foreach (var leg in probe.Legs)
+            {
+                if (leg.StartDay >= now)
+                    break;  // benen ligger i tidsordning, resten är framtid
+                DrawProbeTrail(canvas, leg, Math.Min(leg.EndDay, now));
+            }
+
+            if (probe.PositionAt(now, UnitsPerAu) is not { } pos ||
+                !Camera.Project(pos, out float sx, out float sy, out _))
+                continue;
+
+            canvas.FillColor = probe.Color;
+            canvas.FillCircle(sx, sy, 2.5f);
+            _labels.Add((probe.Name, sx, sy + 9f));
+        }
+    }
+
+    /// <summary>Ritar ett ben av en sondbana fram till en given dag.</summary>
+    void DrawProbeTrail(ICanvas canvas, ProbeLeg leg, double toDay)
+    {
+        if (toDay - leg.StartDay < 1e-6)
+            return;
+
+        var path = new PathF();
+        bool started = false, hasPrev = false;
+        float px = 0, py = 0;
+
+        for (int i = 0; i <= ProbeTrailSteps; i++)
+        {
+            double day = leg.StartDay + (toDay - leg.StartDay) * i / ProbeTrailSteps;
+            if (Camera.Project(leg.Path.PositionAt(day, UnitsPerAu),
+                    out float x, out float y, out _))
+            {
+                if (hasPrev)
+                {
+                    if (!started) { path.MoveTo(px, py); started = true; }
+                    path.LineTo(x, y);
+                }
+                hasPrev = true;
+                px = x;
+                py = y;
+            }
+            else
+            {
+                hasPrev = false;
+                started = false;
+            }
+        }
+
+        if (started)
+            canvas.DrawPath(path);
     }
 
     // ---------------------------------------------------------------- rymdfärd

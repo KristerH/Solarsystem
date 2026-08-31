@@ -542,6 +542,12 @@ public partial class MainPage : ContentPage
         _settingsChanged = true;
     }
 
+    void OnProbesChanged(object? sender, CheckedChangedEventArgs e)
+    {
+        _drawable.ShowProbes = e.Value;
+        _settingsChanged = true;
+    }
+
     void OnConstellationsChanged(object? sender, CheckedChangedEventArgs e)
     {
         _drawable.ShowConstellations = e.Value;
