@@ -99,6 +99,19 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
   helst. Från en omloppsbana kan farkosten lämna åt vilket håll som helst, så
   startpunkten väljs så att banan möter månen – och månen är dessutom tillbaka
   på samma ställe var 27:e dygn. Inga startfönster behövs.
+- **Färdpanel och ankomst**: medan en farkost är i väg visas förfluten restid,
+  återstående tid, avståndet kvar till målet och farkostens fart. Farten är den
+  intressanta raden: den faller hela vägen, precis som Keplers andra lag säger –
+  mot Mars från 33,1 till 20,5 km/s, mot månen från 10,8 till 0,6 km/s.
+  Avståndet till månen krymper hela vägen, men avståndet till Mars *växer*
+  först, från 246 till 409 miljoner km, innan det faller. Farkosten går ju runt
+  solen och inte rakt mot planeten, och Mars står på andra sidan solen när
+  färden börjar.
+
+  Vid framkomsten hakar kameran på farkosten och zoomar in till målet, så att
+  man ser den komma fram. Det sker en gång, i själva ankomstögonblicket –
+  därefter styr man fritt igen, och ett nytt val i fokusväljaren eller
+  "Återställ vy" släpper greppet.
 - **Skalenliga avstånd**: Avstånden mellan banorna är alltid skalenliga (1 AU =
   60 enheter). Planeternas storlekar är inbördes skalenliga men förstorade så
   att de syns – bocka i **Verklig storlek** för att se hur små planeterna

@@ -27,6 +27,26 @@
             <Label x:Name="MissionLabel" TextColor="#8FD3B6" FontSize="14" Margin="0,4,0,0" />
             <Label TextColor="#5E6E80" FontSize="12"
                    Text="Dra med musen = rotera &#8226; Skrollhjul = zooma &#8226; Piltangenter = rotera &#8226; W/S = zooma &#8226; Mellanslag = starta/pausa &#8226; R = återställ vyn" />
+
+            <!-- Färdpanelen: syns bara medan en farkost är i väg eller framme. -->
+            <Border x:Name="MissionPanel"
+                    IsVisible="False"
+                    Margin="0,12,0,0"
+                    Padding="12,9"
+                    HorizontalOptions="Start"
+                    BackgroundColor="#C6101822"
+                    Stroke="#2A3F52"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 6">
+                <VerticalStackLayout Spacing="3">
+                    <Label x:Name="CraftTitleLabel" TextColor="#E8F4FF" FontSize="15"
+                           FontAttributes="Bold" Margin="0,0,0,3" />
+                    <Label x:Name="CraftElapsedLabel" TextColor="#9EC1E8" FontSize="13" />
+                    <Label x:Name="CraftRemainingLabel" TextColor="#9EC1E8" FontSize="13" />
+                    <Label x:Name="CraftDistanceLabel" TextColor="#9EC1E8" FontSize="13" />
+                    <Label x:Name="CraftSpeedLabel" TextColor="#8FD3B6" FontSize="13" />
+                </VerticalStackLayout>
+            </Border>
         </VerticalStackLayout>
 
         <!-- Kontrollpanel. Två fasta rader i en horisontell ScrollView i stället

@@ -222,16 +222,28 @@ sammanfaller med månens inom 0,02°.
 
 ### 9.5 – Panel under färden och ankomst
 
-- [ ] **Panel**: förfluten restid, återstående tid, avstånd kvar till målet
+- [x] **Panel**: förfluten restid, återstående tid, avstånd kvar till målet
       och farkostens fart.
 - [x] **Ankomst**: farkosten möter målet och färden markeras som avslutad.
       Gjordes redan i 9.2: farkosten följer med planeten efter framkomsten i
       stället för att bli stående kvar där planeten råkade vara, och etiketten
       byts till "Farkost framme".
-- [ ] Att kameran kan följa med ner till planeten vid ankomst återstår.
+- [x] Att kameran kan följa med ner till planeten vid ankomst återstår.
+
+Panelen dyker upp uppe till vänster så snart en farkost är i väg och försvinner
+när färden avbryts. Vid ankomsten byter den till restid, ankomstdatum och farten
+vid framkomsten. Kameran hakar samtidigt på farkosten och zoomar in till målet –
+en gång, i själva ankomstögonblicket, så att användaren sedan får styra fritt
+igen. Ett nytt val i fokusväljaren eller "Återställ vy" släpper greppet.
 
 **Verifiera:** Farten ska variera längs banan – snabbast vid uppskjutningen
 nära solen och långsammast vid ankomsten, precis som Keplers andra lag säger.
+
+Kontrollerat: farten faller monotont hela vägen, mot Mars från 33,14 till
+20,51 km/s och mot månen från 10,83 till 0,62 km/s. Avståndet till månen
+minskar hela vägen, men avståndet till Mars växer först från 246 till
+409 miljoner km innan det faller – farkosten går ju runt solen, inte rakt mot
+planeten, och Mars står på andra sidan solen vid uppskjutningen.
 
 ---
 

@@ -104,11 +104,8 @@ public partial class MainPage : ContentPage
         double daysSinceJ2000 = (simDate - SolarSystemData.EpochJ2000).TotalDays;
         _drawable.DaysSinceJ2000 = daysSinceJ2000;
 
-        // Följ vald himlakropp med kameran.
-        _drawable.Camera.Target = _focusIndex <= 0
-            ? Vector3.Zero
-            : SolarSystemData.Planets[_focusIndex - 1]
-                .PositionAt(daysSinceJ2000, SolarSystemDrawable.UnitsPerAu);
+        UpdateMissionPanel(daysSinceJ2000);
+        _drawable.Camera.Target = CameraTarget(daysSinceJ2000);
 
         DateLabel.Text = simDate.ToString("dddd d MMMM yyyy, HH:mm", Swedish);
         ElapsedLabel.Text = FormatElapsed(_simDays);
@@ -316,11 +313,8 @@ public partial class MainPage : ContentPage
             NextWindowButton.IsEnabled = false;
             NextWindowButton.BackgroundColor = StepClosed;
 
-            var arrival = SolarSystemData.EpochJ2000.AddDays(mission.ArrivalDay);
-            MissionLabel.Text = mission.HasArrived(day)
-                ? string.Create(Swedish, $"Framme vid {mission.Target.Name} {arrival:yyyy-MM-dd}")
-                : string.Create(Swedish,
-                    $"Restid {mission.TravelDays:0} dygn, framme {arrival:yyyy-MM-dd}");
+            // Restid, avstånd och fart står i färdpanelen i stället.
+            MissionLabel.Text = string.Empty;
             return;
         }
 
@@ -353,6 +347,92 @@ public partial class MainPage : ContentPage
         }
     }
 
+    // Kameran ska följa med farkosten ner till målet när den kommer fram. Det
+    // sker en gång, i själva ankomstögonblicket – därefter får användaren styra
+    // fritt igen, och ett nytt val i fokusväljaren stänger av följandet.
+    bool _arrivalSeen;
+    bool _followCraft;
+
+    /// <summary>Vad kameran tittar på: farkosten efter ankomsten, annars vald kropp.</summary>
+    Vector3 CameraTarget(double day)
+    {
+        if (_followCraft && _drawable.CraftPosition() is { } craft)
+            return craft;
+
+        return _focusIndex <= 0
+            ? Vector3.Zero
+            : SolarSystemData.Planets[_focusIndex - 1]
+                .PositionAt(day, SolarSystemDrawable.UnitsPerAu);
+    }
+
+    /// <summary>
+    /// Panelen som följer färden: hur länge farkosten varit i väg, hur länge det
+    /// är kvar, hur långt den har till målet och hur fort den går. Farten är den
+    /// intressanta raden. Den faller med avståndet, precis som Keplers andra lag
+    /// säger: mot månen från 10,8 km/s vid uppskjutningen till under 1 km/s vid
+    /// framkomsten, mot Mars från 33 till 21 km/s.
+    /// </summary>
+    void UpdateMissionPanel(double day)
+    {
+        if (_drawable.Mission is not { } mission)
+        {
+            MissionPanel.IsVisible = false;
+            _arrivalSeen = false;
+            return;
+        }
+
+        MissionPanel.IsVisible = true;
+
+        // Ankomsten: följ med ner till målet, en gång.
+        bool arrived = mission.HasArrived(day);
+        if (arrived && !_arrivalSeen)
+        {
+            _followCraft = true;
+            _drawable.Camera.Distance = _drawable.SuggestedFocusDistance(mission.Target);
+        }
+        _arrivalSeen = arrived;
+
+        var arrival = SolarSystemData.EpochJ2000.AddDays(mission.ArrivalDay);
+        double speed = mission.SpeedKmPerSecond(day);
+
+        if (arrived)
+        {
+            CraftTitleLabel.Text = $"Farkost framme vid {mission.Target.Name}";
+            CraftElapsedLabel.Text = $"Restid: {FormatTravelTime(mission.TravelDays)}";
+            CraftRemainingLabel.Text = string.Create(Swedish, $"Framme {arrival:yyyy-MM-dd}");
+            CraftDistanceLabel.Text = $"Följer nu med {mission.Target.Name}";
+            CraftSpeedLabel.Text = string.Create(Swedish, $"Fart vid ankomsten: {speed:0.00} km/s");
+            return;
+        }
+
+        double elapsed = Math.Max(0.0, day - mission.LaunchDay);
+        CraftTitleLabel.Text = $"Farkost mot {mission.Target.Name}";
+        CraftElapsedLabel.Text = $"Förfluten restid: {FormatTravelTime(elapsed)}";
+        CraftRemainingLabel.Text = string.Create(Swedish,
+            $"Återstår: {FormatTravelTime(mission.TravelDays - elapsed)} (framme {arrival:yyyy-MM-dd})");
+        CraftDistanceLabel.Text =
+            $"Avstånd till {mission.Target.Name}: {FormatDistance(mission.DistanceToTargetKm(day))}";
+        CraftSpeedLabel.Text = string.Create(Swedish, $"Fart: {speed:0.00} km/s");
+    }
+
+    /// <summary>
+    /// Restider skrivs i timmar när de är korta – en månfärd tar bara tre dygn,
+    /// och då säger "0,4 dygn" mindre än "9,6 timmar".
+    /// </summary>
+    static string FormatTravelTime(double days)
+    {
+        double span = Math.Max(0.0, days);
+        return span < 2.0
+            ? string.Create(Swedish, $"{span * 24:0.0} timmar")
+            : string.Create(Swedish, $"{span:0.0} dygn");
+    }
+
+    /// <summary>Avstånd i kilometer, i miljoner när talen blir för långa att läsa.</summary>
+    static string FormatDistance(double km)
+        => km >= 1e6
+            ? string.Create(Swedish, $"{km / 1e6:N1} miljoner km")
+            : string.Create(Swedish, $"{km:N0} km");
+
     /// <summary>Hoppar fram till nästa uppskjutningstillfälle.</summary>
     void OnNextWindowClicked(object? sender, EventArgs e)
     {
@@ -378,8 +458,7 @@ public partial class MainPage : ContentPage
         }
 
         _drawable.Mission = mission;
-        UpdateMissionUi(launchDay);
-        _settingsChanged = true;
+        StartMission(launchDay);
     }
 
     /// <summary>
@@ -406,6 +485,14 @@ public partial class MainPage : ContentPage
 
         _drawable.Mission = mission;
         FocusPicker.SelectedIndex = EarthFocusIndex;    // zoomar in via OnFocusChanged
+        StartMission(launchDay);
+    }
+
+    /// <summary>Gemensamt för båda uppskjutningarna: färden börjar om från början.</summary>
+    void StartMission(double launchDay)
+    {
+        _arrivalSeen = false;
+        _followCraft = false;
         UpdateMissionUi(launchDay);
         _settingsChanged = true;
     }
@@ -415,6 +502,8 @@ public partial class MainPage : ContentPage
     {
         _drawable.Mission = null;
         _windowCheckedDay = double.NaN;
+        _arrivalSeen = false;
+        _followCraft = false;
         _settingsChanged = true;
     }
 
@@ -469,6 +558,7 @@ public partial class MainPage : ContentPage
     void OnFocusChanged(object? sender, EventArgs e)
     {
         _focusIndex = Math.Max(0, FocusPicker.SelectedIndex);
+        _followCraft = false;
         if (_focusIndex > 0)
         {
             // Zooma så att planeten – och hela dess månsystem – syns.
@@ -483,6 +573,7 @@ public partial class MainPage : ContentPage
     void ResetView()
     {
         _drawable.Camera.ResetView();
+        _followCraft = false;
         _focusIndex = 0;
         FocusPicker.SelectedIndex = 0;
     }

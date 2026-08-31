@@ -459,6 +459,17 @@ public sealed class Mission
     public bool HasArrived(double day) => day >= ArrivalDay;
 
     /// <summary>
+    /// Hur långt farkosten har kvar till målet, i kilometer. Både farkost och mål
+    /// mäts i banans eget system, så samma räkning gäller för en färd kring solen
+    /// som för en kring en planet.
+    /// </summary>
+    public double DistanceToTargetKm(double day)
+    {
+        double d = Math.Clamp(day, LaunchDay, ArrivalDay);
+        return (Target.PositionAt(d, 1f) - PositionAt(d, 1f)).Length() * SolarSystemData.AuKm;
+    }
+
+    /// <summary>
     /// Farkostens fart i km/s vid given tid, ur vis-viva-ekvationen. Farten är
     /// högst vid uppskjutningen och lägst vid ankomsten, precis som Keplers
     /// andra lag säger.

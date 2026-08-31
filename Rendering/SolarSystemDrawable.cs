@@ -729,6 +729,21 @@ public sealed class SolarSystemDrawable : IDrawable
         return center.PositionAt(DaysSinceJ2000, UnitsPerAu);
     }
 
+    /// <summary>
+    /// Farkostens läge i världen, precis som det ritas – med planetens läge och
+    /// månsystemets hoptryckning inräknade. Null när ingen färd pågår. Kameran
+    /// använder det för att följa med farkosten ner till målet vid ankomsten.
+    /// </summary>
+    public Vector3? CraftPosition()
+    {
+        if (Mission is not { } mission)
+            return null;
+
+        var origin = MissionOrigin(mission, out float scale);
+        double day = Math.Max(DaysSinceJ2000, mission.LaunchDay);
+        return origin + mission.PositionAt(day, UnitsPerAu) * scale;
+    }
+
     /// <summary>Ritar en del av banan som en polylinje.</summary>
     void DrawMissionArc(ICanvas canvas, Mission mission, double fromDay, double toDay,
         Vector3 origin, float scale)
