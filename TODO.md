@@ -1105,11 +1105,11 @@ En väljare i stil med startfönstren för Mars: "nästa opposition för Mars",
 samma sida om solen". Man väljer, appen hoppar till datumet, och man ser
 ställningen uppifrån.
 
-- [ ] Sökfunktion för konjunktion och opposition mellan två valda kroppar.
+- [x] Sökfunktion för konjunktion och opposition mellan två valda kroppar.
       Samma form som `Mission.NextLaunchWindow`: stega dagvis, hitta minimum,
       förfina. Den koden finns och är redan snabb nog för knapptryck.
-- [ ] Knapp eller lista i kontrollpanelen som hoppar till nästa sådant datum.
-- [ ] Visa avståndet vid tillfället – Mars är dubbelt så nära vid en gynnsam
+- [x] Knapp eller lista i kontrollpanelen som hoppar till nästa sådant datum.
+- [x] Visa avståndet vid tillfället – Mars är dubbelt så nära vid en gynnsam
       opposition som vid en ogynnsam, och det är hela förklaringen till varför
       somliga oppositioner blir stora nyheter.
 
@@ -1118,16 +1118,50 @@ dygn ur modellen – 16 jan 2025 (0,644 AU), 19 feb 2027 (0,678), 25 mars 2029
 (0,649) och 4 maj 2031 (0,559) – mot verklighetens 16 jan, 19 feb, 25 mars och
 4 maj. Excentriciteten syns direkt i avstånden.
 
-**Men konjunktioner mellan två långsamma planeter blir inte lika exakta.** Den
-stora konjunktionen Jupiter–Saturn hamnar 1 november 2020 i modellen mot
-verklighetens 21 december, alltså sju veckor fel, och 1 december 2040 mot
-31 oktober. Felet ligger inte i positionerna utan i tidskänsligheten: två
-långsamma planeter separerar så trögt att en tiondels grad blir veckor i datum.
-Mars i opposition rör sig snabbt mot jorden och är därför okänslig. Datum för
-yttre konjunktioner bör alltså visas med en brasklapp, eller inte alls.
+**Rättat i planen ovan: varningen om yttre konjunktioner behövdes inte.** Här
+stod att den stora konjunktionen Jupiter–Saturnus hamnar sju veckor fel och att
+datum för yttre konjunktioner därför borde visas med brasklapp. Det var mitt
+mätfel: jag jämförde planeternas *heliocentriska* longituder. En konjunktion är
+något man ser från jorden, och räknat därifrån hamnar den på rätt dag – 21
+december 2020, på 0,11 grader. Det är jordens eget läge som avgör när två
+planeter ser ut att mötas, och jordens läge är det modellen kan bäst.
+
+Byggt som `Simulation/SkyEvent.cs`. Två sorters möte, en enda sökning: vid
+konjunktion minimeras vinkeln mellan de två kropparna sett från jorden, vid
+opposition minimeras hur långt planeten är från att stå rakt mitt emot solen.
+Grovsökning dagvis, sedan gyllene snittet ned till en minut. Väljaren har sex
+oppositioner (kropparna utanför jordens bana – Merkurius och Venus kan inte ha
+någon) och sex konjunktioner mellan de ljusa planeterna. En konjunktion räknas
+bara om kropparna kommer inom fem grader, alltså ungefär ett kikarfält.
+
+Sökningen använder `PositionAuAt` i dubbel precision, som kom med R3.
 
 **Verifiera:** De fyra Mars-oppositionerna ovan ska hittas på rätt dygn av
 appens egen sökfunktion, inte bara av provprogrammet.
+
+Kontrollerat utanför appen, 17 kontroller utan fel, allt genom `SkyEvent.Next`:
+
+- **De fyra Mars-oppositionerna på rätt dygn**: 2025-01-16 (0,644 AU),
+  2027-02-19 (0,678), 2029-03-25 (0,649) och 2031-05-04 (0,559).
+- **Tre väldokumenterade konjunktioner på rätt dygn**: stora konjunktionen
+  21 december 2020 på 0,11 grader (känt 0,10), Venus möter Jupiter 2 mars 2023
+  på 0,49 (känt 0,52) och Mars möter Jupiter 14 augusti 2024 på 0,30 (känt 0,31).
+- **Synodperioderna stämmer**, vilket är den kontroll som inte vilar på något
+  minne: tiden mellan två oppositioner ska vara planetens synodperiod. Över
+  tjugo mellanrum ger modellen Mars 781,2 dygn (känt 779,9), Jupiter 398,8
+  (398,9), Saturnus 378,3 (378,1), Uranus 369,7 (369,7), Neptunus 367,5 (367,5)
+  och Pluto 366,8 (366,7).
+- **Spridningen i de mellanrummen är i sig värd att se**: Mars varierar mellan
+  764 och 811 dygn medan Neptunus håller sig mellan 367 och 368. Ju rundare och
+  avlägsnare bana, desto jämnare takt. Det var också därför ett första prov över
+  bara fem mellanrum såg ut att missa Mars med fem dygn – för få stickprov.
+- **Trycker man igen kommer man vidare**: fem tryckningar ger 2027-02, 2029-03,
+  2031-05, 2033-06 och 2035-09, aldrig samma datum två gånger.
+- **Alla tolv valen ger svar**, och snabbt: längst tar Jupiter möter Saturnus på
+  10 ms, alla tolv tillsammans 14 ms. Den söker då fjorton år framåt.
+- **Mars oppositioner varierar mellan 0,382 och 0,678 AU** över sexton år, alltså
+  nästan dubbelt så långt bort vid en ogynnsam gång. Det är hela poängen med att
+  visa avståndet.
 
 ### 12.2 – Heliopausen och solsystemets kant
 

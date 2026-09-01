@@ -226,6 +226,22 @@
                             Clicked="OnMoonLaunchClicked"
                             BackgroundColor="#2E5A4A" TextColor="White" Margin="6,0,0,0" />
                 </HorizontalStackLayout>
+
+                <HorizontalStackLayout Spacing="6">
+                    <Label Text="Möten:" TextColor="#C8D4E0" VerticalOptions="Center"
+                           Margin="0,0,4,0" />
+
+                    <Picker x:Name="MeetingPicker"
+                            TextColor="White"
+                            BackgroundColor="#1C2430"
+                            WidthRequest="190" />
+                    <Button x:Name="MeetingButton"
+                            Text="Gå till nästa"
+                            Clicked="OnNextMeetingClicked"
+                            BackgroundColor="#26303C" TextColor="White" Margin="6,0,0,0" />
+                    <Label x:Name="MeetingLabel"
+                           TextColor="#9FB4C8" VerticalOptions="Center" Margin="8,0,0,0" />
+                </HorizontalStackLayout>
             </VerticalStackLayout>
         </ScrollView>
     </Grid>

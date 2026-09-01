@@ -11,6 +11,13 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
   ungefär med verkligheten för det simulerade datumet. Plutos bana är en bra
   kontrast till planeternas: 17° lutning, 248 års omloppstid och så excentrisk
   att den tidvis går innanför Neptunus bana.
+- **Möten på himlen**: en väljare i kontrollpanelen hittar nästa opposition
+  eller konjunktion och hoppar dit. Opposition är när jorden går mellan solen
+  och en yttre planet – då står den närmast och syns hela natten. Konjunktion är
+  när två planeter står i samma riktning sett härifrån, som Jupiter och Saturnus
+  den 21 december 2020, då de kom en tiondels grad från varandra. Avståndet visas
+  också, för Mars oppositioner skiljer sig nästan dubbelt: 0,38 AU en gynnsam
+  gång mot 0,68 en ogynnsam.
 - **Ytor och rotation**: kroppar med ytkarta ritas som klot när man zoomat in
   nog, med verklig axellutning och verklig rotationstid. Jorden har sina
   världsdelar och snurrar ett varv per stjärndygn, så rätt kontinent är vänd mot
@@ -350,6 +357,10 @@ asteroid-/Kuiperbälten, tänkt att byggas och verifieras en etapp i taget.
 - `Simulation/Conic.cs` – ett kägelsnitt byggt ur ett tillstånd, alltså ett läge
   och en hastighet vid en tidpunkt. Klarar både ellipser och hyperbler, och är
   det som beskriver en sonds bana mellan två planetpassager.
+- `Simulation/SkyEvent.cs` – söker fram nästa opposition eller konjunktion.
+  Vinklarna räknas sett från jorden och inte från solen, vilket är avgörande:
+  den stora konjunktionen 2020 hamnar på rätt dag från jorden men sju veckor fel
+  heliocentriskt.
 - `Simulation/Vec3.cs` – en vektor i dubbel precision, för de räkningar där
   `Vector3` inte räcker. Ritningen klarar sig gott med enkel precision, men när
   en bana byggs ur ett läge och en hastighet räknas energin som en skillnad

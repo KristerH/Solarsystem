@@ -60,6 +60,9 @@ public partial class MainPage : ContentPage
         BuildProbeMenu();
         RebuildFocusPicker(keep: "Solen");
 
+        MeetingPicker.ItemsSource = SkyEvent.Choices.Select(c => c.Label).ToList();
+        MeetingPicker.SelectedIndex = 0;
+
         StarDensityPicker.ItemsSource = new List<string> { "Inga", "Få", "Normalt", "Många" };
         StarDensityPicker.SelectedIndex = (int)_drawable.StarDensity;
 
@@ -893,6 +896,43 @@ public partial class MainPage : ContentPage
         }
 
         _settingsChanged = true;
+    }
+
+    /// <summary>
+    /// Hoppar till nästa möte av den valda sorten. Sökningen börjar vid det
+    /// datum man står på, så trycker man igen kommer man till nästa i tur och
+    /// ordning – och söker man bakåt får man byta datum först.
+    ///
+    /// Ett par saker är värda att veta om det som visas. Vid opposition står
+    /// planeten närmast jorden, och avståndet skiljer sig rejält mellan
+    /// tillfällena: Mars kan vara 0,37 AU bort en gynnsam gång och 0,68 en
+    /// ogynnsam, vilket är hela skälet till att somliga oppositioner blir
+    /// nyheter. Vid konjunktion står de två bara i samma riktning sett
+    /// härifrån – i rymden kan de vara miljardtals kilometer isär.
+    /// </summary>
+    void OnNextMeetingClicked(object? sender, EventArgs e)
+    {
+        int index = MeetingPicker.SelectedIndex;
+        if (index < 0 || index >= SkyEvent.Choices.Length)
+            return;
+
+        var choice = SkyEvent.Choices[index];
+        double day = (CurrentDate - SolarSystemData.EpochJ2000).TotalDays;
+
+        if (SkyEvent.Next(choice.Kind, choice.A, choice.B, day) is not { } meeting)
+        {
+            MeetingLabel.Text = "Hittade inget sådant möte";
+            return;
+        }
+
+        var date = SolarSystemData.EpochJ2000.AddDays(meeting.Day);
+        GoToDate(date);
+
+        // Hela meningen, inte bara siffran: vad som hittades, när, och hur nära.
+        string detail = choice.Kind == SkyEvent.Kind.Opposition
+            ? string.Create(Swedish, $"{meeting.DistanceAu:0.00} AU från jorden")
+            : string.Create(Swedish, $"{meeting.SeparationDeg:0.0}° isär på himlen");
+        MeetingLabel.Text = string.Create(Swedish, $"{choice.Label} {date:d MMMM yyyy} – {detail}");
     }
 
     void OnResetClicked(object? sender, EventArgs e) => ResetView();
