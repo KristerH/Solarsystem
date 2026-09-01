@@ -493,13 +493,20 @@ public partial class MainPage : ContentPage
     /// Sonderna är över hundra gånger längre bort än jorden, så hela
     /// planetsystemet krymper då till en prick kring solen – vilket i sig är
     /// det man ska se.
+    ///
+    /// Faktorn styr hur långt bort kameran ställer sig, räknat i sondens eget
+    /// avstånd från solen. Står kameran f gånger så långt bort hamnar solen som
+    /// mest arcsin(1/f) från bildens mitt, och det måste rymmas inom halva
+    /// bildhöjden på 25 grader. Det ger f minst 2,37. Här stod tidigare 2,2,
+    /// vilket ger 27 grader: solen gled utanför över- eller underkanten så snart
+    /// kameran lutades, i ungefär vart tionde läge.
     /// </summary>
     void ZoomToProbe(Probe probe)
     {
         double day = (CurrentDate - SolarSystemData.EpochJ2000).TotalDays;
         float distance = (float)probe.DistanceAu(day) * SolarSystemDrawable.UnitsPerAu;
         _drawable.Camera.Distance =
-            Math.Clamp(distance * 2.2f, 200f, OrbitCamera.MaxDistance);
+            Math.Clamp(distance * 2.4f, 200f, OrbitCamera.MaxDistance);
     }
 
     /// <summary>
