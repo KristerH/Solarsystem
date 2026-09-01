@@ -258,6 +258,7 @@ public static class SolarSystemData
         0.0025696 /* = 384 399 km */, 0.0549, 5.145, 125.045, 83.353, 218.316, 27.32166)
     {
         Axis = MoonAxis,
+        Surface = SurfaceMap.Moon,
     };
 
     // Mars två små, oregelbundna månar – troligen infångade asteroider. De
@@ -319,10 +320,17 @@ public static class SolarSystemData
     // lutar det planet mer än 90 grader mot ekliptikan – Charon går alltså
     // "baklänges" jämfört med de flesta månar. De två är dessutom helt
     // tidvattenlåsta: de vänder ständigt samma sida mot varandra.
+    //
+    // Medellongituden är inte hämtad ur en efemerid utan satt så att Charon
+    // hamnar över Plutos nollmeridian, vilket är just vad tidvattenlåsningen
+    // innebär – IAU definierar Plutos nollmeridian som den som pekar mot Charon.
+    // Följden är att Sputnik Planitia, som ligger kring 175 grader öst, vänder
+    // sig bort från Charon. Så ser det verkligen ut, och det är förmodligen
+    // ingen slump: slätten är tung nog att ha vridit hela Pluto på plats.
     public static readonly CelestialBody Charon = new(
         "Charon", Color.FromArgb("#9A9188"), 606.0,
         19_591.4 / AuKm, 0.0002, PlutoAxis.InclinationDeg, PlutoAxis.NodeDeg,
-        0.0, 0.0, 6.387230)
+        0.0, 188.4, 6.387230)
     {
         MassFraction = 0.1085,
     };
@@ -424,6 +432,6 @@ public static class SolarSystemData
         new("Neptunus",  Color.FromArgb("#5A78E8"), 24_622.0, 30.06992, 0.00859, 1.770, 131.784,  44.965, 304.880, 60_182.0) { Axis = NeptuneAxis, Moons = [Triton], Ring = NeptuneRing, Surface = SurfaceMap.Neptune },
         // Dvärgplaneten Pluto: kraftigt lutande (17°) och excentrisk bana som
         // tidvis går innanför Neptunus. Ett varv tar nästan 248 år.
-        new("Pluto",     Color.FromArgb("#C4AB94"),  1_188.3, 39.48212, 0.24883, 17.140, 110.304, 224.069, 238.929, 90_560.0) { Axis = PlutoAxis, Moons = [Charon] },
+        new("Pluto",     Color.FromArgb("#C4AB94"),  1_188.3, 39.48212, 0.24883, 17.140, 110.304, 224.069, 238.929, 90_560.0) { Axis = PlutoAxis, Moons = [Charon], Surface = SurfaceMap.Pluto },
     ];
 }

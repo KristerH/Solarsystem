@@ -39,7 +39,12 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
   år. Venus visar ingenting av sin yta, bara ett jämnt gulvitt moltäcke med de
   bleka strimmor som syns i ultraviolett ljus, och roterar baklänges på 243
   dygn – längre än dess år på 225. Ett soldygn på Venus blir därför bara 117
-  dygn, kortare än båda, eftersom ytan går solen till mötes.
+  dygn, kortare än båda, eftersom ytan går solen till mötes. Månen har sina hav –
+  lavaslätter, inte vatten – med Mare Tranquillitatis där Apollo 11 landade, och
+  Tychos strålsystem. Den är bunden: ett varv kring axeln per varv kring jorden,
+  så samma sida är alltid vänd mot oss, och baksidan saknar hav. Pluto visar
+  Tombaugh Regio, det ljusa hjärtat av frusen kväve som New Horizons
+  fotograferade 2015, vänt bort från Charon precis som i verkligheten.
 - **Månar**: 15 månar kretsar kring sina planeter med riktiga banelement och
   visas när man zoomar in – jordens måne, Mars Phobos och Deimos, Jupiters
   fyra galileiska månar, Saturnus Enceladus, Rhea och Titan, Uranus

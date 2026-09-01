@@ -288,6 +288,151 @@ public sealed class SurfaceMap
     }
 
 
+
+    /// <summary>
+    /// Ett smalt streck som löper ut från en punkt i en given kompassriktning –
+    /// en kraterstråle från Tycho, en spricka i Europas is.
+    ///
+    /// Strecket följer en storcirkel, inte en linje i gradnätet. Skillnaden är
+    /// stor: en stråle som går rakt norrut från 45° syd och 2 000 km bort hamnar
+    /// på helt olika ställen beroende på vilket man räknar. Bredden avtar mot
+    /// slutet, som strålarna gör.
+    /// </summary>
+    static void Streak(List<(Color Fill, (float Lat, float Lon)[] Pts)> raw,
+        Color fill, float lat, float lon, float bearingDeg, float lengthDeg, float widthDeg)
+    {
+        const int steps = 7;
+        var left = new List<(float Lat, float Lon)>(steps + 1);
+        var right = new List<(float Lat, float Lon)>(steps + 1);
+
+        for (int i = 0; i <= steps; i++)
+        {
+            float along = lengthDeg * i / steps;
+            var mid = Offset(lat, lon, bearingDeg, along);
+            // Bredden avtar linjärt, men aldrig till noll – en spets på under en
+            // tiondels grad ger bara sammanfallande punkter.
+            float half = Math.Max(0.1f, widthDeg * 0.5f * (1f - 0.8f * i / steps));
+            left.Add(Offset(mid.Lat, mid.Lon, bearingDeg - 90f, half));
+            right.Add(Offset(mid.Lat, mid.Lon, bearingDeg + 90f, half));
+        }
+
+        right.Reverse();
+        raw.Add((fill, [.. left, .. right]));
+    }
+
+    /// <summary>
+    /// Punkten som ligger <paramref name="distanceDeg"/> grader bort längs en
+    /// storcirkel i riktningen <paramref name="bearingDeg"/>, räknad från norr
+    /// och medurs. Vanlig sfärisk trigonometri.
+    /// </summary>
+    static (float Lat, float Lon) Offset(float lat, float lon, float bearingDeg, float distanceDeg)
+    {
+        double f1 = lat * Math.PI / 180.0, l1 = lon * Math.PI / 180.0;
+        double b = bearingDeg * Math.PI / 180.0, d = distanceDeg * Math.PI / 180.0;
+        double f2 = Math.Asin(Math.Sin(f1) * Math.Cos(d) + Math.Cos(f1) * Math.Sin(d) * Math.Cos(b));
+        double l2 = l1 + Math.Atan2(Math.Sin(b) * Math.Sin(d) * Math.Cos(f1),
+                                    Math.Cos(d) - Math.Sin(f1) * Math.Sin(f2));
+        return ((float)(f2 * 180.0 / Math.PI), (float)(l2 * 180.0 / Math.PI));
+    }
+
+    static readonly Color MoonHighland = Color.FromArgb("#A8A49E");
+    static readonly Color MoonMare = Color.FromArgb("#6F6F72");
+    static readonly Color MoonMareDark = Color.FromArgb("#67676A");
+    static readonly Color MoonRay = Color.FromArgb("#B7B3AD");
+
+    /// <summary>
+    /// Månen: ljusa högländer och mörka hav. Haven är inte vatten utan
+    /// lavaslätter, utgjutna för tre och en halv miljard år sedan i de största
+    /// nedslagsbassängerna, och de ligger nästan uteslutande på den sida som
+    /// vetter mot jorden – varför vet ingen säkert.
+    ///
+    /// Att baksidan saknar hav faller ut av sig själv här: alla hav nedan ligger
+    /// på longituder mellan 90° väst och 90° öst, alltså på framsidan, eftersom
+    /// det är där de finns. Nollmeridianen pekar mot jorden.
+    ///
+    /// Tycho är bara 85 km bred men har det tydligaste strålsystemet på månen,
+    /// synligt med blotta ögat vid fullmåne. Kratern är ung – hundra miljoner år,
+    /// vilket på månen är nyss – så strålarna har inte hunnit mörkna.
+    /// </summary>
+    public static readonly SurfaceMap Moon = BuildMoon();
+
+    static SurfaceMap BuildMoon()
+    {
+        var raw = new List<(Color Fill, (float Lat, float Lon)[] Pts)>();
+
+        void Mare(Color fill, float lat, float lon, float radiusDeg)
+        {
+            float widen = 1f / MathF.Max(0.3f, MathF.Cos(lat * MathF.PI / 180f));
+            Oval(raw, fill, lat, lon, radiusDeg, radiusDeg * widen);
+        }
+
+        // Haven, med sina uppmätta lägen och storlekar. Oceanus Procellarum är
+        // det överlägset största: 2 500 km tvärs över.
+        Mare(MoonMareDark, 18.4f, 302.6f, 42.4f);   // Oceanus Procellarum
+        Mare(MoonMare, 32.8f, 344.4f, 18.9f);       // Mare Imbrium
+        Mare(MoonMare, 28.0f, 17.5f, 11.7f);        // Mare Serenitatis
+        Mare(MoonMare, 8.5f, 31.4f, 14.4f);         // Mare Tranquillitatis – Apollo 11
+        Mare(MoonMare, 17.0f, 59.1f, 9.2f);         // Mare Crisium
+        Mare(MoonMare, -7.8f, 51.3f, 15.0f);        // Mare Fecunditatis
+        Mare(MoonMare, -15.2f, 35.5f, 5.5f);        // Mare Nectaris
+        Mare(MoonMare, -21.3f, 343.4f, 11.8f);      // Mare Nubium
+        Mare(MoonMare, -24.4f, 321.4f, 6.4f);       // Mare Humorum
+        Mare(MoonMare, 13.3f, 3.6f, 4.0f);          // Mare Vaporum
+        Oval(raw, MoonMare, 56.0f, 1.4f, 4.5f, 46f); // Mare Frigoris, långsträckt
+
+        // Tychos strålsystem. Strålarna är smala – några tiotal kilometer breda
+        // men tusentals långa – och sitter oregelbundet. Jämna mellanrum och
+        // grova spikar ger en tecknad stjärna i stället för en krater, så både
+        // riktningar och längder varierar.
+        float[] tychoBearing = [8, 41, 67, 96, 129, 158, 187, 214, 243, 271, 302, 334];
+        float[] tychoLength = [52, 34, 47, 28, 55, 38, 44, 31, 50, 36, 45, 40];
+        for (int i = 0; i < tychoBearing.Length; i++)
+            Streak(raw, MoonRay, -43.3f, 348.8f, tychoBearing[i], tychoLength[i], 2.4f);
+        Oval(raw, MoonRay, -43.3f, 348.8f, 2.2f, 3.0f);
+
+        // Copernicus, den andra kratern med tydliga strålar, kortare och svagare.
+        float[] copBearing = [17, 63, 104, 148, 196, 241, 288, 331];
+        for (int i = 0; i < copBearing.Length; i++)
+            Streak(raw, MoonRay, 9.6f, 339.9f, copBearing[i], 14f + (i % 3) * 5f, 1.8f);
+        Oval(raw, MoonRay, 9.6f, 339.9f, 1.6f, 1.7f);
+
+        return new SurfaceMap(MoonHighland, [.. raw]);
+    }
+
+    static readonly Color PlutoBase = Color.FromArgb("#AF9174");
+    static readonly Color PlutoIce = Color.FromArgb("#EAE3D6");
+    static readonly Color PlutoDark = Color.FromArgb("#71503E");
+
+    /// <summary>
+    /// Pluto som New Horizons såg den i juli 2015 – de första bilderna någonsin
+    /// av dess yta, efter nio och ett halvt års färd.
+    ///
+    /// Tombaugh Regio är hjärtat: ett ljust fält av frusen kväve, uppkallat
+    /// efter Clyde Tombaugh som upptäckte Pluto 1930. Dess västra lob, Sputnik
+    /// Planitia, är en slätt utan en enda krater, vilket betyder att ytan förnyas
+    /// – kvävet flyter långsamt som en glaciär. Bredvid ligger Cthulhu Macula,
+    /// ett mörkt band av tholiner, organiska ämnen som solljuset bakat fram ur
+    /// metan.
+    /// </summary>
+    public static readonly SurfaceMap Pluto = BuildPluto();
+
+    static SurfaceMap BuildPluto()
+    {
+        var raw = new List<(Color Fill, (float Lat, float Lon)[] Pts)>();
+
+        // Cthulhu Macula, det mörka bandet längs ekvatorn väster om hjärtat.
+        Oval(raw, PlutoDark, -5f, 90f, 20f, 62f);
+        // Den ljusa nordpolskalotten av metanis.
+        Cap(raw, PlutoIce, 68f);
+
+        // Hjärtat: två lober och en spets nedåt.
+        Oval(raw, PlutoIce, 20f, 175f, 22f, 27f);   // Sputnik Planitia
+        Oval(raw, PlutoIce, 18f, 212f, 16f, 21f);
+        raw.Add((PlutoIce, [(6f, 150f), (10f, 225f), (-8f, 214f), (-26f, 186f), (-8f, 160f)]));
+
+        return new SurfaceMap(PlutoBase, [.. raw], smooth: true);
+    }
+
     static readonly Color MercuryBase = Color.FromArgb("#8C8A87");
     static readonly Color MercuryPlains = Color.FromArgb("#807E7B");
     static readonly Color MercuryLight = Color.FromArgb("#9A9895");

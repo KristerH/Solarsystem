@@ -923,16 +923,63 @@ Kontrollerat utanför appen:
 
 ### 11.6 – Månen och Pluto
 
-- [ ] Månen: grå med de mörka haven (Mare Imbrium, Mare Tranquillitatis där
+- [x] Månen: grå med de mörka haven (Mare Imbrium, Mare Tranquillitatis där
       Apollo 11 landade) och ljusa kraterstrålar kring Tycho.
-- [ ] **Bunden rotation**: månen roterar exakt ett varv per omloppsbana och
+- [x] **Bunden rotation**: månen roterar exakt ett varv per omloppsbana och
       vänder därför alltid samma sida mot jorden. Det är en av de bästa
       poängerna i hela appen att kunna visa.
-- [ ] Pluto: Tombaugh Regio, det ljusa hjärtformade området som New Horizons
+- [x] Pluto: Tombaugh Regio, det ljusa hjärtformade området som New Horizons
       fotograferade 2015. Rotation 6,4 dygn, bunden till Charon.
+
+Elva hav på månen med sina uppmätta lägen och storlekar, Tychos och Copernicus
+strålsystem, och Pluto med Tombaugh Regio, Cthulhu Macula och sin ljusa
+nordpolskalott. Den bundna rotationen kom redan med axeldatan i 11.1.
+
+Till detta en ny hjälpare, `Streak`, som lägger ut ett smalt streck längs en
+**storcirkel** i en given kompassriktning. Det spelar roll: en stråle som går
+rakt norrut från Tycho på 43° syd och 1 400 km bort hamnar på helt olika ställen
+beroende på om man räknar i gradnätet eller på klotet. Samma hjälpare kommer att
+behövas för Europas sprickor i 11.7.
+
+**Rättad data: Charons fasläge.** Modellen visade Charon över longitud 171° på
+Pluto, alltså nästan rakt bort från nollmeridianen – trots att paret är
+tidvattenlåst och IAU definierar Plutos nollmeridian som den som pekar mot
+Charon. Felet låg inte i axeln utan i Charons medellongitud, som stod på 0,0 som
+platshållare sedan mångdatan skrevs (kommentaren där sade redan att faslägena var
+approximativa). Den är nu satt så att Charon hamnar över nollmeridianen. Följden
+är att Sputnik Planitia, kring 175° öst, vänder sig **bort** från Charon – och så
+ser det verkligen ut. Det är förmodligen ingen slump: slätten är tung nog att ha
+vridit hela Pluto på plats.
 
 **Verifiera:** Zooma in på jorden och följ månen ett helt varv – samma sida
 ska vara vänd mot jorden hela tiden.
+
+Kontrollerat utanför appen:
+
+- **Apollo 11-platsen försvinner aldrig runt kanten.** Mare Tranquillitatis på
+  8,5° nord och 31,4° öst står som mest 37,9° från jordriktningen, mätt varje
+  dygn i 110 år. Under 90° betyder synlig, och 38° betyder god marginal.
+- **Punkten mitt emot jorden håller sig mellan −6,5° och +6,1° longitud** över
+  samma 110 år, utan drift. Det är den optiska librationen, verkligt ±6,3°, som
+  är skälet till att vi ser 59 procent av månen i stället för halva.
+- **Baksidan saknar hav, och det faller ut av datan**: elva hav på kartan, noll
+  på baksidan. De ligger där för att det är där de finns.
+- **Charon står över longitud −1,3° till +1,3° på Pluto** under 110 år. Den lilla
+  vandringen är inte libration utan drift: Plutos rotation enligt IAU och Charons
+  omloppstid i vår data skiljer 0,60 sekunder per varv, vilket ger 2,3° per sekel.
+  Osynligt, men värt att veta att det är där.
+- **Storlekarna stämmer**: Oceanus Procellarum 2 571 km mot kända ungefär 2 500,
+  Mare Imbrium 1 146 mot 1 150, Sputnik Planitia 895 mot ungefär 1 000.
+
+Två saker fick göras om efter att kartorna setts ritade. **Tychos strålar** var
+åtta feta spikar med jämna mellanrum, 210 km breda, vilket gav en tecknad stjärna
+i stället för en krater; nu tolv smala med oregelbundna riktningar och längder.
+**Plutos grundton** var för ljus för att hjärtat skulle avteckna sig.
+
+En tredje sak var mitt eget fel och rörde inte appen: kontrollsidan siktade
+kameran med en fast höjdvinkel och räknade bara ut kompassriktningen, vilket inte
+fungerar för en kropp vars axel lutar 113°. Hjärtat hamnade på baksidan och såg
+ut att saknas. Sidan siktar nu rakt på den punkt som ska stå mitt i bild.
 
 ---
 
@@ -1075,6 +1122,8 @@ Etapp 11:
 - [x] Jupiters polarkalotter fyller åt rätt håll, trots att de ligger mycket
       längre från polen än jordens isar.
 - [x] Jupiters dämpade palett, sedd i bild och gjord om två gånger (se 11.3).
+- [ ] Månen och Pluto i appen. Månen ritas som glob först när den blir stor nog
+      i bild, och den tröskeln är inte prövad för en måne – bara för planeter.
 - [ ] Merkurius kratrar i appen. I den externa kontrollen ser de ut som
       kratrar, men de ligger tätt och kan bli prickiga vid stark inzoomning.
 - [ ] Saturnus, Uranus och Neptunus i appen. De är sedda i den externa
