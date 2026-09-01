@@ -332,16 +332,12 @@ public sealed class SolarSystemDrawable : IDrawable
                     // så att ringen ser ut att gå bakom och framför klotet.
                     BuildRingPaths(ring, pos, worldR, depth, out var farRing, out var nearRing);
                     FillRing(canvas, ring, farRing);
-                    DrawPlanet(canvas, body, sx, sy, r, sunX, sunY);
+                    DrawBody(canvas, body, pos, sx, sy, r, sunX, sunY);
                     FillRing(canvas, ring, nearRing);
-                }
-                else if (ReferenceEquals(body, Earth) && r >= 14f)
-                {
-                    DrawEarthGlobe(canvas, pos, sx, sy, r, sunX, sunY);
                 }
                 else
                 {
-                    DrawPlanet(canvas, body, sx, sy, r, sunX, sunY);
+                    DrawBody(canvas, body, pos, sx, sy, r, sunX, sunY);
                 }
                 // Månar ritas utan namnetikett – de känns igen på sin plats vid planeten.
                 if (!isMoon)
@@ -349,9 +345,6 @@ public sealed class SolarSystemDrawable : IDrawable
             }
         }
     }
-
-    static readonly CelestialBody Earth =
-        SolarSystemData.Planets.First(p => p.Name == "Jorden");
 
     /// <summary>Innersta månen får som mest hamna så här långt ut (planetradier).</summary>
     const float MoonInnerMaxRadii = 3f;
@@ -512,27 +505,42 @@ public sealed class SolarSystemDrawable : IDrawable
 
     // ------------------------------------------------------------ jordgloben
 
-    static readonly Color OceanColor = Color.FromArgb("#2C5D9E");
-    const double ObliquityRad = 23.4392911 * Math.PI / 180.0;
+    /// <summary>
+    /// Ytan ritas först när klotet nått så här många pixlar i radie. Under det
+    /// blir världsdelarna ändå bara ett par suddiga fläckar, och en skiva med
+    /// ljus och skugga ser bättre ut.
+    /// </summary>
+    const float GlobeMinRadius = 14f;
 
     readonly List<Vector3> _globeDirs = new(256);
     readonly List<Vector3> _globeClipped = new(256);
 
     /// <summary>
-    /// Jorden som glob med världsdelar, polarisar och verklig rotation, synlig
-    /// när man zoomat in (samma zoomnivå som gör månen synlig). Varje ytpunkts
-    /// riktning beräknas ur stjärntiden (GMST): därmed lutar jordaxeln 23,4°
-    /// mot Polstjärnan och rätt kontinent är vänd mot solen vid rätt klockslag,
-    /// med ett varv per stjärndygn (23 h 56 min).
+    /// Ritar en kropp: som glob med yta om den har en ytkarta och är stor nog i
+    /// bild, annars som en skiva med ljus och skugga.
     /// </summary>
-    void DrawEarthGlobe(ICanvas canvas, Vector3 center,
+    void DrawBody(ICanvas canvas, CelestialBody body, Vector3 center,
         float sx, float sy, float r, float sunX, float sunY)
     {
-        canvas.FillColor = OceanColor;
+        if (r >= GlobeMinRadius && body.Surface is SurfaceMap surface && body.Axis is BodyAxis axis)
+            DrawGlobe(canvas, surface, axis, center, sx, sy, r, sunX, sunY);
+        else
+            DrawPlanet(canvas, body, sx, sy, r, sunX, sunY);
+    }
+
+    /// <summary>
+    /// En kropp som glob med sin yta och sin verkliga rotation, synlig när man
+    /// zoomat in. Varje ytpunkts riktning byggs ur kroppens rotationsaxel: därmed
+    /// lutar jordaxeln 23,4° mot Polstjärnan och rätt kontinent är vänd mot solen
+    /// vid rätt klockslag, med ett varv per stjärndygn (23 h 56 min).
+    /// </summary>
+    void DrawGlobe(ICanvas canvas, SurfaceMap surface, BodyAxis axis, Vector3 center,
+        float sx, float sy, float r, float sunX, float sunY)
+    {
+        canvas.FillColor = surface.BaseColor;
         canvas.FillCircle(sx, sy, r);
 
-        double gmst = (280.46061837 + 360.98564736629 * DaysSinceJ2000) * Math.PI / 180.0;
-        double cosE = Math.Cos(ObliquityRad), sinE = Math.Sin(ObliquityRad);
+        double spin = axis.SpinRadians(DaysSinceJ2000);
 
         // Ytpunkterna ritas med ortografisk projektion inom den ritade cirkeln:
         // skärmläget ges av riktningens komposanter längs kamerans höger- och
@@ -542,22 +550,12 @@ public sealed class SolarSystemDrawable : IDrawable
         var toCam = Vector3.Normalize(Camera.Position - center);
         const float cosLimb = 0.02f;
 
-        foreach (var region in EarthMap.Regions)
+        foreach (var region in surface.Regions)
         {
             _globeDirs.Clear();
             for (int i = 0; i < region.LonRad.Length; i++)
-            {
-                // RA = GMST + longitud, deklination = latitud -> ekvatorial
-                // riktning, sedan samma rotation till världskoordinater som
-                // för stjärnorna.
-                double ra = gmst + region.LonRad[i];
-                double xq = region.CosLat[i] * Math.Cos(ra);
-                double yq = region.CosLat[i] * Math.Sin(ra);
-                double zq = region.SinLat[i];
-                double ye = yq * cosE + zq * sinE;
-                double ze = -yq * sinE + zq * cosE;
-                _globeDirs.Add(new Vector3((float)xq, (float)ze, (float)-ye));
-            }
+                _globeDirs.Add(axis.Direction(
+                    region.SinLat[i], region.CosLat[i], region.LonRad[i], spin));
 
             ClipToVisibleCap(_globeDirs, _globeClipped, toCam, cosLimb);
             if (_globeClipped.Count < 3)
@@ -650,18 +648,11 @@ public sealed class SolarSystemDrawable : IDrawable
         if (Camera.ScreenRadius(outer, planetDepth) < ring.MinScreenRadius)
             return;
 
-        // Ringplanets normal ur lutning och nod, samma formel som för en banpol,
-        // omräknad till världskoordinater (Y = norr om ekliptikan).
-        double incl = ring.InclinationDeg * Math.PI / 180.0;
-        double node = ring.AscNodeDeg * Math.PI / 180.0;
-        float si = (float)Math.Sin(incl), ci = (float)Math.Cos(incl);
-        float sO = (float)Math.Sin(node), cO = (float)Math.Cos(node);
-
-        var normal = new Vector3(si * sO, ci, si * cO);
-        // Nodlinjen ligger per definition i ringplanet och är vinkelrät mot
-        // normalen, så den duger som första basvektor.
-        var u = new Vector3(cO, 0f, -sO);
-        var v = Vector3.Cross(normal, u);
+        // Ringarna ligger i planetens ekvatorsplan, så basvektorerna kommer
+        // färdiga ur dess rotationsaxel: nodlinjen som den ena och punkten ett
+        // kvarts varv öster om den som den andra.
+        var u = ring.Axis.NodeAxis;
+        var v = ring.Axis.EastAxis;
 
         const int segments = 72;
         for (int i = 0; i < segments; i++)

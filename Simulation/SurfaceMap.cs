@@ -1,22 +1,37 @@
 namespace Solarsystem.Simulation;
 
 /// <summary>
-/// Förenklade konturer av jordens landmassor som (latitud, longitud)-polygoner.
-/// De ritas som fyllda ytor direkt på klotet – ingen texturbild behövs.
-/// Konturerna är grova (skolplansch-nivå) men världsdelarna känns igen.
+/// En kropps yta som (latitud, longitud)-polygoner. De ritas som fyllda ytor
+/// direkt på klotet – ingen texturbild behövs.
+///
+/// Konturerna är grova (skolplansch-nivå) men dragen känns igen. Longituden
+/// räknas åt det håll kroppen vrider sig, alltså österut för allt som roterar
+/// rättvänt.
 /// </summary>
-public static class EarthMap
+public sealed class SurfaceMap
 {
-    public sealed record Landmass(Color Fill, float[] SinLat, float[] CosLat, float[] LonRad);
+    public sealed record Region(Color Fill, float[] SinLat, float[] CosLat, float[] LonRad);
 
+    /// <summary>Grundfärgen under polygonerna – jordens hav, Mars öken.</summary>
+    public Color BaseColor { get; }
+
+    public Region[] Regions { get; }
+
+    SurfaceMap(Color baseColor, (Color Fill, (float Lat, float Lon)[] Pts)[] raw)
+    {
+        BaseColor = baseColor;
+        Regions = [.. raw.Select(r => Densify(r.Fill, r.Pts))];
+    }
+
+    static readonly Color Ocean = Color.FromArgb("#2C5D9E");
     static readonly Color Land = Color.FromArgb("#6FA35C");
     static readonly Color Ice = Color.FromArgb("#E9EFF4");
 
-    public static readonly Landmass[] Regions;
-
-    static EarthMap()
-    {
-        (Color Fill, (float Lat, float Lon)[] Pts)[] raw =
+    /// <summary>
+    /// Jordens landmassor. Nollmeridianen ligger där den ska: Greenwich på
+    /// longitud noll, Afrika strax öster om den.
+    /// </summary>
+    public static readonly SurfaceMap Earth = new(Ocean,
         [
             // Afrika
             (Land, [(37,10),(33,22),(30,32),(12,43),(11,51),(2,46),(-5,39),(-15,40),(-26,33),
@@ -59,18 +74,15 @@ public static class EarthMap
             // Antarktis kring sydpolen
             (Ice, [(-70,0),(-68,30),(-66,60),(-66,90),(-66,120),(-68,150),(-71,180),
                    (-74,210),(-75,240),(-72,270),(-64,297),(-70,330)]),
-        ];
-
-        Regions = [.. raw.Select(r => Densify(r.Fill, r.Pts))];
-    }
+        ]);
 
     /// <summary>
     /// Delar upp långa kanter i steg om högst 5 grader så att kustlinjerna
     /// följer klotets buktning och klipps snyggt mot dess rand. Sinus/cosinus
     /// för latituden förberäknas – vid ritning varierar bara longituden
-    /// (jordrotationen).
+    /// (kroppens rotation).
     /// </summary>
-    static Landmass Densify(Color fill, (float Lat, float Lon)[] pts)
+    static Region Densify(Color fill, (float Lat, float Lon)[] pts)
     {
         var lat = new List<float>(pts.Length * 4);
         var lon = new List<float>(pts.Length * 4);
@@ -90,7 +102,7 @@ public static class EarthMap
             }
         }
         const float d2r = MathF.PI / 180f;
-        return new Landmass(fill,
+        return new Region(fill,
             [.. lat.Select(v => MathF.Sin(v * d2r))],
             [.. lat.Select(v => MathF.Cos(v * d2r))],
             [.. lon.Select(v => v * d2r)]);

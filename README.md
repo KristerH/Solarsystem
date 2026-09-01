@@ -278,6 +278,13 @@ asteroid-/Kuiperbälten, tänkt att byggas och verifieras en etapp i taget.
 
 - `Simulation/SolarSystemData.cs` – planetdata (banelement J2000) och
   Kepler-beräkning av positioner.
+- `Simulation/BodyAxis.cs` – en kropps rotationsaxel och rotationstid. Axeln
+  beskrivs som ett banplan (lutning och nod), vilket är med flit: ekvatorsplanet
+  är samma plan som de regelbundna månarna och ringarna ligger i, så en måne kan
+  läsa sin planets axel rakt av. Nordpolen räknas efter högerhandsregeln, så
+  retrograd rotation syns som en lutning över 90°.
+- `Simulation/SurfaceMap.cs` – ytor som (latitud, longitud)-polygoner, ritade
+  direkt på klotet utan texturbilder. Jordens världsdelar är den första kartan.
 - `Simulation/SmallBodyBelt.cs` – asteroid- och Kuiperbältets slumpade banor,
   med förberäknad rotation så att en position kostar en Kepler-lösning.
 - `Simulation/Mission.cs` – planerar och räknar överföringsbanor: till Mars med
@@ -308,5 +315,6 @@ asteroid-/Kuiperbälten, tänkt att byggas och verifieras en etapp i taget.
   projicerar 3D-punkter till skärmen.
 - `Rendering/SolarSystemDrawable.cs` – ritar stjärnor, banor, solen,
   planeter (djupsorterade och skuggade mot solen), Saturnus ringar och
-  etiketter via MAUI:s `GraphicsView`.
+  etiketter via MAUI:s `GraphicsView`. En kropp med ytkarta ritas som glob med
+  verklig axellutning och rotation när den blivit stor nog i bild.
 - `MainPage.xaml(.cs)` – UI, simuleringsklocka och mus-/tangentbordsstyrning.

@@ -56,17 +56,18 @@ public sealed class Orbiter
     ///
     /// Banplanet anges i förhållande till planetens ekvator, inte till
     /// ekliptikan: en polär bana är 90 grader mot ekvatorn oavsett hur planeten
-    /// själv lutar. Lutningen läggs därför till planetens egen, med samma
-    /// uppstigande nod – att vrida ekvatorsplanet ett kvarts varv kring nodlinjen
-    /// ger just ett plan genom båda polerna.
+    /// själv lutar. Lutningen läggs därför till planetens egen, som hämtas ur
+    /// dess rotationsaxel, med samma uppstigande nod – att vrida ekvatorsplanet
+    /// ett kvarts varv kring nodlinjen ger just ett plan genom båda polerna.
     /// </summary>
     public static Orbiter? Build(string name, Color color, CelestialBody center,
-        double periapsisRadii, double apoapsisRadii,
-        double inclinationToEquatorDeg, double equatorInclinationDeg, double equatorNodeDeg,
+        double periapsisRadii, double apoapsisRadii, double inclinationToEquatorDeg,
         double argPeriapsisDeg, DateTime arrival, DateTime? end = null, string ending = "")
     {
         if (center.Mu <= 0 || periapsisRadii <= 0 || apoapsisRadii < periapsisRadii)
             return null;
+        if (center.Axis is not BodyAxis equator)
+            return null;   // utan känd ekvator går banplanet inte att lägga ut
 
         double rp = periapsisRadii * center.RadiusKm / SolarSystemData.AuKm;
         double ra = apoapsisRadii * center.RadiusKm / SolarSystemData.AuKm;
@@ -76,7 +77,7 @@ public sealed class Orbiter
         double arrivalDay = (arrival - SolarSystemData.EpochJ2000).TotalDays;
 
         var path = Conic.FromElements(semiMajorAu, eccentricity,
-            equatorInclinationDeg + inclinationToEquatorDeg, equatorNodeDeg,
+            equator.InclinationDeg + inclinationToEquatorDeg, equator.NodeDeg,
             argPeriapsisDeg, arrivalDay, center.Mu);
 
         return new Orbiter(name, color, center, path, arrivalDay,

@@ -603,15 +603,15 @@ sida mot oss.
 
 ### 11.1 – Infrastruktur: generell globrendering
 
-- [ ] Bryt ut `DrawEarthGlobe` till något alla kroppar kan använda, och
+- [x] Bryt ut `DrawEarthGlobe` till något alla kroppar kan använda, och
       `EarthMap` till en ytkarta per kropp. Det rör sig om 73 respektive 98
       rader, så själva utbrytningen är överkomlig. Det som kostar är att jorden
       i dag är specialfall rakt igenom: axellutningen är en konstant i ritkoden
       (`ObliquityRad`) och rotationen räknas ur stjärntid. Båda måste in i den
       generella mekanismen utan att jorden ändrar utseende.
-- [ ] Lägg rotationsdata på `CelestialBody`: rotationsperiod (negativ för
+- [x] Lägg rotationsdata på `CelestialBody`: rotationsperiod (negativ för
       retrograd) och nollmeridianens läge vid epoken.
-- [ ] **Axeldata för de kroppar som saknar den.** Planen utgick från att
+- [x] **Axeldata för de kroppar som saknar den.** Planen utgick från att
       polriktningarna redan fanns sedan månetapperna, och det stämmer för Mars,
       Jupiter, Saturnus, Uranus och Neptunus – samt Pluto, vars plan ligger i
       Charons banelement. Men Merkurius, Venus och månen har varken månar eller
@@ -620,20 +620,75 @@ sida mot oss.
       - Merkurius lutar 0,03°, alltså praktiskt taget upprätt.
       - Venus lutar 177,4°, nästan upp och ner. Det är hela förklaringen till
         att den snurrar baklänges, så den siffran är etappens viktigaste.
-      - Månen lutar 6,7° mot ekliptikan, 1,5° mot sin egen bana.
+      - Månen lutar 1,5° mot ekliptikan, 6,7° mot sin egen bana. (Planen hade
+        de två talen omkastade; rättat när axeln räknades fram.)
       Observera att lutningen ensam inte bestämmer axeln – nodens läge behövs
       också, precis som för de ekvatorsplan som redan finns.
-- [ ] Passa på att flytta de befintliga ekvatorskonstanterna från
+- [x] Passa på att flytta de befintliga ekvatorskonstanterna från
       `SolarSystemData` till kropparna själva. I dag ligger de som lösa `const`
       som månar, ringar och de kretsande sonderna hämtar var för sig – Cassini
       och Juno sträcker sig ända in i `SolarSystemData.SaturnEquator...` för att
       få tag i dem.
-- [ ] Samma tröskel som i dag: ytan ritas först när klotet är stort nog.
+- [x] Samma tröskel som i dag: ytan ritas först när klotet är stort nog.
+
+Så här blev det: `BodyAxis` beskriver en kropps axel med samma fyra tal för alla
+– ekvatorns lutning mot ekliptikan, nodens longitud, rotationstiden och
+nollmeridianens läge vid epoken – och räknar fram de tre basvektorer som både
+ytritningen och ringarna behöver. `SurfaceMap` (före detta `EarthMap`) är en
+ytkarta bland flera, med jorden som första instans. `DrawGlobe` tar kartan och
+axeln i stället för att veta något om jorden, och `DrawBody` väljer mellan glob
+och skiva, numera även för ringplaneterna – de var tidigare utestängda från
+globgrenen och kunde alltså aldrig ha fått en yta.
+
+**En konvention ändrades mot planen.** Här stod att rotationstiden skulle vara
+negativ för retrograda kroppar. Det gick inte ihop med resten: en negativ tid
+förutsätter att polen alltid pekar norrut om ekliptikan, men månarnas banplan är
+redan skrivna kring rotationsaxeln (Uranus månar lutar 97,7° just därför). Två
+konventioner i samma data hade krävt en omvändning varje gång en måne läser sin
+planets axel. Nu pekar polen alltid åt det håll högerhandsregeln ger, tiden är
+alltid positiv, och retrograd rotation syns som lutning över 90°: Venus 178,8°,
+Uranus 97,7°, Pluto 112,8°. Miranda kan läsa `UranusAxis` rakt av.
+
+**Rättat i efterhand: alla ekvatorsnoder låg 180° fel.** Talen kom in under
+månetapperna, räknade som polens longitud *minus* 90° där det ska vara *plus*.
+Följden blev att varje planets ekvatorsplan lutade åt rakt motsatt håll: rätt
+lutning, rätt tidpunkter för dagjämningar och ringpassager, men fel halvklot
+vänt mot solen. Måne för måne, ring för ring, och även Charon och Triton.
+Felet var osynligt så länge ingenting ritades på ytorna – det är först nu, när
+axeln avgör vad man ser, som det hade märkts. Alla noder har flyttats 180°
+(Mars lutning rättades samtidigt från 26,74° till 25,40°).
 
 **Verifiera:** Jorden ska se ut och rotera exakt som före ombyggnaden. Det är
 etappens viktigaste kontroll, eftersom allt annat bygger vidare på den koden.
 Månarnas och ringarnas plan ska också ligga kvar oförändrade när konstanterna
 flyttas – Uranus månar på högkant och Tritons retrograda bana är känsliga prov.
+
+Kontrollerat utanför appen, mot den gamla koden och mot verkligheten:
+
+- **Jorden är oförändrad in på biten.** Nya axelkoden mot den gamla
+  stjärntidskoden, 10 punkter på jordytan × 9 datum mellan 1950 och 2054:
+  största avvikelse exakt 0. Inte "under en pixel" utan samma flyttal.
+- **Axlarna stämmer mot IAU:s polriktningar** för alla nio planeterna, avvikelse
+  0,000° – en oberoende väg fram till samma tal.
+- **Månarna ligger i sin planets ekvatorsplan**: Phobos, Deimos, de fyra
+  galileiska, Enceladus, Rhea, Titan, Uranus tre och Charon alla 0,00°.
+  Triton hamnar på 156,91° mot Neptunus ekvator, mot uppmätta 156,9 – och det
+  talet faller bara ut om både Neptunus nod och Tritons rättas.
+- **Årstiderna hamnar rätt**, vilket är provet som skiljer rätt nod från fel:
+  Uranus står 7,9° från solen i januari 1986 (Voyager 2 kom fram mitt i
+  sydsommaren) och 90,0° i december 2007 (dagjämningen, på månaden). Saturnus
+  63,3° i maj 2017 (nordsommarsolstånd under Cassinis sista varv, och 63,3 är
+  just 90 − 26,7) och 90,0° i maj 2025, då solen verkligen passerade ringplanet.
+  Jorden 66,6° vid midsommar 2026. Med de gamla noderna: Uranus 172,2° och
+  Saturnus 119,2°, alltså fel halvklot i sol båda gångerna.
+- **Månens bundna rotation** ger sub-jord-longitud −6,5° till +6,1° över 110 år,
+  mot den verkliga optiska librationen på ±6,3°. Ingen drift.
+- **Cassini och Juno är oförändrade** i förhållande till sin planet: 16,00 dygn
+  och 20,0° mot Saturnus ekvator, 53,42 dygn och 90,0° mot Jupiters, samma
+  excentriciteter som i 10.5. Deras banplan följde med när noderna rättades.
+
+Kvar att se med ögat: att jordgloben ritas som förut i appen. Siffrorna säger
+att den måste, men den står ändå i provlistan under R1.
 
 ### 11.2 – Mars
 
@@ -816,6 +871,12 @@ Sondväljaren (10.6):
 - [ ] "Alla" och "Inga" gör vad de ska, och räknaren i knapptexten följer med.
 - [ ] Släcker man den sond kameran följer faller vyn tillbaka till solen och
       zoomar ut, i stället för att bli stående ute i tomma rymden.
+
+Etapp 11:
+
+- [x] Jordgloben ser ut och snurrar precis som före ombyggnaden i 11.1.
+- [ ] Saturnus och Uranus lutar åt rätt håll efter nodrättningen – enklast att se
+      på ringarna vid ett par årtal långt isär.
 
 Kontrollpanelen:
 
