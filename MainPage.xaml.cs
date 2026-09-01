@@ -21,7 +21,10 @@ public partial class MainPage : ContentPage
     DateTime _startDate = DateTime.Now;
 
     double _panLastX, _panLastY;
-    int _focusIndex;                       // 0 = solen, 1.. = planeter
+    int _focusIndex;                       // 0 = solen, sedan kroppar, sist sonder
+
+    /// <summary>Månarna dras in ett steg i fokusväljaren så att de hör ihop med sin planet.</summary>
+    const string MoonEntry = "\u00b7 ";
 
     // Senast ritade tillstånd – när inget ändrats hoppas omritningen över helt.
     float _drawnYaw = float.NaN, _drawnPitch, _drawnDist;
@@ -258,9 +261,20 @@ public partial class MainPage : ContentPage
         SolarSystemData.Planets.First(p => p.Name == "Mars");
     static readonly CelestialBody MoonBody = SolarSystemData.Moon;
 
-    /// <summary>Jordens plats i fokusväljaren, som har solen först.</summary>
-    static readonly int EarthFocusIndex =
-        Array.FindIndex(SolarSystemData.Planets, p => p.Name == "Jorden") + 1;
+    /// <summary>
+    /// Ställer fokusväljaren på en namngiven kropp. Slår upp namnet i stället för
+    /// att räkna platser: listan innehåller numera både månar och sonder, och
+    /// vilka av dem som visas växlar under körningen.
+    /// </summary>
+    void FocusOn(string name)
+    {
+        if (FocusPicker.ItemsSource is System.Collections.IList items)
+        {
+            int index = items.IndexOf(name);
+            if (index >= 0)
+                FocusPicker.SelectedIndex = index;
+        }
+    }
 
     /// <summary>
     /// Skjuter upp en farkost mot Mars från det datum vyn står på, eller avbryter
@@ -367,21 +381,27 @@ public partial class MainPage : ContentPage
         if (FocusedProbe is { } probe)
             return probe.PositionAt(day, SolarSystemDrawable.UnitsPerAu) ?? Vector3.Zero;
 
-        return _focusIndex <= 0
-            ? Vector3.Zero
-            : SolarSystemData.Planets[_focusIndex - 1]
-                .PositionAt(day, SolarSystemDrawable.UnitsPerAu);
+        int body = _focusIndex - 1;
+        if (body < 0 || body >= _focusBodies.Count)
+            return Vector3.Zero;
+
+        // En måne ritas inte där den verkligen är, så kameran måste fråga
+        // ritkoden var den hamnade.
+        return _focusParents[body] is { } planet
+            ? _drawable.MoonPosition(planet, _focusBodies[body], day)
+            : _focusBodies[body].PositionAt(day, SolarSystemDrawable.UnitsPerAu);
     }
 
     /// <summary>
     /// Sonden som är vald i fokusväljaren, eller null. Väljaren räknar solen
-    /// först, sedan planeterna och sist de sonder som visas.
+    /// först, sedan kropparna – planeter med sina månar under sig – och sist de
+    /// sonder som visas.
     /// </summary>
     Probe? FocusedProbe
     {
         get
         {
-            int index = _focusIndex - SolarSystemData.Planets.Length - 1;
+            int index = _focusIndex - _focusBodies.Count - 1;
             return index >= 0 && index < _focusProbes.Count ? _focusProbes[index] : null;
         }
     }
@@ -578,7 +598,7 @@ public partial class MainPage : ContentPage
         }
 
         _drawable.Mission = mission;
-        FocusPicker.SelectedIndex = EarthFocusIndex;    // zoomar in via OnFocusChanged
+        FocusOn("Jorden");                             // zoomar in via OnFocusChanged
         StartMission(launchDay);
     }
 
@@ -610,6 +630,9 @@ public partial class MainPage : ContentPage
     void OnMoonsChanged(object? sender, CheckedChangedEventArgs e)
     {
         _drawable.ShowMoons = e.Value;
+        // Släcks månarna ska de också ut ur fokusväljaren, och följde kameran en
+        // av dem faller fokus tillbaka till solen.
+        RebuildFocusPicker(FocusPicker.SelectedItem as string);
         _settingsChanged = true;
     }
 
@@ -639,6 +662,12 @@ public partial class MainPage : ContentPage
     /// tänds och släcks – index går alltså inte längre att räkna ur ProbeData.
     /// </summary>
     readonly List<Probe> _focusProbes = new();
+
+    /// <summary>Kropparna i fokusväljaren, i samma ordning som namnen efter solen.</summary>
+    readonly List<CelestialBody> _focusBodies = new();
+
+    /// <summary>Planeten en måne hör till, eller null för planeterna själva.</summary>
+    readonly List<CelestialBody?> _focusParents = new();
 
     /// <summary>Sant medan fokusväljaren byggs om, så att bytet inte tolkas som ett val.</summary>
     bool _rebuildingFocus;
@@ -749,8 +778,28 @@ public partial class MainPage : ContentPage
         _focusProbes.Clear();
         _focusProbes.AddRange(ProbeData.All.Where(p => _drawable.VisibleProbes.Contains(p.Name)));
 
+        // Varje planet följs av sina månar, med en punkt framför så att
+        // grupperingen syns i en lista som inte kan dra in rader. Månarna listas
+        // bara när de ritas – man ska inte kunna följa något som inte syns,
+        // samma regel som för sonderna.
+        _focusBodies.Clear();
+        _focusParents.Clear();
         var names = new List<string> { "Solen" };
-        names.AddRange(SolarSystemData.Planets.Select(p => p.Name));
+        foreach (var planet in SolarSystemData.Planets)
+        {
+            _focusBodies.Add(planet);
+            _focusParents.Add(null);
+            names.Add(planet.Name);
+
+            if (!_drawable.ShowMoons)
+                continue;
+            foreach (var moon in planet.Moons)
+            {
+                _focusBodies.Add(moon);
+                _focusParents.Add(planet);
+                names.Add(MoonEntry + moon.Name);
+            }
+        }
         names.AddRange(_focusProbes.Select(p => p.Name));
 
         // Tappas valet – för att sonden släckts, eller för att namnet inte finns
@@ -802,11 +851,13 @@ public partial class MainPage : ContentPage
         {
             ZoomToProbe(probe);
         }
-        else if (_focusIndex > 0)
+        else if (_focusIndex - 1 is int body && body >= 0 && body < _focusBodies.Count)
         {
-            // Zooma så att planeten – och hela dess månsystem – syns.
-            var planet = SolarSystemData.Planets[_focusIndex - 1];
-            _drawable.Camera.Distance = _drawable.SuggestedFocusDistance(planet);
+            // En måne fyller bilden; en planet ramas in så att hela dess
+            // månsystem ryms.
+            _drawable.Camera.Distance = _focusParents[body] is null
+                ? _drawable.SuggestedFocusDistance(_focusBodies[body])
+                : _drawable.SuggestedMoonDistance(_focusBodies[body]);
         }
 
         _settingsChanged = true;

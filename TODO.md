@@ -1046,6 +1046,48 @@ skarp måltavla i stället för de svaga vågkammar man anar, och Callisto var f
 gles för att kallas mättat kraterrik (60 kratrar blev 110). Ganymedes fårknippen
 gick från tio till arton, eftersom ungefär halva månen är sådan terräng.
 
+### 11.8 – Månarna i fokusväljaren
+
+Kom till efter att 11.7 var klar, eftersom kartorna annars inte gick att granska:
+kameran kunde bara centreras på planeter, så en måne hann aldrig bli stor nog för
+en glob innan den lämnade bilden.
+
+- [x] Fokusväljaren listar varje planets månar under planeten, med en punkt
+      framför så att grupperingen syns i en lista som inte kan dra in rader.
+- [x] Månarna listas bara när de ritas. Släcker man kryssrutan "Månar" försvinner
+      de ur väljaren, och följde kameran en av dem faller fokus till solen –
+      samma regel som redan gällde för sonderna.
+- [x] Kameran siktar på det **ritade** läget, inte det verkliga. Månarna dras in
+      mot sin planet för att inte hamna utanför bild, och siktar man på den
+      verkliga positionen pekar kameran långt bredvid. Ritkoden fick därför en
+      `MoonPosition` som fokusväljaren delar med den.
+- [x] En vald måne får samma bildvinkel som en planet, alltså tolv gånger sin
+      egen radie. Utan det hamnar man antingen inuti månen eller så långt bort
+      att den bara blir en prick.
+- [x] `EarthFocusIndex`, som räknade platser i listan, är ersatt av en
+      namnuppslagning. Med månar och sonder som kommer och går i listan går det
+      inte längre att räkna sig fram till en rad.
+
+**Verifiera:** Välj en måne i fokusväljaren och se att kameran hamnar vid den,
+inte bredvid. Släck månarna medan en av dem följs och se att vyn faller tillbaka.
+
+Kontrollerat utanför appen, 38 kontroller utan fel:
+
+- **Listan byggs rätt**: 24 kroppar och 30 rader med allt påslaget, månen direkt
+  under jorden, Io under Jupiter, Charon under Pluto.
+- **Sondernas index håller trots femton nya rader emellan.** Det var den fällan
+  som fanns i 10.6, nu med en större förskjutning: alla fem sonder pekar rätt.
+- **Släcker man månarna** faller fokus från Ganymedes till solen, medan Jupiter
+  och Voyager 1 behålls – valet bevaras på namn, inte på plats.
+- **Alla månar med ytkarta blir 80 pixlars radie** vid det föreslagna avståndet,
+  mot tröskeln 14. Kartorna kommer alltså att synas, med god marginal.
+- **Månen ligger 2,9 planetradier ut och Ganymedes 6,3** vid det avstånd kameran
+  väljer, alltså utanför planeten och inne i bild.
+
+Phobos är undantaget: den är så liten att tolv gånger radien hamnar under
+kamerans minsta avstånd, så den blir en prick på tre pixlar. Det är samma sak som
+restpunkt R4 beskriver, och den har ingen ytkarta att visa ändå.
+
 ---
 
 ## Etapp 12 – Språkstöd (inför publik release)
@@ -1159,12 +1201,11 @@ Etapp 11:
 - [x] Jupiters polarkalotter fyller åt rätt håll, trots att de ligger mycket
       längre från polen än jordens isar.
 - [x] Jupiters dämpade palett, sedd i bild och gjord om två gånger (se 11.3).
-- [ ] **De stora månarna går i praktiken inte att se.** Kartorna finns och är
-      verifierade, men kameran kan bara centreras på planeter, och en måne ritas
-      som glob först vid 14 pixlars radie. Ganymedes är 3,8 procent av Jupiters
-      radie, så Jupiter måste vara 372 pixlar – och då ligger Io 1 100 pixlar från
-      bildmitten, alltså utanför rutan. Fixen är att lägga månarna i
-      fokusväljaren, men det är ett eget steg och inte gjort.
+- [x] **De stora månarna gick i praktiken inte att se.** Kameran kunde bara
+      centreras på planeter, och en måne ritas som glob först vid 14 pixlars
+      radie: Ganymedes är 3,8 procent av Jupiters radie, så Jupiter måste vara
+      372 pixlar – och då ligger Io 1 100 pixlar från bildmitten, utanför rutan.
+      Åtgärdat genom att lägga månarna i fokusväljaren, se noten efter 11.7.
 - [ ] Månen och Pluto i appen. Månen ritas som glob först när den blir stor nog
       i bild, och den tröskeln är inte prövad för en måne – bara för planeter.
 - [ ] Merkurius kratrar i appen. I den externa kontrollen ser de ut som

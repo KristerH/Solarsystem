@@ -393,6 +393,28 @@ public sealed class SolarSystemDrawable : IDrawable
     /// att se planeten, men tillräckligt långt bort för att hela månsystemet
     /// ska rymmas i bild.
     /// </summary>
+    /// <summary>
+    /// Var en måne faktiskt hamnar på skärmen: planetens läge plus månens
+    /// banläge, med samma komprimering som ritningen använder.
+    ///
+    /// Kameran måste sikta på det ritade läget och inte på det verkliga. Månarna
+    /// dras in mot sin planet för att inte hamna utanför bild – vår egen måne
+    /// ligger på 60 jordradier och skulle annars försvinna – och siktar man på
+    /// den verkliga positionen pekar kameran långt bredvid.
+    /// </summary>
+    public Vector3 MoonPosition(CelestialBody planet, CelestialBody moon, double day)
+        => planet.PositionAt(day, UnitsPerAu)
+           + moon.PositionAt(day, UnitsPerAu)
+             * MoonDisplayScale(planet) * (1f - (float)moon.MassFraction);
+
+    /// <summary>
+    /// Kameraavstånd när en måne väljs: samma bildvinkel som en planet får, så
+    /// att klotet fyller lika mycket av rutan. Utan det hamnar man antingen
+    /// inuti månen eller så långt bort att den bara blir en prick.
+    /// </summary>
+    public float SuggestedMoonDistance(CelestialBody moon)
+        => MathF.Max(VisualRadius(moon.RadiusKm, isSun: false) * 12f, OrbitCamera.MinDistance);
+
     public float SuggestedFocusDistance(CelestialBody planet)
     {
         float visR = VisualRadius(planet.RadiusKm, isSun: false);

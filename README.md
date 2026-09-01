@@ -278,7 +278,11 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
 - **Namnetiketter** under varje himlakropp.
 - **Fri kamera**: dra med musen för att rotera, skrollhjul/W/S för att zooma,
   piltangenter för att rotera, R återställer vyn. Med **Fokus**-väljaren kan
-  kameran följa en enskild planet.
+  kameran följa en enskild kropp: solen, en planet, någon av de femton månarna
+  eller en av rymdsonderna. Månarna står under sin planet i listan, och väljer
+  man en av dem zoomar kameran in så att månen fyller bilden – det är så man ser
+  Ios vulkaner eller Europas sprickor. Månarna listas bara när de visas, och
+  släcker man dem medan kameran följer en faller fokus tillbaka till solen.
 - **Riktig stjärnhimmel**: 225 av himlens ljusstarkaste stjärnor med verkliga
   koordinater (epok J2000), verklig skenbar magnitud och verklig färg (räknad
   ur färgindex B-V, så Betelgeuse blir röd och Rigel blåvit). 27 stjärnbilder
