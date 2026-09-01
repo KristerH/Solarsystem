@@ -219,8 +219,10 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
   finns i samma lista. Släcker man den sond kameran följer faller fokus tillbaka
   till solen och vyn zoomar ut till översikten.
 
-  **Skalan**: väljer man en sond zoomar kameran ut till drygt två gånger dess
-  avstånd, så att solen precis ryms i bild. Då krymper hela planetsystemet till
+  **Skalan**: väljer man en sond blir sonden det kameran kretsar kring, och den
+  ställer sig 2,4 gånger sondens avstånd från solen. Då hamnar solen som mest 25
+  grader från bildens mitt och ryms alltså i bild oavsett hur man vrider och
+  lutar kameran – med hela planetsystemet hopkrympt till en prick omkring den. Då krymper hela planetsystemet till
   en prick i mitten, vilket i sig är poängen: Voyager 1 är 167 gånger längre
   bort än jorden och fyra gånger längre än Neptunus.
 - **Kretsande sonder**: Cassini vid Saturnus (2004–2017) och Juno vid Jupiter

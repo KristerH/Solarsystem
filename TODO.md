@@ -1156,40 +1156,51 @@ ser ut. Det som står här är alltså inte känt fel, bara oprövat.
 
 Rymdfärderna (9.4 och 9.5):
 
-- [ ] Månfärdens bana syns när man skjutit upp och zoomat till jorden, och
+- [x] Månfärdens bana syns när man skjutit upp och zoomat till jorden, och
       farkosten möter månen vid ankomsten.
-- [ ] Färdpanelen uppe till vänster dyker upp vid uppskjutningen, försvinner när
+- [x] Färdpanelen uppe till vänster dyker upp vid uppskjutningen, försvinner när
       färden avbryts och byter text vid framkomsten.
-- [ ] Kameran hakar på farkosten vid ankomsten och zoomar in till målet, en gång.
+- [x] Kameran hakar på farkosten vid ankomsten och zoomar in till målet, en gång.
 
 Sonderna (10.2 till 10.4):
 
-- [ ] Sondernas prickar och spår ser rimliga ut, och färgerna går att skilja åt.
-- [ ] Milstolpsringarna hamnar rätt längs spåren.
-- [ ] Årtalen vid ringarna blir läsbara och inte en enda gröt när flera passager
+- [x] Sondernas prickar och spår ser rimliga ut, och färgerna går att skilja åt.
+- [x] Milstolpsringarna hamnar rätt längs spåren.
+- [x] Årtalen vid ringarna blir läsbara och inte en enda gröt när flera passager
       trängs ihop – överhoppningen vid krock är den mekanism som ska hindra det,
       och den är helt oprövad i praktiken.
-- [ ] Den valda sondens milstolpar får fullständig text (planet, månad, farthopp)
+- [x] Den valda sondens milstolpar får fullständig text (planet, månad, farthopp)
       utan att skriva över annat.
-- [ ] Sondpanelen visar rätt när sonden ännu inte skjutits upp, under färden och
+- [x] Sondpanelen visar rätt när sonden ännu inte skjutits upp, under färden och
       efter sista passagen.
-- [ ] Väljer man en sond zoomar vyn ut så att solen verkligen ryms i bild.
+- [x] **Att välja en sond i fokusväljaren.** Bocka först fram en sond i rutan
+      "Rymdsonder" – annars står den inte i fokusväljaren. Välj den sedan där.
+      Kameran ska hoppa ut och lägga sonden mitt i bild, och solen ska synas som
+      en prick i bilden med hela planetsystemet hopkrympt omkring sig. Poängen
+      är avståndet: Voyager 1 ligger 169 AU ut, så kameran ställer sig 406 AU
+      från solen. Vrid kameran runt och luta den – solen ska stanna i bild hela
+      varvet.
 
 De kretsande sonderna (10.5):
 
-- [ ] Cassinis ellips syns när man ställer datumet mellan 2004 och 2017 och
+- [x] Cassinis ellips syns när man ställer datumet mellan 2004 och 2017 och
       väljer Saturnus, och ligger i samma storleksordning som Titans bana.
-- [ ] Junos ellips syns vid Jupiter mellan 2016 och 2025, och det går att zooma
+- [x] Junos ellips syns vid Jupiter mellan 2016 och 2025, och det går att zooma
       ut tillräckligt för att se hela det vida varvet.
-- [ ] Ingen av dem ritas utanför sin uppdragstid.
+- [x] Ingen av dem ritas utanför sin uppdragstid.
 
 Sondväljaren (10.6):
 
-- [ ] Rutan fälls ut och går att klicka i. Den ligger ovanpå vyn och inte i
+- [x] Rutan fälls ut och går att klicka i. Den ligger ovanpå vyn och inte i
       kontrollpanelen, så det här är värt att prova först av allt i listan.
-- [ ] "Alla" och "Inga" gör vad de ska, och räknaren i knapptexten följer med.
-- [ ] Släcker man den sond kameran följer faller vyn tillbaka till solen och
-      zoomar ut, i stället för att bli stående ute i tomma rymden.
+- [x] "Alla" och "Inga" gör vad de ska, och räknaren i knapptexten följer med.
+- [x] **Att släcka den sond man följer.** Följ en sond enligt punkten ovan, och
+      släck den sedan i rutan "Rymdsonder" medan kameran följer den. Fokus ska
+      falla tillbaka till Solen, och kameran ska hoppa **in** till översiktsvyns
+      15 AU. Utan det sista skulle den bli stående 300–400 AU ute och titta mot
+      en prick, eftersom det bara är målpunkten som byts och inte avståndet.
+      (Provlistan sade tidigare att vyn "zoomar ut" här. Det var fel skrivet: det
+      är en inzoomning, från hundratals AU till femton.)
 
 Etapp 11:
 
@@ -1206,11 +1217,11 @@ Etapp 11:
       radie: Ganymedes är 3,8 procent av Jupiters radie, så Jupiter måste vara
       372 pixlar – och då ligger Io 1 100 pixlar från bildmitten, utanför rutan.
       Åtgärdat genom att lägga månarna i fokusväljaren, se noten efter 11.7.
-- [ ] Månen och Pluto i appen. Månen ritas som glob först när den blir stor nog
+- [x] Månen och Pluto i appen. Månen ritas som glob först när den blir stor nog
       i bild, och den tröskeln är inte prövad för en måne – bara för planeter.
-- [ ] Merkurius kratrar i appen. I den externa kontrollen ser de ut som
+- [x] Merkurius kratrar i appen. I den externa kontrollen ser de ut som
       kratrar, men de ligger tätt och kan bli prickiga vid stark inzoomning.
-- [ ] Saturnus, Uranus och Neptunus i appen. De är sedda i den externa
+- [x] Saturnus, Uranus och Neptunus i appen. De är sedda i den externa
       kontrollen men inte med ringarna på plats – särskilt Saturnus ska ses
       tillsammans med sina ringar, och Uranus sydpolskalott ligger nära den kant
       där ringarna korsar.
@@ -1220,12 +1231,12 @@ Etapp 11:
       hörnkapning, två varv, som ett val per karta: Mars rundas, jorden inte.
       Kustlinjer ÄR kantiga, och Jupiters band måste dessutom behålla raka kanter
       för att inte glipa. Se noten i 11.2.
-- [ ] Saturnus och Uranus lutar åt rätt håll efter nodrättningen – enklast att se
+- [x] Saturnus och Uranus lutar åt rätt håll efter nodrättningen – enklast att se
       på ringarna vid ett par årtal långt isär.
 
 Kontrollpanelen:
 
-- [ ] Raden "Rymdfärd:" med de tre knapparna får plats även i ett smalt fönster.
+- [x] Raden "Rymdfärd:" med de tre knapparna får plats även i ett smalt fönster.
       Det var just den raden som svämmade över kanten innan knapparna flyttades
       till en egen rad i 10.4.
 
