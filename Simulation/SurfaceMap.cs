@@ -17,10 +17,15 @@ public sealed class SurfaceMap
 
     public Region[] Regions { get; }
 
-    SurfaceMap(Color baseColor, (Color Fill, (float Lat, float Lon)[] Pts)[] raw)
+    /// <param name="smooth">
+    /// Rundar av ytornas hörn innan de ritas. För kroppar vars drag har diffusa
+    /// gränser – Mars dammfält – i stället för skarpa, som jordens kustlinjer.
+    /// </param>
+    SurfaceMap(Color baseColor, (Color Fill, (float Lat, float Lon)[] Pts)[] raw,
+        bool smooth = false)
     {
         BaseColor = baseColor;
-        Regions = [.. raw.Select(r => Densify(r.Fill, r.Pts))];
+        Regions = [.. raw.Select(r => Densify(r.Fill, smooth ? Smooth(r.Pts) : r.Pts))];
     }
 
     static readonly Color Ocean = Color.FromArgb("#2C5D9E");
@@ -134,7 +139,7 @@ public sealed class SurfaceMap
                    (76,240),(76,270),(76,300),(76,330)]),
             (Ice, [(-74,0),(-74,30),(-74,60),(-74,90),(-74,120),(-74,150),(-74,180),
                    (-74,210),(-74,240),(-74,270),(-74,300),(-74,330)]),
-        ]);
+        ], smooth: true);
 
 
     // Tonerna ligger med flit nära varandra, och bältena tonar bort mot polerna.
@@ -236,6 +241,63 @@ public sealed class SurfaceMap
         Oval(JupiterOval, -41, 275, 2.5f, 4f);
 
         return new SurfaceMap(JupiterZone, [.. raw]);
+    }
+
+
+    /// <summary>
+    /// Rundar av en polygon med Chaikins hörnkapning: varje hörn ersätts av två
+    /// punkter en fjärdedel in på vardera kanten. Två varv räcker för att en
+    /// sexhörning ska läsas som en fläck i stället för som en polygon.
+    ///
+    /// Görs bara där gränsen verkligen är diffus, och det är ett val per karta.
+    /// Jordens kustlinjer ÄR kantiga och ska inte jämnas ut. Jupiters band får
+    /// heller inte rundas – de är fyrhörningar som ska ha raka kanter, annars
+    /// öppnar sig glipor mellan dem. Mars albedofält är dammgränser utan skarpa
+    /// kanter och blir polygoner om de lämnas som de är.
+    ///
+    /// Longituderna vecklas ut till en sammanhängande följd först. Utan det
+    /// skulle medelvärdet av 358° och 8° bli 183°, alltså rakt över på andra
+    /// sidan klotet, för varje yta som korsar nollmeridianen – och Sinus
+    /// Meridiani gör just det.
+    /// </summary>
+    static (float Lat, float Lon)[] Smooth((float Lat, float Lon)[] pts, int rounds = 2)
+    {
+        var lat = pts.Select(p => p.Lat).ToList();
+        var lon = new List<float>(pts.Length) { pts[0].Lon };
+        for (int i = 1; i < pts.Length; i++)
+        {
+            float d = pts[i].Lon - lon[i - 1];
+            while (d > 180) d -= 360;
+            while (d < -180) d += 360;
+            lon.Add(lon[i - 1] + d);
+        }
+
+        for (int r = 0; r < rounds; r++)
+        {
+            var nextLat = new List<float>(lat.Count * 2);
+            var nextLon = new List<float>(lat.Count * 2);
+            for (int i = 0; i < lat.Count; i++)
+            {
+                int j = (i + 1) % lat.Count;
+                float lonJ = lon[j];
+                if (j == 0)
+                {
+                    // Sista kanten sluter kurvan. Ta den variant av startpunkten
+                    // som ligger närmast slutpunkten, annars viks ett helt varv
+                    // runt klotet ihop till ingenting – polarisarna är sådana.
+                    float d = lon[0] - lon[^1];
+                    lonJ = lon[0] - 360f * MathF.Round(d / 360f);
+                }
+                nextLat.Add(0.75f * lat[i] + 0.25f * lat[j]);
+                nextLon.Add(0.75f * lon[i] + 0.25f * lonJ);
+                nextLat.Add(0.25f * lat[i] + 0.75f * lat[j]);
+                nextLon.Add(0.25f * lon[i] + 0.75f * lonJ);
+            }
+            lat = nextLat;
+            lon = nextLon;
+        }
+
+        return [.. lat.Select((v, i) => (v, lon[i]))];
     }
 
     /// <summary>

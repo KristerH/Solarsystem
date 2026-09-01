@@ -731,6 +731,23 @@ Kontrollerat utanför appen:
 - **Dragen ligger rätt på klotet**: polygonernas tyngdpunkter hamnar högst 3°
   från de lägen de ska ha, alltså inom 200 km på Mars yta.
 
+**Utjämnade konturer i efterhand.** Ritade blev fälten synligt kantiga –
+femhörningar och sexhörningar snarare än fläckar. Mars albedogränser är diffusa
+dammgränser, så de rundas nu med Chaikins hörnkapning i två varv. Det är ett val
+per karta och inte en generell ändring: jordens kustlinjer ska förbli kantiga,
+och Jupiters band måste ha raka kanter för att fyrhörningarna inte ska glipa.
+
+Longituderna vecklas ut till en sammanhängande följd innan hörnen kapas.
+Utan det skulle medelvärdet av 358° och 8° bli 183°, alltså rakt över på andra
+sidan klotet, och Sinus Meridiani ligger just över nollmeridianen.
+
+Kontrollerat efteråt: jordens karta oförändrad på 11 ytor och 507 punkter, Mars
+växer från 391 till 529 punkter, polarisarna ligger kvar på exakt 76,00° nord och
+74,00° syd utan hål i longitud, och dragens tyngdpunkter flyttar sig högst en
+grad (största avvikelse från uppmätt läge 4° mot 3° förut). Valles Marineris är
+fortfarande ett streck och inte en klump, vilket var den verkliga risken med att
+runda en smal figur.
+
 ### 11.3 – Jupiter
 
 - [x] Molnband i latitud, ljusa zoner och mörka bälten.
@@ -964,13 +981,12 @@ Etapp 11:
 - [x] Jupiters polarkalotter fyller åt rätt håll, trots att de ligger mycket
       längre från polen än jordens isar.
 - [x] Jupiters dämpade palett, sedd i bild och gjord om två gånger (se 11.3).
-- [ ] **Mars mörka fält har synligt raka kanter.** De är ritade med fem till nio
-      hörn, och `Densify` delar visserligen upp långa kanter men gör dem inte
-      runda – den lägger bara ut fler punkter längs samma räta linje. På jorden
-      är det rätt, kustlinjer ÄR kantiga, men Mars albedofält har diffusa gränser
-      och blir polygoner av det. Går att lösa med en utjämning i `Densify`
-      (Chaikin eller liknande), men det påverkar även jordens världsdelar, som
-      redan är godkända – därför inte gjort utan att någon bestämt det.
+- [x] **Mars mörka fält hade synligt raka kanter.** De är ritade med fem till
+      nio hörn, och `Densify` delar upp långa kanter utan att runda dem – den
+      lägger bara ut fler punkter längs samma räta linje. Åtgärdat med Chaikins
+      hörnkapning, två varv, som ett val per karta: Mars rundas, jorden inte.
+      Kustlinjer ÄR kantiga, och Jupiters band måste dessutom behålla raka kanter
+      för att inte glipa. Se noten i 11.2.
 - [ ] Saturnus och Uranus lutar åt rätt håll efter nodrättningen – enklast att se
       på ringarna vid ett par årtal långt isär.
 
