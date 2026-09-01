@@ -863,13 +863,63 @@ Neptunus fläck med följemoln sitter där den ska.
 
 ### 11.5 – Merkurius och Venus
 
-- [ ] Merkurius: grå och kraterrik, mycket lik månen. Rotation 58,6 dygn –
+- [x] Merkurius: grå och kraterrik, mycket lik månen. Rotation 58,6 dygn –
       exakt tre varv på två av sina år, en 3:2-resonans med solen.
-- [ ] Venus: inget av ytan syns, bara ett jämnt gulvitt moltack. Rotation
+- [x] Venus: inget av ytan syns, bara ett jämnt gulvitt moltack. Rotation
       243 dygn **baklänges**, alltså längre än dess år på 225 dygn.
+
+Merkurius har de fyra namngivna bassängerna på sina uppmätta lägen – Caloris,
+Beethoven, Rembrandt och Tolstoj – plus Kuiper och Debussy med sina ljusa
+strålsystem. De övriga fyrtiosex kratrarna är slumpade ur ett fast frö, så bilden
+blir densamma varje gång utan att någon behöver rita in dem för hand. Latituden
+dras ur arcsin så att de fördelar sig jämnt över klotet i stället för att klumpa
+ihop sig vid polerna.
+
+**Venus fick strimmor trots att poängen är att den är slät**, och det är värt att
+vara tydlig med varför. Molntäcket är helt ogenomskinligt; i vanligt ljus är
+Venus en jämn skiva utan drag, och det tog radar från omloppsbana att kartlägga
+marken. Men utan något att följa med blicken går det inte att se att planeten
+roterar, och att den roterar baklänges är hela behållningen. Strimmorna är det
+Y-mönster som syns i ultraviolett ljus, återgivet så blekt att det knappt märks.
+
+Med det följer en förenkling: **molnen far i verkligheten runt planeten på fyra
+dygn medan marken under tar 243.** Appen låter strimmorna följa marken, så det
+som visas är planetens rotation och inte molnens. Det är planetens rotation
+etappen handlar om, men den som tittar noga ser alltså moln som rör sig sextio
+gånger för långsamt. Står i kodkommentaren.
+
+Utjämningen från 11.2 är avstängd för båda. Kratrarna är redan runda från `Oval`,
+och Venus Y-mönster innehåller ett band av fyrhörningar som måste behålla raka
+kanter – rundade hörn hade fått fogarna att glipa. Det upptäcktes när Merkurius
+karta först kostade 3 424 punkter; utan utjämning blev det 920.
 
 **Verifiera:** Venus ska snurra åt motsatt håll mot alla andra planeter, och
 så långsamt att man behöver skruva upp hastigheten för att se det.
+
+Kontrollerat utanför appen:
+
+- **Venus soldygn faller ut till 116,75 dygn**, exakt det kända värdet. Det är
+  provet som binder rotationsriktningen: för en planet som roterar rättvänt blir
+  soldygnet längre än stjärndygnet, men för Venus blir det *kortare* – 116,75 mot
+  243,02 – eftersom ytan går solen till mötes. Räknat för hand ger
+  1/243,02 + 1/224,70 samma 116,75, och det är en summa just för att de två
+  rörelserna är motriktade.
+- **Dygnet är längre än året**: 243,02 mot 224,70 dygn. En punkt på Venus ekvator
+  vrider sig 1,5 grader per timme mot jordens 15, alltså tio gånger långsammare –
+  därav att man måste skruva upp hastigheten.
+- **Merkurius 3:2-resonans stämmer exakt**: år delat med rotation blir 1,5000.
+  Soldygnet ur modellen blir 175,94 dygn = 2,000 merkuriusår. På Merkurius går
+  det alltså två år på ett dygn.
+- **Mariner 10 såg samma halva tre gånger.** Sondens bana var 176 dygn, alltså
+  precis ett merkuriusdygn, så samma sida låg i solljus vid varje förbiflygning –
+  därför är knappt halva planeten okänd från de bilderna. Modellen ger solen över
+  263,5°, 263,3° och 263,1° öst vid de tre passagerna i mars 1974, september 1974
+  och mars 1975. Under ett år vandrar den alltså 0,4 grader.
+- **Hela tabellen soldygn mot stjärndygn** pekar ut de tre retrograda: Venus
+  −126,3 dygn, Pluto −43 s, Uranus negativt. Jorden +237 s (väntat 236), Mars
+  +126 s, Merkurius +117,3 dygn. För Uranus och Neptunus rör det sig om ett par
+  sekunder, och mätfönstret täcker bara en procent av deras varv kring solen –
+  där är tecknet meningsfullt men storleken brus.
 
 ### 11.6 – Månen och Pluto
 
@@ -1025,6 +1075,8 @@ Etapp 11:
 - [x] Jupiters polarkalotter fyller åt rätt håll, trots att de ligger mycket
       längre från polen än jordens isar.
 - [x] Jupiters dämpade palett, sedd i bild och gjord om två gånger (se 11.3).
+- [ ] Merkurius kratrar i appen. I den externa kontrollen ser de ut som
+      kratrar, men de ligger tätt och kan bli prickiga vid stark inzoomning.
 - [ ] Saturnus, Uranus och Neptunus i appen. De är sedda i den externa
       kontrollen men inte med ringarna på plats – särskilt Saturnus ska ses
       tillsammans med sina ringar, och Uranus sydpolskalott ligger nära den kant

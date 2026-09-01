@@ -287,6 +287,116 @@ public sealed class SurfaceMap
         return new SurfaceMap(JupiterZone, [.. raw]);
     }
 
+
+    static readonly Color MercuryBase = Color.FromArgb("#8C8A87");
+    static readonly Color MercuryPlains = Color.FromArgb("#807E7B");
+    static readonly Color MercuryLight = Color.FromArgb("#9A9895");
+    static readonly Color MercuryDark = Color.FromArgb("#7B7976");
+    static readonly Color MercuryRay = Color.FromArgb("#ADABA8");
+
+    /// <summary>
+    /// Merkurius är grå och full av kratrar, så lik månen att bilderna är svåra
+    /// att skilja åt. Den saknar atmosfär som kunnat vittra ned dem, så ytan har
+    /// legat i stort sett orörd sedan det stora bombardemanget för fyra
+    /// miljarder år sedan.
+    ///
+    /// De fyra namngivna bassängerna ligger på sina uppmätta lägen i östlig
+    /// longitud. Caloris är den överlägset största: 1 550 km tvärs över, alltså
+    /// en fjärdedel av hela planetens omkrets, slagen av något som nästan
+    /// klöv den. De spridda kratrarna är däremot inte verkliga utan slumpade ur
+    /// ett fast frö, så att bilden blir densamma varje gång utan att någon
+    /// behöver rita in fyrtio kratrar för hand.
+    /// </summary>
+    public static readonly SurfaceMap Mercury = BuildMercury();
+
+    static SurfaceMap BuildMercury()
+    {
+        var raw = new List<(Color Fill, (float Lat, float Lon)[] Pts)>();
+
+        /// En krater är rund på klotet, inte i gradnätet: longitudgrader trängs
+        /// ihop mot polerna, så halvaxeln i longitud måste vidgas med 1/cos(lat).
+        void Crater(Color fill, float lat, float lon, float radiusDeg)
+        {
+            float widen = 1f / MathF.Max(0.25f, MathF.Cos(lat * MathF.PI / 180f));
+            Oval(raw, fill, lat, lon, radiusDeg, radiusDeg * widen);
+        }
+
+        // De släta slätterna i norr, utlagda av lava.
+        Cap(raw, MercuryPlains, 62);
+
+        // Spridda kratrar ur ett fast frö. Latituden dras ur arcsin så att de
+        // fördelas jämnt över klotet och inte klumpar ihop sig vid polerna.
+        uint seed = 20260901;
+        float Next()
+        {
+            seed = seed * 1664525u + 1013904223u;
+            return (seed >> 8) / (float)(1 << 24);
+        }
+        for (int i = 0; i < 46; i++)
+        {
+            float lat = (float)(Math.Asin(2 * Next() - 1) * 180 / Math.PI) * 0.9f;
+            float lon = Next() * 360f;
+            float r = 1.6f + Next() * 4.6f;
+            Crater(Next() < 0.45f ? MercuryLight : MercuryDark, lat, lon, r);
+        }
+
+        // Caloris: 1 550 km tvärs över, den största nedslagsbassängen. Golvet är
+        // ljusare än omgivningen eftersom det fyllts av lava.
+        Crater(MercuryLight, 30.5f, 189.8f, 18.2f);
+        Crater(MercuryDark, 20.8f, 236.2f, 7.4f);    // Beethoven
+        Crater(MercuryDark, -32.9f, 271.8f, 8.4f);   // Rembrandt
+        Crater(MercuryDark, -16.3f, 195.1f, 4.6f);   // Tolstoj
+
+        // Kuiper: liten men med ett ljust strålsystem, ung nog att strålarna
+        // inte hunnit mörkna.
+        Crater(MercuryRay, -11.3f, 328.6f, 5.0f);
+        Crater(MercuryRay, -33.0f, 12.0f, 4.0f);     // Debussy
+
+        // Ingen utjämning: kratrarna är redan runda från Oval, och att runda
+        // dem en gång till skulle fyrdubbla antalet punkter utan att synas.
+        return new SurfaceMap(MercuryBase, [.. raw]);
+    }
+
+    static readonly Color VenusBase = Color.FromArgb("#E6D3A4");
+    static readonly Color VenusShade = Color.FromArgb("#DFCB99");
+    static readonly Color VenusPolar = Color.FromArgb("#EEDDB2");
+
+    /// <summary>
+    /// Venus visar ingenting av sin yta. Molntäcket av svavelsyra är helt
+    /// ogenomskinligt, och det tog radar från omloppsbana att kartlägga marken
+    /// under. I vanligt ljus är planeten en jämn gulvit skiva utan drag.
+    ///
+    /// De svaga strimmorna nedan är det Y-formade mönster som syns i
+    /// ultraviolett ljus, återgivet så blekt att det knappt märks. De finns med
+    /// av ett enda skäl: utan något att följa med blicken går det inte att se
+    /// att planeten roterar, och att den roterar baklänges är hela poängen med
+    /// Venus. En helt jämn skiva hade varit ärligare mot ögat men dolt saken.
+    ///
+    /// Med det följer en förenkling värd att känna till: molnen i verkligheten
+    /// far runt planeten på fyra dygn, medan marken under tar 243. Appen låter
+    /// strimmorna följa marken. Det som visas är alltså planetens rotation, inte
+    /// molnens – och det är planetens rotation etappen handlar om.
+    /// </summary>
+    public static readonly SurfaceMap Venus = BuildVenus();
+
+    static SurfaceMap BuildVenus()
+    {
+        var raw = new List<(Color Fill, (float Lat, float Lon)[] Pts)>();
+
+        // Y-mönstrets stam längs ekvatorn och dess två armar, plus de ljusare
+        // polhättorna. Allt med minimal kontrast mot grundtonen.
+        Band(raw, VenusShade, -12, 12, 6);
+        Oval(raw, VenusShade, 28, 60, 12f, 55f);
+        Oval(raw, VenusShade, -30, 55, 12f, 55f);
+        Oval(raw, VenusShade, 10, 210, 16f, 40f);
+        Cap(raw, VenusPolar, 68);
+        Cap(raw, VenusPolar, -68);
+
+        // Ingen utjämning: bandet består av fyrhörningar som måste behålla sina
+        // raka kanter, annars glipar fogarna mellan dem.
+        return new SurfaceMap(VenusBase, [.. raw]);
+    }
+
     static readonly Color SaturnZone = Color.FromArgb("#EBDDB4");
     static readonly Color SaturnEquator = Color.FromArgb("#F0E5C2");
     static readonly Color SaturnBelt = Color.FromArgb("#DFCEA0");

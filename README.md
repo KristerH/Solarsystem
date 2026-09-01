@@ -32,7 +32,14 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
   eftersom axeln ligger bara 8° från banplanet rullar planeten i stället för att
   snurra – solen vandrar mellan 82° syd och 82° nord under dess 84-åriga varv.
   Neptunus är djupare blå och har väder: Stora mörka fläcken som Voyager 2 såg
-  1989, ungefär jordstor, med sitt vita följeslagarmoln.
+  1989, ungefär jordstor, med sitt vita följeslagarmoln. Merkurius är grå och
+  kraterrik, så lik månen att bilderna är svåra att skilja åt, med Caloris –
+  1 550 km tvärs över, en fjärdedel av planetens omkrets – som det tydligaste
+  draget. Den roterar tre varv på vartannat av sina år, så ett dygn där varar två
+  år. Venus visar ingenting av sin yta, bara ett jämnt gulvitt moltäcke med de
+  bleka strimmor som syns i ultraviolett ljus, och roterar baklänges på 243
+  dygn – längre än dess år på 225. Ett soldygn på Venus blir därför bara 117
+  dygn, kortare än båda, eftersom ytan går solen till mötes.
 - **Månar**: 15 månar kretsar kring sina planeter med riktiga banelement och
   visas när man zoomar in – jordens måne, Mars Phobos och Deimos, Jupiters
   fyra galileiska månar, Saturnus Enceladus, Rhea och Titan, Uranus

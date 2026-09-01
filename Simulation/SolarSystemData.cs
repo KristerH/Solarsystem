@@ -414,8 +414,8 @@ public static class SolarSystemData
     // planeternas positioner ungefär ska stämma med verkligheten för ett givet datum.
     public static readonly CelestialBody[] Planets =
     [
-        new("Merkurius", Color.FromArgb("#B5A79B"),  2_439.7, 0.38710, 0.20563, 7.005,  48.331,  77.456, 252.251,    87.969) { Axis = MercuryAxis },
-        new("Venus",     Color.FromArgb("#E8CDA0"),  6_051.8, 0.72333, 0.00677, 3.395,  76.680, 131.564, 181.980,   224.701) { Axis = VenusAxis },
+        new("Merkurius", Color.FromArgb("#B5A79B"),  2_439.7, 0.38710, 0.20563, 7.005,  48.331,  77.456, 252.251,    87.969) { Axis = MercuryAxis, Surface = SurfaceMap.Mercury },
+        new("Venus",     Color.FromArgb("#E8CDA0"),  6_051.8, 0.72333, 0.00677, 3.395,  76.680, 131.564, 181.980,   224.701) { Axis = VenusAxis, Surface = SurfaceMap.Venus },
         new("Jorden",    Color.FromArgb("#4C8CE8"),  6_371.0, 1.00000, 0.01671, 0.000, -11.261, 102.947, 100.464,   365.256) { Moons = [Moon], Mu = EarthMu, Axis = EarthAxis, Surface = SurfaceMap.Earth },
         new("Mars",      Color.FromArgb("#D96C4A"),  3_389.5, 1.52371, 0.09339, 1.850,  49.559, 336.041, 355.445,   686.980) { Axis = MarsAxis, Moons = [Phobos, Deimos], Surface = SurfaceMap.Mars },
         new("Jupiter",   Color.FromArgb("#D8B48A"), 69_911.0, 5.20289, 0.04839, 1.304, 100.474,  14.728,  34.397, 4_332.59) { Axis = JupiterAxis, Moons = [Io, Europa, Ganymedes, Callisto], Ring = JupiterRing, Mu = JupiterMu, Surface = SurfaceMap.Jupiter },
