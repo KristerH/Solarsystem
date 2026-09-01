@@ -113,6 +113,7 @@ public sealed class SolarSystemDrawable : IDrawable
             _milestoneText.Clear();
 
             _sky.Draw(canvas, Camera, rect, ShowConstellations, ShowStarNames);
+            DrawHeliopause(canvas, rect);
             if (ShowOrbits)
                 DrawOrbits(canvas, rect);
             if (ShowKuiperBelt)
@@ -344,6 +345,56 @@ public sealed class SolarSystemDrawable : IDrawable
                     _labels.Add((body.Name, sx, sy + r + 6));
             }
         }
+    }
+
+    /// <summary>
+    /// Heliopausens avstånd från solen. Där möter solvinden det interstellära
+    /// mediet och solens välde tar slut – det närmaste solsystemet har en kant.
+    ///
+    /// Att rita den som en kula är en förenkling. I verkligheten buktar den:
+    /// solsystemet far genom det interstellära mediet i 25 km/s och får en
+    /// stötvåg framför sig, så gränsen ligger närmare åt det håll vi är på väg
+    /// och dras ut till en svans bakåt. Voyagersonderna korsade den på 121,6
+    /// respektive 119,0 AU, och att de två talen inte är lika är just det.
+    /// </summary>
+    public const double HeliopauseAu = 120.0;
+
+    static readonly Color HeliopauseFill = Color.FromRgba(0.30f, 0.50f, 0.85f, 0.045f);
+    static readonly Color HeliopauseRim = Color.FromRgba(0.55f, 0.75f, 1.00f, 0.30f);
+
+    /// <summary>
+    /// Ritar heliopausen som en cirkel, men bara när kameran står utanför den.
+    /// Innanför skulle sfären fylla hela bilden och bara vara en blå slöja.
+    ///
+    /// En kula sedd utifrån projiceras till en cirkel med vinkelradien
+    /// arcsin(R/d), vilket på skärmen blir R·f/√(d²−R²). Det är alltså inte
+    /// samma sak som att projicera kulans kant rakt av.
+    /// </summary>
+    void DrawHeliopause(ICanvas canvas, RectF rect)
+    {
+        float radius = (float)HeliopauseAu * UnitsPerAu;
+        float distance = Camera.Position.Length();
+
+        // Innanför, eller precis på gränsen där uttrycket spårar ur.
+        if (distance <= radius * 1.02f)
+            return;
+        if (!Camera.Project(Vector3.Zero, out float sx, out float sy, out _))
+            return;
+
+        float screen = Camera.Focal * radius
+                       / MathF.Sqrt(distance * distance - radius * radius);
+        // Cirkeln ska rymmas i bild. Är den större än så ser man ingen kant alls,
+        // bara en blå slöja över allt – och då är det bättre att inte rita den.
+        if (screen < 8f || screen > MathF.Min(rect.Width, rect.Height) * 0.55f)
+            return;
+
+        canvas.FillColor = HeliopauseFill;
+        canvas.FillCircle(sx, sy, screen);
+        canvas.StrokeSize = 1.2f;
+        canvas.StrokeColor = HeliopauseRim;
+        canvas.DrawCircle(sx, sy, screen);
+
+        _labels.Add(("Heliopausen", sx, sy - screen - 4));
     }
 
     /// <summary>Innersta månen får som mest hamna så här långt ut (planetradier).</summary>
@@ -795,10 +846,13 @@ public sealed class SolarSystemDrawable : IDrawable
             if (focused)
             {
                 // Den valda sonden får hela historien utskriven.
-                string text = milestone.IsLaunch
-                    ? $"Uppskjuten {date:MMM yyyy}"
-                    : string.Create(SwedishText,
-                        $"{milestone.Name} {date:MMM yyyy}  {milestone.SpeedGainKmS:+0.0;-0.0} km/s");
+                string text = milestone switch
+                {
+                    { IsLaunch: true } => $"Uppskjuten {date:MMM yyyy}",
+                    { IsBoundary: true } => $"{milestone.Name} {date:MMM yyyy}",
+                    _ => string.Create(SwedishText,
+                        $"{milestone.Name} {date:MMM yyyy}  {milestone.SpeedGainKmS:+0.0;-0.0} km/s"),
+                };
                 DrawMilestoneText(canvas, text, x, y, probe.Color, minSeparation: 0f);
             }
             else

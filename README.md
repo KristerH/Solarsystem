@@ -11,6 +11,14 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
   ungefär med verkligheten för det simulerade datumet. Plutos bana är en bra
   kontrast till planeternas: 17° lutning, 248 års omloppstid och så excentrisk
   att den tidvis går innanför Neptunus bana.
+- **Heliopausen**: solsystemets kant, 120 AU ut, där solvinden möter det
+  interstellära mediet. Den ritas som en genomskinlig sfär när man zoomat ut
+  tillräckligt – enklast genom att välja en av Voyagersonderna i fokusväljaren.
+  Deras genomgångar den 25 augusti 2012 och 5 november 2018 finns som milstolpar
+  och är de enda två tillfällen någon farkost från jorden passerat gränsen. Att
+  de två korsade på 121,6 respektive 119,0 AU säger något i sig: kanten är ingen
+  kula. Solsystemet far genom det interstellära mediet i 25 km/s och får en
+  stötvåg framför sig, så gränsen ligger närmare åt det håll vi är på väg.
 - **Möten på himlen**: en väljare i kontrollpanelen hittar nästa opposition
   eller konjunktion och hoppar dit. Opposition är när jorden går mellan solen
   och en yttre planet – då står den närmast och syns hela natten. Konjunktion är

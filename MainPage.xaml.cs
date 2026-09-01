@@ -486,6 +486,10 @@ public partial class MainPage : ContentPage
         if (milestone.IsLaunch)
             return string.Create(Swedish, $"Uppskjuten {date:yyyy-MM-dd}");
 
+        // En gräns gav ingen fart och ska inte beskrivas som en förbiflygning.
+        if (milestone.IsBoundary)
+            return string.Create(Swedish, $"Passerade {milestone.Name} {date:yyyy-MM-dd}");
+
         string verb = milestone.SpeedGainKmS >= 0 ? "gav" : "tog";
         return string.Create(Swedish,
             $"Förbi {milestone.Name} {date:yyyy-MM-dd}: {verb} {Math.Abs(milestone.SpeedGainKmS):0.0} km/s");

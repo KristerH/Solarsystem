@@ -1167,13 +1167,13 @@ Kontrollerat utanför appen, 17 kontroller utan fel, allt genom `SkyEvent.Next`:
 
 Sonderna far redan ut ur solsystemet, men det syns inte var kanten går.
 
-- [ ] En genomskinlig sfär vid 120 AU, ritad först när man zoomat ut nog för
+- [x] En genomskinlig sfär vid 120 AU, ritad först när man zoomat ut nog för
       att den ska rymmas. Det är där solvinden möter det interstellära mediet
       och solens välde tar slut.
-- [ ] Voyagernas genomgångar som milstolpar: 25 augusti 2012 och 5 november
+- [x] Voyagernas genomgångar som milstolpar: 25 augusti 2012 och 5 november
       2018. De är de enda två tillfällen någon farkost från jorden passerat den
       gränsen.
-- [ ] Gärna en notering om att kanten inte är en kula utan buktar – solsystemet
+- [x] Gärna en notering om att kanten inte är en kula utan buktar – solsystemet
       far genom det interstellära mediet och får en stötvåg framför sig.
 
 **Kontrollerat i förväg:** modellen sätter Voyager 1 på 120,1 AU vid sitt
@@ -1181,8 +1181,45 @@ genomgångsdatum mot uppmätta 121,6, och Voyager 2 på 117,7 mot uppmätta 119,
 Inom en och en halv AU utan att någonting behöver läggas till – uppgifterna
 ligger redan i sonddatan.
 
+Sfären ritas som en cirkel, men bara när kameran står **utanför** den. En kula
+sedd utifrån projiceras till en cirkel med vinkelradien arcsin(R/d), alltså
+R·f/√(d²−R²) på skärmen – det är inte samma sak som att projicera kanten rakt av.
+Innanför skulle den fylla hela bilden och bara bli en blå slöja, så den ritas
+först när den ryms i bild. Praktiskt betyder det bortom ungefär 290 AU, vilket
+man kommer till genom att välja en av de fyra yttersta sonderna i fokusväljaren.
+
+Milstolpen är en ny sort. Den har inget farthopp, för sonden passerade bara en
+gräns, och den beskrivs därför som "Passerade Heliopausen" i stället för
+"Förbi ... gav 10,8 km/s". Läget hämtas ur den bana sonden följde just den dagen,
+så gränsen hamnar där sonden verkligen var och inte där någon skrivit in att den
+var. Metoden `Probe.Crossing` läggs till efter `Build`, eftersom `Build` tar sina
+punkter som `params` och inte har plats kvar för fler sorters uppgifter.
+
 **Verifiera:** Ställ datumet till 25 augusti 2012 med Voyager 1 vald. Sonden ska
 stå på sfären, inte innanför eller utanför den.
+
+Kontrollerat utanför appen, 13 kontroller utan fel:
+
+- **Sonderna står på sfären vid sina genomgångsdatum**: Voyager 1 på 120,1 AU
+  den 25 augusti 2012, Voyager 2 på 117,7 AU den 5 november 2018, mot sfärens
+  120. Ingenting har lagts till för att få det att stämma – uppgifterna låg
+  redan i sonddatan sedan etapp 10.
+- **De uppmätta genomgångarna var 121,6 och 119,0 AU**, alltså inte på samma
+  avstånd. Det är i sig poängen med noten om att kanten buktar: den ligger olika
+  långt ut åt olika håll, och 120 är ett runt tal mitt emellan.
+- **Milstolpen sitter rätt**: rätt datum, i tidsordning bland de andra
+  (Jorden → Jupiter → Saturnus → Heliopausen för Voyager 1, med Uranus och
+  Neptunus emellan för Voyager 2), noll farthopp, och läget stämmer på
+  kilometern med sondens egen position samma dag.
+- **De tre andra sonderna har ingen gränsmilstolpe**, vilket de inte ska ha –
+  Pioneer 11 och New Horizons är fortfarande innanför.
+- **Var sonderna står i dag**: Voyager 1 på 169,3 AU, Voyager 2 på 142,1 och
+  Pioneer 10 på 141,7 är utanför; Pioneer 11 på 119,6 och New Horizons på 64,9
+  är innanför. Att Pioneer 11 ligger så nära kanten är värt att titta på.
+
+Kvar att se med ögat: hur den genomskinliga sfären tar sig ut. Geometrin är
+räknad men färgvalen är gissade, och gränsen för när den ritas – att cirkeln ska
+rymmas inom 55 procent av bildens kortaste sida – är satt på känsla.
 
 ### 12.3 – Månbanans plan och nodernas vandring
 
@@ -1406,6 +1443,9 @@ Etapp 11:
       Åtgärdat genom att lägga månarna i fokusväljaren, se noten efter 11.7.
 - [x] Månen och Pluto i appen. Månen ritas som glob först när den blir stor nog
       i bild, och den tröskeln är inte prövad för en måne – bara för planeter.
+- [ ] Heliopausen i bild. Välj Voyager 1 i fokusväljaren så kameran hamnar på
+      406 AU; sfären ska då synas som en svag cirkel med solsystemet inuti, och
+      Voyager 1 ska ligga utanför den medan New Horizons ligger innanför.
 - [x] Merkurius kratrar i appen. I den externa kontrollen ser de ut som
       kratrar, men de ligger tätt och kan bli prickiga vid stark inzoomning.
 - [x] Saturnus, Uranus och Neptunus i appen. De är sedda i den externa

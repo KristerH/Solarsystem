@@ -31,7 +31,8 @@ public static class ProbeData
         Waypoint.At(Planet("Jorden"), new DateTime(1977, 9, 5)),
         Waypoint.At(Planet("Jupiter"), new DateTime(1979, 3, 5)),
         Waypoint.At(Planet("Saturnus"), new DateTime(1980, 11, 12)),
-        Waypoint.InSky("Voyager 1 i dag", Today, 167.0, 17.25, 12.3));
+        Waypoint.InSky("Voyager 1 i dag", Today, 167.0, 17.25, 12.3))
+        .Crossing("Heliopausen", new DateTime(2012, 8, 25));
 
     /// <summary>
     /// Voyager 2: uppskjuten 20 augusti 1977 – två veckor före Voyager 1, trots
@@ -51,7 +52,8 @@ public static class ProbeData
         Waypoint.At(Planet("Saturnus"), new DateTime(1981, 8, 25)),
         Waypoint.At(Planet("Uranus"), new DateTime(1986, 1, 24)),
         Waypoint.At(Planet("Neptunus"), new DateTime(1989, 8, 25)),
-        Waypoint.InSky("Voyager 2 i dag", Today, 140.0, 20.12, -59.5));
+        Waypoint.InSky("Voyager 2 i dag", Today, 140.0, 20.12, -59.5))
+        .Crossing("Heliopausen", new DateTime(2018, 11, 5));
 
     /// <summary>
     /// Pioneer 10: uppskjuten 3 mars 1972, förbi Jupiter 4 december 1973. Den

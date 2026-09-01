@@ -73,8 +73,16 @@ public sealed record Milestone(
     /// <summary>Sant för uppskjutningen, som inte är någon passage.</summary>
     public bool IsLaunch => SpeedBeforeKmS <= 0;
 
+    /// <summary>
+    /// Sant för en gräns sonden passerade utan att något hände med farten –
+    /// heliopausen är den enda hittills. Den hör hemma bland milstolparna
+    /// eftersom den är en plats sonden bevisligen passerade ett känt datum, men
+    /// den är ingen förbiflygning och ska inte beskrivas som en sådan.
+    /// </summary>
+    public bool IsBoundary { get; init; }
+
     /// <summary>Hur mycket fart planeten gav – eller tog, vilket också händer.</summary>
-    public double SpeedGainKmS => IsLaunch ? 0 : SpeedAfterKmS - SpeedBeforeKmS;
+    public double SpeedGainKmS => IsLaunch || IsBoundary ? 0 : SpeedAfterKmS - SpeedBeforeKmS;
 }
 
 /// <summary>
@@ -104,7 +112,7 @@ public sealed class Probe
     public IReadOnlyList<ProbeLeg> Legs { get; }
 
     /// <summary>Uppskjutningen och planetpassagerna, i tidsordning.</summary>
-    public IReadOnlyList<Milestone> Milestones { get; }
+    public IReadOnlyList<Milestone> Milestones { get; private set; }
 
     /// <summary>Uppskjutningsdagen, i dygn sedan J2000.</summary>
     public double LaunchDay { get; }
@@ -137,6 +145,31 @@ public sealed class Probe
         }
 
         return milestones;
+    }
+
+    /// <summary>
+    /// Lägger till en gräns sonden passerade ett känt datum, utan att farten
+    /// ändrades. Läget och farten hämtas ur den bana sonden följde just då, så
+    /// gränsen hamnar där sonden verkligen var – inte där någon skrivit in att
+    /// den var.
+    ///
+    /// Skrivs efter Build, eftersom Build tar sina punkter som params och inte
+    /// har någon plats kvar för fler sorters uppgifter.
+    /// </summary>
+    public Probe Crossing(string name, DateTime date)
+    {
+        double day = (date - SolarSystemData.EpochJ2000).TotalDays;
+        if (LegAt(day) is not { } leg)
+            return this;
+
+        double speed = leg.Path.SpeedKmPerSecond(day);
+        var crossing = new Milestone(name, day, leg.Path.PositionAt(day, 1f), speed, speed)
+        {
+            IsBoundary = true,
+        };
+
+        Milestones = [.. Milestones.Append(crossing).OrderBy(m => m.Day)];
+        return this;
     }
 
     /// <summary>Den senast passerade milstolpen, eller null före uppskjutningen.</summary>
