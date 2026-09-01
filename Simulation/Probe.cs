@@ -166,6 +166,22 @@ public sealed class Probe
     /// hoppas över; det märks i att Legs blir kortare än väntat, och kontrolleras
     /// bäst utanför appen.
     /// </summary>
+    /// <summary>
+    /// Ben som inte gick att bygga, med sonden och passagerna utskrivna. Tom
+    /// lista betyder att all sonddata gick igenom.
+    ///
+    /// Sonden byggs av de ben som fungerar, eftersom en sond med en lucka är
+    /// bättre än ingen sond alls och eftersom `Build` anropas ur statiska fält –
+    /// ett undantag där skulle fälla hela appen vid start, för ett fel i data.
+    /// Men det får inte passera obemärkt: förut blev följden att banan tyst fick
+    /// ett hopp, och den som lagt in ett omöjligt datumpar hade ingenting att gå
+    /// på. Nu skrivs det till loggen och finns kvar här att fråga efter, så att
+    /// provprogrammen utanför appen kan kräva att listan är tom.
+    /// </summary>
+    public static IReadOnlyList<string> SkippedLegs => Skipped;
+
+    static readonly List<string> Skipped = [];
+
     public static Probe Build(string name, Color color, params Waypoint[] waypoints)
     {
         var legs = new List<ProbeLeg>(waypoints.Length);
@@ -175,18 +191,35 @@ public sealed class Probe
             Waypoint from = waypoints[i], to = waypoints[i + 1];
             double travelDays = to.Day - from.Day;
             if (travelDays <= 0)
+            {
+                Skip(name, from, to, "passagerna kommer inte i tidsordning");
                 continue;
+            }
 
             var r1 = from.PositionAu();
             var r2 = to.PositionAu();
             if (!Lambert.Solve(r1, r2, travelDays, SolarSystemData.SunMu, out var v1, out _))
+            {
+                Skip(name, from, to, "Lambert hittade ingen bana på den tiden");
                 continue;
+            }
 
             if (Conic.FromState(r1, v1, from.Day, SolarSystemData.SunMu) is { } path)
                 legs.Add(new ProbeLeg(from.Name, to.Name, from.Day, to.Day, path));
+            else
+                Skip(name, from, to, "banan gick inte att bygga ur läge och hastighet");
         }
 
         return new Probe(name, color, legs);
+    }
+
+    static void Skip(string probe, Waypoint from, Waypoint to, string why)
+    {
+        double days = to.Day - from.Day;
+        string message = string.Create(System.Globalization.CultureInfo.InvariantCulture,
+            $"{probe}: benet {from.Name} -> {to.Name} hoppades over ({days:0.#} dygn) - {why}.");
+        Skipped.Add(message);
+        Diagnostics.Log(message);
     }
 
     /// <summary>Sant när sonden har skjutits upp och alltså finns att rita.</summary>

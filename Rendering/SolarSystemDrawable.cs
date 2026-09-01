@@ -136,9 +136,7 @@ public sealed class SolarSystemDrawable : IDrawable
         }
         catch (Exception ex)
         {
-            System.IO.File.AppendAllText(
-                System.IO.Path.Combine(System.IO.Path.GetTempPath(), "solarsystem-draw.log"),
-                $"[{DateTime.Now:HH:mm:ss}] {ex}\n\n");
+            Diagnostics.Log($"ritfel: {ex}\n");
             throw;
         }
     }
@@ -413,7 +411,8 @@ public sealed class SolarSystemDrawable : IDrawable
     /// inuti månen eller så långt bort att den bara blir en prick.
     /// </summary>
     public float SuggestedMoonDistance(CelestialBody moon)
-        => MathF.Max(VisualRadius(moon.RadiusKm, isSun: false) * 12f, OrbitCamera.MinDistance);
+        => MathF.Max(VisualRadius(moon.RadiusKm, isSun: false) * 12f,
+                     OrbitCamera.AbsoluteMinDistance);
 
     public float SuggestedFocusDistance(CelestialBody planet)
     {
@@ -426,7 +425,10 @@ public sealed class SolarSystemDrawable : IDrawable
                           * MoonDisplayScale(planet);
             distance = MathF.Max(distance, outer * 2.7f);
         }
-        return MathF.Max(distance, 8f);
+        // Golvet var tidigare ett fast tal, vilket gjorde läget "Verklig storlek"
+        // omöjligt att zooma in i: där är jordens radie 0,0026 enheter och åtta
+        // enheter är tretusen jordradier bort. Nu följer det kroppen.
+        return MathF.Max(distance, MathF.Max(visR * 2f, OrbitCamera.AbsoluteMinDistance));
     }
 
     /// <summary>
@@ -459,7 +461,11 @@ public sealed class SolarSystemDrawable : IDrawable
         }
     }
 
-    float VisualRadius(double radiusKm, bool isSun)
+    /// <summary>
+    /// Kroppens ritade radie i världsenheter. Publik därför att kameran behöver
+    /// den: hur nära man får komma beror på hur stor kroppen ritas.
+    /// </summary>
+    public float VisualRadius(double radiusKm, bool isSun)
     {
         float real = (float)(radiusKm / SolarSystemData.AuKm) * UnitsPerAu;
         if (RealScale)

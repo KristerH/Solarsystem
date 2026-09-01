@@ -245,7 +245,10 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
 - **Skalenliga avstånd**: Avstånden mellan banorna är alltid skalenliga (1 AU =
   60 enheter). Planeternas storlekar är inbördes skalenliga men förstorade så
   att de syns – bocka i **Verklig storlek** för att se hur små planeterna
-  faktiskt är jämfört med avstånden.
+  faktiskt är jämfört med avstånden. Kameran följer med ned i skala: hur nära man
+  får komma bestäms av den valda kroppens ritade radie, så en planet går att
+  zooma in på tills den fyller bilden i båda lägena. Gränsen ligger alltid strax
+  utanför ytan, så man hamnar aldrig inuti kroppen.
 - **Asteroidbältet** kan slås på med en kryssruta (av från start). 1 400
   småkroppar mellan Mars och Jupiter, med samma statistiska fördelning som
   det verkliga bältet: halva storaxlar 2,06–3,27 AU, medelexcentricitet

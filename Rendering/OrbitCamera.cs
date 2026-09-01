@@ -8,7 +8,13 @@ namespace Solarsystem.Rendering;
 /// </summary>
 public sealed class OrbitCamera
 {
-    public const float MinDistance = 1.5f;
+    /// <summary>
+    /// Absolut minsta kameraavstånd. Gränsen sätts av flyttalen och inte av
+    /// någon kropp: världskoordinaterna är enkel precision och når 2 400 enheter
+    /// ute vid Neptunus, där steget mellan två närliggande tal är ett par
+    /// tiotusendels enhet. Närmare än så finns ingen mening.
+    /// </summary>
+    public const float AbsoluteMinDistance = 1e-3f;
     // 40 000 enheter är 666 AU. Rymdsonderna ligger på 65 till 170 AU, och för
     // att se en av dem med solen kvar i bild måste kameran backa ett par gånger
     // sondens avstånd – därav takhöjden.
@@ -20,12 +26,41 @@ public sealed class OrbitCamera
 
     public float Yaw { get; set; }
     public float Pitch { get; set; }
-    public float Distance { get; set; }
+
+    /// <summary>
+    /// Hur nära kameran får komma målet. Måste kunna ändras under körningen och
+    /// inte vara en konstant: i förstorat läge har jorden radien 2,6 enheter, i
+    /// verklig skala 0,0026. Ett fast golv som duger för det ena håller kameran
+    /// tusen jordradier bort i det andra, och då syns ingenting av ytan.
+    ///
+    /// Den som väljer vad kameran tittar på sätter också gränsen, eftersom det är
+    /// där man vet hur stor kroppen är. Avståndet kläms om direkt när gränsen
+    /// ändras, så man aldrig blir stående inuti en planet efter ett lägesbyte.
+    /// </summary>
+    public float MinDistance
+    {
+        get => _minDistance;
+        set
+        {
+            _minDistance = MathF.Max(value, AbsoluteMinDistance);
+            Distance = _distance;
+        }
+    }
+
+    /// <summary>Avståndet till målet. Hålls alltid inom sina gränser.</summary>
+    public float Distance
+    {
+        get => _distance;
+        set => _distance = Math.Clamp(value, _minDistance, MaxDistance);
+    }
+
     public Vector3 Target { get; set; }
     public float VerticalFovDeg { get; set; } = 50f;
 
     Vector3 _pos, _right, _up, _fwd;
     float _focal, _cx, _cy;
+    float _distance = DefaultDistance;
+    float _minDistance = AbsoluteMinDistance;
 
     public Vector3 Position => _pos;
 
@@ -48,8 +83,7 @@ public sealed class OrbitCamera
         Target = Vector3.Zero;
     }
 
-    public void ZoomBy(float factor) =>
-        Distance = Math.Clamp(Distance * factor, MinDistance, MaxDistance);
+    public void ZoomBy(float factor) => Distance *= factor;
 
     public void Rotate(float dYaw, float dPitch)
     {

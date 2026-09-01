@@ -109,6 +109,7 @@ public partial class MainPage : ContentPage
         UpdateMissionPanel(daysSinceJ2000);
         UpdateProbePanel(daysSinceJ2000);
         _drawable.Camera.Target = CameraTarget(daysSinceJ2000);
+        _drawable.Camera.MinDistance = FocusMinDistance();
 
         DateLabel.Text = simDate.ToString("dddd d MMMM yyyy, HH:mm", Swedish);
         ElapsedLabel.Text = FormatElapsed(_simDays);
@@ -370,6 +371,28 @@ public partial class MainPage : ContentPage
     // fritt igen, och ett nytt val i fokusväljaren stänger av följandet.
     bool _arrivalSeen;
     bool _followCraft;
+
+    /// <summary>
+    /// Hur nära kameran får komma det den tittar på. Räknas om varje bildruta
+    /// ur den valda kroppens ritade radie, eftersom den ändras både när man
+    /// byter kropp och när man slår om mellan förstorat och verkligt läge.
+    ///
+    /// En farkost eller en sond är en punkt utan utsträckning och får därför
+    /// komma hur nära som helst.
+    /// </summary>
+    float FocusMinDistance()
+    {
+        if (_followCraft || FocusedProbe is not null)
+            return OrbitCamera.AbsoluteMinDistance;
+
+        int body = _focusIndex - 1;
+        bool sun = body < 0 || body >= _focusBodies.Count;
+        double radiusKm = sun ? SolarSystemData.SunRadiusKm : _focusBodies[body].RadiusKm;
+
+        // En bit utanför ytan, så att klotet fyller bilden utan att kameran
+        // hamnar inuti det.
+        return _drawable.VisualRadius(radiusKm, sun) * 1.15f;
+    }
 
     /// <summary>Vad kameran tittar på: farkosten efter ankomsten, annars vald kropp.</summary>
     Vector3 CameraTarget(double day)
@@ -846,6 +869,8 @@ public partial class MainPage : ContentPage
         _focusIndex = Math.Max(0, FocusPicker.SelectedIndex);
         _followCraft = false;
         _drawable.FocusedProbe = FocusedProbe;
+        // Gränsen först, annars kläms det nya avståndet av den förra kroppens.
+        _drawable.Camera.MinDistance = FocusMinDistance();
 
         if (FocusedProbe is { } probe)
         {

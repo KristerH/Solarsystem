@@ -1255,23 +1255,97 @@ det däremot märkas.
 - [ ] Lämna över tillståndet från Lambert i dubbel precision, eller låt lösaren
       returnera kägelsnittet direkt.
 
-### R4 – "Verklig storlek" går inte att zooma in i
+### R4 – "Verklig storlek" går inte att zooma in i ✔
 
-Kameran kommer inte närmare än 1,5 enheter, och `SuggestedFocusDistance` har
+Kameran kom inte närmare än 1,5 enheter, och `SuggestedFocusDistance` hade
 dessutom ett golv på 8. I verklig skala är jordens radie 0,0026 enheter, så när
-man väljer en planet i fokusväljaren eller följer med farkosten ner vid ankomsten
-hamnar man alldeles för långt bort för att se något. Lägena är riktiga – det är
-bara kameran som inte räcker till.
+man valde en planet i fokusväljaren eller följde med farkosten ner vid ankomsten
+hamnade man alldeles för långt bort för att se något. Lägena var riktiga – det
+var bara kameran som inte räckte till.
 
-- [ ] Låt både golvet och minimiavståndet bero på den valda kroppens visuella
+- [x] Låt både golvet och minimiavståndet bero på den valda kroppens visuella
       radie i stället för att vara fasta tal.
 
-### R5 – Ett olösbart sondben hoppas över under tystnad
+`OrbitCamera.MinDistance` är inte längre en konstant utan en egenskap som sätts
+varje bildruta ur den kropp kameran tittar på: dess ritade radie gånger 1,15, så
+att man kommer nära utan att hamna inuti. Avståndet kläms om direkt när gränsen
+ändras, så ett byte mellan lägena aldrig lämnar kameran inne i en planet. Golvet
+i `SuggestedFocusDistance` följer också kroppen. En farkost eller sond är en
+punkt utan utsträckning och får komma hur nära som helst.
 
-`Probe.Build` hoppar över ett ben som Lambert inte klarar och bygger sonden av
-resten. Alla tretton ben går att lösa i dag, och det kontrolleras utanför appen,
-men lade någon in ett omöjligt datumpar skulle sonden tyst få en lucka i banan i
-stället för att felet syntes.
+Kvar finns bara ett absolut golv på 0,001 enheter, och det är inte satt av någon
+kropp utan av flyttalen: världskoordinaterna är enkel precision och når 2 400
+enheter ute vid Neptunus, där steget mellan två närliggande tal är ett par
+tiotusendels enhet.
 
-- [ ] Låt ett olösbart ben märkas – returnera null från `Build`, eller åtminstone
+**Verifiera:** I "Verklig storlek", välj en planet och zooma in – ytan ska gå att
+se. Väx mellan lägena medan man är inzoomad och se att kameran inte hamnar inuti.
+
+Kontrollerat utanför appen, 33 kontroller utan fel:
+
+- **Verklig skala fungerar nu.** Väljer man Merkurius går den från 0,1 pixlar
+  till 80. Jorden ger 5,9 pixlar vid valet – vyn ramar in månbanan, som den ska –
+  och går att zooma till 839. Förut var 2 pixlar det närmaste man kom, oavsett
+  hur mycket man skrollade.
+- **Alla kroppar med ytkarta går att zooma till en glob i båda lägena**, mot
+  tröskeln på 14 pixlar. Vid minsta avstånd fyller klotet 839 pixlar oberoende av
+  både läge och kropp, eftersom gränsen är proportionell mot radien.
+- **Förstorat läge är oförändrat** för åtta av nio planeter. Pluto kommer
+  närmare, 57 pixlar blir 80: den var den enda planet som golvet på åtta enheter
+  faktiskt höll tillbaka.
+- **En bugg till föll ut på köpet.** Det gamla golvet på 1,5 enheter låg *innanför*
+  flera kroppar i förstorat läge – jorden ritas med radien 2,6, Jupiter 28,0 och
+  solen 8,4 – så man kunde zooma in i dem och se dem inifrån. Nu ligger gränsen
+  alltid utanför ytan.
+
+De minsta kropparna i verklig skala – Pluto, månen, Io – möter det absoluta
+golvet innan de möter sitt eget och stannar på 460 till 705 pixlar i stället för
+839. Långt över vad som behövs.
+
+### R5 – Ett olösbart sondben hoppas över under tystnad ✔
+
+`Probe.Build` hoppade över ett ben som Lambert inte klarar och byggde sonden av
+resten. Alla ben går att lösa i dag, och det kontrolleras utanför appen, men lade
+någon in ett omöjligt datumpar skulle sonden tyst få en lucka i banan i stället
+för att felet syntes.
+
+- [x] Låt ett olösbart ben märkas – returnera null från `Build`, eller åtminstone
       skriv till samma logg som ritfel går till.
+
+Valet blev det senare, av två skäl. `Build` anropas ur statiska fält i
+`ProbeData`, så null hade tvingat null-kontroller genom hela kedjan – och ett
+undantag där hade fällt hela appen vid start för ett fel i data. Dessutom är en
+sond med en lucka mer användbar än ingen sond alls. Men felet passerar inte
+längre obemärkt: överhoppade ben skrivs till loggen och samlas i
+`Probe.SkippedLegs`, så att provprogrammen utanför appen kan kräva att listan är
+tom. Meddelandet säger vilken sond, vilka två passager, hur många dygn och varför.
+
+Loggsökvägen låg inbakad i ritkoden. Den ligger nu i `Simulation/Diagnostics`,
+som båda använder – det var förutsättningen för att alls kunna skriva "till samma
+logg".
+
+**Rättat i texten ovan:** här stod "alla tretton ben". Det är fel, och det syntes
+när provet räknade dem: sonderna har **sexton** ben. Voyager 1 har tre, Voyager 2
+fem, Pioneer 10 två, Pioneer 11 tre och New Horizons tre. Tretton var antagligen
+en räkning som missade de avslutande benen ut mot dagens läge.
+
+**Verifiera:** Riktig sonddata ska ge en tom lista och ingen logg alls.
+
+Kontrollerat utanför appen, 12 kontroller utan fel:
+
+- **Riktig data går ren.** Fem sonder, sexton ben, tom lista, ingen loggfil ens
+  skapad. Voyager 1:s fart i dag är oförändrad 16,66 km/s och de elva
+  planetpassagerna finns kvar.
+- **Båda felgrenarna är faktiskt utlösta**, inte bara lästa. Passager i fel
+  ordning ger "hoppades över (−365 dygn) – passagerna kommer inte i tidsordning",
+  och sonden får noll ben och existerar därmed inte. Två punkter rakt emot
+  varandra sett från solen – där banplanet är obestämt och varje plan duger lika
+  bra – får Lambert att gå bet på riktigt, och det märks likadant.
+- **Raderna hamnar i loggen**, i samma fil som ritfel.
+
+**Vad vakten inte fångar.** Ett ben som är orimligt men matematiskt lösbart går
+igenom: Jupiter till Saturnus på ett dygn ger en bana i 9 147 km/s, och Lambert
+löser den utan att klaga. Vakten letar efter olösliga ben, inte efter orimliga.
+Att sålla på rimlighet vore ett annat prov – en övre gräns för farten skulle
+duga – men det är inte det den här punkten handlade om, och en gräns satt på
+måfå riskerar att sålla bort riktig data.
