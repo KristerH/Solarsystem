@@ -136,6 +136,108 @@ public sealed class SurfaceMap
                    (-74,210),(-74,240),(-74,270),(-74,300),(-74,330)]),
         ]);
 
+
+    // Tonerna ligger med flit nära varandra, och bältena tonar bort mot polerna.
+    // Två saker fick rättas efter att kartan setts ritad. Först var kontrasten
+    // för hård – mörkbruna bälten mot gräddvitt gav en randig boll snarare än en
+    // planet, för på fotografier är skillnaden mellan bälte och zon
+    // förvånansvärt liten. Sedan var alla bälten lika starka, vilket gav en
+    // strandboll: i verkligheten dominerar de två ekvatorsbältena medan de
+    // tempererade knappt syns. Därför fem toner i stället för två.
+    static readonly Color JupiterZone = Color.FromArgb("#EDE4D3");
+    static readonly Color JupiterEquator = Color.FromArgb("#EBE0CA");
+    static readonly Color JupiterNorthBelt = Color.FromArgb("#C49A76");   // starkast
+    static readonly Color JupiterSouthBelt = Color.FromArgb("#C9A182");
+    static readonly Color JupiterBelt = Color.FromArgb("#D6BDA4");        // tempererade
+    static readonly Color JupiterFaintBelt = Color.FromArgb("#E0D2BF");   // nätt och jämnt
+    static readonly Color JupiterPolarInner = Color.FromArgb("#E2D6C4");
+    static readonly Color JupiterPolar = Color.FromArgb("#D4C6B2");
+    static readonly Color GreatRedSpot = Color.FromArgb("#D5793F");
+    static readonly Color JupiterOval = Color.FromArgb("#F7F2E8");
+
+    /// <summary>
+    /// Jupiter: molnband i latitud och Stora röda fläcken. De ljusa zonerna är
+    /// uppstigande ammoniakis, de mörka bältena nedsjunkande gas där man ser
+    /// djupare in – det är alltså inte målade ränder utan väder i tvärsnitt.
+    /// Gränserna nedan är de vedertagna: norra ekvatorialbältet 7–17° nord,
+    /// södra 7–20° syd, sedan tempererade bälten i par ut mot polerna.
+    ///
+    /// Stora röda fläcken ligger på 22° syd, i södra tropiska zonen strax under
+    /// sitt bälte, och är ritad 14,5° bred och 9,8° hög – 16 000 gånger
+    /// 12 000 km, alltså bredare än jorden. Longituden är däremot vald på fri
+    /// hand. Fläcken driver i verkligheten mot väster i förhållande till
+    /// planetens inre rotation, ungefär ett varv på fyra år, och appen följer
+    /// inte den driften. Var den står ett givet datum stämmer alltså inte, men
+    /// att den finns, hur stor den är och hur den passerar runt kanten gör det.
+    /// </summary>
+    public static readonly SurfaceMap Jupiter = BuildJupiter();
+
+    static SurfaceMap BuildJupiter()
+    {
+        var raw = new List<(Color Fill, (float Lat, float Lon)[] Pts)>();
+
+        // Ett band runt hela klotet ritas som en rad fyrhörningar. Ett enda
+        // varvpolygon hade inte fungerat: bandet är en ring med hål i, och det
+        // går inte att fylla. Rutorna överlappar en aning så att skarvarna inte
+        // syns som hårstreck, samma knep som ringarna använder.
+        void Band(Color fill, float south, float north)
+        {
+            const int segments = 8;
+            for (int i = 0; i < segments; i++)
+            {
+                float a = i * 360f / segments;
+                float b = (i + 1.02f) * 360f / segments;
+                raw.Add((fill, [(north, a), (north, b), (south, b), (south, a)]));
+            }
+        }
+
+        // Polarområdena går däremot att rita som en enkel kalott, precis som
+        // jordens isar.
+        void Cap(Color fill, float lat)
+        {
+            var pts = new (float Lat, float Lon)[12];
+            for (int i = 0; i < pts.Length; i++)
+                pts[i] = (lat, i * 30f);
+            raw.Add((fill, pts));
+        }
+
+        void Oval(Color fill, float lat, float lon, float halfLat, float halfLon)
+        {
+            var pts = new (float Lat, float Lon)[16];
+            for (int i = 0; i < pts.Length; i++)
+            {
+                double t = i * Math.PI * 2 / pts.Length;
+                pts[i] = (lat + halfLat * (float)Math.Sin(t),
+                          lon + halfLon * (float)Math.Cos(t));
+            }
+            raw.Add((fill, pts));
+        }
+
+        Band(JupiterEquator, -7, 7);        // ekvatorialzonen, den ljusaste
+        Band(JupiterNorthBelt, 7, 17);      // norra ekvatorialbältet, det tydligaste
+        Band(JupiterSouthBelt, -20, -7);    // södra ekvatorialbältet
+        Band(JupiterBelt, 24, 31);          // norra tempererade bältet
+        Band(JupiterBelt, -37, -27);        // södra tempererade bältet
+        Band(JupiterFaintBelt, 40, 48);     // norra norra tempererade bältet
+        Band(JupiterFaintBelt, -53, -45);   // södra södra tempererade bältet
+        // Polarområdet i två steg. En enda kalott gav en hård grå kupol på
+        // toppen; i verkligheten mörknar det gradvis från ungefär 50° och ut.
+        Cap(JupiterPolarInner, 55);
+        Cap(JupiterPolarInner, -55);
+        Cap(JupiterPolar, 70);
+        Cap(JupiterPolar, -70);
+
+        Oval(GreatRedSpot, -22, 65, 4.9f, 7.3f);
+
+        // Tre av de vita ovalerna på 41° syd – stormar som liknar den röda
+        // fläcken men är yngre och mindre.
+        Oval(JupiterOval, -41, 150, 2.5f, 4f);
+        Oval(JupiterOval, -41, 210, 2.5f, 4f);
+        Oval(JupiterOval, -41, 275, 2.5f, 4f);
+
+        return new SurfaceMap(JupiterZone, [.. raw]);
+    }
+
     /// <summary>
     /// Delar upp långa kanter i steg om högst 5 grader så att kustlinjerna
     /// följer klotets buktning och klipps snyggt mot dess rand. Sinus/cosinus

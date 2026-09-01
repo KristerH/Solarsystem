@@ -48,9 +48,11 @@ public sealed class SolarSystemDrawable : IDrawable
     ///
     /// Namnen duger som nyckel eftersom de är unika och redan används för att
     /// identifiera kroppar på andra håll i appen, till exempel i fokusväljaren.
+    ///
+    /// Tom från start: sonderna är en fördjupning och deras spår korsar hela
+    /// vyn, så översikten ska vara ren tills någon bockar i dem i väljaren.
     /// </summary>
-    public HashSet<string> VisibleProbes { get; } =
-        [.. ProbeData.All.Select(p => p.Name), .. ProbeData.Orbiters.Select(o => o.Name)];
+    public HashSet<string> VisibleProbes { get; } = [];
 
     /// <summary>
     /// Sonden som är vald i fokusväljaren, eller null. Dess milstolpar skrivs

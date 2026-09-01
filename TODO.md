@@ -733,13 +733,62 @@ Kontrollerat utanför appen:
 
 ### 11.3 – Jupiter
 
-- [ ] Molnband i latitud, ljusa zoner och mörka bälten.
-- [ ] Stora röda fläcken som en oval på södra halvklotet.
-- [ ] Rotation på bara 9 h 55 min – snabbast i solsystemet trots att den är
+- [x] Molnband i latitud, ljusa zoner och mörka bälten.
+- [x] Stora röda fläcken som en oval på södra halvklotet.
+- [x] Rotation på bara 9 h 55 min – snabbast i solsystemet trots att den är
       störst. Går utmärkt att se i appen på låg hastighet.
+
+Sju band på sina vedertagna breddgrader, två polarområden, Stora röda fläcken
+och tre av de vita ovalerna på 41° syd. Ett band går inte att rita som en enda
+polygon – det är en ring med hål i – så varje band byggs av åtta fyrhörningar
+som överlappar en aning i kanterna, samma knep som ringarna redan använder.
+Polarområdena är däremot vanliga kalotter, precis som jordens isar.
+
+**Röda fläckens longitud är vald på fri hand**, och det är en medveten
+förenkling som står i kodkommentaren. Fläcken driver västerut i förhållande till
+planetens inre rotation, ett helt varv på 3,7 år, och appen följer inte driften.
+Att fläcken finns, hur stor den är och hur den vandrar runt kanten stämmer; var
+den står ett givet datum gör det inte. Något annat vore svårt att göra rätt –
+driften har varit oregelbunden i över hundra år.
 
 **Verifiera:** Röda fläcken ska försvinna runt kanten och komma tillbaka på
 andra sidan efter ungefär fem timmar simulerad tid.
+
+Kontrollerat utanför appen:
+
+- **Fläcken är borta 4 timmar 59 minuter** och synlig 4 timmar 56, sett från
+  jordens verkliga läge under tre dygn i mars 2026. Tillsammans 9 h 55 min 34 s,
+  alltså exakt ett varv. Att de två halvorna inte är riktigt lika långa är rätt:
+  Jupiter lutar 2,2° och jorden står inte i ekvatorsplanet.
+- **Rotationstiden** blir 09:55:29 mot System III:s 09:55:30, och Jupiter är
+  snabbast av alla kroppar i datan – 2,42 varv per jorddygn. Ekvatorn far fram i
+  12,3 km/s, tjugosju gånger jordens 0,46.
+- **Bandgränserna stämmer på tiondelen** mot de vedertagna: ekvatorialzonen
+  ±7°, norra ekvatorialbältet 7–17°, södra 20–7° syd, och de tempererade i par
+  ut mot polerna.
+- **Röda fläcken mäter 16 517 × 11 958 km**, mot uppmätta ungefär
+  16 000 × 12 000. Den är alltså bredare än jorden, vars diameter är 12 742 km –
+  vilket är hela poängen med att visa den.
+- **Kostnaden**: 62 ytor och 1 584 punkter, mot jordens 11 och 507. Tre gånger
+  så mycket, men bara medan man är inzoomad på Jupiter.
+
+**Rättat efter att kartan setts ritad, två gånger.** Först var paletten för hård. Mörkbruna bälten mot
+gräddvitt gav en randig boll snarare än en planet – på fotografier är skillnaden
+mellan bälte och zon förvånansvärt liten, och det är mönstret som bär, inte
+kontrasten. Tonerna ligger nu nära varandra, röda fläcken är orange i stället för
+tegelröd, och polarområdet ritas i två steg (55° och 70°) eftersom en enda kalott
+blev en hård grå kupol på toppen.
+
+Andra gången var problemet ett annat: alla bälten var lika starka, vilket gav en
+strandboll. På ett foto dominerar de två ekvatorsbältena medan de tempererade
+knappt syns. Nu finns fem toner i stället för två, och bältena tonar bort mot
+polerna. Det är den versionen som är sedd i bild.
+
+Kontrollerna gjordes genom att rita kartorna utanför appen med samma matematik –
+`BodyAxis.Direction`, samma kalottklippning, samma ortografiska projektion – med
+jordgloben som referens: känns Afrika igen är portningen trogen. Det bekräftade
+samtidigt två saker som siffror inte kunde avgöra: fyrhörningarnas fogar syns
+inte, och kalotterna fyller åt rätt håll.
 
 ### 11.4 – Saturnus, Uranus och Neptunus
 
@@ -908,8 +957,20 @@ Sondväljaren (10.6):
 Etapp 11:
 
 - [x] Jordgloben ser ut och snurrar precis som före ombyggnaden i 11.1.
-- [ ] Mars ytkarta ser ut som Mars och inte som en tårta – färgvalen är gjorda
-      utan att någon sett dem ritade.
+- [x] Mars ytkarta ser ut som Mars: rätt rostton, dragen känns igen och
+      polarisen ligger som en vit kalott. Se dock resten av noten nedan.
+- [x] Jupiters band ser ut som band och inte som randiga skarvar. Överlappet på
+      2 % räckte – inga fogar syns i bild.
+- [x] Jupiters polarkalotter fyller åt rätt håll, trots att de ligger mycket
+      längre från polen än jordens isar.
+- [x] Jupiters dämpade palett, sedd i bild och gjord om två gånger (se 11.3).
+- [ ] **Mars mörka fält har synligt raka kanter.** De är ritade med fem till nio
+      hörn, och `Densify` delar visserligen upp långa kanter men gör dem inte
+      runda – den lägger bara ut fler punkter längs samma räta linje. På jorden
+      är det rätt, kustlinjer ÄR kantiga, men Mars albedofält har diffusa gränser
+      och blir polygoner av det. Går att lösa med en utjämning i `Densify`
+      (Chaikin eller liknande), men det påverkar även jordens världsdelar, som
+      redan är godkända – därför inte gjort utan att någon bestämt det.
 - [ ] Saturnus och Uranus lutar åt rätt håll efter nodrättningen – enklast att se
       på ringarna vid ett par årtal långt isär.
 

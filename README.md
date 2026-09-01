@@ -18,7 +18,13 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
   triangel Huygens ritade av 1659 och tog tiden på för att mäta planetens dygn –
   plus polarisar och Valles Marineris som ett streck. Mars dygn är 24 h 37 min,
   bara en halvtimme längre än jordens, och att dess soldygn blir ytterligare två
-  minuter längre faller ut av rörelsen i banan.
+  minuter längre faller ut av rörelsen i banan. Jupiter har sina molnband på
+  rätt breddgrader – ljusa zoner där gasen stiger, mörka bälten där den sjunker –
+  och Stora röda fläcken, 16 500 km bred och alltså bredare än jorden. Jupiter
+  snurrar ett varv på 9 h 55 min, snabbast i solsystemet trots att den är störst,
+  så fläcken hinner runt kanten och tillbaka på tio minuters speluppspelning vid
+  hög hastighet. Var fläcken står ett givet datum är däremot inte modellerat:
+  den driver ett varv på knappt fyra år, oregelbundet.
 - **Månar**: 15 månar kretsar kring sina planeter med riktiga banelement och
   visas när man zoomar in – jordens måne, Mars Phobos och Deimos, Jupiters
   fyra galileiska månar, Saturnus Enceladus, Rhea och Titan, Uranus
@@ -178,8 +184,9 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
   efter uppskjutningen till 20,4 vid Saturnus 1982, 17,7 år 1990 och 16,67 i
   dag, och kurvan planar ut.
 
-  **Välja sonder**: knappen "Rymdsonder" fäller ut en ruta där varje sond bockas
-  i för sig, så att man kan visa bara Voyager 1, eller båda Voyagersonderna för
+  **Välja sonder**: sonderna är släckta från start – de är en fördjupning och
+  deras spår korsar hela vyn, så översikten börjar ren. Knappen "Rymdsonder"
+  fäller ut en ruta där varje sond bockas i för sig, så att man kan visa bara Voyager 1, eller båda Voyagersonderna för
   att jämföra deras motsatta vägar ut ur ekliptikan, utan att de andra ligger i
   vägen. Valet gäller prick, spår och milstolpar, och de två kretsande sonderna
   finns i samma lista. Släcker man den sond kameran följer faller fokus tillbaka
