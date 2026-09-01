@@ -44,7 +44,14 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
   Tychos strålsystem. Den är bunden: ett varv kring axeln per varv kring jorden,
   så samma sida är alltid vänd mot oss, och baksidan saknar hav. Pluto visar
   Tombaugh Regio, det ljusa hjärtat av frusen kväve som New Horizons
-  fotograferade 2015, vänt bort från Charon precis som i verkligheten.
+  fotograferade 2015, vänt bort från Charon precis som i verkligheten. De fyra
+  galileiska månarna har var sitt ansikte: Io svavelgul med röda vulkanringar och
+  utan en enda krater, eftersom ytan görs om snabbare än nedslagen hinner sätta
+  märken; Europa nästan vit is korsad av rödbruna sprickor; Ganymedes gråbrun i
+  lapptäcke av gammalt och nytt, och större än Merkurius; Callisto mörk och
+  mättat kraterrik med Valhalla, märket efter ett nedslag 3 800 km tvärs över.
+  Alla fyra är bundna och vänder samma sida mot Jupiter. Titan visar med flit
+  ingenting alls – dimman är ogenomskinlig, precis som Venus moln.
 - **Månar**: 15 månar kretsar kring sina planeter med riktiga banelement och
   visas när man zoomar in – jordens måne, Mars Phobos och Deimos, Jupiters
   fyra galileiska månar, Saturnus Enceladus, Rhea och Titan, Uranus

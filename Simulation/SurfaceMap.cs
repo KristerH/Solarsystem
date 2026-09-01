@@ -335,6 +335,246 @@ public sealed class SurfaceMap
         return ((float)(f2 * 180.0 / Math.PI), (float)(l2 * 180.0 / Math.PI));
     }
 
+
+    /// <summary>
+    /// En ring kring en punkt på ytan, byggd av fyrhörningar av samma skäl som
+    /// molnbanden: en ring har hål i sig och går inte att fylla som en polygon.
+    /// Callistos Valhalla är de vågringar ett nedslag lämnade efter sig.
+    /// </summary>
+    static void Annulus(List<(Color Fill, (float Lat, float Lon)[] Pts)> raw,
+        Color fill, float lat, float lon, float innerDeg, float outerDeg, int segments = 14)
+    {
+        for (int i = 0; i < segments; i++)
+        {
+            float a = i * 360f / segments;
+            float b = (i + 1.05f) * 360f / segments;
+            var p0 = Offset(lat, lon, a, innerDeg);
+            var p1 = Offset(lat, lon, b, innerDeg);
+            var p2 = Offset(lat, lon, b, outerDeg);
+            var p3 = Offset(lat, lon, a, outerDeg);
+            raw.Add((fill, [p0, p1, p2, p3]));
+        }
+    }
+
+    // ------------------------------------------------- de stora månarna
+    //
+    // Alla fyra galileiska månar och Titan är bundna: de vänder samma sida mot
+    // sin planet, precis som vår måne mot jorden. Longituden räknas därför från
+    // den punkt som pekar mot planeten. Nollan ligger mot planeten, 180° rakt
+    // bort, 270° mitt på den ledande halvan – den som går först i banan – och
+    // 90° mitt på den eftersläpande. Det spelar roll: Jupiters magnetfält sveper
+    // förbi månarna bakifrån och bakar in svavel på just den eftersläpande sidan.
+
+    static readonly Color IoSulphur = Color.FromArgb("#DFC96E");
+    static readonly Color IoFrost = Color.FromArgb("#F0E8C8");
+    static readonly Color IoPatera = Color.FromArgb("#8A6A32");
+    static readonly Color IoDeposit = Color.FromArgb("#C97445");
+
+    /// <summary>
+    /// Io är solsystemets vulkaniskt mest aktiva kropp. Jupiter och de andra
+    /// månarna knådar den så hårt att bergrunden pumpas upp och ner hundra meter
+    /// varje varv, och värmen från det håller hela månen smält inuti. Fyra hundra
+    /// vulkaner sprutar svavel och kiselsten.
+    ///
+    /// Följden är att Io saknar kratrar helt. Ytan görs om snabbare än nedslagen
+    /// hinner sätta märken – i genomsnitt läggs en centimeter nytt material på
+    /// varje år, vilket täcker en krater på några tusen år. Ingen annan fast yta
+    /// i solsystemet är så ung.
+    ///
+    /// Fläckarna nedan är representativa, inte uppmätta: mönstret av mörka
+    /// vulkankalderor och ljusa svaveldioxidfält är Ios utseende, men vilken
+    /// enskild vulkan som ligger var är inte hämtat ur en karta.
+    /// </summary>
+    public static readonly SurfaceMap Io = BuildIo();
+
+    static SurfaceMap BuildIo()
+    {
+        var raw = new List<(Color Fill, (float Lat, float Lon)[] Pts)>();
+        uint seed = 314159u;
+        float Next()
+        {
+            seed = seed * 1664525u + 1013904223u;
+            return (seed >> 8) / (float)(1 << 24);
+        }
+
+        void Spot(Color fill, float lat, float lon, float radiusDeg)
+        {
+            float widen = 1f / MathF.Max(0.3f, MathF.Cos(lat * MathF.PI / 180f));
+            Oval(raw, fill, lat, lon, radiusDeg, radiusDeg * widen);
+        }
+
+        // Ljusa svaveldioxidfält först, sedan vulkanerna ovanpå dem.
+        for (int i = 0; i < 14; i++)
+            Spot(IoFrost, (float)(Math.Asin(2 * Next() - 1) / Math.PI * 180) * 0.85f,
+                 Next() * 360f, 6f + Next() * 9f);
+        for (int i = 0; i < 22; i++)
+        {
+            float lat = (float)(Math.Asin(2 * Next() - 1) / Math.PI * 180) * 0.85f;
+            float lon = Next() * 360f;
+            float r = 2f + Next() * 4f;
+            // Runt de största kalderorna ligger orangeröda utkast.
+            if (r > 4.5f) Spot(IoDeposit, lat, lon, r * 1.9f);
+            Spot(IoPatera, lat, lon, r);
+        }
+
+        return new SurfaceMap(IoSulphur, [.. raw]);
+    }
+
+    static readonly Color EuropaIce = Color.FromArgb("#E2E5E8");
+    static readonly Color EuropaTrailing = Color.FromArgb("#D8CDC4");
+    static readonly Color EuropaChaos = Color.FromArgb("#C9BDB1");
+    static readonly Color EuropaLinea = Color.FromArgb("#A9705A");
+
+    /// <summary>
+    /// Europa är slätast av allt vi känner till: högsta punkten på hela månen
+    /// reser sig några hundra meter. Under isen ligger ett hav med mer vatten än
+    /// alla jordens hav tillsammans, och sprickorna i ytan är där isskorpan
+    /// dragits isär och fyllts underifrån.
+    ///
+    /// Den eftersläpande halvan, kring 90° i den här kartans räkning, är mörkare
+    /// och rödare än den ledande. Det är inte en tillfällighet: Jupiters
+    /// magnetfält roterar fortare än Europa hinner runt, sveper alltså förbi
+    /// bakifrån, och bakar in svavel från Ios vulkaner i just den sidan.
+    /// </summary>
+    public static readonly SurfaceMap Europa = BuildEuropa();
+
+    static SurfaceMap BuildEuropa()
+    {
+        var raw = new List<(Color Fill, (float Lat, float Lon)[] Pts)>();
+        uint seed = 271828u;
+        float Next()
+        {
+            seed = seed * 1664525u + 1013904223u;
+            return (seed >> 8) / (float)(1 << 24);
+        }
+
+        // Den eftersläpande halvan, svagt mörkare.
+        Oval(raw, EuropaTrailing, 0f, 90f, 70f, 88f);
+
+        // Kaosterräng: fält där isen brutits upp och frusit ihop igen.
+        for (int i = 0; i < 9; i++)
+            Oval(raw, EuropaChaos, (float)(Math.Asin(2 * Next() - 1) / Math.PI * 180) * 0.8f,
+                 Next() * 360f, 5f + Next() * 6f, 8f + Next() * 10f);
+
+        // Sprickorna. De löper tusentals kilometer och korsar varandra, så både
+        // startpunkt och riktning slumpas – men breda nog att synas.
+        for (int i = 0; i < 26; i++)
+        {
+            float lat = (float)(Math.Asin(2 * Next() - 1) / Math.PI * 180) * 0.8f;
+            float lon = Next() * 360f;
+            Streak(raw, EuropaLinea, lat, lon, Next() * 360f, 40f + Next() * 70f, 2.2f);
+        }
+
+        return new SurfaceMap(EuropaIce, [.. raw]);
+    }
+
+    static readonly Color GanymedeBase = Color.FromArgb("#8E8377");
+    static readonly Color GanymedeDark = Color.FromArgb("#6B6055");
+    static readonly Color GanymedeGroove = Color.FromArgb("#A79C8E");
+    static readonly Color GanymedeCrater = Color.FromArgb("#BDB3A5");
+
+    /// <summary>
+    /// Ganymedes är solsystemets största måne – större än Merkurius, och den
+    /// enda måne som har ett eget magnetfält. Ytan är två slags landskap i
+    /// lapptäcke: mörka, uråldriga och kraterrika områden, och ljusare fält
+    /// genomdragna av parallella fåror där iskorpan dragits isär.
+    /// </summary>
+    public static readonly SurfaceMap Ganymede = BuildGanymede();
+
+    static SurfaceMap BuildGanymede()
+    {
+        var raw = new List<(Color Fill, (float Lat, float Lon)[] Pts)>();
+        uint seed = 161803u;
+        float Next()
+        {
+            seed = seed * 1664525u + 1013904223u;
+            return (seed >> 8) / (float)(1 << 24);
+        }
+
+        // De mörka, gamla områdena – ungefär en tredjedel av ytan.
+        for (int i = 0; i < 7; i++)
+            Oval(raw, GanymedeDark, (float)(Math.Asin(2 * Next() - 1) / Math.PI * 180) * 0.85f,
+                 Next() * 360f, 14f + Next() * 12f, 18f + Next() * 18f);
+
+        // De ljusa fårorna, i knippen av parallella streck. Ganymedes yta är
+        // ungefär till hälften sådan terräng, så knippena måste vara många.
+        for (int i = 0; i < 18; i++)
+        {
+            float lat = (float)(Math.Asin(2 * Next() - 1) / Math.PI * 180) * 0.8f;
+            float lon = Next() * 360f;
+            float bearing = Next() * 360f;
+            for (int k = -2; k <= 2; k++)
+            {
+                var start = Offset(lat, lon, bearing + 90f, k * 4f);
+                Streak(raw, GanymedeGroove, start.Lat, start.Lon, bearing, 26f, 2.6f);
+            }
+        }
+
+        // Ljusa unga kratrar.
+        for (int i = 0; i < 12; i++)
+        {
+            float lat = (float)(Math.Asin(2 * Next() - 1) / Math.PI * 180) * 0.85f;
+            float widen = 1f / MathF.Max(0.3f, MathF.Cos(lat * MathF.PI / 180f));
+            float r = 1.4f + Next() * 2.4f;
+            Oval(raw, GanymedeCrater, lat, Next() * 360f, r, r * widen);
+        }
+
+        return new SurfaceMap(GanymedeBase, [.. raw]);
+    }
+
+    // Tonerna ligger nära varandra med flit. Valhallas ringar blev först en
+    // skarp måltavla; i verkligheten är de svaga vågkammar man anar, inte streck.
+    static readonly Color CallistoBase = Color.FromArgb("#655C53");
+    static readonly Color CallistoLeading = Color.FromArgb("#71685E");
+    static readonly Color CallistoCrater = Color.FromArgb("#786F65");
+    static readonly Color CallistoBright = Color.FromArgb("#867D72");
+    static readonly Color CallistoRing = Color.FromArgb("#7C7368");
+
+    /// <summary>
+    /// Callisto har solsystemets äldsta yta. Den ligger utanför Laplace-resonansen
+    /// som knådar de tre inre månarna, så ingenting har värmt den – ytan är
+    /// densamma som för fyra miljarder år sedan, och så tätt kraterrik att nya
+    /// nedslag bara kan träffa gamla.
+    ///
+    /// Valhalla är märket efter det största av dem: en ljus fläck med vågringar
+    /// runt om, tillsammans 3 800 km tvärs över. Nedslaget rev upp isen som en
+    /// sten i en damm och det frös till innan vågorna hann lägga sig.
+    /// </summary>
+    public static readonly SurfaceMap Callisto = BuildCallisto();
+
+    static SurfaceMap BuildCallisto()
+    {
+        var raw = new List<(Color Fill, (float Lat, float Lon)[] Pts)>();
+        uint seed = 577215u;
+        float Next()
+        {
+            seed = seed * 1664525u + 1013904223u;
+            return (seed >> 8) / (float)(1 << 24);
+        }
+
+        // Den ledande halvan är ljusare – nedslagen där gräver fram ren is.
+        Oval(raw, CallistoLeading, 0f, 270f, 70f, 88f);
+
+        // Valhalla, på den bortre halvan mot den ledande sidan. Ytterringen når
+        // 45° från mitten, vilket ger de 3 800 km tvärs över som mätts upp.
+        Annulus(raw, CallistoRing, 18f, 240f, 26f, 30f);
+        Annulus(raw, CallistoRing, 18f, 240f, 41f, 45f);
+        Oval(raw, CallistoBright, 18f, 240f, 13f, 14f);
+
+        // Kratrar, och de ligger tätt: Callisto är den mest kraterrika ytan i
+        // solsystemet, mättad så att nya nedslag bara kan träffa gamla.
+        for (int i = 0; i < 110; i++)
+        {
+            float lat = (float)(Math.Asin(2 * Next() - 1) / Math.PI * 180) * 0.9f;
+            float widen = 1f / MathF.Max(0.28f, MathF.Cos(lat * MathF.PI / 180f));
+            float r = 1.3f + Next() * 3.4f;
+            Oval(raw, Next() < 0.3f ? CallistoBright : CallistoCrater,
+                 lat, Next() * 360f, r, r * widen);
+        }
+
+        return new SurfaceMap(CallistoBase, [.. raw]);
+    }
+
     static readonly Color MoonHighland = Color.FromArgb("#A8A49E");
     static readonly Color MoonMare = Color.FromArgb("#6F6F72");
     static readonly Color MoonMareDark = Color.FromArgb("#67676A");

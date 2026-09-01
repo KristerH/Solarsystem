@@ -989,25 +989,62 @@ De fyra galileiska månarna och Titan ritas redan som skivor när man zoomar in 
 sin planet, så de är stora nog att bära en yta. De har dessutom några av
 solsystemets mest särpräglade utseenden.
 
-- [ ] Io: svavelgul och orangefläckig, den vulkaniskt mest aktiva kroppen i
+- [x] Io: svavelgul och orangefläckig, den vulkaniskt mest aktiva kroppen i
       solsystemet. Inga kratrar alls – ytan görs om hela tiden.
-- [ ] Europa: nästan vit is, korsad av rödbruna sprickor. Slätast av allt vi
+- [x] Europa: nästan vit is, korsad av rödbruna sprickor. Slätast av allt vi
       känner till.
-- [ ] Ganymedes: gråbrun, med ljusa yngre områden mot mörka äldre. Solsystemets
+- [x] Ganymedes: gråbrun, med ljusa yngre områden mot mörka äldre. Solsystemets
       största måne, större än Merkurius.
-- [ ] Callisto: mörk och tätt kraterrik – den äldsta ytan av de fyra, som aldrig
+- [x] Callisto: mörk och tätt kraterrik – den äldsta ytan av de fyra, som aldrig
       förnyats.
-- [ ] Titan: jämnt orange dis. Här ska ingen yta synas alls, precis som hos
+- [x] Titan: jämnt orange dis. Här ska ingen yta synas alls, precis som hos
       Venus, eftersom atmosfären är ogenomskinlig.
-- [ ] **Bunden rotation** för alla fem: de vänder samma sida mot sin planet,
+- [x] **Bunden rotation** för alla fem: de vänder samma sida mot sin planet,
       precis som månen mot jorden. Mekanismen kommer från 11.6 och behöver bara
       rotationsdata per måne.
 
 Alla fem ligger i sin planets ekvatorsplan, så axeldatan finns redan efter 11.1.
 
+**Titan fick medvetet ingen ytkarta.** Det är svaret på uppgiften, inte en lucka:
+dimman är ogenomskinlig och månen ritas som en jämnt orange skiva med ljus och
+skugga, precis som Venus. Axeln finns ändå med, eftersom bundenheten är sann
+oavsett om den syns.
+
+Longituden räknas från den punkt som pekar mot planeten. Nollan ligger mot
+planeten, 180° rakt bort, **270° mitt på den ledande halvan** och 90° på den
+eftersläpande. Det är inte bokföring utan fysik: Jupiters magnetfält roterar
+fortare än månarna hinner runt, sveper alltså förbi dem bakifrån, och bakar in
+svavel från Ios vulkaner i just den eftersläpande sidan. Därför är Europas
+eftersläpande halva mörkare och rödare, och Callistos ledande halva ljusare.
+
+Ny hjälpare `Annulus` ritar en ring kring en punkt på ytan, av samma skäl som
+molnbanden byggs av fyrhörningar: en ring har hål i sig och går inte att fylla.
+Den behövdes för Valhalla, märket efter Callistos största nedslag.
+
 **Verifiera:** Följ Io ett varv kring Jupiter – samma sida ska vara vänd mot
 planeten hela tiden, som månen mot jorden. Titan ska sakna synliga drag hur
 mycket man än zoomar, till skillnad från de andra fyra.
+
+Kontrollerat utanför appen:
+
+- **Io håller nollmeridianen mot Jupiter genom hela varvet.** Mätt var 45° i
+  banan avviker den som mest 0,5°, och den avvikelsen är inte ett fel utan
+  librationen: banan är elliptisk, så farten varierar medan rotationen är jämn.
+- **Librationen blir exakt 2e för alla fem**, vilket är vad teorin säger: Io
+  ±0,5°, Europa ±1,1°, Ganymedes ±0,1°, Callisto ±0,8°, Titan ±3,3°. Mätt varje
+  dygn i 110 år, utan någon drift.
+- **Färdriktningen pekar mot longitud 270°** för alla fem, alltså ligger den
+  ledande halvan där den ska. Europas mörkare fält har sin mitt på exakt 90° och
+  Callistos ljusare på 270° – rätt halva var.
+- **Valhallas ytterring** når 45° från mitten, vilket ger 3 786 km tvärs över mot
+  uppmätta ungefär 3 800.
+- **Ganymedes radie 2 634 km mot Merkurius 2 440**, alltså större än planeten,
+  vilket är själva poängen med den.
+
+Två saker fick göras om efter att kartorna setts ritade: Valhallas ringar var en
+skarp måltavla i stället för de svaga vågkammar man anar, och Callisto var för
+gles för att kallas mättat kraterrik (60 kratrar blev 110). Ganymedes fårknippen
+gick från tio till arton, eftersom ungefär halva månen är sådan terräng.
 
 ---
 
@@ -1122,6 +1159,12 @@ Etapp 11:
 - [x] Jupiters polarkalotter fyller åt rätt håll, trots att de ligger mycket
       längre från polen än jordens isar.
 - [x] Jupiters dämpade palett, sedd i bild och gjord om två gånger (se 11.3).
+- [ ] **De stora månarna går i praktiken inte att se.** Kartorna finns och är
+      verifierade, men kameran kan bara centreras på planeter, och en måne ritas
+      som glob först vid 14 pixlars radie. Ganymedes är 3,8 procent av Jupiters
+      radie, så Jupiter måste vara 372 pixlar – och då ligger Io 1 100 pixlar från
+      bildmitten, alltså utanför rutan. Fixen är att lägga månarna i
+      fokusväljaren, men det är ett eget steg och inte gjort.
 - [ ] Månen och Pluto i appen. Månen ritas som glob först när den blir stor nog
       i bild, och den tröskeln är inte prövad för en måne – bara för planeter.
 - [ ] Merkurius kratrar i appen. I den externa kontrollen ser de ut som

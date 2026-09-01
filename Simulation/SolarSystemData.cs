@@ -290,25 +290,49 @@ public static class SolarSystemData
     // Eftersom omloppstiderna redan uppfyller resonansen i medelrörelse hålls
     // villkoret över tid. Följden är att de tre inre månarna aldrig kan stå på
     // linje samtidigt – när Io och Europa möts står Ganymedes alltid 90° bort.
+    // De fyra galileiska månarna och Titan är bundna: ett varv kring axeln per
+    // varv i banan, så samma sida är alltid vänd mot planeten. Axeln står
+    // vinkelrätt mot banplanet, alltså samma lutning och nod som banan, och
+    // rotationstiden är banans egen. Nollmeridianerna är uträknade så att
+    // longitud noll pekar mot planeten vid epoken, med månens MEDELläge som
+    // ankare – tas det verkliga läget hamnar nollan i ett librationsytterläge
+    // och vaggningen blir osymmetrisk.
+
     public static readonly CelestialBody Io = new(
         "Io", Color.FromArgb("#E0C96A"), 1_821.6,
         421_800.0 / AuKm, 0.0041, JupiterAxis.InclinationDeg, JupiterAxis.NodeDeg,
-        0.0, 0.0, 1.769138);
+        0.0, 0.0, 1.769138)
+    {
+        Axis = new BodyAxis(JupiterAxis.InclinationDeg, JupiterAxis.NodeDeg, 1.769138, 202.180),
+        Surface = SurfaceMap.Io,
+    };
 
     public static readonly CelestialBody Europa = new(
         "Europa", Color.FromArgb("#DCD3C4"), 1_560.8,
         671_100.0 / AuKm, 0.0094, JupiterAxis.InclinationDeg, JupiterAxis.NodeDeg,
-        0.0, 0.0, 3.551181);
+        0.0, 0.0, 3.551181)
+    {
+        Axis = new BodyAxis(JupiterAxis.InclinationDeg, JupiterAxis.NodeDeg, 3.551181, 202.180),
+        Surface = SurfaceMap.Europa,
+    };
 
     public static readonly CelestialBody Ganymedes = new(
         "Ganymedes", Color.FromArgb("#9E8E7C"), 2_634.1,
         1_070_400.0 / AuKm, 0.0013, JupiterAxis.InclinationDeg, JupiterAxis.NodeDeg,
-        0.0, 90.0, 7.154553);
+        0.0, 90.0, 7.154553)
+    {
+        Axis = new BodyAxis(JupiterAxis.InclinationDeg, JupiterAxis.NodeDeg, 7.154553, 292.180),
+        Surface = SurfaceMap.Ganymede,
+    };
 
     public static readonly CelestialBody Callisto = new(
         "Callisto", Color.FromArgb("#7C7065"), 2_410.3,
         1_882_700.0 / AuKm, 0.0074, JupiterAxis.InclinationDeg, JupiterAxis.NodeDeg,
-        0.0, 180.0, 16.689018);
+        0.0, 180.0, 16.689018)
+    {
+        Axis = new BodyAxis(JupiterAxis.InclinationDeg, JupiterAxis.NodeDeg, 16.689018, 22.180),
+        Surface = SurfaceMap.Callisto,
+    };
 
     // Charon, Plutos stora följeslagare. Med halva Plutos diameter och en
     // åttondel av dess massa är paret nästan en dubbelplanet: systemets
@@ -353,7 +377,14 @@ public static class SolarSystemData
     public static readonly CelestialBody Titan = new(
         "Titan", Color.FromArgb("#D9A05B"), 2_574.7,
         1_221_870.0 / AuKm, 0.0288, SaturnAxis.InclinationDeg, SaturnAxis.NodeDeg,
-        0.0, 240.0, 15.945421);
+        0.0, 240.0, 15.945421)
+    {
+        // Titan får ingen ytkarta, och det är svaret på uppgiften snarare än en
+        // lucka: dimman är ogenomskinlig och ingen yta syns. Månen ritas som en
+        // jämnt orange skiva med ljus och skugga, precis som Venus. Axeln finns
+        // ändå med, eftersom bundenheten är sann oavsett om den syns.
+        Axis = new BodyAxis(SaturnAxis.InclinationDeg, SaturnAxis.NodeDeg, 15.945421, 250.470),
+    };
 
     // Uranus månar, uppkallade efter figurer hos Shakespeare och Pope. Eftersom
     // Uranus ligger på sidan står hela månsystemet nästan på högkant mot
