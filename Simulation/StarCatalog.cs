@@ -44,6 +44,13 @@ public static class StarCatalog
     /// först rotation till ekliptiska koordinater, sedan Y = norr om ekliptikan.
     /// </summary>
     public static Vector3 EquatorialToWorld(double raHours, double decDeg)
+        => EquatorialToWorldAu(raHours, decDeg).ToVector3();
+
+    /// <summary>
+    /// Samma omräkning i dubbel precision. Sondernas kända lägen på himlen går
+    /// den här vägen: därifrån byggs den sista banan, och då behövs varje siffra.
+    /// </summary>
+    public static Vec3 EquatorialToWorldAu(double raHours, double decDeg)
     {
         double ra = raHours * 15.0 * Math.PI / 180.0;
         double dec = decDeg * Math.PI / 180.0;
@@ -60,7 +67,7 @@ public static class StarCatalog
         double ze = -yq * Math.Sin(eps) + zq * Math.Cos(eps);
 
         // Samma avbildning som planeternas banor: ekliptikan horisontell, norr uppåt.
-        return Vector3.Normalize(new Vector3((float)xe, (float)ze, (float)-ye));
+        return new Vec3(xe, ze, -ye).Normalized();
     }
 
     public static readonly Star[] Stars =

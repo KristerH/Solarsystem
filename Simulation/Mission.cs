@@ -111,9 +111,10 @@ public sealed class Mission
         if (double.IsInfinity(departureSpeed))
             return null;
 
-        // Allt räknas i AU; skalan till världsenheter läggs på först vid ritning.
-        var r1 = origin.PositionAt(launchDay, 1f);
-        var r2 = target.PositionAt(launchDay + travelDays, 1f);
+        // Allt räknas i AU och i dubbel precision; skalan till världsenheter
+        // läggs på först vid ritning.
+        var r1 = origin.PositionAuAt(launchDay);
+        var r2 = target.PositionAuAt(launchDay + travelDays);
         if (!Lambert.Solve(r1, r2, travelDays, SolarSystemData.SunMu, out var v1, out _))
             return null;
 
@@ -130,12 +131,12 @@ public sealed class Mission
     /// mindre än ett halvt varv bort åt andra hållet, så har färden i själva
     /// verket svept mer än ett halvt varv.
     /// </summary>
-    static double SweepBetween(Vector3 from, Vector3 to)
+    static double SweepBetween(Vec3 from, Vec3 to)
     {
         double cos = Math.Clamp(
-            Vector3.Dot(from, to) / (from.Length() * to.Length()), -1.0, 1.0);
+            Vec3.Dot(from, to) / (from.Length * to.Length), -1.0, 1.0);
         double sweep = Math.Acos(cos) * 180.0 / Math.PI;
-        return Vector3.Cross(from, to).Y < 0 ? 360.0 - sweep : sweep;
+        return Vec3.Cross(from, to).Y < 0 ? 360.0 - sweep : sweep;
     }
 
     /// <summary>
@@ -198,17 +199,17 @@ public sealed class Mission
     static double DepartureSpeed(CelestialBody origin, CelestialBody target,
         double day, double travelDays)
     {
-        var r1 = origin.PositionAt(day, 1f);
-        var r2 = target.PositionAt(day + travelDays, 1f);
+        var r1 = origin.PositionAuAt(day);
+        var r2 = target.PositionAuAt(day + travelDays);
         if (!Lambert.Solve(r1, r2, travelDays, SolarSystemData.SunMu, out var v1, out _))
             return double.PositiveInfinity;
 
-        return (v1 - VelocityOf(origin, day)).Length() * SolarSystemData.AuKm / 86_400.0;
+        return (v1 - VelocityOf(origin, day)).Length * SolarSystemData.AuKm / 86_400.0;
     }
 
     /// <summary>Kroppens egen hastighet i AU/dygn, ur lägena ett halvt dygn isär.</summary>
-    static Vector3 VelocityOf(CelestialBody body, double day)
-        => body.PositionAt(day + 0.5, 1f) - body.PositionAt(day - 0.5, 1f);
+    static Vec3 VelocityOf(CelestialBody body, double day)
+        => body.PositionAuAt(day + 0.5) - body.PositionAuAt(day - 0.5);
 
     // ------------------------------------------------------------------ lägen
 

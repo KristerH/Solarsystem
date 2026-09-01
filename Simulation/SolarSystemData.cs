@@ -80,6 +80,21 @@ public sealed record CelestialBody(
     /// <summary>Position i världskoordinater (Y = norr om ekliptikan) vid given tid.</summary>
     public Vector3 PositionAt(double daysSinceJ2000, float unitsPerAu)
     {
+        var p = PositionAuAt(daysSinceJ2000);
+        return new Vector3(
+            (float)(p.X * unitsPerAu), (float)(p.Y * unitsPerAu), (float)(p.Z * unitsPerAu));
+    }
+
+    /// <summary>
+    /// Samma läge i AU, men utan att gå ned till enkel precision.
+    ///
+    /// Ritningen behöver inte det, men banbyggandet gör det: en bana som ska
+    /// räknas fram ur ett läge och en hastighet tappar annars siffror redan
+    /// innan räkningen börjar. Se <see cref="Vec3"/> för varför det slår så hårt
+    /// just där.
+    /// </summary>
+    public Vec3 PositionAuAt(double daysSinceJ2000)
+    {
         double meanMotion = 360.0 / OrbitalPeriodDays;
         double mDeg = MeanLonJ2000Deg + meanMotion * daysSinceJ2000 - PerihelionLonDeg;
         // Vik ned till ett varv innan omvandlingen till radianer. Snabba månar
@@ -87,7 +102,7 @@ public sealed record CelestialBody(
         // tär på flyttalsprecisionen. Banpositionen är oförändrad.
         double M = DegToRad(mDeg % 360.0);
         double E = SolveKepler(M, Eccentricity);
-        return ToWorld(E, unitsPerAu);
+        return ToWorldAu(E);
     }
 
     /// <summary>Hela banellipsen som punktlista (sluten kurva, jämnt samplad i excentrisk anomali).</summary>
@@ -95,11 +110,15 @@ public sealed record CelestialBody(
     {
         var pts = new Vector3[samples];
         for (int k = 0; k < samples; k++)
-            pts[k] = ToWorld(2.0 * Math.PI * k / samples, unitsPerAu);
+        {
+            var p = ToWorldAu(2.0 * Math.PI * k / samples);
+            pts[k] = new Vector3(
+                (float)(p.X * unitsPerAu), (float)(p.Y * unitsPerAu), (float)(p.Z * unitsPerAu));
+        }
         return pts;
     }
 
-    Vector3 ToWorld(double E, float unitsPerAu)
+    Vec3 ToWorldAu(double E)
     {
         double e = Eccentricity;
         // Position i banplanet (fokus = solen).
@@ -119,10 +138,7 @@ public sealed record CelestialBody(
         double z = (sw * si) * xv + (cw * si) * yv;
 
         // Ekliptikans plan läggs horisontellt; norr (+z) pekar uppåt (+Y).
-        return new Vector3(
-            (float)(x * unitsPerAu),
-            (float)(z * unitsPerAu),
-            (float)(-y * unitsPerAu));
+        return new Vec3(x, z, -y);
     }
 
     static double SolveKepler(double M, double e)

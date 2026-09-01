@@ -74,11 +74,11 @@ public sealed class Conic
     /// momentet r×v ger banplanet, och excentricitetsvektorn ger både banans
     /// form och åt vilket håll periapsis ligger.
     /// </summary>
-    public static Conic? FromState(Vector3 positionAu, Vector3 velocityAuPerDay,
+    public static Conic? FromState(Vec3 positionAu, Vec3 velocityAuPerDay,
         double epochDay, double mu)
     {
-        double r = positionAu.Length();
-        double v2 = velocityAuPerDay.LengthSquared();
+        double r = positionAu.Length;
+        double v2 = velocityAuPerDay.LengthSquared;
         if (r < 1e-12 || mu <= 0)
             return null;
 
@@ -90,26 +90,30 @@ public sealed class Conic
             return null;                        // parabel – oändligt lång bana
         double a = 1.0 / alpha;
 
-        var h = Vector3.Cross(positionAu, velocityAuPerDay);
-        if (h.Length() < 1e-14f)
+        var h = Vec3.Cross(positionAu, velocityAuPerDay);
+        if (h.Length < 1e-14)
             return null;                        // rakt in mot centrum, ingen bana
 
         // Excentricitetsvektorn pekar mot periapsis och har banans excentricitet
         // som längd.
-        var eVec = Vector3.Cross(velocityAuPerDay, h) / (float)mu - positionAu / (float)r;
-        double e = eVec.Length();
+        var eVec = Vec3.Cross(velocityAuPerDay, h) / mu - positionAu / r;
+        double e = eVec.Length;
         if (double.IsNaN(e) || e >= 1.0 && a > 0)
             return null;                        // motsägelsefullt tillstånd
 
-        var periDir = e > 1e-8
-            ? Vector3.Normalize(eVec)
-            : Vector3.Normalize(positionAu);    // cirkelbana: välj läget som utgångspunkt
-        var sideDir = Vector3.Normalize(Vector3.Cross(Vector3.Normalize(h), periDir));
+        var periVec = e > 1e-8
+            ? eVec.Normalized()
+            : positionAu.Normalized();          // cirkelbana: välj läget som utgångspunkt
+        var sideVec = Vec3.Cross(h.Normalized(), periVec).Normalized();
 
         // Sanna anomalin vid epoken: vinkeln från periapsis, mätt i banplanet.
+        // Räknas i dubbel precision; först därefter går riktningarna ned till
+        // enkel, där de bara används för att peka ut banplanet vid ritning.
         double trueAnomaly = Math.Atan2(
-            Vector3.Dot(positionAu, sideDir),
-            Vector3.Dot(positionAu, periDir));
+            Vec3.Dot(positionAu, sideVec),
+            Vec3.Dot(positionAu, periVec));
+        var periDir = periVec.ToVector3();
+        var sideDir = sideVec.ToVector3();
 
         double meanAnomaly, meanMotion;
         if (e < 1.0)

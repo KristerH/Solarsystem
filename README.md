@@ -348,6 +348,10 @@ asteroid-/Kuiperbälten, tänkt att byggas och verifieras en etapp i taget.
 - `Simulation/Conic.cs` – ett kägelsnitt byggt ur ett tillstånd, alltså ett läge
   och en hastighet vid en tidpunkt. Klarar både ellipser och hyperbler, och är
   det som beskriver en sonds bana mellan två planetpassager.
+- `Simulation/Vec3.cs` – en vektor i dubbel precision, för de räkningar där
+  `Vector3` inte räcker. Ritningen klarar sig gott med enkel precision, men när
+  en bana byggs ur ett läge och en hastighet räknas energin som en skillnad
+  mellan två nästan lika stora tal, och då förstoras varje saknad siffra.
 - `Simulation/Lambert.cs` – banan som går från ett läge till ett annat på exakt
   en given tid, löst med universella variabler. Det är den som gör att sonderna
   kan byggas ur verkliga uppskjutnings- och passagedatum i stället för ur

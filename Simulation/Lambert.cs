@@ -1,5 +1,3 @@
-using System.Numerics;
-
 namespace Solarsystem.Simulation;
 
 /// <summary>
@@ -28,16 +26,16 @@ public static class Lambert
     /// hittas – till exempel när lägena ligger rakt mitt emot varandra sett från
     /// centrum, där banplanet inte går att bestämma.
     /// </summary>
-    public static bool Solve(Vector3 from, Vector3 to, double travelDays, double mu,
-        out Vector3 departureVelocity, out Vector3 arrivalVelocity)
+    public static bool Solve(Vec3 from, Vec3 to, double travelDays, double mu,
+        out Vec3 departureVelocity, out Vec3 arrivalVelocity)
     {
         departureVelocity = arrivalVelocity = default;
 
-        double r1 = from.Length(), r2 = to.Length();
+        double r1 = from.Length, r2 = to.Length;
         if (r1 < 1e-12 || r2 < 1e-12 || travelDays <= 0 || mu <= 0)
             return false;
 
-        double cosSweep = Math.Clamp(Vector3.Dot(from, to) / (r1 * r2), -1.0, 1.0);
+        double cosSweep = Math.Clamp(Vec3.Dot(from, to) / (r1 * r2), -1.0, 1.0);
         if (1.0 - cosSweep < 1e-12)
             return false;                       // samma riktning: ingen bana
 
@@ -46,7 +44,7 @@ public static class Lambert
         // Alla sonder går prograd, alltså moturs sett norrifrån. I appens
         // koordinater pekar Y norrut, så ett moturs varv har r1×r2 uppåt. Är den
         // nedåt har färden svept mer än ett halvt varv – den "långa vägen".
-        if (Vector3.Cross(from, to).Y < 0)
+        if (Vec3.Cross(from, to).Y < 0)
             sweep = Math.PI * 2 - sweep;
 
         double a = Math.Sin(sweep) * Math.Sqrt(r1 * r2 / (1.0 - cosSweep));
@@ -90,16 +88,18 @@ public static class Lambert
         // Subtraktionerna nedan tar bort nästan lika stora tal, och då spelar
         // varje siffra roll: räknas de i float blir hastigheten så pass fel att
         // en sond missar Jupiter med ett par planetradier efter två års färd.
+        // Därför lämnas de i dubbel precision hela vägen ut ur lösaren också –
+        // den som bygger banan ur dem behöver varje siffra.
         departureVelocity = Combine(to, 1.0 / g, from, -f / g);
         arrivalVelocity = Combine(to, gDot / g, from, -1.0 / g);
         return true;
     }
 
-    /// <summary>Räknar ut u·a + v·b komponentvis i dubbel precision.</summary>
-    static Vector3 Combine(Vector3 a, double u, Vector3 b, double v) => new(
-        (float)(a.X * u + b.X * v),
-        (float)(a.Y * u + b.Y * v),
-        (float)(a.Z * u + b.Z * v));
+    /// <summary>Räknar ut u·a + v·b komponentvis.</summary>
+    static Vec3 Combine(Vec3 a, double u, Vec3 b, double v) => new(
+        a.X * u + b.X * v,
+        a.Y * u + b.Y * v,
+        a.Z * u + b.Z * v);
 
     /// <summary>
     /// Hjälpstorheten y: hur långt kägelsnittet sträcker sig för ett givet z.

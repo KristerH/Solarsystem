@@ -1273,20 +1273,67 @@ Kontrollerat utanför appen, 12 kontroller utan fel: Juno ritas från ankomsten
 5 juli 2016 till och med 1 maj 2026 och inte dagen efter, banan är oförändrad
 (53,42 dygn, e = 0,9815, 57,7 km/s vid perijovium) och Cassini är orörd.
 
-### R3 – Precisionen i den ritade Mars-banan
+### R3 – Precisionen i den ritade banan ✔
 
-Farkostens ritade bana slutar omkring 850 km från Mars, medan månfärdens slutar
-några centimeter från månen. Skillnaden ligger i hur banan byggs: månfärden går
-via `Conic.FromPeriapsis`, som räknar analytiskt i dubbel precision, medan
-Mars-färden går Lambert → `Vector3` i enkel precision → `Conic.FromState`, där
-energin blir en liten skillnad mellan två stora tal och precisionen tunnas ut.
+Farkostens bana byggdes Lambert → `Vector3` i enkel precision → `Conic.FromState`,
+där energin blir en liten skillnad mellan två stora tal och precisionen tunnas ut.
+Månfärden går i stället via `Conic.FromPeriapsis`, som räknar analytiskt i dubbel
+precision och slutar några centimeter från månen.
 
-Det syns inte i dag, eftersom planeterna ritas tusen gånger för stora och 850 km
-då är en hundradels pixel. I läget "Verklig storlek" vid extrem inzoomning skulle
-det däremot märkas.
-
-- [ ] Lämna över tillståndet från Lambert i dubbel precision, eller låt lösaren
+- [x] Lämna över tillståndet från Lambert i dubbel precision, eller låt lösaren
       returnera kägelsnittet direkt.
+
+**Rättat i punkten ovan: det var inte Mars-banan.** Här stod att den slutar
+omkring 850 km från Mars. Mätt slutar den *exakt* på Mars – ingen av fyrtio
+provade banor avviker mer än flyttalen kan skilja på. Var siffran kom ifrån vet
+jag inte; troligen mättes den före den Lambert-baserade omskrivningen av
+`Mission.Plan` i etapp 10.
+
+Felet fanns däremot, och på ett annat ställe: **rymdsondernas ben**. Skarven där
+två ben möts är samma punkt i rymden sedd från två håll och borde vara noll. Den
+var upp till 40 000 km. Skälet är att Mars-banor är beskedliga ellipser medan
+sondbenen är nästan paraboliska, och då blir 2/r − v²/µ en skillnad mellan två
+nästan lika stora tal. Varje siffra som saknas i indata förstoras hundrafalt i
+svaret. Dessutom returnerade `Vector3.LengthSquared()` sitt värde i enkel
+precision, så farten tappade siffror redan innan subtraktionen.
+
+Åtgärdat med en `Vec3` i dubbel precision, som bara banmatematiken använder:
+`PositionAuAt` på kropparna, Lambert in och ut, `Conic.FromState`, `Waypoint` och
+`StarCatalog.EquatorialToWorldAu`. Ritningen är oförändrad – där räcker enkel
+precision gott, en pixel är många tusen kilometer.
+
+**Verifiera:** Sondbenens skarvar ska ligga nere vid flyttalens upplösning, och
+allt som verifierades i etapp 10 ska stå kvar.
+
+Kontrollerat utanför appen, 8 kontroller utan fel, med koden före ändringen
+utcheckad ur git och körd genom samma mätning:
+
+| passage | före | efter |
+|---|---|---|
+| Voyager 1 vid Jupiter | 610 km | 36 km |
+| Voyager 2 vid Jupiter | **20 589 km** | 51 km |
+| Voyager 2 vid Saturnus | 802 km | 18 km |
+| Pioneer 10 vid Jupiter | 1 084 km | 71 km |
+| Pioneer 11 vid Saturnus | **39 984 km** | 37 km |
+| New Horizons vid Jupiter | 1 042 km | 71 km |
+
+Sämsta avvikelsen går från 39 984 km till 404 km, och de två grova utstickarna är
+borta. Det som är kvar är inte längre modellens fel utan mätningens: skarvarna
+ligger på en halv till knappt fyra flyttalssteg, och ett flyttalssteg är 36 km
+vid Jupiter och 285 km ute vid Pluto. Under den gränsen finns ingen skillnad att
+mäta, och det är också den upplösning appen ritar med.
+
+Allt annat är oförändrat: Voyager 1:s fart i dag 16,66 km/s, slungan vid Jupiter
++10,8 km/s, sexton ben, Mars-fönstren på samma datum till samma kostnad
+(3,12 / 3,09 / 3,00 / 2,93 / 3,30 km/s) och månfärden fortfarande exakt.
+
+**Två anteckningar från etapp 10 stämmer inte.** Där står att Mars-fönstren
+kostar "2,90–3,20 km/s"; fönstret 2035 kostar 3,30, både före och efter den här
+ändringen. Där står också att alla elva passager träffar inom "74–602 km". Det
+går inte att återskapa: med koden som den såg ut före ändringen mäter jag
+610 till 39 984 km vid passagedatumet, och 610 till 34 214 km om man i stället
+tar närmaste punkt längs banan. Vilken metod som gav de gamla talen vet jag inte,
+så de får stå som oreproducerade snarare än rättade till något jag gissat.
 
 ### R4 – "Verklig storlek" går inte att zooma in i ✔
 

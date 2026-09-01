@@ -18,9 +18,9 @@ public sealed class Waypoint
     public double Day => (Date - SolarSystemData.EpochJ2000).TotalDays;
 
     readonly CelestialBody? _body;
-    readonly Vector3 _fixedAu;
+    readonly Vec3 _fixedAu;
 
-    Waypoint(string name, DateTime date, CelestialBody? body, Vector3 fixedAu)
+    Waypoint(string name, DateTime date, CelestialBody? body, Vec3 fixedAu)
     {
         Name = name;
         Date = date;
@@ -41,10 +41,10 @@ public sealed class Waypoint
     public static Waypoint InSky(string name, DateTime date, double distanceAu,
         double raHours, double decDeg)
         => new(name, date, null,
-            StarCatalog.EquatorialToWorld(raHours, decDeg) * (float)distanceAu);
+            StarCatalog.EquatorialToWorldAu(raHours, decDeg) * distanceAu);
 
-    /// <summary>Punktens läge i AU, soltcentriskt.</summary>
-    public Vector3 PositionAu() => _body?.PositionAt(Day, 1f) ?? _fixedAu;
+    /// <summary>Punktens läge i AU, solcentriskt och i dubbel precision.</summary>
+    public Vec3 PositionAu() => _body?.PositionAuAt(Day) ?? _fixedAu;
 }
 
 /// <summary>
