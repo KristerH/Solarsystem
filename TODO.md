@@ -1090,7 +1090,160 @@ restpunkt R4 beskriver, och den har ingen ytkarta att visa ändå.
 
 ---
 
-## Etapp 12 – Språkstöd (inför publik release)
+## Etapp 12 – Vad solsystemet mer har att visa
+
+Fem tillskott och ett beslut, ordnade efter vad de ger delat med vad de kostar.
+De tre första vilar på sådant modellen redan klarar – det är kontrollerat, och
+siffrorna står under varje punkt. Den fjärde är inte en punkt att bygga utan ett
+arkitekturval att ta ställning till, och det är värt att läsa innan någon börjar
+med förmörkelser.
+
+### 12.1 – Planetkonstellationer: gå till nästa möte
+
+En väljare i stil med startfönstren för Mars: "nästa opposition för Mars",
+"nästa gång Jupiter och Saturnus möts", "nästa gång alla planeter ligger på
+samma sida om solen". Man väljer, appen hoppar till datumet, och man ser
+ställningen uppifrån.
+
+- [ ] Sökfunktion för konjunktion och opposition mellan två valda kroppar.
+      Samma form som `Mission.NextLaunchWindow`: stega dagvis, hitta minimum,
+      förfina. Den koden finns och är redan snabb nog för knapptryck.
+- [ ] Knapp eller lista i kontrollpanelen som hoppar till nästa sådant datum.
+- [ ] Visa avståndet vid tillfället – Mars är dubbelt så nära vid en gynnsam
+      opposition som vid en ogynnsam, och det är hela förklaringen till varför
+      somliga oppositioner blir stora nyheter.
+
+**Kontrollerat i förväg:** alla fyra Mars-oppositioner 2025–2031 faller på rätt
+dygn ur modellen – 16 jan 2025 (0,644 AU), 19 feb 2027 (0,678), 25 mars 2029
+(0,649) och 4 maj 2031 (0,559) – mot verklighetens 16 jan, 19 feb, 25 mars och
+4 maj. Excentriciteten syns direkt i avstånden.
+
+**Men konjunktioner mellan två långsamma planeter blir inte lika exakta.** Den
+stora konjunktionen Jupiter–Saturn hamnar 1 november 2020 i modellen mot
+verklighetens 21 december, alltså sju veckor fel, och 1 december 2040 mot
+31 oktober. Felet ligger inte i positionerna utan i tidskänsligheten: två
+långsamma planeter separerar så trögt att en tiondels grad blir veckor i datum.
+Mars i opposition rör sig snabbt mot jorden och är därför okänslig. Datum för
+yttre konjunktioner bör alltså visas med en brasklapp, eller inte alls.
+
+**Verifiera:** De fyra Mars-oppositionerna ovan ska hittas på rätt dygn av
+appens egen sökfunktion, inte bara av provprogrammet.
+
+### 12.2 – Heliopausen och solsystemets kant
+
+Sonderna far redan ut ur solsystemet, men det syns inte var kanten går.
+
+- [ ] En genomskinlig sfär vid 120 AU, ritad först när man zoomat ut nog för
+      att den ska rymmas. Det är där solvinden möter det interstellära mediet
+      och solens välde tar slut.
+- [ ] Voyagernas genomgångar som milstolpar: 25 augusti 2012 och 5 november
+      2018. De är de enda två tillfällen någon farkost från jorden passerat den
+      gränsen.
+- [ ] Gärna en notering om att kanten inte är en kula utan buktar – solsystemet
+      far genom det interstellära mediet och får en stötvåg framför sig.
+
+**Kontrollerat i förväg:** modellen sätter Voyager 1 på 120,1 AU vid sitt
+genomgångsdatum mot uppmätta 121,6, och Voyager 2 på 117,7 mot uppmätta 119,0.
+Inom en och en halv AU utan att någonting behöver läggas till – uppgifterna
+ligger redan i sonddatan.
+
+**Verifiera:** Ställ datumet till 25 augusti 2012 med Voyager 1 vald. Sonden ska
+stå på sfären, inte innanför eller utanför den.
+
+### 12.3 – Månbanans plan och nodernas vandring
+
+Den ärliga versionen av förmörkelseidén – se 12.4 för varför den raka vägen inte
+går. Frågan som ska besvaras är inte *när* det blir förmörkelse utan *varför det
+inte blir det varje månad*.
+
+- [ ] Lägg `AscNodeRateDegPerDay` på `CelestialBody`, så att ett banplan kan
+      vrida sig med tiden. Månens nod vandrar baklänges ett varv på 18,6 år,
+      alltså 19,4 grader per år.
+- [ ] Samma fält kommer Triton till del. Kodkommentaren där säger redan att
+      dess banplan precesserar med ungefär 640 års period och att orienteringen
+      i datan är läget vid epoken snarare än en bestående egenskap.
+- [ ] Ett läge som ritar ut månbanans plan mot ekliptikan och markerar de två
+      noderna, så att man ser att månen för det mesta passerar ovanför eller
+      under solen i stället för framför den.
+
+**Varför det är värt det:** med noden i rörelse glider förmörkelsesäsongerna
+nitton dygn bakåt varje år, och det är hela förklaringen till 18,6-årscykeln och
+till att saros finns. Den rörelsen blir riktig även om enskilda datum inte blir
+det.
+
+**Verifiera:** Följ noden över tjugo år – den ska gå ett helt varv baklänges på
+18,6 år. Månens banlutning mot ekliptikan ska ligga kvar på 5,1 grader hela
+tiden; det är bara nodens longitud som ändras.
+
+### 12.4 – Förmörkelser (och varför de är svåra)
+
+Den här punkten är medvetet ofärdig. Den står här för att idén är god och för
+att nästa person som får den ska slippa göra om utredningen.
+
+Att lägga in en lista med verkliga förmörkelsedatum är trivialt. Problemet är
+vad som händer när man hoppar dit: **modellen visar ingen förmörkelse.** Vid
+verkliga datum står månen så här långt från solen sett från jorden:
+
+| förmörkelse | modellen ger | borde vara |
+|---|---|---|
+| total sol 2017-08-21 | 9,1° | ~0° |
+| total sol 2024-04-08 | 18,2° | ~0° |
+| total sol 2026-08-12 | 8,6° | ~0° |
+| total måne 2025-09-07 | 168,5° | ~180° |
+
+Modellen ger en enda "solförmörkelse" under 2026, den 18 januari. Verkligheten
+har två: 12 februari och 12 augusti.
+
+Två saker skulle behövas, och det är den andra som kostar:
+
+1. Nodens vandring, alltså 12.3. Utan den infaller förmörkelsesäsongerna på
+   samma datum varje år i modellen.
+2. Periodiska termer i månens läge. Medelbanelement ger månen på drygt en grads
+   noggrannhet, och en förmörkelse kräver en halv. De största termerna heter
+   evektion (1,27°) och variation (0,66°), och de går inte att uttrycka som en
+   Keplerbana. Det bryter appens bärande idé att varje kropp är en ren
+   Keplerbana med fasta element.
+
+- [ ] Beslut: ska månen få periodiska termer, eller ska appen nöja sig med
+      att förklara mekanismen (12.3) utan att förutsäga datum? Det är ett
+      arkitekturval och inte en implementationsdetalj.
+
+### 12.5 – Halleys komet
+
+Ett enda objekt med mycket att visa: excentricitet 0,967, retrograd bana och ett
+varv på 76 år som tar den från innanför Venus till utanför Neptunus.
+
+- [ ] Halley som en kropp med sina banelement. `Conic` klarar redan vilken
+      excentricitet som helst, så det mesta finns.
+- [ ] Gärna en svans som pekar bort från solen och växer nära periheliet –
+      svansen ligger inte bakom komet i färdriktningen utan bort från solen,
+      vilket är en av de saker som är lättast att ha fel för sig om.
+- [ ] Nästa perihelium är 2061. Med datumväljaren går det att resa dit.
+
+**Verifiera:** Perihelium 9 februari 1986 på 0,586 AU och aphelium 1948 på
+35,1 AU, alltså utanför Neptunus bana.
+
+### 12.6 – Solens rotation
+
+Appen är tunnast just vid solen – den är en skuggad skiva. Rotationen är det
+som ger mest tillbaka.
+
+- [ ] Solen får en `BodyAxis` och en enkel ytkarta med några solfläckar.
+- [ ] Rotationstid 25 dygn vid ekvatorn.
+
+**Förbehåll som måste stå i koden:** solen roterar olika fort på olika
+breddgrader – 25 dygn vid ekvatorn, 34 vid polerna. Det är i sig en av de bästa
+sakerna att visa, men en enda rotationstid kan inte uttrycka det, så solfläckar
+på höga breddgrader kommer att driva fel. Antingen får det stå som en uttalad
+förenkling, eller så behöver ytan en egen mekanism där rotationen beror på
+latituden.
+
+**Verifiera:** En fläck vid ekvatorn ska komma tillbaka till samma läge efter
+25 dygn.
+
+---
+
+## Etapp 13 – Språkstöd (inför publik release)
 
 Appen ska kunna visas på svenska och engelska, med språken i egna filer så
 att fler språk (t.ex. tyska) bara blir en fil till – ingen kodändring.
@@ -1135,7 +1288,7 @@ kontrollpanelen. Svenska ska se exakt ut som i dag.
 - **Månantal:** vi ritar bara de stora/pedagogiska månarna. Att Jupiter har
   ~95 och Saturnus ~274 kända månar kan i stället nämnas i en infotext.
 - **Nya texter fram till språkstödet:** skrivs tills vidare på svenska som i
-  dag, men samlas gärna på få ställen i koden så att etapp 12 (språkstöd)
+  dag, men samlas gärna på få ställen i koden så att etapp 13 (språkstöd)
   blir enkel att genomföra.
 
 ---
