@@ -1229,16 +1229,49 @@ Kontrollpanelen:
       Det var just den raden som svämmade över kanten innan knapparna flyttades
       till en egen rad i 10.4.
 
-### R2 – Bekräfta Junos slutdatum
+### R2 – Bekräfta Junos slutdatum ✔
 
-Juno ritas fram till 30 september 2025, vilket var det förlängda uppdragets
-planerade slut. Om det förlängdes ytterligare visar appen inte en sond som
+Juno ritades fram till 30 september 2025, vilket var det förlängda uppdragets
+planerade slut. Om det förlängdes ytterligare visade appen inte en sond som
 faktiskt kretsar kring Jupiter. Valet var medvetet – hellre missa en sond som
-flyger än visa en som inte finns – men det bygger på en uppgift som inte gick
+flyger än visa en som inte finns – men det byggde på en uppgift som inte gick
 att kontrollera när koden skrevs.
 
-- [ ] Ta reda på om Juno fortsatte efter september 2025 och rätta slutdatumet i
+- [x] Ta reda på om Juno fortsatte efter september 2025 och rätta slutdatumet i
       `ProbeData`. Det är en rad.
+
+**Den flög vidare.** Juno passerade det planerade slutet och skickade data hela
+våren 2026; den 1 maj 2026 tog den närbilder av den lilla månen Thebe med sin
+stjärnkamera. Därefter finns inget bekräftat. Att uppgifterna var svåra att få
+fram hösten 2025 hade en tråkig förklaring: den amerikanska statsapparaten var
+avstängd just när uppdraget skulle ha avslutats, så ingen kunde säga något om
+sondens öde.
+
+Slutdatumet är nu 1 maj 2026, och texten säger "Senast bekräftade kontakten" i
+stället för att påstå ett uppdragsslut. Risken framåt är budgetär snarare än
+teknisk: sonden fungerar, men fanns med bland de uppdrag som föreslogs strykas i
+budgetförslaget för 2026. Ett förslag är inte en lag, men läget är oavgjort.
+
+Två saker till kom fram och står nu i kodkommentaren, eftersom de rättar en
+rimlig men felaktig gissning:
+
+- **Juno kommer inte att styras ned i Jupiter**, till skillnad från Cassini vid
+  Saturnus. Det var planen från början, av samma skäl – en sond som slår ned på
+  Europa skulle kunna föra med sig jordbakterier till havet under isen – men
+  under åren i omloppsbana böjde månarnas dragningskraft banan så mycket att Juno
+  till slut inte passerade i närheten av Europa alls. Då fanns inget kvar att
+  skydda mot, och den styrda nedstörtningen ströks.
+- **Modellens varvräkning stämmer inte med verklighetens.** Appen ritar ett
+  representativt varv på 53 dygn, medan riktiga Juno kortade sin omloppstid flera
+  gånger efter passagerna av Ganymedes och Io. De 213 extra dygn sonden nu syns
+  motsvarar fyra varv i modellens takt, men fler i verkligheten.
+
+**Verifiera:** Juno ska ritas den 1 oktober 2025, som den inte gjorde förut, och
+inte längre efter 1 maj 2026.
+
+Kontrollerat utanför appen, 12 kontroller utan fel: Juno ritas från ankomsten
+5 juli 2016 till och med 1 maj 2026 och inte dagen efter, banan är oförändrad
+(53,42 dygn, e = 0,9815, 57,7 km/s vid perijovium) och Cassini är orörd.
 
 ### R3 – Precisionen i den ritade Mars-banan
 

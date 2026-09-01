@@ -224,7 +224,10 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
   en prick i mitten, vilket i sig är poängen: Voyager 1 är 167 gånger längre
   bort än jorden och fyra gånger längre än Neptunus.
 - **Kretsande sonder**: Cassini vid Saturnus (2004–2017) och Juno vid Jupiter
-  (från 2016) ritas med hela sin banellips kring planeten. De är enklare fall än
+  (2016–2026) ritas med hela sin banellips kring planeten. Junos slutdatum är den
+  senast bekräftade kontakten och inte ett uppdragsslut – sonden flög länge förbi
+  det förlängda uppdragets planerade slut, och appen ritar den så länge det finns
+  belägg för att den fanns där. De är enklare fall än
   de fem som lämnat solsystemet – vanliga ellipser – men banorna är också av ett
   annat slag: de är representativa snarare än återskapade. Cassini flög nästan
   trehundra olika varv, så storlek, form, omloppstid och banplan är verkliga

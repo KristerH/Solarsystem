@@ -141,8 +141,22 @@ public static class ProbeData
     /// magnetfält och inre, och den dyker dessutom mellan planeten och de
     /// farligaste strålningsbältena, som ligger kring ekvatorn.
     ///
-    /// Slutdatumet är det förlängda uppdragets planerade slut. Fortsatte Juno
-    /// efter det är det en rad att ändra här.
+    /// Slutdatumet är den senaste bekräftade kontakten, inte ett uppdragsslut.
+    /// Juno flög vidare långt förbi det förlängda uppdragets planerade slut den
+    /// 30 september 2025 och skickade data hela våren 2026; den 1 maj 2026 tog
+    /// den närbilder av den lilla månen Thebe med sin stjärnkamera. Därefter
+    /// finns inget bekräftat, och risken är budgetär snarare än teknisk – sonden
+    /// fungerar, men fanns med bland de uppdrag som föreslogs strykas.
+    ///
+    /// Appen ritar därför Juno fram till den kända kontakten och inte längre.
+    /// Hellre missa en sond som flyger än visa en som inte finns.
+    ///
+    /// Till skillnad från Cassini kommer Juno inte att styras ned i planeten.
+    /// Det var planen från början, av samma skäl: en sond som slår ned på Europa
+    /// skulle kunna föra med sig jordbakterier till havet under isen. Men under
+    /// åren i omloppsbana böjde månarnas dragningskraft banan så mycket att Juno
+    /// till slut inte passerade i närheten av Europa alls, och då fanns inget
+    /// kvar att skydda mot.
     /// </summary>
     public static readonly Orbiter Juno = Orbiter.Build(
         "Juno", Color.FromArgb("#9FD8F2"), Planet("Jupiter"),
@@ -150,8 +164,8 @@ public static class ProbeData
         inclinationToEquatorDeg: 90.0,
         argPeriapsisDeg: 0.0,
         arrival: new DateTime(2016, 7, 5),
-        end: new DateTime(2025, 9, 30),
-        ending: "Det förlängda uppdragets planerade slut")!;
+        end: new DateTime(2026, 5, 1),
+        ending: "Senast bekräftade kontakten")!;
 
     /// <summary>De sonder som kretsar kring en planet i stället för att lämna.</summary>
     public static readonly Orbiter[] Orbiters = [Cassini, Juno];
