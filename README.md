@@ -24,7 +24,15 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
   snurrar ett varv på 9 h 55 min, snabbast i solsystemet trots att den är störst,
   så fläcken hinner runt kanten och tillbaka på tio minuters speluppspelning vid
   hög hastighet. Var fläcken står ett givet datum är däremot inte modellerat:
-  den driver ett varv på knappt fyra år, oregelbundet.
+  den driver ett varv på knappt fyra år, oregelbundet. Saturnus har samma slags
+  band men mycket svagare – dimman högre upp suddar ut dem – och kring nordpolen
+  sexhörningen, den jetström med sex raka sidor som Voyager upptäckte 1980 och
+  som ingen annanstans i solsystemet har någon motsvarighet. Uranus är den släta:
+  metanet slukar rött ljus och lämnar ett nästan enfärgat blågrönt klot, och
+  eftersom axeln ligger bara 8° från banplanet rullar planeten i stället för att
+  snurra – solen vandrar mellan 82° syd och 82° nord under dess 84-åriga varv.
+  Neptunus är djupare blå och har väder: Stora mörka fläcken som Voyager 2 såg
+  1989, ungefär jordstor, med sitt vita följeslagarmoln.
 - **Månar**: 15 månar kretsar kring sina planeter med riktiga banelement och
   visas när man zoomar in – jordens måne, Mars Phobos och Deimos, Jupiters
   fyra galileiska månar, Saturnus Enceladus, Rhea och Titan, Uranus

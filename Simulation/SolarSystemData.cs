@@ -419,9 +419,9 @@ public static class SolarSystemData
         new("Jorden",    Color.FromArgb("#4C8CE8"),  6_371.0, 1.00000, 0.01671, 0.000, -11.261, 102.947, 100.464,   365.256) { Moons = [Moon], Mu = EarthMu, Axis = EarthAxis, Surface = SurfaceMap.Earth },
         new("Mars",      Color.FromArgb("#D96C4A"),  3_389.5, 1.52371, 0.09339, 1.850,  49.559, 336.041, 355.445,   686.980) { Axis = MarsAxis, Moons = [Phobos, Deimos], Surface = SurfaceMap.Mars },
         new("Jupiter",   Color.FromArgb("#D8B48A"), 69_911.0, 5.20289, 0.04839, 1.304, 100.474,  14.728,  34.397, 4_332.59) { Axis = JupiterAxis, Moons = [Io, Europa, Ganymedes, Callisto], Ring = JupiterRing, Mu = JupiterMu, Surface = SurfaceMap.Jupiter },
-        new("Saturnus",  Color.FromArgb("#E8D5A8"), 58_232.0, 9.53668, 0.05386, 2.486, 113.662,  92.599,  49.954, 10_759.22) { Axis = SaturnAxis, Moons = [Enceladus, Rhea, Titan], Ring = SaturnRing, Mu = SaturnMu },
-        new("Uranus",    Color.FromArgb("#9BD4E4"), 25_362.0, 19.18916, 0.04726, 0.773, 74.017, 170.954, 313.238, 30_688.5) { Axis = UranusAxis, Moons = [Miranda, Titania, Oberon], Ring = UranusRing },
-        new("Neptunus",  Color.FromArgb("#5A78E8"), 24_622.0, 30.06992, 0.00859, 1.770, 131.784,  44.965, 304.880, 60_182.0) { Axis = NeptuneAxis, Moons = [Triton], Ring = NeptuneRing },
+        new("Saturnus",  Color.FromArgb("#E8D5A8"), 58_232.0, 9.53668, 0.05386, 2.486, 113.662,  92.599,  49.954, 10_759.22) { Axis = SaturnAxis, Moons = [Enceladus, Rhea, Titan], Ring = SaturnRing, Mu = SaturnMu, Surface = SurfaceMap.Saturn },
+        new("Uranus",    Color.FromArgb("#9BD4E4"), 25_362.0, 19.18916, 0.04726, 0.773, 74.017, 170.954, 313.238, 30_688.5) { Axis = UranusAxis, Moons = [Miranda, Titania, Oberon], Ring = UranusRing, Surface = SurfaceMap.Uranus },
+        new("Neptunus",  Color.FromArgb("#5A78E8"), 24_622.0, 30.06992, 0.00859, 1.770, 131.784,  44.965, 304.880, 60_182.0) { Axis = NeptuneAxis, Moons = [Triton], Ring = NeptuneRing, Surface = SurfaceMap.Neptune },
         // Dvärgplaneten Pluto: kraftigt lutande (17°) och excentrisk bana som
         // tidvis går innanför Neptunus. Ett varv tar nästan 248 år.
         new("Pluto",     Color.FromArgb("#C4AB94"),  1_188.3, 39.48212, 0.24883, 17.140, 110.304, 224.069, 238.929, 90_560.0) { Axis = PlutoAxis, Moons = [Charon] },

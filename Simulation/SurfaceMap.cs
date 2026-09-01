@@ -175,73 +175,226 @@ public sealed class SurfaceMap
     /// inte den driften. Var den står ett givet datum stämmer alltså inte, men
     /// att den finns, hur stor den är och hur den passerar runt kanten gör det.
     /// </summary>
+
+    // ---------------------------------------------------- byggstenar för gaser
+    //
+    // Gasjättarna har inga kustlinjer att rita av. Deras ytor är band i latitud,
+    // kalotter kring polerna och enstaka stormar, och de tre formerna räcker
+    // långt. De ligger här som gemensamma hjälpare eftersom alla fyra jättar
+    // använder dem.
+
+    /// <summary>
+    /// Ett band runt hela klotet, som en rad fyrhörningar. Ett enda varvpolygon
+    /// hade inte fungerat: bandet är en ring med hål i, och det går inte att
+    /// fylla. Rutorna överlappar en aning så att skarvarna inte syns som
+    /// hårstreck, samma knep som ringarna använder.
+    /// </summary>
+    static void Band(List<(Color Fill, (float Lat, float Lon)[] Pts)> raw,
+        Color fill, float south, float north, int segments = 8)
+    {
+        for (int i = 0; i < segments; i++)
+        {
+            float a = i * 360f / segments;
+            float b = (i + 1.02f) * 360f / segments;
+            raw.Add((fill, [(north, a), (north, b), (south, b), (south, a)]));
+        }
+    }
+
+    /// <summary>En kalott kring polen, precis som jordens isar.</summary>
+    static void Cap(List<(Color Fill, (float Lat, float Lon)[] Pts)> raw,
+        Color fill, float lat)
+    {
+        var pts = new (float Lat, float Lon)[12];
+        for (int i = 0; i < pts.Length; i++)
+            pts[i] = (lat, i * 30f);
+        raw.Add((fill, pts));
+    }
+
+    /// <summary>En storm som en oval fläck. Halvaxlarna anges i grader.</summary>
+    static void Oval(List<(Color Fill, (float Lat, float Lon)[] Pts)> raw,
+        Color fill, float lat, float lon, float halfLat, float halfLon)
+    {
+        var pts = new (float Lat, float Lon)[16];
+        for (int i = 0; i < pts.Length; i++)
+        {
+            double t = i * Math.PI * 2 / pts.Length;
+            pts[i] = (lat + halfLat * (float)Math.Sin(t),
+                      lon + halfLon * (float)Math.Cos(t));
+        }
+        raw.Add((fill, pts));
+    }
+
+    /// <summary>
+    /// En regelbunden månghörning kring polen – Saturnus sexhörning är den enda
+    /// användningen, och den enda kända formen av sitt slag i solsystemet.
+    ///
+    /// Kanterna måste räknas ut i planet sett rakt ovanifrån polen, inte
+    /// interpoleras i latitud och longitud. Två hörn på samma breddgrad förbundna
+    /// med en latitudlinje ger en cirkelbåge som buktar åt fel håll, och figuren
+    /// blir en cirkel i stället för en månghörning.
+    /// </summary>
+    static void PolarPolygon(List<(Color Fill, (float Lat, float Lon)[] Pts)> raw,
+        Color fill, int sides, float vertexLat, int perEdge = 4)
+    {
+        bool north = vertexLat > 0;
+        float radius = 90f - Math.Abs(vertexLat);      // avstånd från polen i grader
+        var pts = new List<(float Lat, float Lon)>(sides * perEdge);
+        for (int i = 0; i < sides; i++)
+        {
+            double a0 = i * Math.PI * 2 / sides, a1 = (i + 1) * Math.PI * 2 / sides;
+            double x0 = radius * Math.Cos(a0), y0 = radius * Math.Sin(a0);
+            double x1 = radius * Math.Cos(a1), y1 = radius * Math.Sin(a1);
+            for (int k = 0; k < perEdge; k++)
+            {
+                double t = (double)k / perEdge;
+                double x = x0 + (x1 - x0) * t, y = y0 + (y1 - y0) * t;
+                double r = Math.Sqrt(x * x + y * y);
+                double lon = Math.Atan2(y, x) * 180.0 / Math.PI;
+                pts.Add(((float)(north ? 90.0 - r : r - 90.0), (float)lon));
+            }
+        }
+        raw.Add((fill, [.. pts]));
+    }
+
     public static readonly SurfaceMap Jupiter = BuildJupiter();
 
     static SurfaceMap BuildJupiter()
     {
         var raw = new List<(Color Fill, (float Lat, float Lon)[] Pts)>();
 
-        // Ett band runt hela klotet ritas som en rad fyrhörningar. Ett enda
-        // varvpolygon hade inte fungerat: bandet är en ring med hål i, och det
-        // går inte att fylla. Rutorna överlappar en aning så att skarvarna inte
-        // syns som hårstreck, samma knep som ringarna använder.
-        void Band(Color fill, float south, float north)
-        {
-            const int segments = 8;
-            for (int i = 0; i < segments; i++)
-            {
-                float a = i * 360f / segments;
-                float b = (i + 1.02f) * 360f / segments;
-                raw.Add((fill, [(north, a), (north, b), (south, b), (south, a)]));
-            }
-        }
-
-        // Polarområdena går däremot att rita som en enkel kalott, precis som
-        // jordens isar.
-        void Cap(Color fill, float lat)
-        {
-            var pts = new (float Lat, float Lon)[12];
-            for (int i = 0; i < pts.Length; i++)
-                pts[i] = (lat, i * 30f);
-            raw.Add((fill, pts));
-        }
-
-        void Oval(Color fill, float lat, float lon, float halfLat, float halfLon)
-        {
-            var pts = new (float Lat, float Lon)[16];
-            for (int i = 0; i < pts.Length; i++)
-            {
-                double t = i * Math.PI * 2 / pts.Length;
-                pts[i] = (lat + halfLat * (float)Math.Sin(t),
-                          lon + halfLon * (float)Math.Cos(t));
-            }
-            raw.Add((fill, pts));
-        }
-
-        Band(JupiterEquator, -7, 7);        // ekvatorialzonen, den ljusaste
-        Band(JupiterNorthBelt, 7, 17);      // norra ekvatorialbältet, det tydligaste
-        Band(JupiterSouthBelt, -20, -7);    // södra ekvatorialbältet
-        Band(JupiterBelt, 24, 31);          // norra tempererade bältet
-        Band(JupiterBelt, -37, -27);        // södra tempererade bältet
-        Band(JupiterFaintBelt, 40, 48);     // norra norra tempererade bältet
-        Band(JupiterFaintBelt, -53, -45);   // södra södra tempererade bältet
+        Band(raw, JupiterEquator, -7, 7);        // ekvatorialzonen, den ljusaste
+        Band(raw, JupiterNorthBelt, 7, 17);      // norra ekvatorialbältet, det tydligaste
+        Band(raw, JupiterSouthBelt, -20, -7);    // södra ekvatorialbältet
+        Band(raw, JupiterBelt, 24, 31);          // norra tempererade bältet
+        Band(raw, JupiterBelt, -37, -27);        // södra tempererade bältet
+        Band(raw, JupiterFaintBelt, 40, 48);     // norra norra tempererade bältet
+        Band(raw, JupiterFaintBelt, -53, -45);   // södra södra tempererade bältet
         // Polarområdet i två steg. En enda kalott gav en hård grå kupol på
         // toppen; i verkligheten mörknar det gradvis från ungefär 50° och ut.
-        Cap(JupiterPolarInner, 55);
-        Cap(JupiterPolarInner, -55);
-        Cap(JupiterPolar, 70);
-        Cap(JupiterPolar, -70);
+        Cap(raw, JupiterPolarInner, 55);
+        Cap(raw, JupiterPolarInner, -55);
+        Cap(raw, JupiterPolar, 70);
+        Cap(raw, JupiterPolar, -70);
 
-        Oval(GreatRedSpot, -22, 65, 4.9f, 7.3f);
+        Oval(raw, GreatRedSpot, -22, 65, 4.9f, 7.3f);
 
         // Tre av de vita ovalerna på 41° syd – stormar som liknar den röda
         // fläcken men är yngre och mindre.
-        Oval(JupiterOval, -41, 150, 2.5f, 4f);
-        Oval(JupiterOval, -41, 210, 2.5f, 4f);
-        Oval(JupiterOval, -41, 275, 2.5f, 4f);
+        Oval(raw, JupiterOval, -41, 150, 2.5f, 4f);
+        Oval(raw, JupiterOval, -41, 210, 2.5f, 4f);
+        Oval(raw, JupiterOval, -41, 275, 2.5f, 4f);
 
         return new SurfaceMap(JupiterZone, [.. raw]);
     }
+
+    static readonly Color SaturnZone = Color.FromArgb("#EBDDB4");
+    static readonly Color SaturnEquator = Color.FromArgb("#F0E5C2");
+    static readonly Color SaturnBelt = Color.FromArgb("#DFCEA0");
+    static readonly Color SaturnFaintBelt = Color.FromArgb("#E5D6AB");
+    static readonly Color SaturnPolarInner = Color.FromArgb("#DCCFAE");
+    static readonly Color SaturnPolar = Color.FromArgb("#C9C0AC");
+    static readonly Color SaturnHexagon = Color.FromArgb("#BDB7A6");
+
+    /// <summary>
+    /// Saturnus har samma slags band som Jupiter men mycket svagare. Dimman
+    /// högre upp i atmosfären suddar ut dem, så planeten ser nästan enfärgat
+    /// gulbeige ut i ett litet teleskop – bandmönstret finns där, men det syns
+    /// först vid närmare påseende.
+    ///
+    /// Kring nordpolen ligger sexhörningen: en jetström som håller sex raka
+    /// sidor, nästan 30 000 km tvärs över, upptäckt av Voyager 1980 och
+    /// fotograferad på nytt av Cassini. Ingen annan känd form i solsystemet
+    /// beter sig så, och ingen vet säkert varför den håller ihop.
+    /// </summary>
+    public static readonly SurfaceMap Saturn = BuildSaturn();
+
+    static SurfaceMap BuildSaturn()
+    {
+        var raw = new List<(Color Fill, (float Lat, float Lon)[] Pts)>();
+
+        Band(raw, SaturnEquator, -8, 8);
+        Band(raw, SaturnBelt, 8, 20);
+        Band(raw, SaturnBelt, -22, -8);
+        Band(raw, SaturnFaintBelt, 28, 36);
+        Band(raw, SaturnFaintBelt, -38, -30);
+        Band(raw, SaturnFaintBelt, 44, 52);
+        Band(raw, SaturnFaintBelt, -54, -46);
+        Cap(raw, SaturnPolarInner, 60);
+        Cap(raw, SaturnPolarInner, -60);
+        Cap(raw, SaturnPolar, 72);
+        Cap(raw, SaturnPolar, -72);
+
+        // Sexhörningen: hörnen 14,3° från polen, alltså på 75,7° nord, vilket
+        // ger de 29 000 km tvärs över som Cassini mätte upp.
+        PolarPolygon(raw, SaturnHexagon, 6, 75.7f);
+
+        return new SurfaceMap(SaturnZone, [.. raw]);
+    }
+
+    static readonly Color UranusBase = Color.FromArgb("#A9DCE0");
+    static readonly Color UranusBand = Color.FromArgb("#9FD3D8");
+    static readonly Color UranusPolar = Color.FromArgb("#B4E2E5");
+
+    /// <summary>
+    /// Uranus är den släta. Metanet i atmosfären slukar rött ljus och lämnar
+    /// det blågröna, och där Jupiter och Saturnus har bandmönster har Uranus
+    /// nästan ingenting – Voyager 2 passerade 1986 och fann en planet så jämn
+    /// att bilderna såg ut som en målad boll.
+    ///
+    /// De två svaga banden och den ljusare polkalotten finns med av ett skäl
+    /// utöver att de är verkliga: utan minsta drag på ytan går det inte att se
+    /// att planeten rullar i stället för att snurra, och det är hela poängen
+    /// med Uranus.
+    /// </summary>
+    public static readonly SurfaceMap Uranus = BuildUranus();
+
+    static SurfaceMap BuildUranus()
+    {
+        var raw = new List<(Color Fill, (float Lat, float Lon)[] Pts)>();
+        Band(raw, UranusBand, -25, -10);
+        Band(raw, UranusBand, 15, 28);
+        Cap(raw, UranusPolar, 55);
+        return new SurfaceMap(UranusBase, [.. raw]);
+    }
+
+    static readonly Color NeptuneBase = Color.FromArgb("#3F6FD0");
+    static readonly Color NeptuneBand = Color.FromArgb("#3862BC");
+    static readonly Color NeptuneZone = Color.FromArgb("#4C7ED8");
+    static readonly Color GreatDarkSpot = Color.FromArgb("#27408A");
+    static readonly Color NeptuneCloud = Color.FromArgb("#DCE8F5");
+
+    /// <summary>
+    /// Neptunus är djupare blå än Uranus trots nästan samma sammansättning, och
+    /// ingen vet riktigt varför. Den har också väder, vilket Uranus knappt har:
+    /// de snabbaste vindarna i solsystemet, över 2 000 km/h.
+    ///
+    /// Stora mörka fläcken är ritad som Voyager 2 såg den 1989, på 22° syd och
+    /// ungefär lika stor som jorden, med sitt vita följeslagarmoln. Den är
+    /// däremot inte permanent som Jupiters röda fläck: när Hubble tittade efter
+    /// 1994 var den borta, och nya mörka fläckar har kommit och gått sedan dess.
+    /// Appen visar alltså ett tillstånd, inte ett bestående drag.
+    /// </summary>
+    public static readonly SurfaceMap Neptune = BuildNeptune();
+
+    static SurfaceMap BuildNeptune()
+    {
+        var raw = new List<(Color Fill, (float Lat, float Lon)[] Pts)>();
+
+        Band(raw, NeptuneZone, -8, 8);
+        Band(raw, NeptuneBand, 18, 32);
+        Band(raw, NeptuneBand, -34, -20);
+        Cap(raw, NeptuneZone, 62);
+        Cap(raw, NeptuneZone, -62);
+
+        // Stora mörka fläcken, ungefär jordstor: 13 000 × 6 600 km, vilket på
+        // Neptunus blir en tredjedel av vägen runt planeten i longitud.
+        Oval(raw, GreatDarkSpot, -22, 40, 7.7f, 16.3f);
+        // "Scooter", det ljusa molnet som följde med fläcken.
+        Oval(raw, NeptuneCloud, -33, 32, 2.5f, 7f);
+
+        return new SurfaceMap(NeptuneBase, [.. raw]);
+    }
+
 
 
     /// <summary>

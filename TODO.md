@@ -809,13 +809,57 @@ inte, och kalotterna fyller åt rätt håll.
 
 ### 11.4 – Saturnus, Uranus och Neptunus
 
-- [ ] Saturnus: svagare band än Jupiters, i gulbeige. Rotation 10 h 39 min.
-- [ ] Uranus: nästan enfärgat blågrönt – poängen är att den är så slät.
+- [x] Saturnus: svagare band än Jupiters, i gulbeige. Rotation 10 h 39 min.
+- [x] Uranus: nästan enfärgat blågrönt – poängen är att den är så slät.
       Rotation 17 h 14 min, retrograd och på sidan.
-- [ ] Neptunus: blå med Stora mörka fläcken. Rotation 16 h 06 min.
+- [x] Neptunus: blå med Stora mörka fläcken. Rotation 16 h 06 min.
+
+Bandbyggarna från 11.3 är utlyfta ur Jupiter-koden och delas nu av alla fyra
+jättarna: `Band`, `Cap` och `Oval`. Till dem kom `PolarPolygon`, som behövdes för
+en enda sak.
+
+**Saturnus sexhörning.** Kring nordpolen ligger en jetström som håller sex raka
+sidor, nästan 30 000 km tvärs över – upptäckt av Voyager 1980, fotograferad på
+nytt av Cassini, och den enda kända formen av sitt slag i solsystemet. Den står
+inte i planen, men den är för märklig för att utelämna när klotet ändå ritas.
+Kanterna måste räknas i planet sett rakt ovanifrån polen: två hörn på samma
+breddgrad förbundna med en latitudlinje ger en cirkelbåge som buktar åt fel håll,
+och figuren blir en cirkel.
+
+**Uranus fick två svaga band och en ljusare polkalott** trots att poängen är att
+den är slät. Skälet är praktiskt: utan minsta drag på ytan går det inte att se
+att planeten rullar, och det är hela behållningen med Uranus.
+
+**Neptunus mörka fläck är ett tillstånd, inte ett drag.** Den är ritad som
+Voyager 2 såg den 1989, med sitt vita följeslagarmoln. När Hubble tittade efter
+1994 var den borta. Till skillnad från Jupiters röda fläck, som hållit i sig i
+århundraden, kommer och går Neptunus fläckar – det står i kodkommentaren.
 
 **Verifiera:** Uranus ska snurra kring en axel som ligger nästan i banplanet,
 så att ytan rullar i stället för att snurra.
+
+Kontrollerat utanför appen:
+
+- **Uranus rullar.** Axeln ligger 97,8° från banplanets lodlinje, alltså bara 8°
+  från själva banplanet. Under ett varv kring solen vandrar solen mellan 82,2°
+  syd och 82,2° nord på planeten – den står nästan rakt över polerna vid
+  solstånden. Jämför jorden och Saturnus, där solen aldrig kommer längre än
+  23,4° respektive 26,7° från ekvatorn. Det är skillnaden mellan att rulla och
+  att snurra, i siffror.
+- **Rotationstiderna**: Saturnus 10:39:22 mot kända 10:39:22, Uranus 17:14:23 mot
+  17:14:24, Neptunus 16:06:36 mot 16:06:36.
+- **Sexhörningen är mätbart sexkantig.** Hörnen hamnar på 75,7° nord och
+  kantmitterna på 77,6° – en skillnad på 1,9°, vilket är precis vad en
+  regelbunden sexhörning ger. En cirkel hade gett 0,0°. Bredden hörn till hörn
+  blir 29 067 km mot uppmätta ungefär 29 000.
+- **Neptunus mörka fläck** mäter 12 989 × 6 618 km mot Voyagers ungefär
+  13 000 × 6 600, alltså jordstor (jordens diameter 12 742 km).
+- **Kostnaden**: Saturnus 61 ytor och 1 780 punkter, Neptunus 28 och 824, Uranus
+  17 och 488 – den släta planeten är också den billigaste att rita.
+
+Sett i bild med samma kontroll som förut: Saturnus är tydligt mjukare än Jupiter,
+sexhörningen syns uppifrån, Uranus är nästan enfärgad men rullar synligt, och
+Neptunus fläck med följemoln sitter där den ska.
 
 ### 11.5 – Merkurius och Venus
 
@@ -981,6 +1025,10 @@ Etapp 11:
 - [x] Jupiters polarkalotter fyller åt rätt håll, trots att de ligger mycket
       längre från polen än jordens isar.
 - [x] Jupiters dämpade palett, sedd i bild och gjord om två gånger (se 11.3).
+- [ ] Saturnus, Uranus och Neptunus i appen. De är sedda i den externa
+      kontrollen men inte med ringarna på plats – särskilt Saturnus ska ses
+      tillsammans med sina ringar, och Uranus sydpolskalott ligger nära den kant
+      där ringarna korsar.
 - [x] **Mars mörka fält hade synligt raka kanter.** De är ritade med fem till
       nio hörn, och `Densify` delar upp långa kanter utan att runda dem – den
       lägger bara ut fler punkter längs samma räta linje. Åtgärdat med Chaikins
