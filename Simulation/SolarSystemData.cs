@@ -70,6 +70,31 @@ public sealed record CelestialBody(
     public SurfaceMap? Surface { get; init; }
 
     /// <summary>
+    /// Hur fort banans uppstigande nod vandrar, i grader per dygn. Negativt
+    /// betyder baklänges, vilket är det vanliga.
+    ///
+    /// Ett banplan ligger inte stilla. Månens nod går ett helt varv baklänges på
+    /// 18,6 år, och det är den rörelsen som gör att förmörkelsesäsongerna glider
+    /// nitton dygn bakåt varje år i stället för att infalla på samma datum. Med
+    /// noden fastlåst blir den saken omöjlig att visa.
+    ///
+    /// Noll för allt som inte har någon känd eller märkbar precession.
+    /// </summary>
+    public double AscNodeRateDegPerDay { get; init; }
+
+    /// <summary>
+    /// Hur fort periheliet vandrar, i grader per dygn. Positivt betyder framåt.
+    ///
+    /// Hör ihop med noden och måste sättas tillsammans med den. Skälet är att
+    /// medelanomalin räknas som medellongitud minus perihelielongitud: låter man
+    /// periheliet stå stilla medan noden rör sig, får banan rätt plan men fel
+    /// läge i planet. Månens perigeum går ett varv framåt på 8,85 år, och den
+    /// rörelsen är dessutom det som skiljer det anomalistiska månvarvet (27,55
+    /// dygn) från det sideriska (27,32).
+    /// </summary>
+    public double PerihelionRateDegPerDay { get; init; }
+
+    /// <summary>
     /// Kroppens gravitationsparameter G·M i AU³/dygn² – måttet på hur hårt den
     /// drar i det som kretsar kring den. Ur den följer omloppstiderna: ett varv
     /// på halva storaxeln a tar 2π·√(a³/µ). Behövs bara för de kroppar som
@@ -96,37 +121,55 @@ public sealed record CelestialBody(
     public Vec3 PositionAuAt(double daysSinceJ2000)
     {
         double meanMotion = 360.0 / OrbitalPeriodDays;
-        double mDeg = MeanLonJ2000Deg + meanMotion * daysSinceJ2000 - PerihelionLonDeg;
+        // Medelanomalin räknas mot det vandrande periheliet. Att dra bort dess
+        // rörelse här är också det som gör att medellongituden ändå går sitt
+        // sideriska varv – de två effekterna tar ut varandra, precis som de gör
+        // i verkligheten.
+        double mDeg = MeanLonJ2000Deg + meanMotion * daysSinceJ2000
+                      - PerihelionAt(daysSinceJ2000);
         // Vik ned till ett varv innan omvandlingen till radianer. Snabba månar
         // (Phobos hinner tre varv per dygn) ger annars miljontals grader, vilket
         // tär på flyttalsprecisionen. Banpositionen är oförändrad.
         double M = DegToRad(mDeg % 360.0);
         double E = SolveKepler(M, Eccentricity);
-        return ToWorldAu(E);
+        return ToWorldAu(E, daysSinceJ2000);
     }
 
+    /// <summary>Uppstigande nodens longitud vid given tid.</summary>
+    public double AscNodeAt(double daysSinceJ2000)
+        => AscNodeDeg + AscNodeRateDegPerDay * daysSinceJ2000;
+
+    /// <summary>Perihelielongituden vid given tid.</summary>
+    public double PerihelionAt(double daysSinceJ2000)
+        => PerihelionLonDeg + PerihelionRateDegPerDay * daysSinceJ2000;
+
     /// <summary>Hela banellipsen som punktlista (sluten kurva, jämnt samplad i excentrisk anomali).</summary>
-    public Vector3[] OrbitPath(int samples, float unitsPerAu)
+    /// <param name="daysSinceJ2000">
+    /// Vilken dag banan ska ritas för. Spelar roll bara för kroppar vars plan
+    /// vrider sig; för de övriga ser banan likadan ut i alla tider.
+    /// </param>
+    public Vector3[] OrbitPath(int samples, float unitsPerAu, double daysSinceJ2000 = 0)
     {
         var pts = new Vector3[samples];
         for (int k = 0; k < samples; k++)
         {
-            var p = ToWorldAu(2.0 * Math.PI * k / samples);
+            var p = ToWorldAu(2.0 * Math.PI * k / samples, daysSinceJ2000);
             pts[k] = new Vector3(
                 (float)(p.X * unitsPerAu), (float)(p.Y * unitsPerAu), (float)(p.Z * unitsPerAu));
         }
         return pts;
     }
 
-    Vec3 ToWorldAu(double E)
+    Vec3 ToWorldAu(double E, double daysSinceJ2000)
     {
         double e = Eccentricity;
         // Position i banplanet (fokus = solen).
         double xv = SemiMajorAu * (Math.Cos(E) - e);
         double yv = SemiMajorAu * Math.Sqrt(1.0 - e * e) * Math.Sin(E);
 
-        double w = DegToRad(PerihelionLonDeg - AscNodeDeg); // periheliets argument
-        double O = DegToRad(AscNodeDeg);
+        double node = AscNodeAt(daysSinceJ2000);
+        double w = DegToRad(PerihelionAt(daysSinceJ2000) - node); // periheliets argument
+        double O = DegToRad(node);
         double i = DegToRad(InclinationDeg);
         double cw = Math.Cos(w), sw = Math.Sin(w);
         double cO = Math.Cos(O), sO = Math.Sin(O);
@@ -275,6 +318,11 @@ public static class SolarSystemData
     {
         Axis = MoonAxis,
         Surface = SurfaceMap.Moon,
+        // Noden ett varv baklänges på 18,6 år, perigeum ett varv framåt på 8,85.
+        // De två talen är de äldsta i hela appen: babylonierna hade nodcykeln
+        // redan på 500-talet f.Kr. och kunde förutsäga förmörkelser med den.
+        AscNodeRateDegPerDay = -0.0529539,
+        PerihelionRateDegPerDay = 0.1114041,
     };
 
     // Mars två små, oregelbundna månar – troligen infångade asteroider. De
@@ -434,7 +482,15 @@ public static class SolarSystemData
     // sitt ur NeptuneAxis.
     public static readonly CelestialBody Triton = new(
         "Triton", Color.FromArgb("#D8CFC8"), 1_353.4,
-        354_759.0 / AuKm, 0.000016, 130.0, 240.93, 0.0, 0.0, 5.876854);
+        354_759.0 / AuKm, 0.000016, 130.0, 240.93, 0.0, 0.0, 5.876854)
+    {
+        // Ett varv på ungefär 640 år, alltså 0,0015 grader per dygn. Riktningen
+        // följer av att banan är retrograd: Neptunus tillplattning vrider noden
+        // med en hastighet som går som cosinus för banlutningen, och lutningen
+        // är över 90 grader. Där de flesta månar får sin nod dragen baklänges
+        // vandrar Tritons alltså framåt.
+        AscNodeRateDegPerDay = 360.0 / (640.0 * 365.25),
+    };
 
     // Ringsystemen. Alla fyra jätteplaneter har ringar – inte bara Saturnus.
     // Radierna är verkliga, uttryckta i planetradier:

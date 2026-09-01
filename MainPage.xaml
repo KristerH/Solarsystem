@@ -239,6 +239,12 @@
                             Text="Gå till nästa"
                             Clicked="OnNextMeetingClicked"
                             BackgroundColor="#26303C" TextColor="White" Margin="6,0,0,0" />
+                    <CheckBox x:Name="MoonOrbitCheck"
+                              Color="#7FB4E8"
+                              CheckedChanged="OnMoonOrbitChanged"
+                              Margin="10,0,0,0" />
+                    <Label Text="Månbanan" TextColor="#C8D4E0" VerticalOptions="Center" />
+
                     <Label x:Name="MeetingLabel"
                            TextColor="#9FB4C8" VerticalOptions="Center" Margin="8,0,0,0" />
                 </HorizontalStackLayout>

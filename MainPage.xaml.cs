@@ -933,10 +933,34 @@ public partial class MainPage : ContentPage
         GoToDate(date);
 
         // Hela meningen, inte bara siffran: vad som hittades, när, och hur nära.
-        string detail = choice.Kind == SkyEvent.Kind.Opposition
-            ? string.Create(Swedish, $"{meeting.DistanceAu:0.00} AU från jorden")
-            : string.Create(Swedish, $"{meeting.SeparationDeg:0.0}° isär på himlen");
+        string detail = choice.Kind switch
+        {
+            SkyEvent.Kind.Opposition =>
+                string.Create(Swedish, $"{meeting.DistanceAu:0.00} AU från jorden"),
+            SkyEvent.Kind.SolarEclipse =>
+                string.Create(Swedish,
+                    $"{meeting.SeparationDeg:0.00}° från solen (typ och plats visas inte)"),
+            SkyEvent.Kind.LunarEclipse =>
+                string.Create(Swedish, $"{meeting.SeparationDeg:0.00}° från jordens skugga"),
+            _ => string.Create(Swedish, $"{meeting.SeparationDeg:0.0}° isär på himlen"),
+        };
         MeetingLabel.Text = string.Create(Swedish, $"{choice.Label} {date:d MMMM yyyy} – {detail}");
+
+        // Vid en förmörkelse är förklaringen mer värd än datumet. Ställ in vyn
+        // så att den syns: månbanan fram och kameran vid jorden, där man ser att
+        // solen står vid nodlinjen just den dagen och därför kan komma i vägen.
+        if (choice.Kind is SkyEvent.Kind.SolarEclipse or SkyEvent.Kind.LunarEclipse)
+        {
+            MoonOrbitCheck.IsChecked = true;
+            MoonsCheck.IsChecked = true;
+            FocusOn("Jorden");
+        }
+    }
+
+    void OnMoonOrbitChanged(object? sender, CheckedChangedEventArgs e)
+    {
+        _drawable.ShowMoonOrbit = e.Value;
+        _settingsChanged = true;
     }
 
     void OnResetClicked(object? sender, EventArgs e) => ResetView();

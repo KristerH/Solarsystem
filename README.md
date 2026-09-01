@@ -11,6 +11,23 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
   ungefär med verkligheten för det simulerade datumet. Plutos bana är en bra
   kontrast till planeternas: 17° lutning, 248 års omloppstid och så excentrisk
   att den tidvis går innanför Neptunus bana.
+- **Månbanans plan och noderna**: en kryssruta ritar månbanan mot ekliptikan,
+  med de två noderna utmärkta – punkterna där banan korsar jordens banplan. Det
+  är dem hela förmörkelsefrågan hänger på: månen går varv efter varv utan att
+  något händer, eftersom banan lutar 5,1 grader och månen därför passerar
+  ovanför eller under solen. Bara när solen råkar stå nära nodlinjen kan de tre
+  hamna på rad. Nodlinjen vrider sig dessutom ett varv baklänges på 18,6 år, och
+  eftersom appen räknar med den rörelsen hamnar sjutton av arton verkliga
+  solförmörkelser mellan 1999 och 2030 på rätt kalenderdag.
+- **Förmörkelser**: mötesväljaren hittar nästa sol- eller månförmörkelse och
+  hoppar dit. Datumen räknas fram, inte upp: alla tio solförmörkelser mellan
+  2024 och 2028 kommer i rätt ordning ur modellen, och sarosperioden på 6585
+  dygn faller ut av sig själv. Vid hoppet slås månbanan på och kameran ställer
+  sig vid jorden, så att man ser solen stå vid nodlinjen just den dagen – det är
+  förklaringen till varför det blir förmörkelse den gången och inte de andra
+  tolv nymånarna på året. Vad appen däremot inte visar är om förmörkelsen blir
+  total eller partiell och var på jorden den syns; det avgörs av var betraktaren
+  står på jordklotet, och appen ser solsystemet utifrån.
 - **Heliopausen**: solsystemets kant, 120 AU ut, där solvinden möter det
   interstellära mediet. Den ritas som en genomskinlig sfär när man zoomat ut
   tillräckligt – enklast genom att välja en av Voyagersonderna i fokusväljaren.

@@ -55,6 +55,12 @@ public sealed class SolarSystemDrawable : IDrawable
     public HashSet<string> VisibleProbes { get; } = [];
 
     /// <summary>
+    /// Ritar månbanan mot ekliptikan med noderna utmärkta. Av som standard –
+    /// det är en fördjupning och inte något som hör hemma i översiktsvyn.
+    /// </summary>
+    public bool ShowMoonOrbit { get; set; }
+
+    /// <summary>
     /// Sonden som är vald i fokusväljaren, eller null. Dess milstolpar skrivs
     /// ut med planetnamn och datum; de övrigas markeras bara med årtal, annars
     /// blir vyn full av text.
@@ -125,6 +131,8 @@ public sealed class SolarSystemDrawable : IDrawable
             }
             if (ShowAsteroidBelt)
                 DrawAsteroidBelt(canvas, rect);
+            if (ShowMoonOrbit)
+                DrawMoonOrbit(canvas, DaysSinceJ2000);
             DrawBodies(canvas, rect);
             if (VisibleProbes.Count > 0)
             {
@@ -395,6 +403,111 @@ public sealed class SolarSystemDrawable : IDrawable
         canvas.DrawCircle(sx, sy, screen);
 
         _labels.Add(("Heliopausen", sx, sy - screen - 4));
+    }
+
+
+    // -------------------------------------------------- månbanan och noderna
+
+    static readonly Color MoonOrbitColor = Color.FromRgba(0.70f, 0.75f, 0.85f, 0.55f);
+    static readonly Color EclipticRingColor = Color.FromRgba(0.95f, 0.82f, 0.45f, 0.40f);
+    static readonly Color NodeLineColor = Color.FromRgba(0.95f, 0.82f, 0.45f, 0.75f);
+
+    /// <summary>
+    /// Ritar månbanan mot ekliptikans plan och märker ut de två noderna – de
+    /// punkter där banan korsar ekliptikan.
+    ///
+    /// Det är dem hela förmörkelsefrågan hänger på. Månen går varv efter varv
+    /// utan att någon förmörkelse blir av, eftersom banan lutar 5,1 grader och
+    /// månen därför passerar ovanför eller under solen. Bara när solen råkar stå
+    /// nära nodlinjen kan de tre hamna på rad. Nodlinjen vrider sig dessutom ett
+    /// varv baklänges på 18,6 år, vilket är varför förmörkelsesäsongerna glider
+    /// bakåt genom kalendern i stället för att ligga still.
+    ///
+    /// Banan ritas med samma komprimering som månen själv, annars hade kurvan
+    /// hamnat någon annanstans än månen.
+    /// </summary>
+    void DrawMoonOrbit(ICanvas canvas, double day)
+    {
+        var earth = SolarSystemData.Planets.FirstOrDefault(p => p.Name == "Jorden");
+        if (earth is null || earth.Moons.Length == 0)
+            return;
+
+        var moon = earth.Moons[0];
+        var centre = earth.PositionAt(day, UnitsPerAu);
+        float scale = MoonDisplayScale(earth) * (1f - (float)moon.MassFraction);
+
+        // Under den här storleken är banan bara en kringla kring en prick.
+        if (!Camera.Project(centre, out _, out _, out float depth))
+            return;
+        float radius = (float)(moon.SemiMajorAu * UnitsPerAu) * scale;
+        if (Camera.ScreenRadius(radius, depth) < 30f)
+            return;
+
+        // Själva banan, med den precession den har just den här dagen.
+        const int samples = 96;
+        var path = moon.OrbitPath(samples, UnitsPerAu, day);
+        DrawClosedCurve(canvas, centre, path, MoonOrbitColor, 1.4f);
+
+        // Ekliptikans plan som en cirkel med samma radie, att jämföra mot.
+        var flat = new Vector3[samples];
+        for (int i = 0; i < samples; i++)
+        {
+            double a = i * Math.PI * 2 / samples;
+            flat[i] = new Vector3((float)(Math.Cos(a) * radius), 0f, (float)(Math.Sin(a) * radius));
+        }
+        DrawClosedCurve(canvas, centre, flat, EclipticRingColor, 1.0f);
+
+        // Nodlinjen: där de två planen skär varandra. Riktningen följer av
+        // nodens longitud, och den vrider sig med tiden.
+        double node = moon.AscNodeAt(day) * Math.PI / 180.0;
+        var along = new Vector3((float)Math.Cos(node), 0f, (float)(-Math.Sin(node)));
+        var up = new Vector3(0f, 1f, 0f);
+
+        if (Camera.Project(centre + along * radius, out float ax, out float ay, out _) &&
+            Camera.Project(centre - along * radius, out float bx, out float by, out _))
+        {
+            canvas.StrokeSize = 1.2f;
+            canvas.StrokeColor = NodeLineColor;
+            canvas.DrawLine(ax, ay, bx, by);
+
+            canvas.FontSize = 11f;
+            canvas.FontColor = NodeLineColor;
+            canvas.DrawString("Uppstigande nod", ax + 6, ay - 4, HorizontalAlignment.Left);
+            canvas.DrawString("Nedstigande nod", bx + 6, by - 4, HorizontalAlignment.Left);
+            canvas.FillColor = NodeLineColor;
+            canvas.FillCircle(ax, ay, 3f);
+            canvas.FillCircle(bx, by, 3f);
+        }
+
+        // En liten pil vinkelrätt mot ekliptikan, så att lutningen syns.
+        if (Camera.Project(centre, out float cx, out float cy, out _) &&
+            Camera.Project(centre + up * radius * 0.4f, out float ux, out float uy, out _))
+        {
+            canvas.StrokeSize = 1.0f;
+            canvas.StrokeColor = EclipticRingColor;
+            canvas.DrawLine(cx, cy, ux, uy);
+        }
+    }
+
+    /// <summary>Ritar en sluten kurva av världspunkter kring en medelpunkt.</summary>
+    void DrawClosedCurve(ICanvas canvas, Vector3 centre, Vector3[] points, Color color, float width)
+    {
+        var path = new PathF();
+        int drawn = 0;
+        foreach (var point in points)
+        {
+            if (!Camera.Project(centre + point, out float x, out float y, out _))
+                continue;
+            if (drawn++ == 0) path.MoveTo(x, y);
+            else path.LineTo(x, y);
+        }
+        if (drawn < 3)
+            return;
+
+        path.Close();
+        canvas.StrokeSize = width;
+        canvas.StrokeColor = color;
+        canvas.DrawPath(path);
     }
 
     /// <summary>Innersta månen får som mest hamna så här långt ut (planetradier).</summary>

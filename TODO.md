@@ -1227,15 +1227,57 @@ Den ärliga versionen av förmörkelseidén – se 12.4 för varför den raka v�
 går. Frågan som ska besvaras är inte *när* det blir förmörkelse utan *varför det
 inte blir det varje månad*.
 
-- [ ] Lägg `AscNodeRateDegPerDay` på `CelestialBody`, så att ett banplan kan
+- [x] Lägg `AscNodeRateDegPerDay` på `CelestialBody`, så att ett banplan kan
       vrida sig med tiden. Månens nod vandrar baklänges ett varv på 18,6 år,
       alltså 19,4 grader per år.
-- [ ] Samma fält kommer Triton till del. Kodkommentaren där säger redan att
+- [x] Samma fält kommer Triton till del. Kodkommentaren där säger redan att
       dess banplan precesserar med ungefär 640 års period och att orienteringen
       i datan är läget vid epoken snarare än en bestående egenskap.
-- [ ] Ett läge som ritar ut månbanans plan mot ekliptikan och markerar de två
+- [x] Ett läge som ritar ut månbanans plan mot ekliptikan och markerar de två
       noderna, så att man ser att månen för det mesta passerar ovanför eller
       under solen i stället för framför den.
+
+**Det blev två fält, inte ett.** `PerihelionRateDegPerDay` måste till samtidigt,
+och skälet är att medelanomalin räknas som medellongitud minus perihelielongitud.
+Låter man periheliet stå stilla medan noden rör sig får banan rätt plan men fel
+läge i planet. Med båda blir det dessutom rätt av sig själv: månens medellongitud
+går kvar sitt sideriska varv på 27,32 dygn medan medelanomalin går det
+anomalistiska på 27,55, och skillnaden mellan de två är precis perigeums rörelse.
+
+Månen: noden −0,0529539 grader per dygn, perigeum +0,1114041. Triton: +0,00154,
+alltså framåt. Riktningen där följer av att banan är retrograd – Neptunus
+tillplattning vrider noden med en hastighet som går som cosinus för banlutningen,
+och lutningen är över 90 grader. Där de flesta månar får noden dragen baklänges
+vandrar Tritons framåt.
+
+Läget heter "Månbanan" och sitter i mötesraden. Det ritar månbanan, ekliptikans
+plan som en gul ring att jämföra mot, nodlinjen där de två skär varandra, och de
+två noderna utmärkta med namn.
+
+**Verifiera:** Följ noden över tjugo år – den ska gå ett helt varv baklänges på
+18,6 år. Månens banlutning mot ekliptikan ska ligga kvar på 5,1 grader hela
+tiden; det är bara nodens longitud som ändras.
+
+Kontrollerat utanför appen, 10 kontroller utan fel:
+
+- **Ett varv baklänges på 18,61 år**: banpolen sveper −359,5 grader på 6798
+  dygn, mätt ur lägena och inte avläst ur datan. Noden står i dag på 329,3
+  grader mot 125,0 vid epoken.
+- **Bara noden rör sig**: banlutningen håller sig mellan 5,142 och 5,167 grader
+  över hela varvet.
+- **Perigeum ett varv på 8,85 år**, och den anomalistiska månaden faller ut till
+  27,5532 dygn mot kända 27,5546 – utan att någon skrivit in den.
+- **Ingenting annat påverkades**: Mars-fönstret ligger kvar på 21 oktober 2026
+  till 3,12 km/s och träffar Mars på noll kilometer, Voyager 1 går i 16,66 km/s
+  och passerar heliopausen på 120,1 AU. Den bundna rotationen och Apollo
+  11-platsens synlighet står också kvar.
+
+**Kvar som förenkling: månens spinnaxel följer inte med noden.** Cassinis lag
+säger att axeln ska hålla konstant 6,7 grader mot banplanet; mätt varierar den
+mellan 3,6 och 6,7 över nodcykeln, alltså som mest 3,1 graders fel i axelns
+riktning. Att rätta det kräver att `BodyAxis` också får en nodhastighet, och att
+dagen trädas igenom hela ytritningen. Den bundna rotationen påverkas inte – den
+är kontrollerad och håller.
 
 **Varför det är värt det:** med noden i rörelse glider förmörkelsesäsongerna
 nitton dygn bakåt varje år, och det är hela förklaringen till 18,6-årscykeln och
@@ -1248,36 +1290,79 @@ tiden; det är bara nodens longitud som ändras.
 
 ### 12.4 – Förmörkelser (och varför de är svåra)
 
-Den här punkten är medvetet ofärdig. Den står här för att idén är god och för
-att nästa person som får den ska slippa göra om utredningen.
+**Skrivet om efter 12.3. Den utredning som stod här var för pessimistisk.**
 
-Att lägga in en lista med verkliga förmörkelsedatum är trivialt. Problemet är
-vad som händer när man hoppar dit: **modellen visar ingen förmörkelse.** Vid
-verkliga datum står månen så här långt från solen sett från jorden:
+Här stod att två saker behövdes för förmörkelser: nodens vandring, och periodiska
+termer i månens läge. Nodrörelsen är gjord i 12.3, och sedan mättes vad den
+ensam räckte till. Svaret var mer än väntat.
 
-| förmörkelse | modellen ger | borde vara |
-|---|---|---|
-| total sol 2017-08-21 | 9,1° | ~0° |
-| total sol 2024-04-08 | 18,2° | ~0° |
-| total sol 2026-08-12 | 8,6° | ~0° |
-| total måne 2025-09-07 | 168,5° | ~180° |
+**Av arton verkliga solförmörkelser mellan 1999 och 2030 hittar modellen alla,
+och sjutton av dem på rätt kalenderdag.** Den enda avvikelsen är 20/21 maj 2012,
+som korsade datumlinjen och dateras olika beroende på var man stod. Detta med
+enbart medelbanelement plus nodens och perigeums rörelse.
 
-Modellen ger en enda "solförmörkelse" under 2026, den 18 januari. Verkligheten
-har två: 12 februari och 12 augusti.
+Före 12.3 låg samma modell 9 till 18 grader fel vid dessa datum och hittade en
+enda "förmörkelse" under 2026, på fel dag. Slutsatsen att periodiska termer
+behövdes för att få *datum* rätt var alltså felaktig. Vad de behövs till är något
+annat, se nedan.
 
-Två saker skulle behövas, och det är den andra som kostar:
+- [x] Beslut: ska månen få periodiska termer, eller ska appen nöja sig med
+      att förklara mekanismen (12.3) utan att förutsäga datum?
 
-1. Nodens vandring, alltså 12.3. Utan den infaller förmörkelsesäsongerna på
-   samma datum varje år i modellen.
-2. Periodiska termer i månens läge. Medelbanelement ger månen på drygt en grads
-   noggrannhet, och en förmörkelse kräver en halv. De största termerna heter
-   evektion (1,27°) och variation (0,66°), och de går inte att uttrycka som en
-   Keplerbana. Det bryter appens bärande idé att varje kropp är en ren
-   Keplerbana med fasta element.
+**Beslutet blev: inga periodiska termer.** De behövs inte för det appen kan
+använda dem till. Datumen är redan rätt, och nästa steg i noggrannhet – om
+förmörkelsen blir total, ringformig eller partiell, och var på jorden den syns –
+går ändå inte att nå med dem. Det avgörs av parallaxen från den plats betraktaren
+står på, alltså av var på jordklotet man befinner sig, och det är en helt annan
+sorts räkning än en bättre månbana. Appen visar solsystemet utifrån och har ingen
+betraktare på markytan.
 
-- [ ] Beslut: ska månen få periodiska termer, eller ska appen nöja sig med
-      att förklara mekanismen (12.3) utan att förutsäga datum? Det är ett
-      arkitekturval och inte en implementationsdetalj.
+Det som återstår är alltså inte matematik utan gränssnitt:
+
+- [x] En lista med förmörkelsedatum att hoppa till, i stil med mötesväljaren i
+      12.1. Datumen kan sökas fram ur modellen på samma sätt som proven gjorde:
+      nymåne eller fullmåne med månen inom ett par grader från ekliptikan.
+- [x] Vid hoppet: slå på "Månbanan" automatiskt och zooma till jorden, så att man
+      ser att solen står vid nodlinjen just då. Det är förklaringen, och den är
+      värd mer än datumet i sig.
+- [x] Var tydlig med vad som inte visas: om förmörkelsen är total eller partiell,
+      och var på jorden. Det kräver en betraktare på markytan, vilket appen inte
+      har.
+
+Ingen lista behövdes: förmörkelserna blev två poster till i mötesväljaren från
+12.1, och datumen räknas fram i stället för att skrivas in. Det är samma sökning
+som för konjunktioner och oppositioner, med två skillnader. Tröskeln är hårdare –
+1,55 grader för sol, vilket är solens och månens bredd plus den grad parallaxen
+kan flytta månen mellan olika platser på jorden, och 1,0 grader för måne, vilket
+är jordens kärnskugga minus månens egen radie. Och månens läge får inte behandlas
+som en planets: dess banelement är geocentriska, så dess läge **är** redan
+riktningen från jorden. Att dra bort jordens läge en gång till hade lagt jordbanan
+ovanpå månbanan.
+
+Klickar man fram en förmörkelse slås "Månbanan" och "Visa månar" på och kameran
+ställer sig vid jorden, så att man ser solen stå vid nodlinjen just den dagen.
+Etiketten säger rakt ut vad som inte visas: "typ och plats visas inte".
+
+**Verifiera:** Modellens serie av förmörkelser ska stämma med verkligheten, inte
+bara enstaka datum.
+
+Kontrollerat utanför appen genom `SkyEvent.Next`, 5 kontroller utan fel:
+
+- **Alla tio solförmörkelser 2024–2028 i exakt ordning**, ingen extra och ingen
+  missad: 8 apr 2024, 2 okt 2024, 29 mar 2025, 21 sep 2025, 17 feb 2026,
+  12 aug 2026, 6 feb 2027, 2 aug 2027, 26 jan 2028 och 22 jul 2028. Det är hela
+  serien, inte ett urval – även de partiella som knappt märks.
+- **Månförmörkelserna: sju funna, alla verkliga, inga falska larm.** En missas,
+  den 12 januari 2028, och det är en grund partiell som ligger precis vid
+  tröskeln. Det är gränsdragningen som avgör den, inte modellen.
+- **Mellanrummen är hela synodmånader**: 6, 6, 6, 5, 6, 6, 6, 6, 6 varv. Att ett
+  av dem är fem och inte sex är riktigt – förmörkelsesäsongerna kommer med 173
+  dygns mellanrum, vilket inte går jämnt upp i månvarv.
+- **Sarosperioden faller ut av sig själv.** Den totala solförmörkelsen över USA
+  den 21 augusti 2017 återkommer i modellen den 1 september 2035, alltså 6585
+  dygn senare mot sarosperiodens kända 6585,3. Babylonierna kände till den
+  perioden och kunde förutsäga förmörkelser med den; här kommer den ut ur
+  nodens och perigeums vandring utan att någon skrivit in den.
 
 ### 12.5 – Halleys komet
 
