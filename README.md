@@ -11,6 +11,14 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
   ungefär med verkligheten för det simulerade datumet. Plutos bana är en bra
   kontrast till planeternas: 17° lutning, 248 års omloppstid och så excentrisk
   att den tidvis går innanför Neptunus bana.
+- **Ytor och rotation**: kroppar med ytkarta ritas som klot när man zoomat in
+  nog, med verklig axellutning och verklig rotationstid. Jorden har sina
+  världsdelar och snurrar ett varv per stjärndygn, så rätt kontinent är vänd mot
+  solen vid rätt klockslag. Mars har sina mörka albedofält – Syrtis Major är den
+  triangel Huygens ritade av 1659 och tog tiden på för att mäta planetens dygn –
+  plus polarisar och Valles Marineris som ett streck. Mars dygn är 24 h 37 min,
+  bara en halvtimme längre än jordens, och att dess soldygn blir ytterligare två
+  minuter längre faller ut av rörelsen i banan.
 - **Månar**: 15 månar kretsar kring sina planeter med riktiga banelement och
   visas när man zoomar in – jordens måne, Mars Phobos och Deimos, Jupiters
   fyra galileiska månar, Saturnus Enceladus, Rhea och Titan, Uranus

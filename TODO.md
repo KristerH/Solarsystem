@@ -692,11 +692,44 @@ att den måste, men den står ändå i provlistan under R1.
 
 ### 11.2 – Mars
 
-- [ ] Rödbrun yta med de mörka områdena (Syrtis Major är det tydligaste),
+- [x] Rödbrun yta med de mörka områdena (Syrtis Major är det tydligaste),
       vita polarisar och gärna Valles Marineris som ett streck.
-- [ ] Rotation 24 h 37 min, nästan som jordens.
+- [x] Rotation 24 h 37 min, nästan som jordens.
+
+Kartan har tolv drag: Syrtis Major som den mörka triangeln kring 70° öst, Mare
+Acidalium, Sinus Sabaeus och Sinus Meridiani längs ekvatorn, Mare Erythraeum,
+Tyrrhenum, Cimmerium och Sirenum, Solis Lacus ("Mars öga"), Boreosyrtis vid
+Utopia, de ljusa högslätterna Hellas och Tharsis, samt Valles Marineris som ett
+streck. De mörka fälten är inte hav utan berggrund som vinden sopat ren från
+ljust damm – därför byter de långsamt form mellan stormsäsongerna.
+
+Polarisarna ritas med samma utsträckning året om. I verkligheten andas de med
+årstiderna, men appen har ingen modell för frost, och det står i kodkommentaren.
 
 **Verifiera:** Polarisarna ska ligga still medan ytan snurrar under dem.
+
+Kontrollerat utanför appen:
+
+- **Polarisarna står stilla.** Över två marsdygn håller sig norra kalotten på
+  exakt 76,00° nord och den södra på 74,00° syd, medan Syrtis Major under samma
+  tid sveper 720,0°. Ytan snurrar alltså under kalotter som inte rör sig.
+- **Sex marslandningar hamnar på rätt tid av dygnet**, vilket provar både
+  nollmeridianen och åt vilket håll longituden räknas: Viking 1 15:43 (känt
+  16:13), Viking 2 09:52 (09:49), Pathfinder 02:54 (03:07), Opportunity 13:18
+  (13:15), Curiosity 15:32 (14:53) och Perseverance 15:21 (15:53). Störst fel
+  40 minuter. De kända klockslagen är medelsoltid medan modellen räknar sann
+  soltid, och Mars tidsekvation når ±50 minuter – banan är så excentrisk
+  (e = 0,093) att solen ligger rejält före eller efter sin medelposition. Vore
+  longitudens tecken fel skulle de hamna 6–19 timmar bort; att Pathfinder faller
+  före gryningen och Viking 2 på morgonen medan de andra fyra faller på
+  eftermiddagen är det som binder tecknet.
+- **Marsdygnet stämmer i båda formerna**: stjärndygnet 24:37:22 mot kända
+  24:37:22, och soldygnet, mätt ur modellen som tiden mellan två middagar,
+  24:39:47 mot kända 24:39:35. Tolv sekunders fel, och skillnaden på drygt två
+  minuter mellan de två dygnen faller ut av sig själv – Mars hinner en bit i sin
+  bana medan den snurrar.
+- **Dragen ligger rätt på klotet**: polygonernas tyngdpunkter hamnar högst 3°
+  från de lägen de ska ha, alltså inom 200 km på Mars yta.
 
 ### 11.3 – Jupiter
 
@@ -875,6 +908,8 @@ Sondväljaren (10.6):
 Etapp 11:
 
 - [x] Jordgloben ser ut och snurrar precis som före ombyggnaden i 11.1.
+- [ ] Mars ytkarta ser ut som Mars och inte som en tårta – färgvalen är gjorda
+      utan att någon sett dem ritade.
 - [ ] Saturnus och Uranus lutar åt rätt håll efter nodrättningen – enklast att se
       på ringarna vid ett par årtal långt isär.
 

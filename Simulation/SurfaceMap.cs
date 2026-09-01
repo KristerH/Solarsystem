@@ -76,6 +76,66 @@ public sealed class SurfaceMap
                    (-74,210),(-75,240),(-72,270),(-64,297),(-70,330)]),
         ]);
 
+    static readonly Color MarsDust = Color.FromArgb("#C4663F");
+    static readonly Color MarsBright = Color.FromArgb("#DB9160");
+    static readonly Color MarsDark = Color.FromArgb("#7E5341");
+    static readonly Color MarsCanyon = Color.FromArgb("#66412F");
+
+    /// <summary>
+    /// Mars albedokarta: de mörka fälten som setts i teleskop sedan 1600-talet.
+    /// De är inte hav utan bara berggrund som vinden sopat ren från ljust damm,
+    /// vilket är varför de långsamt byter form mellan stormsäsongerna. Namnen är
+    /// ändå kvar från den tid då man trodde annat – Mare Cimmerium, Mare Sirenum.
+    ///
+    /// Longituderna är östliga och räknade från Airy-0, den lilla krater som
+    /// definierar Mars nollmeridian. Syrtis Major hamnar därför kring 70° öst,
+    /// där den ska vara: det var den fläcken Christiaan Huygens ritade av 1659
+    /// och tog tiden på för att mäta Mars dygn.
+    ///
+    /// Polarisarna ritas med samma utsträckning året om. I verkligheten andas de
+    /// med årstiderna – den södra vinterkalotten når ned mot 50° syd och krymper
+    /// sedan till en fläck – men appen har ingen årstidsmodell för frost.
+    /// </summary>
+    public static readonly SurfaceMap Mars = new(MarsDust,
+        [
+            // Ljusa högslätter: Hellas, den 2 300 km vida nedslagsbassängen som
+            // ofta ligger dammfylld och lysande, och Tharsis med solsystemets
+            // största vulkaner.
+            (MarsBright, [(-28,55),(-30,80),(-42,92),(-55,80),(-56,58),(-45,47)]),
+            (MarsBright, [(25,230),(20,260),(0,268),(-10,255),(-6,232),(10,222)]),
+
+            // Syrtis Major: den mörka triangeln, bredast i norr. Mars mest kända
+            // drag och det första någon sett på en annan planets yta.
+            (MarsDark, [(20,62),(18,76),(8,78),(0,74),(-4,70),(2,66),(10,60)]),
+            // Mare Acidalium – det stora mörka fältet på norra halvklotet.
+            (MarsDark, [(60,330),(55,350),(48,5),(38,10),(30,0),(32,340),(40,325),(52,318)]),
+            // Sinus Sabaeus och Sinus Meridiani, bandet längs ekvatorn som går
+            // rakt genom nollmeridianen.
+            (MarsDark, [(-2,318),(2,330),(0,345),(2,358),(0,8),(-6,6),(-8,350),(-10,335),(-8,322)]),
+            // Mare Erythraeum
+            (MarsDark, [(-14,300),(-12,320),(-18,340),(-28,345),(-34,330),(-32,310),(-24,298)]),
+            // Mare Tyrrhenum
+            (MarsDark, [(-12,82),(-14,100),(-20,115),(-28,110),(-30,95),(-24,82)]),
+            // Mare Cimmerium
+            (MarsDark, [(-14,140),(-16,160),(-22,185),(-32,188),(-34,165),(-26,142)]),
+            // Mare Sirenum
+            (MarsDark, [(-20,205),(-24,225),(-32,240),(-40,232),(-38,210),(-28,200)]),
+            // Solis Lacus, "Mars öga", som blinkar när dammstormar drar över.
+            (MarsDark, [(-22,262),(-24,275),(-32,278),(-36,268),(-30,259)]),
+            // Boreosyrtis vid Utopia
+            (MarsDark, [(48,95),(44,120),(36,128),(34,108),(40,92)]),
+
+            // Valles Marineris: 4 000 km lång, tio gånger Grand Canyon och djup
+            // nog att rymma Mount Everest stående. Den syns som ett streck.
+            (MarsCanyon, [(-6,262),(-9,280),(-12,300),(-15,320),(-18,318),(-15,298),(-12,278),(-9,260)]),
+
+            // Polarisarna: vattenis under ett lock av frusen koldioxid.
+            (Ice, [(76,0),(76,30),(76,60),(76,90),(76,120),(76,150),(76,180),(76,210),
+                   (76,240),(76,270),(76,300),(76,330)]),
+            (Ice, [(-74,0),(-74,30),(-74,60),(-74,90),(-74,120),(-74,150),(-74,180),
+                   (-74,210),(-74,240),(-74,270),(-74,300),(-74,330)]),
+        ]);
+
     /// <summary>
     /// Delar upp långa kanter i steg om högst 5 grader så att kustlinjerna
     /// följer klotets buktning och klipps snyggt mot dess rand. Sinus/cosinus
