@@ -551,6 +551,6 @@
     <value>{0} {1:MMM yyyy}  {2:+0.0;-0.0} km/s</value>
   </data>
   <data name="msg.dateFormat">
-    <value>dddd d MMMM yyyy, HH:mm</value>
+    <value>dddd, MMMM d, yyyy HH:mm</value>
   </data>
 </root>

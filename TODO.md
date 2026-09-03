@@ -1573,31 +1573,92 @@ ordning som helst.
 Appen ska kunna visas på svenska och engelska, med språken i egna filer så
 att fler språk (t.ex. tyska) bara blir en fil till – ingen kodändring.
 
-- [ ] Lägg alla texter i .resx-resursfiler (standardmekanismen i .NET):
+- [x] Lägg alla texter i .resx-resursfiler (standardmekanismen i .NET):
       `Resources/Strings/AppStrings.resx` (engelska som grundspråk) och
       `AppStrings.sv.resx` (svenska). Ett nytt språk = en ny
       `AppStrings.xx.resx`.
-- [ ] Flytta ut och översätt:
-      - [ ] Menyer och reglage (Pausa/Starta, Hastighet, Visa banor,
+- [x] Flytta ut och översätt:
+      - [x] Menyer och reglage (Pausa/Starta, Hastighet, Visa banor,
             Verklig storlek, Stjärnbilder, Stjärnnamn, Stjärnor, Fokus,
             Återställ vy, Få/Normalt/Många)
-      - [ ] Klock- och infotexter (Förflutet, dygn/sek, hjälpraden, fönstertitel)
-      - [ ] Himlakroppsnamn (Solen/The Sun, Jorden/Earth, Månen/The Moon ...) –
+      - [x] Klock- och infotexter (Förflutet, dygn/sek, hjälpraden, fönstertitel)
+      - [x] Himlakroppsnamn (Solen/The Sun, Jorden/Earth, Månen/The Moon ...) –
             datat i `SolarSystemData` får språkneutrala nycklar, namnen slås
             upp i resurserna
-      - [ ] Stjärnbildsnamn (Karlavagnen - Stora björn / Big Dipper - Ursa
+      - [x] Stjärnbildsnamn (Karlavagnen - Stora björn / Big Dipper - Ursa
             Major, Lilla björn / Little Bear ...). Stjärnornas egennamn
             (Betelgeuse, Sirius, Polaris/Polstjärnan) är internationella och
             behöver bara översättas i undantagsfall.
-- [ ] Språkval: följ operativsystemets språk som standard, plus en väljare i
+- [x] Språkval: följ operativsystemets språk som standard, plus en väljare i
       kontrollpanelen så att läraren kan byta språk direkt på lektionen.
-- [ ] Datum- och talformat följer valt språk (i dag hårdkodat sv-SE).
-- [ ] README på båda språken (eller engelsk README med svensk sektion).
+- [x] Datum- och talformat följer valt språk (i dag hårdkodat sv-SE).
+- [x] README på engelska. Först prövades ett par parallella filer,
+      `README.md` och `README.en.md` med korslänkar, men det höll inte för
+      en enkel fråga: vad vinner en svensk README när appen själv redan har
+      en språkväljare? Ingenting läsaren inte redan får i appen, mot att
+      hålla två dokument i synk för alltid. `README.md` är nu engelska rakt
+      av, vilket också är GitHub-konventionen för vad som visas som
+      förstasida.
 
 **Verifiera:** Byt språk i väljaren: alla texter, planetnamn och
 stjärnbildsnamn byter språk direkt, datumet formateras rätt ("fredag 5
 september" / "Friday, September 5") och inga texter blir avklippta i
 kontrollpanelen. Svenska ska se exakt ut som i dag.
+
+**Utfall:** 16 av 16 kontroller, i ett fristående testprogram som länkar
+in de riktiga resursfilerna (samma sorts oberoende kontroll som
+provprogrammet i `scratchpad/moontest` använt sedan etapp 9 – se
+Anteckningar).
+
+| kontroll | svenska | engelska |
+|---|---|---|
+| datumformat | "fredag 5 september 2025, 14:30" | "Friday, September 5, 2025 14:30" |
+| paus-knapp | "⏸ Pausa" | "⏸ Pause" |
+| jordens namn | "Jorden" | "Earth" |
+| stjärnbild | "Karlavagnen - Stora björn" | "Big Dipper - Ursa Major" |
+| decimaltal i meddelande | "Fart: 16,67 km/s" | "Speed: 16.67 km/s" |
+
+De två datumraderna är precis de exempel punkten själv efterfrågade, och de
+visar varför en enda formatsträng inte hade räckt: dag-för-månad-ordningen är
+själva skillnaden mellan språken, inte bara ordens översättning. Först
+byggdes engelskan med samma mönster som svenskan ("Friday 5 September"), vilket
+testet slog ner på direkt – facit var skrivet i TODO:n men formatsträngen hade
+kopierats rakt av. Rättelsen var att ge `msg.dateFormat` ett eget värde per
+språk i stället för ett gemensamt: `dddd d MMMM yyyy, HH:mm` för svenska (ordagrant
+det som stod i koden innan etappen började – verifierat mot commit 5493e48),
+`dddd, MMMM d, yyyy HH:mm` för engelska.
+
+**Hur det är byggt:**
+
+- 165 nycklar, indelade `name.*` (himlakroppar, stjärnbilder, de två stjärnorna
+  vars namn skiljer sig mellan språken), `ui.*` (statisk gränssnittstext) och
+  `msg.*` (meddelanden med insatta värden, formaterade med `Strings.Format`).
+- `CelestialBody.Name`, `Probe`/`Milestone.Name`, `Mission.Name` och
+  `Constellation.Name` blev `...Key` – en språkneutral identitet
+  (`"Earth"`, `"UrsaMajor"`) som `Strings.Name(key)` slår upp vid ritning.
+  Det är det som gör att 3D-vyn själv byter språk utan att ritkoden vet om det:
+  den frågar `Strings` varje bildruta i stället för att komma ihåg en text.
+- `MainPage.xaml` fick `x:Name` på varje textbärande kontroll i stället för
+  `Text="..."`; `ApplyLanguage()` i koden sätter dem alla och anropas både vid
+  start och vid varje byte i språkväljaren.
+- Sonders och farkosters egna namn (Voyager 1, Cassini, "Farkost"/"craft")
+  översätts inte – de är egennamn, precis som stjärnornas.
+
+**Provat men inte synat i appen.** Testet ovan länkar den kompilerade
+`Solarsystem.dll` och satellitresursen `sv/Solarsystem.resources.dll` – exakt
+de filer appen faktiskt använder – men körs som ett fristående konsolprogram.
+Att panelens knappar inte klipps av på engelska (kortare svensk text, längre
+engelsk) är kontrollerat genom att sju datumknappar fått bredare
+`WidthRequest` i XAML; övriga textbärande knappar saknar fast bredd och ligger
+i en horisontellt skrollande panel, så ett längre ord skjuter bara panelen
+längre snarare än att klippas. Ingen människa har sett väljaren växla i
+fönstret.
+
+**Efterhandsbeslut om README:** en första version hade `README.md` (svenska)
+och `README.en.md` (engelska) sida vid sida med korslänkar. Det byttes till en
+enda engelsk `README.md` – appens egen språkväljare gör en översatt README
+till dubbelarbete utan mottagare, och GitHub visar ändå bara en fil som
+förstasida.
 
 ---
 
