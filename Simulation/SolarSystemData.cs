@@ -521,6 +521,42 @@ public static class SolarSystemData
         "Ceres", Color.FromArgb("#A79C90"), 469.7,
         2.7675, 0.0758, 10.593, 80.393, 153.990, 249.979, 1_681.63);
 
+    /// <summary>
+    /// Halleys komet: den enda ljusstarka kometen med så kort omloppstid att en
+    /// människa kan hinna se den två gånger.
+    ///
+    /// Banan är allt som planeternas inte är. Excentriciteten 0,967 drar ut den
+    /// så till den grad att kometen svänger in innanför Venus bana i perihelium
+    /// (0,586 AU) och ut förbi Neptunus i aphelium (35,1 AU) – sextio gånger
+    /// längre bort som mest än som minst. Av det följer farten, genom Keplers
+    /// andra lag: 54 km/s vid perihelium och under 1 km/s vid aphelium. Kometen
+    /// tillbringar alltså nästan hela sitt varv långt ute i kylan och rusar genom
+    /// det inre solsystemet på några månader.
+    ///
+    /// Banlutningen 162 grader betyder att den går RETROGRAD, mot planeternas
+    /// färdriktning. Det är därför mötet med jorden 1986 blev så kort: de två
+    /// kropparna kom mot varandra i stället för att köra i kapp.
+    ///
+    /// Elementen är förankrade i två kända perihelier, 9 februari 1986 och
+    /// 28 juli 2061. Det ger omloppstiden 27 563 dygn (75,5 år), och ur den
+    /// följer halva storaxeln.
+    ///
+    /// Radien avser kärnan, som är en potatisformad klump på ungefär 15 x 8 x 8
+    /// km och svartare än kol – ljuset kommer inte från den utan från gasen och
+    /// dammet omkring, vilket också är vad färgen nedan beskriver.
+    ///
+    /// **Förbehåll:** en fast keplerbana kan inte träffa alla perihelier. Halleys
+    /// verkliga omloppstid varierar mellan 74 och 79 år, eftersom Jupiter och
+    /// Saturnus drar i kometen vid varje varv och gasstrålarna från den upphettade
+    /// kärnan knuffar den som en svag raket. Modellen lägger därför 1910 års
+    /// perihelium i slutet av augusti i stället för den 20 april – fyra månader
+    /// fel redan ett varv bakåt. Kring 1986 och 2061 stämmer den, och det är
+    /// där den används.
+    /// </summary>
+    public static readonly CelestialBody Halley = new(
+        "Halleys komet", Color.FromArgb("#CFEDE8"), 5.5,
+        17.85745, 0.9671858, 162.262, 58.420, 169.753, 236.026, 27_562.54);
+
     // Banelement vid J2000 (NASA/JPL, medelvärden). Tillräckligt noggranna för att
     // planeternas positioner ungefär ska stämma med verkligheten för ett givet datum.
     public static readonly CelestialBody[] Planets =

@@ -304,6 +304,33 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
   blir det i absoluta mått femton gånger tjockare: kropparna når 18 AU upp
   och ner mot asteroidbältets 1,2. Luta kameran och zooma ut så syns
   skillnaden tydligt.
+- **Halleys komet**: en kryssruta tänder kometen med sin bana och sina två
+  svansar. Banan är allt som planeternas inte är – excentriciteten 0,967 tar den
+  från 0,586 AU i perihelium, innanför Venus bana, ut till 35,1 AU i aphelium,
+  utanför Neptunus. Av det följer farten: 55 km/s vid solen och 0,9 km/s längst
+  ute. Lutningen 162° betyder att den går retrograd, alltså mot planeternas
+  färdriktning. Elementen är förankrade i två kända perihelier, 9 februari 1986
+  och 28 juli 2061, och att de stämmer syns på något modellen inte fått veta:
+  kometen kommer närmast jorden den 10 april 1986 på 0,416 AU, mot verklighetens
+  11 april och 0,42.
+
+  Svansarna är två därför att de är två i verkligheten, och de skiljer sig åt av
+  ett skäl som är värt att se: jonsvansen är gas som solvinden river med sig rakt
+  bort från solen, medan dammsvansen består av korn som är för tunga att ryckas
+  med och därför släpar efter i banan. Ingen av dem ligger bakom kometen i
+  färdriktningen – på vägen ut från periheliet går Halley med svansen före. Och
+  svansen finns bara när den ska: isen ångar först innanför 3 AU, vilket kometen
+  är 368 dygn av sina 27 563.
+
+  Mötesväljaren har fått **"Halley i perihelium"**, som hoppar till nästa varv
+  och tänder kometen på vägen. Det som rapporteras är inte avståndet till solen –
+  det är 0,586 AU varje gång, det är ju vad ett perihelium är – utan hur besöket
+  ser ut härifrån. Där syns skillnaden mellan ett dåligt och ett bra besök: den 9
+  februari 1986 stod Halley 1,55 AU från jorden och åtta grader från solen på
+  himlen, alltså mitt i dagsljuset, och blev inte något att se förrän två månader
+  senare. Den 28 juli 2061 står den 0,48 AU bort och tjugo grader från solen.
+  1986 var det sämsta besöket på tvåtusen år och 2061 blir ett av de bästa, och
+  modellen räknar fram bådadera utan att ha fått veta det.
 - **Visa/dölj månar**: en kryssruta slår av och på alla planeters månar
   på en gång, för en renare översiktsvy.
 - **Start/paus** av rotationen (knapp eller mellanslag) och justerbar
@@ -386,6 +413,12 @@ asteroid-/Kuiperbälten, tänkt att byggas och verifieras en etapp i taget.
   Vinklarna räknas sett från jorden och inte från solen, vilket är avgörande:
   den stora konjunktionen 2020 hamnar på rätt dag från jorden men sju veckor fel
   heliocentriskt.
+- `Simulation/SolarSystemData.cs` innehåller också Halleys komet, vars
+  banelement är förankrade i två kända perihelier i stället för hämtade ur en
+  efemerid. En fast keplerbana kan nämligen inte träffa alla: den verkliga
+  omloppstiden varierar mellan 74 och 79 år, eftersom Jupiter och Saturnus drar i
+  kometen och gasstrålarna från kärnan knuffar den. Modellen stämmer kring 1986
+  och 2061 men lägger 1910 års perihelium fyra månader fel.
 - `Simulation/Vec3.cs` – en vektor i dubbel precision, för de räkningar där
   `Vector3` inte räcker. Ritningen klarar sig gott med enkel precision, men när
   en bana byggs ur ett läge och en hastighet räknas energin som en skillnad

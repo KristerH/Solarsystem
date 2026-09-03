@@ -55,6 +55,13 @@ public sealed class SolarSystemDrawable : IDrawable
     public HashSet<string> VisibleProbes { get; } = [];
 
     /// <summary>
+    /// Ritar Halleys komet med sin bana och sina svansar. Av som standard: den
+    /// är borta 74 år av 75, och dess bana är så utdragen att den skymmer
+    /// planeternas när den ligger kvar i bilden.
+    /// </summary>
+    public bool ShowHalley { get; set; }
+
+    /// <summary>
     /// Ritar månbanan mot ekliptikan med noderna utmärkta. Av som standard –
     /// det är en fördjupning och inte något som hör hemma i översiktsvyn.
     /// </summary>
@@ -122,6 +129,8 @@ public sealed class SolarSystemDrawable : IDrawable
             DrawHeliopause(canvas, rect);
             if (ShowOrbits)
                 DrawOrbits(canvas, rect);
+            if (ShowHalley && ShowOrbits)
+                DrawHalleyOrbit(canvas);
             if (ShowKuiperBelt)
             {
                 _kuiper ??= SmallBodyBelt.CreateKuiperBelt(KuiperCount, UnitsPerAu);
@@ -134,6 +143,8 @@ public sealed class SolarSystemDrawable : IDrawable
             if (ShowMoonOrbit)
                 DrawMoonOrbit(canvas, DaysSinceJ2000);
             DrawBodies(canvas, rect);
+            if (ShowHalley)
+                DrawHalley(canvas);
             if (VisibleProbes.Count > 0)
             {
                 DrawProbes(canvas);
@@ -406,6 +417,211 @@ public sealed class SolarSystemDrawable : IDrawable
     }
 
 
+    // ---------------------------------------------------- Halleys komet
+
+    /// <summary>
+    /// Bortom det här avståndet från solen har kometen ingen svans. Gränsen är
+    /// inte vald för att det ser bra ut: svansen finns bara så länge isen i
+    /// kärnan ångar, och vattenis börjar ånga först när solen värmt den nog,
+    /// vilket sker kring tre astronomiska enheter.
+    ///
+    /// Följden är värd att se i appen. Av sina 27 563 dygn tillbringar Halley
+    /// 368 innanför gränsen – ett år av sjuttiofem. Resten av tiden är den en
+    /// mörk isklump som ingen kan se.
+    /// </summary>
+    const double TailLimitAu = 3.0;
+
+    /// <summary>
+    /// Svansens längd på en astronomisk enhets avstånd. Den växer som 1/r², i
+    /// takt med solljusets styrka, vilket ger 0,29 AU i periheliet och några
+    /// hundradelar vid gränsen ovan.
+    /// </summary>
+    const double TailScaleAu = 0.10;
+
+    /// <summary>Tak för längden, så att den inte skenar i väg innanför periheliet.</summary>
+    const double MaxTailAu = 0.30;
+
+    /// <summary>Hur lång dammsvansen är i förhållande till jonsvansen.</summary>
+    const double DustLengthShare = 0.65;
+
+    /// <summary>Hur hårt dammsvansen böjs bakåt i banan vid sin spets.</summary>
+    const double DustCurve = 0.5;
+
+    /// <summary>Antal punkter varje svans byggs av.</summary>
+    const int TailSteps = 16;
+
+    /// <summary>
+    /// Kortaste svans som ritas, i bildpunkter. En svans på 0,3 AU är stor i
+    /// jämförelse med jordens bana men liten i jämförelse med Halleys egen, så
+    /// utzoomat vore den bara några pixlar lång. Den sträcks då ut till den här
+    /// längden med riktningen behållen – samma sorts förstoring som planeterna
+    /// får för att alls synas.
+    /// </summary>
+    const float MinTailPixels = 24f;
+
+    const int HalleyOrbitSamples = 360;
+
+    static readonly Color HalleyOrbitColor = Color.FromRgba(0.62f, 0.88f, 0.84f, 0.40f);
+    static readonly Color IonTailColor = Color.FromRgba(0.62f, 0.82f, 1.00f, 0.85f);
+    static readonly Color DustTailColor = Color.FromRgba(1.00f, 0.93f, 0.74f, 0.55f);
+    static readonly Color ComaGlow = Color.FromRgba(0.80f, 0.96f, 0.94f, 0.22f);
+
+    Vector3[]? _halleyOrbit;
+
+    /// <summary>
+    /// Halleys bana. Den ritas inte tillsammans med planeternas, dels för att
+    /// den bara hör hemma i bilden när kometen är framme, dels för att den är
+    /// sextio gånger längre än den är bred och därför inte tål att buntas ihop
+    /// med cirklarna.
+    /// </summary>
+    void DrawHalleyOrbit(ICanvas canvas)
+    {
+        // Banan ligger stilla, så punkterna räknas fram en gång.
+        _halleyOrbit ??= SolarSystemData.Halley.OrbitPath(HalleyOrbitSamples, UnitsPerAu);
+
+        // Samma regel som för planetbanorna: en delfigur får börja först när två
+        // punkter i rad är synliga, annars blir det en MoveTo utan LineTo.
+        var path = new PathF();
+        bool started = false, hasPrev = false;
+        float px = 0, py = 0;
+        for (int k = 0; k <= _halleyOrbit.Length; k++)
+        {
+            if (Camera.Project(_halleyOrbit[k % _halleyOrbit.Length],
+                    out float sx, out float sy, out _))
+            {
+                if (hasPrev)
+                {
+                    if (!started) { path.MoveTo(px, py); started = true; }
+                    path.LineTo(sx, sy);
+                }
+                hasPrev = true;
+                px = sx;
+                py = sy;
+            }
+            else
+            {
+                hasPrev = false;
+                started = false;
+            }
+        }
+
+        canvas.StrokeSize = 1f;
+        canvas.StrokeColor = HalleyOrbitColor;
+        canvas.DrawPath(path);
+    }
+
+    /// <summary>
+    /// Kometen med sina två svansar.
+    ///
+    /// Det som är lättast att ha fel för sig om är åt vilket håll de pekar. En
+    /// svans ligger inte bakom kometen i färdriktningen, som ett bloss efter en
+    /// raket, utan bort från solen – och på vägen ut från periheliet går
+    /// kometen alltså med svansen före.
+    ///
+    /// Att det finns två svansar, och varför de skiljer sig åt, är samma sak
+    /// sedd närmare. Jonsvansen är gas som solljuset laddat elektriskt;
+    /// solvinden blåser i 400 km/s och river med den rakt bort från solen utan
+    /// att bry sig om vart kometen är på väg. Dammsvansen är korn som är för
+    /// tunga för att ryckas med: de får en knuff av ljuset men behåller
+    /// kometens egen fart, hamnar i egna banor kring solen och blir därför
+    /// kortare, bredare och böjda bakåt.
+    /// </summary>
+    void DrawHalley(ICanvas canvas)
+    {
+        var comet = SolarSystemData.Halley;
+        double t = DaysSinceJ2000;
+        var posAu = comet.PositionAuAt(t);
+        if (!Camera.Project((posAu * UnitsPerAu).ToVector3(),
+                out float hx, out float hy, out _))
+            return;
+
+        double r = posAu.Length;
+        double tailAu = r < TailLimitAu ? Math.Min(MaxTailAu, TailScaleAu / (r * r)) : 0.0;
+
+        if (tailAu > 0)
+        {
+            // Solen ligger i origo, så riktningen bort från den är läget självt.
+            var away = posAu.Normalized();
+            var motion = (comet.PositionAuAt(t + 0.5) - comet.PositionAuAt(t - 0.5)).Normalized();
+
+            var ion = new Vector3[TailSteps + 1];
+            var dust = new Vector3[TailSteps + 1];
+            for (int k = 0; k <= TailSteps; k++)
+            {
+                double s = (double)k / TailSteps;
+                ion[k] = ((posAu + away * (tailAu * s)) * UnitsPerAu).ToVector3();
+
+                // Dammet släpar efter i banan, och eftersläpningen växer med
+                // avståndet från kärnan eftersom de kornen släpptes tidigare.
+                double along = tailAu * DustLengthShare * s;
+                dust[k] = ((posAu + away * along - motion * (along * DustCurve * s))
+                           * UnitsPerAu).ToVector3();
+            }
+
+            float stretch = TailStretch(ion[TailSteps], hx, hy);
+            DrawTail(canvas, dust, hx, hy, stretch, DustTailColor, 4.0f);
+            DrawTail(canvas, ion, hx, hy, stretch, IonTailColor, 1.6f);
+        }
+
+        // Kärnan är fem kilometer bred och skulle aldrig gå att se. Det man ser
+        // är kaman: gasmolnet omkring kärnan, som nära solen blir hundratusen
+        // kilometer brett och alltså större än solen själv. Prickens storlek
+        // följer därför aktiviteten och inte kroppens mått.
+        float coma = 2.4f + 4.6f * (float)(tailAu / MaxTailAu);
+        canvas.FillColor = ComaGlow;
+        canvas.FillCircle(hx, hy, coma * 2.4f);
+        canvas.FillColor = comet.BodyColor;
+        canvas.FillCircle(hx, hy, coma);
+
+        _labels.Add((comet.Name, hx, hy + coma * 2.4f + 6f));
+    }
+
+    /// <summary>
+    /// Hur mycket svansen behöver sträckas för att synas. Ett medgivande till
+    /// kameran och inte till fysiken: riktningen är den uträknade, det är bara
+    /// längden som är tilltagen.
+    /// </summary>
+    float TailStretch(Vector3 tip, float hx, float hy)
+    {
+        if (!Camera.Project(tip, out float tx, out float ty, out _))
+            return 1f;
+        float length = MathF.Sqrt((tx - hx) * (tx - hx) + (ty - hy) * (ty - hy));
+        return length >= MinTailPixels || length <= 0.01f ? 1f : MinTailPixels / length;
+    }
+
+    /// <summary>
+    /// Ritar en svans som en rad streck som blir bredare och blekare utåt –
+    /// tätast och ljusast vid kärnan, precis som en riktig svans.
+    /// </summary>
+    void DrawTail(ICanvas canvas, Vector3[] points, float hx, float hy,
+        float stretch, Color colour, float maxWidth)
+    {
+        float px = 0, py = 0;
+        bool hasPrev = false;
+        for (int k = 0; k <= TailSteps; k++)
+        {
+            if (!Camera.Project(points[k], out float sx, out float sy, out _))
+            {
+                hasPrev = false;
+                continue;
+            }
+            sx = hx + (sx - hx) * stretch;
+            sy = hy + (sy - hy) * stretch;
+
+            if (hasPrev)
+            {
+                float s = (float)k / TailSteps;
+                float fade = (1f - s) * (1f - s);
+                canvas.StrokeSize = 0.8f + maxWidth * s;
+                canvas.StrokeColor = colour.WithAlpha(colour.Alpha * fade);
+                canvas.DrawLine(px, py, sx, sy);
+            }
+            px = sx;
+            py = sy;
+            hasPrev = true;
+        }
+    }
+
     // -------------------------------------------------- månbanan och noderna
 
     static readonly Color MoonOrbitColor = Color.FromRgba(0.70f, 0.75f, 0.85f, 0.55f);
@@ -580,6 +796,11 @@ public sealed class SolarSystemDrawable : IDrawable
 
     public float SuggestedFocusDistance(CelestialBody planet)
     {
+        // Kometen har ingen storlek att tala om – kärnan är fem kilometer – så
+        // avståndet ramar in svansen i stället för kroppen.
+        if (ReferenceEquals(planet, SolarSystemData.Halley))
+            return (float)(MaxTailAu * UnitsPerAu) * 3f;
+
         float visR = VisualRadius(planet.RadiusKm, isSun: false);
         float distance = visR * 12f;
 

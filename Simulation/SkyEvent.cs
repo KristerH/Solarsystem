@@ -30,6 +30,13 @@ public static class SkyEvent
 
         /// <summary>Månen går in i jordens skugga: fullmåne nära en av noderna.</summary>
         LunarEclipse,
+
+        /// <summary>
+        /// Kroppen står som närmast solen. Till skillnad från de övriga är det
+        /// här ingen händelse på himlen utan i banan: den beror bara på var
+        /// kroppen själv är, inte på var betraktaren står.
+        /// </summary>
+        Perihelion,
     }
 
     /// <summary>Ett möte: när det sker, hur nära på himlen, och hur långt bort kroppen är.</summary>
@@ -107,6 +114,11 @@ public static class SkyEvent
     {
         Kind.Conjunction => AngleFromEarth(a, b, day),
         Kind.Opposition => 180.0 - AngleFromEarth(null, a, day),
+        // Periheliet är avståndet till solen rakt av. Sökningen bryr sig inte om
+        // att storheten har en annan enhet än de andra – den letar dalläge, och
+        // ett avstånd har ett lika tydligt dalläge som en vinkel. Fördelen är att
+        // en bana bara har ett perihelium per varv, så det kan inte missas.
+        Kind.Perihelion => a.PositionAuAt(day).Length,
         _ => EclipseCost(kind, day),
     };
 
@@ -116,7 +128,9 @@ public static class SkyEvent
         Kind.Conjunction => ConjunctionLimitDeg,
         Kind.SolarEclipse => SolarEclipseLimitDeg,
         Kind.LunarEclipse => LunarEclipseLimitDeg,
-        _ => 180.0,                             // en opposition har ingen gräns
+        // En opposition och ett perihelium kan inte vara "för dåliga". De
+        // inträffar när de inträffar, och det finns inget att sålla bort.
+        _ => double.PositiveInfinity,
     };
 
     /// <summary>
@@ -224,6 +238,12 @@ public static class SkyEvent
 
         list.Add(new Choice("Solförmörkelse", Kind.SolarEclipse, SolarSystemData.Moon, null));
         list.Add(new Choice("Månförmörkelse", Kind.LunarEclipse, SolarSystemData.Moon, null));
+
+        // Halleys perihelium. Avståndet till solen är detsamma varje gång –
+        // 0,586 AU, det är ju vad ett perihelium är – så det talet säger inget
+        // om just den gången. Det som skiljer besöken åt är var jorden råkar
+        // vara, och därför är det avståndet och elongationen som rapporteras.
+        list.Add(new Choice("Halley i perihelium", Kind.Perihelion, SolarSystemData.Halley, null));
 
         return [.. list];
     }

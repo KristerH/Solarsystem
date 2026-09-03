@@ -691,6 +691,17 @@ public partial class MainPage : ContentPage
         _settingsChanged = true;
     }
 
+    /// <summary>
+    /// Tänder och släcker Halleys komet. Kometen går också att följa, så
+    /// fokusväljaren byggs om – på samma sätt som när månarna släcks.
+    /// </summary>
+    void OnHalleyChanged(object? sender, CheckedChangedEventArgs e)
+    {
+        _drawable.ShowHalley = e.Value;
+        RebuildFocusPicker(FocusPicker.SelectedItem as string);
+        _settingsChanged = true;
+    }
+
     // ----------------------------------------------------------- sondväljaren
 
     /// <summary>
@@ -837,6 +848,16 @@ public partial class MainPage : ContentPage
                 names.Add(MoonEntry + moon.Name);
             }
         }
+        // Kometen sist bland kropparna, och bara när den ritas. Att kunna följa
+        // den är mer värt än för planeterna: banan är sextio gånger längre än den
+        // är bred, så utan kamera på plats försvinner kometen ur bild i årtionden.
+        if (_drawable.ShowHalley)
+        {
+            _focusBodies.Add(SolarSystemData.Halley);
+            _focusParents.Add(null);
+            names.Add(SolarSystemData.Halley.Name);
+        }
+
         names.AddRange(_focusProbes.Select(p => p.Name));
 
         // Tappas valet – för att sonden släckts, eller för att namnet inte finns
@@ -942,6 +963,13 @@ public partial class MainPage : ContentPage
                     $"{meeting.SeparationDeg:0.00}° från solen (typ och plats visas inte)"),
             SkyEvent.Kind.LunarEclipse =>
                 string.Create(Swedish, $"{meeting.SeparationDeg:0.00}° från jordens skugga"),
+            // Vid periheliet är avståndet till solen alltid detsamma, så det som
+            // är värt att veta är hur besöket blir sett härifrån: hur nära jorden
+            // kometen kommer, och hur långt från solen den står på himlen. Under
+            // ett tiotal grader drunknar den i dagsljuset.
+            SkyEvent.Kind.Perihelion =>
+                string.Create(Swedish,
+                    $"{meeting.DistanceAu:0.00} AU från jorden, {meeting.SeparationDeg:0}° från solen på himlen"),
             _ => string.Create(Swedish, $"{meeting.SeparationDeg:0.0}° isär på himlen"),
         };
         MeetingLabel.Text = string.Create(Swedish, $"{choice.Label} {date:d MMMM yyyy} – {detail}");
@@ -955,6 +983,13 @@ public partial class MainPage : ContentPage
             MoonsCheck.IsChecked = true;
             FocusOn("Jorden");
         }
+
+        // Att hoppa till Halleys perihelium utan att tända kometen vore att resa
+        // till ett tomt datum. Kameran lämnas däremot där den står: det är i
+        // översikten man ser vad som faktiskt händer, att kometen dyker in genom
+        // hela planetsystemet. Vill man gå nära finns den i fokusväljaren.
+        if (choice.Kind is SkyEvent.Kind.Perihelion)
+            HalleyCheck.IsChecked = true;
     }
 
     void OnMoonOrbitChanged(object? sender, CheckedChangedEventArgs e)

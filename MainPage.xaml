@@ -163,6 +163,9 @@
                         <CheckBox x:Name="KuiperCheck" IsChecked="False" CheckedChanged="OnKuiperChanged" Color="#6FA8DC" />
                         <Label Text="Kuiperbälte" TextColor="#C8D4E0" VerticalOptions="Center" Margin="0,0,10,0" />
 
+                        <CheckBox x:Name="HalleyCheck" IsChecked="False" CheckedChanged="OnHalleyChanged" Color="#6FA8DC" />
+                        <Label Text="Halleys komet" TextColor="#C8D4E0" VerticalOptions="Center" Margin="0,0,10,0" />
+
                         <Button x:Name="ProbeMenuButton"
                                 Text="Rymdsonder ▾"
                                 Clicked="OnProbeMenuClicked"

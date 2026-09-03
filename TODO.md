@@ -1369,15 +1369,106 @@ Kontrollerat utanför appen genom `SkyEvent.Next`, 5 kontroller utan fel:
 Ett enda objekt med mycket att visa: excentricitet 0,967, retrograd bana och ett
 varv på 76 år som tar den från innanför Venus till utanför Neptunus.
 
-- [ ] Halley som en kropp med sina banelement. `Conic` klarar redan vilken
+- [x] Halley som en kropp med sina banelement. `Conic` klarar redan vilken
       excentricitet som helst, så det mesta finns.
-- [ ] Gärna en svans som pekar bort från solen och växer nära periheliet –
+- [x] Gärna en svans som pekar bort från solen och växer nära periheliet –
       svansen ligger inte bakom komet i färdriktningen utan bort från solen,
       vilket är en av de saker som är lättast att ha fel för sig om.
-- [ ] Nästa perihelium är 2061. Med datumväljaren går det att resa dit.
+- [x] Nästa perihelium är 2061. Med datumväljaren går det att resa dit.
 
 **Verifiera:** Perihelium 9 februari 1986 på 0,586 AU och aphelium 1948 på
 35,1 AU, alltså utanför Neptunus bana.
+
+**Utfall:** 15 av 15 kontroller.
+
+| kontroll | modell | facit |
+|---|---|---|
+| perihelium | 1986-02-09, 0,586 AU | 1986-02-09, 0,586 |
+| aphelium | 1948-05-18, 35,13 AU | 1948, 35,1 |
+| nästa perihelium | 2061-07-28 | 2061-07-28 |
+| fart i perihelium | 54,6 km/s | ~54 |
+| fart i aphelium | 0,91 km/s | ~0,9 |
+| närmast jorden 1986 | 10 april, 0,416 AU | 11 april, 0,42 |
+
+Den sista raden är den som betyder något. De fem första följer av de element som
+matats in, men mötet med jorden gör inte det – det beror på var jorden råkar
+vara, och att modellen träffar dagen och avståndet är en kontroll mot något den
+inte fått veta.
+
+Två saker föll ut ur modellen snarare än in i den:
+
+- **Svansen pekar bort från solen, inte bakåt.** Mätt som vinkeln mellan
+  riktningen bort från solen och färdriktningen: 138 grader sextio dygn före
+  periheliet, 42 grader sextio dygn efter. På vägen ut går kometen alltså med
+  svansen före, vilket är det som är lättast att ha fel för sig om.
+- **Halley är osynlig 74 år av 75.** Isen ångar först innanför 3 AU, och där
+  ligger kometen 368 dygn av sina 27 563 – 1,3 procent av varvet. Innanför 1 AU
+  är den 78 dygn. Talet är inte inskrivet någonstans utan mätt på banan.
+
+**Tillägg: "Halley i perihelium" i mötesväljaren.** Punkten ovan sade att man
+reser dit med datumväljaren, och det går – men mötesväljaren fanns redan och
+gör samma sak utan att man behöver kunna datumet utantill. Sex kontroller till:
+
+| kontroll | utfall |
+|---|---|
+| hittar periheliet 1986 | samma minut som en direkt minimering |
+| nästa från dagens datum | 2061-07-28 |
+| fyra klick i rad | 1910-08-24, 1986-02-09, 2061-07-28, 2137-01-13 |
+| mellanrummen | 27 563, 27 563, 27 562 dygn |
+
+Sökningen minimerar avståndet till solen i stället för en vinkel på himlen.
+Storheten har en annan enhet än de andra, men det spelar ingen roll – maskineriet
+letar dalläge, och ett avstånd har ett lika tydligt dalläge som en vinkel. Det är
+till och med lättare: en bana har exakt ett perihelium per varv, så det kan
+varken missas eller dubbelräknas.
+
+Det som rapporteras är däremot medvetet inte solavståndet. Det är 0,586 AU varje
+gång – det är ju vad ett perihelium är – och säger därför ingenting om just den
+gången. Vad som skiljer besöken åt är var jorden råkar vara, och där ger modellen
+ett svar den inte fått veta:
+
+| | avstånd till jorden | elongation från solen |
+|---|---|---|
+| 9 februari 1986 | 1,55 AU | 8° |
+| 28 juli 2061 | 0,48 AU | 20° |
+
+**Det där är historien, uträknad.** 1986 års besök var det sämsta på tvåtusen år:
+vid periheliet stod Halley på andra sidan solen, åtta grader från den på himlen,
+alltså mitt i dagsljuset. Kometen blev inte något att se förrän två månader
+senare, den 10 april, och då på 0,42 AU. 2061 blir tvärtom: kometen står på
+samma sida som jorden och kommer som närmast 0,482 AU redan på perihelidagen,
+mot NASA:s förutsägelse 0,48 AU den 29 juli. Ingenting av det är inmatat.
+
+**Val och förbehåll:**
+
+- **Elementen är förankrade i två perihelier**, 1986 och 2061, i stället för
+  hämtade ur en efemerid. Skälet är att en fast keplerbana inte kan träffa alla:
+  Halleys verkliga omloppstid varierar mellan 74 och 79 år, eftersom Jupiter och
+  Saturnus drar i kometen vid varje varv och gasstrålarna från den upphettade
+  kärnan knuffar den som en svag raket. Priset syns direkt – modellen lägger 1910
+  års perihelium i slutet av augusti i stället för den 20 april. Det står i
+  koden.
+- **Två svansar, inte en.** Jonsvansen är gas som solvinden river med sig rakt
+  bort från solen; dammsvansen är korn som är för tunga att ryckas med, behåller
+  kometens fart och släpar efter i banan. Skillnaden mellan dem är just den sak
+  punkten ovan handlar om, och den syns bara om båda ritas.
+- **Kaman ritas efter aktiviteten och inte efter kroppen.** Kärnan är 5 km bred
+  och skulle aldrig gå att se; det man ser i verkligheten är gasmolnet omkring,
+  som nära solen blir bredare än solen själv.
+- **Svansen har en minsta längd på skärmen.** 0,3 AU är stort mot jordens bana
+  men litet mot Halleys egen, så utzoomat vore svansen några pixlar. Riktningen
+  är den uträknade, bara längden är tilltagen – samma sorts eftergift som
+  planeternas förstoring.
+- **Av som standard.** Kometen är borta 74 år av 75, och dess bana är så
+  utdragen att den skymmer planeternas om den ligger kvar i bilden.
+- Kometen går att välja i fokusväljaren, vilket den behöver: utan kamera på
+  plats försvinner den ur bild i årtionden. Avståndet ramar in svansen och inte
+  kroppen.
+- **Hoppet till periheliet tänder kometen men rör inte kameran.** Att resa till
+  ett datum där kometen är släckt vore att resa till ingenting. Kameran lämnas
+  däremot i översikten, för det är där man ser vad som händer: att kometen dyker
+  in genom hela planetsystemet och ut igen. Vill man gå nära finns den i
+  fokusväljaren.
 
 ### 12.6 – Solens rotation
 
@@ -1720,6 +1811,17 @@ Etapp 11:
 - [ ] Heliopausen i bild. Välj Voyager 1 i fokusväljaren så kameran hamnar på
       406 AU; sfären ska då synas som en svag cirkel med solsystemet inuti, och
       Voyager 1 ska ligga utanför den medan New Horizons ligger innanför.
+- [ ] Halleys komet i bild. Kryssa i "Halleys komet", skriv 1986-02-09 i
+      datumrutan och välj kometen i fokusväljaren. Svansarna ska peka bort från
+      solen – den blå raka och den gula kortare och böjd – och när tiden går
+      framåt ska de svänga runt så att kometen på väg ut går med svansen före.
+      Prova också att stega några år framåt: svansen ska försvinna helt när
+      kometen kommit ut förbi asteroidbältet. Banans form, färg och svansarnas
+      bredd är gissade och sedda bara i kod.
+- [ ] "Halley i perihelium" i mötesväljaren. Med kometen släckt: välj den och
+      tryck "Gå till nästa". Datumet ska bli 2061-07-28, kryssrutan ska tändas av
+      sig själv, kameran ska stå kvar där den stod, och texten ska säga 0,48 AU
+      från jorden och 20 grader från solen.
 - [x] Merkurius kratrar i appen. I den externa kontrollen ser de ut som
       kratrar, men de ligger tätt och kan bli prickiga vid stark inzoomning.
 - [x] Saturnus, Uranus och Neptunus i appen. De är sedda i den externa
