@@ -1,25 +1,26 @@
 namespace Solarsystem.Simulation;
 
 /// <summary>
-/// Keplers ekvation, i sina två former.
+/// Kepler's equation, in its two forms.
 ///
-/// Planeter, månar och överföringsbanor går i ellipser, och där gäller
-/// E - e·sin E = M. Rymdsonderna fick vid planetpassagerna så hög fart att de
-/// aldrig kommer tillbaka: deras banor är hyperbler, och då gäller i stället
-/// e·sinh H - H = M. Det är samma ekvation med cirkelfunktionerna utbytta mot
-/// hyperbolfunktioner, och den excentriska anomalin E har bytts mot sin
-/// hyperboliska motsvarighet H.
+/// Planets, moons and transfer orbits travel in ellipses, where
+/// E - e·sin E = M holds. Spacecraft picked up enough speed at their planetary
+/// flybys that they never come back: their orbits are hyperbolas, where
+/// instead e·sinh H - H = M holds. It's the same equation with the circular
+/// functions swapped for hyperbolic ones, and the eccentric anomaly E
+/// replaced by its hyperbolic counterpart H.
 ///
-/// Ingen av dem går att lösa ut för hand – det var just det som gjorde Keplers
-/// ekvation berömd – så båda löses numeriskt.
+/// Neither can be solved by hand – that's exactly what made Kepler's equation
+/// famous – so both are solved numerically.
 /// </summary>
 public static class Kepler
 {
     /// <summary>
-    /// Elliptiska fallet, löst med intervallhalvering. Överföringsbanor kan ha
-    /// excentricitet uppåt 0,97, och där kan Newtons metod skena i väg eftersom
-    /// nämnaren 1 - e·cos E går mot noll nära perihelium. Intervallhalvering tar
-    /// fler varv men kan inte missa: lösningen ligger alltid mellan M och M + e.
+    /// The elliptical case, solved by bisection. Transfer orbits can reach an
+    /// eccentricity of up to about 0.97, and there Newton's method can run
+    /// away since the denominator 1 - e·cos E approaches zero near perihelion.
+    /// Bisection takes more iterations but can't miss: the solution always
+    /// lies between M and M + e.
     /// </summary>
     public static double Elliptic(double meanAnomaly, double e)
     {
@@ -27,8 +28,8 @@ public static class Kepler
         if (m < 0)
             m += Math.PI * 2;
 
-        // Ekvationen är spegelsymmetrisk kring M = π, så andra halvan av varvet
-        // löses som den första och speglas tillbaka.
+        // The equation is mirror-symmetric around M = π, so the second half of
+        // the lap is solved the same way as the first and mirrored back.
         bool mirrored = m > Math.PI;
         if (mirrored)
             m = Math.PI * 2 - m;
@@ -48,17 +49,17 @@ public static class Kepler
     }
 
     /// <summary>
-    /// Hyperboliska fallet: e·sinh H - H = M. Här fungerar Newtons metod bra,
-    /// för derivatan e·cosh H - 1 är alltid minst e - 1 och kan aldrig gå mot
-    /// noll när e är större än 1.
+    /// The hyperbolic case: e·sinh H - H = M. Here Newton's method works well,
+    /// because the derivative e·cosh H - 1 is always at least e - 1 and can
+    /// never approach zero when e is greater than 1.
     ///
-    /// Startgissningen är arsinh(M/e), och den är vald med omsorg. Eftersom
-    /// e·sinh H = M + H är sinh H alltid större än M/e, så gissningen ligger
-    /// garanterat under svaret – och funktionen är växande och konvex, vilket
-    /// gör att Newton då närmar sig lösningen underifrån utan att någonsin
-    /// skjuta över. Den uppenbara gissningen M/(e - 1) fungerar inte: för banor
-    /// nära parabeln, där e är strax över 1, blir den enorm, och sinh av ett
-    /// stort tal spränger flyttalen direkt.
+    /// The starting guess is arsinh(M/e), chosen with care. Since
+    /// e·sinh H = M + H, sinh H is always greater than M/e, so the guess is
+    /// guaranteed to sit below the answer – and since the function is
+    /// increasing and convex, Newton then approaches the solution from below
+    /// without ever overshooting. The obvious guess M/(e - 1) doesn't work:
+    /// for orbits near parabolic, where e is just above 1, it becomes huge,
+    /// and sinh of a large number blows up the floating point immediately.
     /// </summary>
     public static double Hyperbolic(double meanAnomaly, double e)
     {
@@ -75,9 +76,9 @@ public static class Kepler
                 break;
         }
 
-        // Ekvationen är udda: H(-M) = -H(M). Före perihelium är alltså allt
-        // spegelvänt, vilket är precis vad som behövs för att kunna räkna
-        // bakåt i tiden.
+        // The equation is odd: H(-M) = -H(M). Before perihelion everything is
+        // therefore mirrored, which is exactly what's needed to compute
+        // backward in time.
         return meanAnomaly < 0 ? -h : h;
     }
 }

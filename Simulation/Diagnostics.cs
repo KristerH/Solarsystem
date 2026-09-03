@@ -1,16 +1,16 @@
 namespace Solarsystem.Simulation;
 
 /// <summary>
-/// Enkel felskrivning till en fil i temp-katalogen.
+/// Simple error logging to a file in the temp directory.
 ///
-/// Appen har inget fönster för fel och ska inte ha det heller – en lärare mitt
-/// i en lektion är inte betjänt av en dialogruta. Men fel som annars skulle
-/// passera obemärkta ska gå att hitta i efterhand, och de som upptäcks utanför
-/// ritningen ska hamna på samma ställe som ritfelen.
+/// The app has no error window, and shouldn't: a teacher in the middle of a
+/// lesson gets no benefit from a dialog box. But errors that would otherwise
+/// pass unnoticed should be findable afterward, and ones caught outside the
+/// drawing code should end up in the same place as drawing errors.
 /// </summary>
 public static class Diagnostics
 {
-    /// <summary>Loggfilen. Ligger i temp-katalogen och skapas först när något skrivs.</summary>
+    /// <summary>The log file. Lives in the temp directory and is created only when something is written.</summary>
     public static string LogPath
         => Path.Combine(Path.GetTempPath(), "solarsystem-draw.log");
 
@@ -22,9 +22,9 @@ public static class Diagnostics
         }
         catch
         {
-            // Går loggen inte att skriva finns inget att göra åt saken, och
-            // försöket får framför allt inte fälla det som höll på att
-            // rapporteras.
+            // If the log itself can't be written there's nothing to do about
+            // it, and above all the attempt must not take down whatever was
+            // being reported.
         }
     }
 }

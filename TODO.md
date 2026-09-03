@@ -1668,13 +1668,16 @@ Genomgången nedan är gjord mot det här repot och inte skriven ur en allmän
 checklista. Sju saker hittades, och den andra bör avgöras innan något alls
 publiceras – den går inte att ta tillbaka.
 
-- [ ] **Det finns ingen licensfil.** Utan en sådan gäller full upphovsrätt som
+- [x] **Det finns ingen licensfil.** Utan en sådan gäller full upphovsrätt som
       standard: koden går att läsa på GitHub men ingen får lagligt använda,
       ändra eller sprida den, vilket knappast är avsikten med att lägga upp den.
       För en undervisningsapp ligger MIT eller Apache 2.0 nära till hands; MIT är
       kortare, Apache 2.0 ger uttryckligt patentskydd.
 
-- [ ] **Arbetsmejlen ligger i varje commit.** Hela historiken är signerad
+      **Utfall:** MIT vald. `LICENSE` tillagd, upphovsrättsinnehavare
+      "Krister Hellsing" (personen, inte arbetsgivaren – se nästa punkt).
+
+- [x] **Arbetsmejlen ligger i varje commit.** Hela historiken är signerad
       `krister.hellsing@swedavia.se`, alltså en arbetsgivaradress, och den följer
       med när repot publiceras. Det är ett val att göra medvetet och inte att
       upptäcka efteråt: går det att byta i efterhand krävs en omskrivning av hela
@@ -1682,30 +1685,74 @@ publiceras – den går inte att ta tillbaka.
       Värt att fundera på i samma veva är om något i arbetsgivarens regler rör
       kod skriven på fritiden.
 
-- [ ] **Mallrester från projektmallen.** `ApplicationId` står kvar på
+      **Utfall:** Historiken skrevs om. Alla 56 commits fick author/committer
+      bytt från `krister.hellsing <krister.hellsing@swedavia.se>` till
+      `Christer.hellsing <krister.hellsing@gmail.com>` – träd, meddelanden och
+      tidsstämplar oförändrade och verifierade identiska, bara identiteten
+      ändrad. Gjort med `git fast-export`/`fast-import` i stället för
+      `filter-branch`, som visade sig orimligt långsamt i den här miljön
+      (avbröts efter två minuter utan att bli klar med 56 commits).
+      `filter-branch` med `--env-filter` checkar ut varje commit i sin helhet
+      för att köra om den, medan `fast-export` bara strömmar textformatet och
+      låter en enkel textersättning byta ut identitetsraderna – millisekunder
+      i stället för minuter. En fallgrop på vägen: att köra bytet genom `sed`
+      i Git Bash på Windows korrumperade strömmen (radslutstranslering rörde
+      byteexakta binärblobbar, som ikonens SVG-filer), vilket kraschade
+      importen. Löst med en Python-ersättare som håller allt i binärt läge.
+      En säkerhetsgren (`backup-before-email-rewrite`) pekar fortfarande på
+      den ursprungliga historiken lokalt. **Kvar:** force-push till `origin`
+      (repot är redan pushat privat dit, med den gamla historiken) – görs i
+      slutet av etappen, inte förrän resten är klart, så att bara en
+      force-push behövs.
+
+- [x] **Mallrester från projektmallen.** `ApplicationId` står kvar på
       `com.companyname.solarsystem`. `Resources/Images/dotnet_bot.png` ligger
       kvar men används ingenstans i koden – det är Microsofts maskot och behöver
       inte följa med. Detsamma gäller `Resources/Raw/AboutAssets.txt`, som bara
       är mallens egen instruktionstext. Appikonen och startskärmen är fortfarande
       .NET-mallens lila.
 
-- [ ] **Attribution för det som lånats.** Open Sans används på riktigt, genom
+      **Utfall:** `ApplicationId` bytt till `com.kristerhellsing.solarsystem`.
+      `dotnet_bot.png` och `AboutAssets.txt` borttagna, liksom raden i
+      `.csproj` som pekade ut den förra. Ikon och startskärm ersatta: en mörk
+      rymdblå bakgrund (`#0B1220`) med en sol, en tippad omloppsbana och en
+      blå planet – samma färger som redan används i appen (`#FFA226`/`#FFE08A`
+      för solen, `#4C8CE8` för jorden). Godkänd.
+
+- [x] **Attribution för det som lånats.** Open Sans används på riktigt, genom
       `Styles.xaml`, och dess Apache 2.0-licens kräver att licenstexten följer
       med. Datan bör också få sina källor utskrivna: banelementen kommer från
       NASA/JPL, polriktningarna från IAU:s arbetsgrupp för kartografiska
       koordinater, och stjärnkatalogens ursprung bör redas ut och anges.
 
-- [ ] **README behöver bli ett repo-README.** Den nuvarande är en utmärkt
+      **Utfall:** `THIRD-PARTY-NOTICES.md` med Apache 2.0-licenstexten för
+      Open Sans. Stjärnkatalogens ursprung stod redan i en kommentar i
+      `StarCatalog.cs` – Yale Bright Star-katalogen. Alla fyra källor
+      (NASA/JPL, IAU, Yale, Open Sans) står nu i README under "Credits".
+
+- [x] **README behöver bli ett repo-README.** Den nuvarande är en utmärkt
       funktionsbeskrivning men saknar det en besökare först vill ha: en mening om
       vad det är, en skärmbild, hur man bygger det (.NET 10 SDK, MAUI-
       arbetsbelastningen, Windows) och vilken licens som gäller.
 
-- [ ] **Plattformsmapparna lovar mer än appen håller.** `Platforms/Android`,
+      **Utfall:** Byggavsnittet fick kravlistan (.NET 10 SDK, MAUI-
+      arbetsbelastningen, Windows), README fick avsnitt för Platform, Credits
+      och License. Skärmbilden kunde inte tas i sessionen (skärmåtkomst
+      nekad), men användaren lade in en själv i `Resources/Images/screenshot.png`
+      och README pekar nu dit.
+
+- [x] **Plattformsmapparna lovar mer än appen håller.** `Platforms/Android`,
       `iOS` och `MacCatalyst` finns kvar från mallen medan `TargetFrameworks`
       bara innehåller Windows. Antingen bort, eller en rad i README om att bara
       Windows är byggbart i dag.
 
-- [ ] **Översätt alla kodkommentarer till engelska.** De är svenska rakt igenom
+      **Utfall:** Borttagna. De byggdes aldrig ändå – MSBuild inkluderar bara
+      den plattformsmapp som matchar `TargetFrameworks`, så de tre mapparna var
+      redan dött innehåll. `Platforms/Windows` är kvar, den är den enda som
+      någonsin kompilerats. README fick ett Platform-avsnitt som förklarar
+      läget och vad som krävs för att lägga till en plattform igen.
+
+- [x] **Översätt alla kodkommentarer till engelska.** De är svenska rakt igenom
       i dag, vilket stänger ute alla som inte läser svenska – och det är de flesta
       som hittar ett repo på GitHub.
 
@@ -1726,19 +1773,64 @@ publiceras – den går inte att ta tillbaka.
       bär korta meningar och vanliga ord längre än idiom och ordvitsar. Flera av
       de svenska kommentarerna leker med språket – det får gärna gå förlorat.
 
-      Kvar att bestämma: om `TODO.md` och `README.md` ska följa med över till
-      engelska (se punkten om TODO nedan). Att appen i övrigt är gjord för
-      svenska elever är däremot avgjort och kräver ingenting – se beslutet under
-      Anteckningar.
+      README.md är redan engelska sedan 13.1. Beslutet om TODO.md står i
+      punkten nedan. Att appen i övrigt är gjord för svenska elever är
+      däremot avgjort och kräver ingenting – se beslutet under Anteckningar.
 
-- [ ] **Beslut: ska TODO.md följa med?** Den innehåller interna anteckningar och
+      **Utfall:** Alla `.cs`- och `.xaml`-filer genomsökta tecken för tecken
+      efter å/ä/ö/Å/Ä/Ö efteråt – två träffar kvar, båda korrekta: ett citat av
+      den svenska resurssträngen "Karlavagnen - Stora björn" i en engelsk
+      kommentar som förklarar hur den skiljer sig från "Big Dipper - Ursa
+      Major", och stjärnbildsnamnet "Boötes" (latin, inte svenska). Filerna
+      gjordes en och en, största först: `SolarSystemDrawable.cs` (1554 rader),
+      `MainPage.xaml.cs` (1278), `SurfaceMap.cs` (1081, 116 separata
+      textersättningar eftersom filen mest är koordinatdata som inte fick
+      röras), `SolarSystemData.cs` (619), `StarCatalog.cs` (492, plus alla
+      stjärnbildernas engelska sektionsrubriker), `Mission.cs` (506),
+      `Probe.cs`, `StarSky.cs`, `SkyEvent.cs`, `Conic.cs`, `SmallBodyBelt.cs`,
+      `ProbeData.cs`, `Lambert.cs`, `BodyAxis.cs`, `OrbitCamera.cs`, `Vec3.cs`,
+      `Kepler.cs`, `Diagnostics.cs`, samt kvarvarande XAML-kommentarer i
+      `MainPage.xaml`. Byggd och verifierad felfri efter varje fil.
+
+- [x] **Beslut: ska TODO.md följa med?** Den innehåller interna anteckningar och
       provlistor, men också den enda samlade förklaringen till varför saker ser
       ut som de gör – vilka fel som hittats, vilka förenklingar som gjorts och
       varför. För någon som vill förstå koden är den förmodligen mer värd än
       README.
 
+      **Beslut: ja.** Ett konsekvent engelskt repo väger tyngre än
+      besparingen av att låta den vara kvar på svenska, trots att den nästan
+      dubblerar översättningsarbetet (TODO.md är i sig över 2 000 rader,
+      jämförbart med kommentarernas 2 056).
+
 **Verifiera:** Klona repot till en tom katalog på en annan maskin och bygg det
 med enbart instruktionerna i README. Går det inte, är README inte färdig.
+
+---
+
+### 13.3 – Översätt TODO.md till engelska
+
+Beslutet togs i 13.2: ett konsekvent engelskt repo väger tyngre än att spara
+översättningsarbetet. Bruten ut till en egen punkt eftersom den är en lika
+stor uppgift för sig själv som resten av 13.2 tillsammans – TODO.md är över
+2 200 rader, jämförbart med kodkommentarernas 2 056.
+
+- [ ] Översätt hela TODO.md till engelska: varje etapps beskrivning,
+      provlistor, "Utfall"-avsnitt, Anteckningar och Restpunkter.
+
+      Ingen mekanisk översättning – dokumentet bär hela projektets historik
+      och resonemang (varför noderna låg fel, varför Halleys bana förankrades
+      i två perihelier i stället för hämtades ur en efemerid, varför
+      force-push valdes framför filter-branch). Det resonemanget måste hålla
+      lika bra på engelska.
+
+      Kvar att bestämma när det blir dags: om filen ska heta `TODO.md`
+      fortsatt eller döpas om (`ROADMAP.md`?), och om en svensk kopia ska
+      sparas någonstans för historiken, eller om git-historiken räcker som
+      arkiv.
+
+**Verifiera:** Ingen svensk text kvar i filen utanför citat av UI-strängar
+(samma sorts kontroll som gjordes efter 13.2:s kommentaröversättning).
 
 ---
 

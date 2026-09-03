@@ -7,7 +7,7 @@
 
     <Grid RowDefinitions="*,Auto">
 
-        <!-- 3D-vyn -->
+        <!-- The 3D view -->
         <GraphicsView x:Name="SpaceView" Grid.Row="0">
             <GraphicsView.GestureRecognizers>
                 <PanGestureRecognizer PanUpdated="OnPanUpdated" />
@@ -15,7 +15,7 @@
             </GraphicsView.GestureRecognizers>
         </GraphicsView>
 
-        <!-- Klocka och hjälptext ovanpå vyn -->
+        <!-- Clock and help text over the view -->
         <VerticalStackLayout Grid.Row="0"
                              Margin="14"
                              Spacing="2"
@@ -25,12 +25,13 @@
             <Label x:Name="DateLabel" TextColor="White" FontSize="20" FontAttributes="Bold" />
             <Label x:Name="ElapsedLabel" TextColor="#9EC1E8" FontSize="14" />
             <Label x:Name="MissionLabel" TextColor="#8FD3B6" FontSize="14" Margin="0,4,0,0" />
-            <!-- Texterna sätts från koden, se ApplyLanguage i MainPage.xaml.cs.
-                 Därför har varje etikett och knapp ett namn men ingen Text här:
-                 språket kan bytas medan appen kör, och då måste allt gå att nå. -->
+            <!-- The texts are set from the code, see ApplyLanguage in MainPage.xaml.cs.
+                 That's why every label and button has a name but no Text here:
+                 the language can be switched while the app runs, and everything
+                 needs to be reachable when it does. -->
             <Label x:Name="HelpLabel" TextColor="#5E6E80" FontSize="12" />
 
-            <!-- Färdpanelen: syns bara medan en farkost är i väg eller framme. -->
+            <!-- The mission panel: shown only while a craft is en route or has arrived. -->
             <Border x:Name="MissionPanel"
                     IsVisible="False"
                     Margin="0,12,0,0"
@@ -50,7 +51,7 @@
                 </VerticalStackLayout>
             </Border>
 
-            <!-- Sondpanelen: syns när en rymdsond är vald i fokusväljaren. -->
+            <!-- The probe panel: shown when a spacecraft is selected in the focus selector. -->
             <Border x:Name="ProbePanel"
                     IsVisible="False"
                     Margin="0,12,0,0"
@@ -71,8 +72,8 @@
             </Border>
         </VerticalStackLayout>
 
-        <!-- Sondväljaren, utfälld från knappen i kontrollpanelen. Ligger utanför
-             textstapeln ovan, som är genomsläpplig för klick. -->
+        <!-- The probe selector, unfolded from the button in the control panel.
+             Sits outside the text stack above, which is click-through. -->
         <Border x:Name="ProbeMenu"
                 Grid.Row="0"
                 IsVisible="False"
@@ -100,13 +101,15 @@
             </VerticalStackLayout>
         </Border>
 
-        <!-- Kontrollpanel. Raderna ligger i en horisontell ScrollView i stället
-             för FlexLayout med Wrap – FlexLayout kan hamna i en oändlig
-             mätloop när fönsterbredden ändras, vilket frös hela appen.
+        <!-- Control panel. The rows sit in a horizontal ScrollView instead of a
+             FlexLayout with Wrap – FlexLayout could end up in an infinite
+             measuring loop when the window width changed, which froze the
+             whole app.
 
-             Överst en smal list som alltid syns, med knappen som fäller ihop
-             resten. Panelen har vuxit till fem rader och tar annars en femtedel
-             av fönstret även när man bara vill titta. -->
+             A narrow bar on top that's always visible, with the button that
+             collapses the rest. The panel has grown to five rows and would
+             otherwise take up a fifth of the window even when all you want to
+             do is look. -->
         <Grid Grid.Row="1" RowDefinitions="Auto,Auto" BackgroundColor="#12161C">
 
             <Button x:Name="PanelToggleButton"
@@ -119,9 +122,10 @@
                     HeightRequest="24"
                     HorizontalOptions="Start" />
 
-            <!-- Språkväljaren ligger i listen och inte i panelen, så att den går
-                 att nå även när kontrollerna är ihopfällda. Den som öppnar appen
-                 på fel språk ska inte behöva leta. -->
+            <!-- The language selector sits in the bar and not in the panel, so it
+                 stays reachable even when the controls are collapsed. Someone
+                 who opens the app in the wrong language shouldn't have to hunt
+                 for it. -->
             <HorizontalStackLayout Grid.Row="0" Spacing="6"
                                    HorizontalOptions="End" Margin="0,0,12,0">
                 <Label x:Name="LanguageTitleLabel" TextColor="#8C99A8" FontSize="12"
@@ -151,8 +155,8 @@
                                 WidthRequest="120" />
 
                         <Label x:Name="SpeedTitleLabel" TextColor="#C8D4E0" VerticalOptions="Center" />
-                        <!-- Skalan går från -1 till 1: mitten står still, vänster halva
-                             spelar tiden baklänges. 0,25 = 1 dygn/sekund framåt. -->
+                        <!-- The scale runs from -1 to 1: the middle stands still, the
+                             left half plays time backward. 0.25 = 1 day/second forward. -->
                         <Slider x:Name="SpeedSlider"
                                 Minimum="-1" Maximum="1" Value="0.25"
                                 WidthRequest="220"

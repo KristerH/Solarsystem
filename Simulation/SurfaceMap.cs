@@ -1,33 +1,35 @@
 namespace Solarsystem.Simulation;
 
 /// <summary>
-/// En kropps yta som (latitud, longitud)-polygoner. De ritas som fyllda ytor
-/// direkt på klotet – ingen texturbild behövs.
+/// A body's surface as (latitude, longitude) polygons. They're drawn as
+/// filled shapes directly on the globe – no texture image needed.
 ///
-/// Konturerna är grova (skolplansch-nivå) men dragen känns igen. Longituden
-/// räknas åt det håll kroppen vrider sig, alltså österut för allt som roterar
-/// rättvänt.
+/// The outlines are rough (schoolbook-poster level) but the features are
+/// recognisable. Longitude is measured the way the body turns, i.e.
+/// eastward for everything that rotates prograde.
 /// </summary>
 public sealed class SurfaceMap
 {
     /// <param name="MeanSinLat">
-    /// Sinus för ytans mittbreddgrad. Behövs bara för solen, vars ytor vrider
-    /// sig olika fort beroende på var de ligger. Att takten tas per yta och inte
-    /// per hörn är med flit: en solfläcksgrupp vrider sig som en klump, och läts
-    /// varje hörn gå i sin egen takt skulle gruppen dras ut till en smet på
-    /// några år. Verkliga grupper hinner aldrig dit – de dör inom veckor.
+    /// The sine of the region's centre latitude. Only needed for the Sun,
+    /// whose regions turn at different speeds depending on where they sit.
+    /// That the rate is taken per region rather than per vertex is
+    /// deliberate: a sunspot group turns as one clump, and letting every
+    /// vertex go at its own rate would smear the group out over a few years.
+    /// Real groups never last that long – they die within weeks.
     /// </param>
     public sealed record Region(Color Fill, float[] SinLat, float[] CosLat, float[] LonRad,
         float MeanSinLat);
 
-    /// <summary>Grundfärgen under polygonerna – jordens hav, Mars öken.</summary>
+    /// <summary>The base colour under the polygons – Earth's oceans, Mars's desert.</summary>
     public Color BaseColor { get; }
 
     public Region[] Regions { get; }
 
     /// <param name="smooth">
-    /// Rundar av ytornas hörn innan de ritas. För kroppar vars drag har diffusa
-    /// gränser – Mars dammfält – i stället för skarpa, som jordens kustlinjer.
+    /// Rounds off the regions' corners before drawing. For bodies whose
+    /// features have diffuse boundaries – Mars's dust fields – rather than
+    /// sharp ones, like Earth's coastlines.
     /// </param>
     SurfaceMap(Color baseColor, (Color Fill, (float Lat, float Lon)[] Pts)[] raw,
         bool smooth = false)
@@ -41,50 +43,50 @@ public sealed class SurfaceMap
     static readonly Color Ice = Color.FromArgb("#E9EFF4");
 
     /// <summary>
-    /// Jordens landmassor. Nollmeridianen ligger där den ska: Greenwich på
-    /// longitud noll, Afrika strax öster om den.
+    /// Earth's landmasses. The prime meridian sits where it should:
+    /// Greenwich at longitude zero, Africa just east of it.
     /// </summary>
     public static readonly SurfaceMap Earth = new(Ocean,
         [
-            // Afrika
+            // Africa
             (Land, [(37,10),(33,22),(30,32),(12,43),(11,51),(2,46),(-5,39),(-15,40),(-26,33),
                     (-34,20),(-33,17),(-22,14),(-8,13),(4,9),(6,-1),(5,-8),(12,-17),(21,-17),
                     (28,-12),(33,-9),(36,-3)]),
-            // Madagaskar
+            // Madagascar
             (Land, [(-12,49),(-17,50),(-25,47),(-22,43),(-16,44)]),
-            // Eurasien
+            // Eurasia
             (Land, [(43,-9),(36,-6),(38,0),(43,4),(38,16),(36,23),(38,27),(36,33),(31,35),
                     (29,35),(13,44),(16,53),(24,58),(27,50),(24,54),(25,61),(21,72),(8,77),
                     (13,80),(20,87),(22,91),(16,94),(9,98),(1,104),(8,105),(11,109),(21,108),
                     (23,117),(31,122),(37,123),(35,129),(43,132),(54,137),(59,143),(51,157),
                     (61,163),(64,177),(67,190),(70,180),(72,150),(76,113),(73,80),(68,55),
                     (68,40),(71,26),(65,12),(59,5),(55,8),(54,9),(52,4),(48,-2),(44,-2)]),
-            // Brittiska öarna
+            // The British Isles
             (Land, [(58,-5),(56,-2),(53,0),(51,1),(50,-4),(53,-4),(54,-6),(56,-6)]),
-            // Nordamerika
+            // North America
             (Land, [(60,-166),(66,-162),(71,-157),(70,-141),(69,-125),(72,-108),(72,-95),
                     (66,-84),(59,-78),(62,-72),(58,-68),(54,-57),(47,-52),(45,-64),(41,-70),
                     (35,-76),(31,-81),(25,-80),(29,-84),(29,-91),(26,-97),(21,-97),(18,-94),
                     (15,-92),(13,-87),(9,-81),(8,-78),(9,-84),(16,-95),(19,-105),(23,-110),
                     (28,-114),(33,-118),(38,-123),(46,-124),(54,-131),(59,-140),(59,-152),
                     (55,-162)]),
-            // Sydamerika
+            // South America
             (Land, [(11,-72),(10,-62),(5,-52),(0,-50),(-5,-35),(-13,-38),(-23,-42),(-34,-53),
                     (-39,-62),(-47,-66),(-54,-68),(-53,-71),(-46,-74),(-37,-73),(-30,-71),
                     (-18,-70),(-5,-81),(1,-80),(7,-77)]),
-            // Australien
+            // Australia
             (Land, [(-12,131),(-11,136),(-12,142),(-19,147),(-27,153),(-34,151),(-38,147),
                     (-38,141),(-35,137),(-32,133),(-32,125),(-34,115),(-26,113),(-20,119),
                     (-14,126)]),
-            // Nya Guinea
+            // New Guinea
             (Land, [(-1,131),(-3,141),(-8,148),(-10,150),(-8,143),(-5,135)]),
-            // Grönland (istäckt)
+            // Greenland (ice-covered)
             (Ice, [(83,-35),(81,-20),(76,-19),(70,-22),(60,-43),(65,-53),(72,-56),(77,-70),
                    (81,-62)]),
-            // Arktiska havsisen kring nordpolen
+            // Arctic sea ice around the north pole
             (Ice, [(84,0),(84,30),(84,60),(84,90),(84,120),(84,150),(84,180),(84,210),
                    (84,240),(84,270),(84,300),(84,330)]),
-            // Antarktis kring sydpolen
+            // Antarctica around the south pole
             (Ice, [(-70,0),(-68,30),(-66,60),(-66,90),(-66,120),(-68,150),(-71,180),
                    (-74,210),(-75,240),(-72,270),(-64,297),(-70,330)]),
         ]);
@@ -95,35 +97,38 @@ public sealed class SurfaceMap
     static readonly Color MarsCanyon = Color.FromArgb("#66412F");
 
     /// <summary>
-    /// Mars albedokarta: de mörka fälten som setts i teleskop sedan 1600-talet.
-    /// De är inte hav utan bara berggrund som vinden sopat ren från ljust damm,
-    /// vilket är varför de långsamt byter form mellan stormsäsongerna. Namnen är
-    /// ändå kvar från den tid då man trodde annat – Mare Cimmerium, Mare Sirenum.
+    /// Mars's albedo map: the dark features seen through telescopes since the
+    /// 1600s. They aren't seas but bare bedrock the wind has swept clean of
+    /// light dust, which is why they slowly change shape between dust-storm
+    /// seasons. The names still date from the time people thought otherwise –
+    /// Mare Cimmerium, Mare Sirenum.
     ///
-    /// Longituderna är östliga och räknade från Airy-0, den lilla krater som
-    /// definierar Mars nollmeridian. Syrtis Major hamnar därför kring 70° öst,
-    /// där den ska vara: det var den fläcken Christiaan Huygens ritade av 1659
-    /// och tog tiden på för att mäta Mars dygn.
+    /// Longitudes are east and measured from Airy-0, the small crater that
+    /// defines Mars's prime meridian. Syrtis Major therefore lands around
+    /// 70° east, where it should: that's the feature Christiaan Huygens
+    /// drew in 1659 and timed to measure Mars's day.
     ///
-    /// Polarisarna ritas med samma utsträckning året om. I verkligheten andas de
-    /// med årstiderna – den södra vinterkalotten når ned mot 50° syd och krymper
-    /// sedan till en fläck – men appen har ingen årstidsmodell för frost.
+    /// The polar caps are drawn with the same extent year-round. In reality
+    /// they breathe with the seasons – the southern winter cap reaches down
+    /// toward 50° south and then shrinks to a spot – but the app has no
+    /// seasonal model for frost.
     /// </summary>
     public static readonly SurfaceMap Mars = new(MarsDust,
         [
-            // Ljusa högslätter: Hellas, den 2 300 km vida nedslagsbassängen som
-            // ofta ligger dammfylld och lysande, och Tharsis med solsystemets
-            // största vulkaner.
+            // Bright highlands: Hellas, the 2,300 km wide impact basin that
+            // often lies dust-filled and glowing, and Tharsis with the Solar
+            // System's largest volcanoes.
             (MarsBright, [(-28,55),(-30,80),(-42,92),(-55,80),(-56,58),(-45,47)]),
             (MarsBright, [(25,230),(20,260),(0,268),(-10,255),(-6,232),(10,222)]),
 
-            // Syrtis Major: den mörka triangeln, bredast i norr. Mars mest kända
-            // drag och det första någon sett på en annan planets yta.
+            // Syrtis Major: the dark triangle, widest in the north. Mars's
+            // best-known feature and the first anyone saw on another planet's
+            // surface.
             (MarsDark, [(20,62),(18,76),(8,78),(0,74),(-4,70),(2,66),(10,60)]),
-            // Mare Acidalium – det stora mörka fältet på norra halvklotet.
+            // Mare Acidalium – the large dark field on the northern hemisphere.
             (MarsDark, [(60,330),(55,350),(48,5),(38,10),(30,0),(32,340),(40,325),(52,318)]),
-            // Sinus Sabaeus och Sinus Meridiani, bandet längs ekvatorn som går
-            // rakt genom nollmeridianen.
+            // Sinus Sabaeus and Sinus Meridiani, the band along the equator
+            // that runs straight through the prime meridian.
             (MarsDark, [(-2,318),(2,330),(0,345),(2,358),(0,8),(-6,6),(-8,350),(-10,335),(-8,322)]),
             // Mare Erythraeum
             (MarsDark, [(-14,300),(-12,320),(-18,340),(-28,345),(-34,330),(-32,310),(-24,298)]),
@@ -133,16 +138,16 @@ public sealed class SurfaceMap
             (MarsDark, [(-14,140),(-16,160),(-22,185),(-32,188),(-34,165),(-26,142)]),
             // Mare Sirenum
             (MarsDark, [(-20,205),(-24,225),(-32,240),(-40,232),(-38,210),(-28,200)]),
-            // Solis Lacus, "Mars öga", som blinkar när dammstormar drar över.
+            // Solis Lacus, "the eye of Mars", which blinks as dust storms pass over.
             (MarsDark, [(-22,262),(-24,275),(-32,278),(-36,268),(-30,259)]),
-            // Boreosyrtis vid Utopia
+            // Boreosyrtis near Utopia
             (MarsDark, [(48,95),(44,120),(36,128),(34,108),(40,92)]),
 
-            // Valles Marineris: 4 000 km lång, tio gånger Grand Canyon och djup
-            // nog att rymma Mount Everest stående. Den syns som ett streck.
+            // Valles Marineris: 4,000 km long, ten times the Grand Canyon and
+            // deep enough to fit Mount Everest standing up. Drawn as a streak.
             (MarsCanyon, [(-6,262),(-9,280),(-12,300),(-15,320),(-18,318),(-15,298),(-12,278),(-9,260)]),
 
-            // Polarisarna: vattenis under ett lock av frusen koldioxid.
+            // The polar caps: water ice under a lid of frozen carbon dioxide.
             (Ice, [(76,0),(76,30),(76,60),(76,90),(76,120),(76,150),(76,180),(76,210),
                    (76,240),(76,270),(76,300),(76,330)]),
             (Ice, [(-74,0),(-74,30),(-74,60),(-74,90),(-74,120),(-74,150),(-74,180),
@@ -150,52 +155,55 @@ public sealed class SurfaceMap
         ], smooth: true);
 
 
-    // Tonerna ligger med flit nära varandra, och bältena tonar bort mot polerna.
-    // Två saker fick rättas efter att kartan setts ritad. Först var kontrasten
-    // för hård – mörkbruna bälten mot gräddvitt gav en randig boll snarare än en
-    // planet, för på fotografier är skillnaden mellan bälte och zon
-    // förvånansvärt liten. Sedan var alla bälten lika starka, vilket gav en
-    // strandboll: i verkligheten dominerar de två ekvatorsbältena medan de
-    // tempererade knappt syns. Därför fem toner i stället för två.
+    // The tones deliberately sit close together, and the belts fade out
+    // toward the poles. Two things had to be corrected after the map was
+    // seen rendered. First, the contrast was too hard – dark brown belts
+    // against cream white gave a striped ball rather than a planet, since
+    // in photographs the difference between a belt and a zone is
+    // surprisingly small. Then all the belts were equally strong, giving a
+    // beach ball: in reality the two equatorial belts dominate while the
+    // temperate ones are barely visible. Hence five tones instead of two.
     static readonly Color JupiterZone = Color.FromArgb("#EDE4D3");
     static readonly Color JupiterEquator = Color.FromArgb("#EBE0CA");
-    static readonly Color JupiterNorthBelt = Color.FromArgb("#C49A76");   // starkast
+    static readonly Color JupiterNorthBelt = Color.FromArgb("#C49A76");   // strongest
     static readonly Color JupiterSouthBelt = Color.FromArgb("#C9A182");
-    static readonly Color JupiterBelt = Color.FromArgb("#D6BDA4");        // tempererade
-    static readonly Color JupiterFaintBelt = Color.FromArgb("#E0D2BF");   // nätt och jämnt
+    static readonly Color JupiterBelt = Color.FromArgb("#D6BDA4");        // temperate
+    static readonly Color JupiterFaintBelt = Color.FromArgb("#E0D2BF");   // barely there
     static readonly Color JupiterPolarInner = Color.FromArgb("#E2D6C4");
     static readonly Color JupiterPolar = Color.FromArgb("#D4C6B2");
     static readonly Color GreatRedSpot = Color.FromArgb("#D5793F");
     static readonly Color JupiterOval = Color.FromArgb("#F7F2E8");
 
     /// <summary>
-    /// Jupiter: molnband i latitud och Stora röda fläcken. De ljusa zonerna är
-    /// uppstigande ammoniakis, de mörka bältena nedsjunkande gas där man ser
-    /// djupare in – det är alltså inte målade ränder utan väder i tvärsnitt.
-    /// Gränserna nedan är de vedertagna: norra ekvatorialbältet 7–17° nord,
-    /// södra 7–20° syd, sedan tempererade bälten i par ut mot polerna.
+    /// Jupiter: cloud bands in latitude and the Great Red Spot. The bright
+    /// zones are rising ammonia ice, the dark belts sinking gas where you
+    /// see deeper in – so it's not painted stripes but weather in
+    /// cross-section. The boundaries below are the accepted ones: the North
+    /// Equatorial Belt 7–17° north, the South 7–20° south, then temperate
+    /// belts in pairs out toward the poles.
     ///
-    /// Stora röda fläcken ligger på 22° syd, i södra tropiska zonen strax under
-    /// sitt bälte, och är ritad 14,5° bred och 9,8° hög – 16 000 gånger
-    /// 12 000 km, alltså bredare än jorden. Longituden är däremot vald på fri
-    /// hand. Fläcken driver i verkligheten mot väster i förhållande till
-    /// planetens inre rotation, ungefär ett varv på fyra år, och appen följer
-    /// inte den driften. Var den står ett givet datum stämmer alltså inte, men
-    /// att den finns, hur stor den är och hur den passerar runt kanten gör det.
+    /// The Great Red Spot sits at 22° south, in the South Tropical Zone just
+    /// below its belt, and is drawn 14.5° wide and 9.8° tall – 16,000 by
+    /// 12,000 km, wider than Earth. Its longitude, however, is chosen
+    /// freely. In reality the Spot drifts westward relative to the planet's
+    /// interior rotation, roughly one lap every four years, and the app
+    /// doesn't follow that drift. Where it stands on a given date is
+    /// therefore not accurate, but that it exists, how big it is, and how it
+    /// passes around the limb is.
     /// </summary>
 
-    // ---------------------------------------------------- byggstenar för gaser
+    // ---------------------------------------------------- gas giant building blocks
     //
-    // Gasjättarna har inga kustlinjer att rita av. Deras ytor är band i latitud,
-    // kalotter kring polerna och enstaka stormar, och de tre formerna räcker
-    // långt. De ligger här som gemensamma hjälpare eftersom alla fyra jättar
-    // använder dem.
+    // The gas giants have no coastlines to draw. Their surfaces are bands in
+    // latitude, caps around the poles and the occasional storm, and those
+    // three shapes cover a lot of ground. They live here as shared helpers
+    // since all four giants use them.
 
     /// <summary>
-    /// Ett band runt hela klotet, som en rad fyrhörningar. Ett enda varvpolygon
-    /// hade inte fungerat: bandet är en ring med hål i, och det går inte att
-    /// fylla. Rutorna överlappar en aning så att skarvarna inte syns som
-    /// hårstreck, samma knep som ringarna använder.
+    /// A band around the whole globe, as a row of quadrilaterals. A single
+    /// loop polygon wouldn't have worked: the band is a ring with a hole in
+    /// it, and that can't be filled. The tiles overlap slightly so the
+    /// seams don't show up as hairline gaps, the same trick the rings use.
     /// </summary>
     static void Band(List<(Color Fill, (float Lat, float Lon)[] Pts)> raw,
         Color fill, float south, float north, int segments = 8)
@@ -208,7 +216,7 @@ public sealed class SurfaceMap
         }
     }
 
-    /// <summary>En kalott kring polen, precis som jordens isar.</summary>
+    /// <summary>A cap around the pole, just like Earth's ice caps.</summary>
     static void Cap(List<(Color Fill, (float Lat, float Lon)[] Pts)> raw,
         Color fill, float lat)
     {
@@ -218,7 +226,7 @@ public sealed class SurfaceMap
         raw.Add((fill, pts));
     }
 
-    /// <summary>En storm som en oval fläck. Halvaxlarna anges i grader.</summary>
+    /// <summary>A storm as an oval spot. The semi-axes are given in degrees.</summary>
     static void Oval(List<(Color Fill, (float Lat, float Lon)[] Pts)> raw,
         Color fill, float lat, float lon, float halfLat, float halfLon)
     {
@@ -233,19 +241,20 @@ public sealed class SurfaceMap
     }
 
     /// <summary>
-    /// En regelbunden månghörning kring polen – Saturnus sexhörning är den enda
-    /// användningen, och den enda kända formen av sitt slag i solsystemet.
+    /// A regular polygon around the pole – Saturn's hexagon is the only use,
+    /// and the only known shape of its kind in the Solar System.
     ///
-    /// Kanterna måste räknas ut i planet sett rakt ovanifrån polen, inte
-    /// interpoleras i latitud och longitud. Två hörn på samma breddgrad förbundna
-    /// med en latitudlinje ger en cirkelbåge som buktar åt fel håll, och figuren
-    /// blir en cirkel i stället för en månghörning.
+    /// The edges must be computed in the plane seen straight down from the
+    /// pole, not interpolated in latitude and longitude. Two vertices on the
+    /// same latitude connected by a latitude line give a circular arc
+    /// bulging the wrong way, and the figure becomes a circle instead of a
+    /// polygon.
     /// </summary>
     static void PolarPolygon(List<(Color Fill, (float Lat, float Lon)[] Pts)> raw,
         Color fill, int sides, float vertexLat, int perEdge = 4)
     {
         bool north = vertexLat > 0;
-        float radius = 90f - Math.Abs(vertexLat);      // avstånd från polen i grader
+        float radius = 90f - Math.Abs(vertexLat);      // distance from the pole in degrees
         var pts = new List<(float Lat, float Lon)>(sides * perEdge);
         for (int i = 0; i < sides; i++)
         {
@@ -270,15 +279,15 @@ public sealed class SurfaceMap
     {
         var raw = new List<(Color Fill, (float Lat, float Lon)[] Pts)>();
 
-        Band(raw, JupiterEquator, -7, 7);        // ekvatorialzonen, den ljusaste
-        Band(raw, JupiterNorthBelt, 7, 17);      // norra ekvatorialbältet, det tydligaste
-        Band(raw, JupiterSouthBelt, -20, -7);    // södra ekvatorialbältet
-        Band(raw, JupiterBelt, 24, 31);          // norra tempererade bältet
-        Band(raw, JupiterBelt, -37, -27);        // södra tempererade bältet
-        Band(raw, JupiterFaintBelt, 40, 48);     // norra norra tempererade bältet
-        Band(raw, JupiterFaintBelt, -53, -45);   // södra södra tempererade bältet
-        // Polarområdet i två steg. En enda kalott gav en hård grå kupol på
-        // toppen; i verkligheten mörknar det gradvis från ungefär 50° och ut.
+        Band(raw, JupiterEquator, -7, 7);        // the equatorial zone, the brightest
+        Band(raw, JupiterNorthBelt, 7, 17);      // the North Equatorial Belt, the clearest
+        Band(raw, JupiterSouthBelt, -20, -7);    // the South Equatorial Belt
+        Band(raw, JupiterBelt, 24, 31);          // the North Temperate Belt
+        Band(raw, JupiterBelt, -37, -27);        // the South Temperate Belt
+        Band(raw, JupiterFaintBelt, 40, 48);     // the North North Temperate Belt
+        Band(raw, JupiterFaintBelt, -53, -45);   // the South South Temperate Belt
+        // The polar region in two steps. A single cap gave a hard grey dome
+        // on top; in reality it darkens gradually from about 50° outward.
         Cap(raw, JupiterPolarInner, 55);
         Cap(raw, JupiterPolarInner, -55);
         Cap(raw, JupiterPolar, 70);
@@ -286,8 +295,8 @@ public sealed class SurfaceMap
 
         Oval(raw, GreatRedSpot, -22, 65, 4.9f, 7.3f);
 
-        // Tre av de vita ovalerna på 41° syd – stormar som liknar den röda
-        // fläcken men är yngre och mindre.
+        // Three of the white ovals at 41° south – storms resembling the Red
+        // Spot but younger and smaller.
         Oval(raw, JupiterOval, -41, 150, 2.5f, 4f);
         Oval(raw, JupiterOval, -41, 210, 2.5f, 4f);
         Oval(raw, JupiterOval, -41, 275, 2.5f, 4f);
@@ -298,13 +307,13 @@ public sealed class SurfaceMap
 
 
     /// <summary>
-    /// Ett smalt streck som löper ut från en punkt i en given kompassriktning –
-    /// en kraterstråle från Tycho, en spricka i Europas is.
+    /// A narrow streak running out from a point in a given compass
+    /// direction – a crater ray from Tycho, a crack in Europa's ice.
     ///
-    /// Strecket följer en storcirkel, inte en linje i gradnätet. Skillnaden är
-    /// stor: en stråle som går rakt norrut från 45° syd och 2 000 km bort hamnar
-    /// på helt olika ställen beroende på vilket man räknar. Bredden avtar mot
-    /// slutet, som strålarna gör.
+    /// The streak follows a great circle, not a line in the lat/lon grid.
+    /// The difference is large: a ray running due north from 45° south for
+    /// 2,000 km lands in a completely different spot depending on which one
+    /// is used. The width tapers toward the end, the way rays do.
     /// </summary>
     static void Streak(List<(Color Fill, (float Lat, float Lon)[] Pts)> raw,
         Color fill, float lat, float lon, float bearingDeg, float lengthDeg, float widthDeg)
@@ -317,8 +326,8 @@ public sealed class SurfaceMap
         {
             float along = lengthDeg * i / steps;
             var mid = Offset(lat, lon, bearingDeg, along);
-            // Bredden avtar linjärt, men aldrig till noll – en spets på under en
-            // tiondels grad ger bara sammanfallande punkter.
+            // The width tapers linearly, but never to zero – a tip under a
+            // tenth of a degree just gives coincident points.
             float half = Math.Max(0.1f, widthDeg * 0.5f * (1f - 0.8f * i / steps));
             left.Add(Offset(mid.Lat, mid.Lon, bearingDeg - 90f, half));
             right.Add(Offset(mid.Lat, mid.Lon, bearingDeg + 90f, half));
@@ -329,9 +338,9 @@ public sealed class SurfaceMap
     }
 
     /// <summary>
-    /// Punkten som ligger <paramref name="distanceDeg"/> grader bort längs en
-    /// storcirkel i riktningen <paramref name="bearingDeg"/>, räknad från norr
-    /// och medurs. Vanlig sfärisk trigonometri.
+    /// The point <paramref name="distanceDeg"/> degrees away along a great
+    /// circle in the direction <paramref name="bearingDeg"/>, measured from
+    /// north and clockwise. Standard spherical trigonometry.
     /// </summary>
     static (float Lat, float Lon) Offset(float lat, float lon, float bearingDeg, float distanceDeg)
     {
@@ -345,9 +354,10 @@ public sealed class SurfaceMap
 
 
     /// <summary>
-    /// En ring kring en punkt på ytan, byggd av fyrhörningar av samma skäl som
-    /// molnbanden: en ring har hål i sig och går inte att fylla som en polygon.
-    /// Callistos Valhalla är de vågringar ett nedslag lämnade efter sig.
+    /// A ring around a point on the surface, built from quadrilaterals for
+    /// the same reason as the cloud bands: a ring has a hole in it and can't
+    /// be filled as a polygon. Callisto's Valhalla is the ripples an impact
+    /// left behind.
     /// </summary>
     static void Annulus(List<(Color Fill, (float Lat, float Lon)[] Pts)> raw,
         Color fill, float lat, float lon, float innerDeg, float outerDeg, int segments = 14)
@@ -364,14 +374,16 @@ public sealed class SurfaceMap
         }
     }
 
-    // ------------------------------------------------- de stora månarna
+    // ------------------------------------------------- the large moons
     //
-    // Alla fyra galileiska månar och Titan är bundna: de vänder samma sida mot
-    // sin planet, precis som vår måne mot jorden. Longituden räknas därför från
-    // den punkt som pekar mot planeten. Nollan ligger mot planeten, 180° rakt
-    // bort, 270° mitt på den ledande halvan – den som går först i banan – och
-    // 90° mitt på den eftersläpande. Det spelar roll: Jupiters magnetfält sveper
-    // förbi månarna bakifrån och bakar in svavel på just den eftersläpande sidan.
+    // All four Galilean moons and Titan are tidally locked: they show the
+    // same side to their planet, just like our Moon does to Earth. Longitude
+    // is therefore measured from the point facing the planet. Zero faces the
+    // planet, 180° is directly opposite, 270° is the centre of the leading
+    // hemisphere – the one moving first in the orbit – and 90° the centre of
+    // the trailing one. That matters: Jupiter's magnetic field sweeps past
+    // the moons from behind and bakes sulphur into exactly the trailing
+    // side.
 
     static readonly Color IoSulphur = Color.FromArgb("#DFC96E");
     static readonly Color IoFrost = Color.FromArgb("#F0E8C8");
@@ -379,19 +391,21 @@ public sealed class SurfaceMap
     static readonly Color IoDeposit = Color.FromArgb("#C97445");
 
     /// <summary>
-    /// Io är solsystemets vulkaniskt mest aktiva kropp. Jupiter och de andra
-    /// månarna knådar den så hårt att bergrunden pumpas upp och ner hundra meter
-    /// varje varv, och värmen från det håller hela månen smält inuti. Fyra hundra
-    /// vulkaner sprutar svavel och kiselsten.
+    /// Io is the most volcanically active body in the Solar System. Jupiter
+    /// and the other moons knead it so hard that the bedrock pumps up and
+    /// down a hundred metres every lap, and the heat from that keeps the
+    /// whole moon molten inside. Four hundred volcanoes spew sulphur and
+    /// silicate rock.
     ///
-    /// Följden är att Io saknar kratrar helt. Ytan görs om snabbare än nedslagen
-    /// hinner sätta märken – i genomsnitt läggs en centimeter nytt material på
-    /// varje år, vilket täcker en krater på några tusen år. Ingen annan fast yta
-    /// i solsystemet är så ung.
+    /// The consequence is that Io has no craters at all. The surface is
+    /// remade faster than impacts can leave marks – on average a centimetre
+    /// of new material is laid down every year, which buries a crater within
+    /// a few thousand years. No other solid surface in the Solar System is
+    /// that young.
     ///
-    /// Fläckarna nedan är representativa, inte uppmätta: mönstret av mörka
-    /// vulkankalderor och ljusa svaveldioxidfält är Ios utseende, men vilken
-    /// enskild vulkan som ligger var är inte hämtat ur en karta.
+    /// The spots below are representative, not measured: the pattern of
+    /// dark volcanic calderas and bright sulphur dioxide fields is Io's
+    /// look, but which particular volcano sits where isn't taken from a map.
     /// </summary>
     public static readonly SurfaceMap Io = BuildIo();
 
@@ -411,7 +425,7 @@ public sealed class SurfaceMap
             Oval(raw, fill, lat, lon, radiusDeg, radiusDeg * widen);
         }
 
-        // Ljusa svaveldioxidfält först, sedan vulkanerna ovanpå dem.
+        // Bright sulphur dioxide fields first, then the volcanoes on top of them.
         for (int i = 0; i < 14; i++)
             Spot(IoFrost, (float)(Math.Asin(2 * Next() - 1) / Math.PI * 180) * 0.85f,
                  Next() * 360f, 6f + Next() * 9f);
@@ -420,7 +434,7 @@ public sealed class SurfaceMap
             float lat = (float)(Math.Asin(2 * Next() - 1) / Math.PI * 180) * 0.85f;
             float lon = Next() * 360f;
             float r = 2f + Next() * 4f;
-            // Runt de största kalderorna ligger orangeröda utkast.
+            // Orange-red ejecta surrounds the largest calderas.
             if (r > 4.5f) Spot(IoDeposit, lat, lon, r * 1.9f);
             Spot(IoPatera, lat, lon, r);
         }
@@ -434,15 +448,17 @@ public sealed class SurfaceMap
     static readonly Color EuropaLinea = Color.FromArgb("#A9705A");
 
     /// <summary>
-    /// Europa är slätast av allt vi känner till: högsta punkten på hela månen
-    /// reser sig några hundra meter. Under isen ligger ett hav med mer vatten än
-    /// alla jordens hav tillsammans, och sprickorna i ytan är där isskorpan
-    /// dragits isär och fyllts underifrån.
+    /// Europa is the smoothest thing we know of: the highest point on the
+    /// whole moon rises a few hundred metres. Under the ice lies an ocean
+    /// with more water than all of Earth's oceans combined, and the cracks
+    /// in the surface are where the ice crust has been pulled apart and
+    /// filled in from below.
     ///
-    /// Den eftersläpande halvan, kring 90° i den här kartans räkning, är mörkare
-    /// och rödare än den ledande. Det är inte en tillfällighet: Jupiters
-    /// magnetfält roterar fortare än Europa hinner runt, sveper alltså förbi
-    /// bakifrån, och bakar in svavel från Ios vulkaner i just den sidan.
+    /// The trailing hemisphere, around 90° in this map's reckoning, is
+    /// darker and redder than the leading one. That's no coincidence:
+    /// Jupiter's magnetic field rotates faster than Europa can keep up with,
+    /// so it sweeps past from behind and bakes sulphur from Io's volcanoes
+    /// into exactly that side.
     /// </summary>
     public static readonly SurfaceMap Europa = BuildEuropa();
 
@@ -456,16 +472,17 @@ public sealed class SurfaceMap
             return (seed >> 8) / (float)(1 << 24);
         }
 
-        // Den eftersläpande halvan, svagt mörkare.
+        // The trailing hemisphere, slightly darker.
         Oval(raw, EuropaTrailing, 0f, 90f, 70f, 88f);
 
-        // Kaosterräng: fält där isen brutits upp och frusit ihop igen.
+        // Chaos terrain: fields where the ice has broken up and refrozen.
         for (int i = 0; i < 9; i++)
             Oval(raw, EuropaChaos, (float)(Math.Asin(2 * Next() - 1) / Math.PI * 180) * 0.8f,
                  Next() * 360f, 5f + Next() * 6f, 8f + Next() * 10f);
 
-        // Sprickorna. De löper tusentals kilometer och korsar varandra, så både
-        // startpunkt och riktning slumpas – men breda nog att synas.
+        // The cracks. They run for thousands of kilometres and cross each
+        // other, so both the starting point and direction are randomised –
+        // but wide enough to be visible.
         for (int i = 0; i < 26; i++)
         {
             float lat = (float)(Math.Asin(2 * Next() - 1) / Math.PI * 180) * 0.8f;
@@ -482,10 +499,11 @@ public sealed class SurfaceMap
     static readonly Color GanymedeCrater = Color.FromArgb("#BDB3A5");
 
     /// <summary>
-    /// Ganymedes är solsystemets största måne – större än Merkurius, och den
-    /// enda måne som har ett eget magnetfält. Ytan är två slags landskap i
-    /// lapptäcke: mörka, uråldriga och kraterrika områden, och ljusare fält
-    /// genomdragna av parallella fåror där iskorpan dragits isär.
+    /// Ganymede is the largest moon in the Solar System – bigger than
+    /// Mercury, and the only moon with its own magnetic field. The surface
+    /// is a patchwork of two kinds of terrain: dark, ancient and
+    /// heavily-cratered regions, and lighter fields laced with parallel
+    /// grooves where the ice crust has been pulled apart.
     /// </summary>
     public static readonly SurfaceMap Ganymede = BuildGanymede();
 
@@ -499,13 +517,14 @@ public sealed class SurfaceMap
             return (seed >> 8) / (float)(1 << 24);
         }
 
-        // De mörka, gamla områdena – ungefär en tredjedel av ytan.
+        // The dark, old regions – roughly a third of the surface.
         for (int i = 0; i < 7; i++)
             Oval(raw, GanymedeDark, (float)(Math.Asin(2 * Next() - 1) / Math.PI * 180) * 0.85f,
                  Next() * 360f, 14f + Next() * 12f, 18f + Next() * 18f);
 
-        // De ljusa fårorna, i knippen av parallella streck. Ganymedes yta är
-        // ungefär till hälften sådan terräng, så knippena måste vara många.
+        // The bright grooves, in bundles of parallel streaks. Roughly half
+        // of Ganymede's surface is this kind of terrain, so there need to be
+        // many bundles.
         for (int i = 0; i < 18; i++)
         {
             float lat = (float)(Math.Asin(2 * Next() - 1) / Math.PI * 180) * 0.8f;
@@ -518,7 +537,7 @@ public sealed class SurfaceMap
             }
         }
 
-        // Ljusa unga kratrar.
+        // Bright, young craters.
         for (int i = 0; i < 12; i++)
         {
             float lat = (float)(Math.Asin(2 * Next() - 1) / Math.PI * 180) * 0.85f;
@@ -530,8 +549,9 @@ public sealed class SurfaceMap
         return new SurfaceMap(GanymedeBase, [.. raw]);
     }
 
-    // Tonerna ligger nära varandra med flit. Valhallas ringar blev först en
-    // skarp måltavla; i verkligheten är de svaga vågkammar man anar, inte streck.
+    // The tones deliberately sit close together. Valhalla's rings first
+    // came out as a sharp target pattern; in reality they're faint ripples
+    // you can just make out, not lines.
     static readonly Color CallistoBase = Color.FromArgb("#655C53");
     static readonly Color CallistoLeading = Color.FromArgb("#71685E");
     static readonly Color CallistoCrater = Color.FromArgb("#786F65");
@@ -539,14 +559,15 @@ public sealed class SurfaceMap
     static readonly Color CallistoRing = Color.FromArgb("#7C7368");
 
     /// <summary>
-    /// Callisto har solsystemets äldsta yta. Den ligger utanför Laplace-resonansen
-    /// som knådar de tre inre månarna, så ingenting har värmt den – ytan är
-    /// densamma som för fyra miljarder år sedan, och så tätt kraterrik att nya
-    /// nedslag bara kan träffa gamla.
+    /// Callisto has the oldest surface in the Solar System. It lies outside
+    /// the Laplace resonance that kneads the three inner moons, so nothing
+    /// has heated it – the surface is the same as four billion years ago,
+    /// and so densely cratered that new impacts can only strike old ones.
     ///
-    /// Valhalla är märket efter det största av dem: en ljus fläck med vågringar
-    /// runt om, tillsammans 3 800 km tvärs över. Nedslaget rev upp isen som en
-    /// sten i en damm och det frös till innan vågorna hann lägga sig.
+    /// Valhalla is the scar left by the largest of them: a bright spot
+    /// surrounded by ripples, together 3,800 km across. The impact tore up
+    /// the ice like a stone in a pond, and it froze solid before the waves
+    /// had time to settle.
     /// </summary>
     public static readonly SurfaceMap Callisto = BuildCallisto();
 
@@ -560,17 +581,19 @@ public sealed class SurfaceMap
             return (seed >> 8) / (float)(1 << 24);
         }
 
-        // Den ledande halvan är ljusare – nedslagen där gräver fram ren is.
+        // The leading hemisphere is brighter – impacts there dig up clean ice.
         Oval(raw, CallistoLeading, 0f, 270f, 70f, 88f);
 
-        // Valhalla, på den bortre halvan mot den ledande sidan. Ytterringen når
-        // 45° från mitten, vilket ger de 3 800 km tvärs över som mätts upp.
+        // Valhalla, on the far hemisphere toward the leading side. The outer
+        // ring reaches 45° from the centre, giving the measured 3,800 km
+        // across.
         Annulus(raw, CallistoRing, 18f, 240f, 26f, 30f);
         Annulus(raw, CallistoRing, 18f, 240f, 41f, 45f);
         Oval(raw, CallistoBright, 18f, 240f, 13f, 14f);
 
-        // Kratrar, och de ligger tätt: Callisto är den mest kraterrika ytan i
-        // solsystemet, mättad så att nya nedslag bara kan träffa gamla.
+        // Craters, and they sit densely: Callisto is the most heavily
+        // cratered surface in the Solar System, saturated so new impacts can
+        // only strike old ones.
         for (int i = 0; i < 110; i++)
         {
             float lat = (float)(Math.Asin(2 * Next() - 1) / Math.PI * 180) * 0.9f;
@@ -589,18 +612,20 @@ public sealed class SurfaceMap
     static readonly Color MoonRay = Color.FromArgb("#B7B3AD");
 
     /// <summary>
-    /// Månen: ljusa högländer och mörka hav. Haven är inte vatten utan
-    /// lavaslätter, utgjutna för tre och en halv miljard år sedan i de största
-    /// nedslagsbassängerna, och de ligger nästan uteslutande på den sida som
-    /// vetter mot jorden – varför vet ingen säkert.
+    /// The Moon: bright highlands and dark maria. The maria aren't water but
+    /// lava plains, poured out three and a half billion years ago in the
+    /// largest impact basins, and they lie almost exclusively on the
+    /// Earth-facing side – nobody knows for certain why.
     ///
-    /// Att baksidan saknar hav faller ut av sig själv här: alla hav nedan ligger
-    /// på longituder mellan 90° väst och 90° öst, alltså på framsidan, eftersom
-    /// det är där de finns. Nollmeridianen pekar mot jorden.
+    /// That the far side lacks maria falls out on its own here: every mare
+    /// below sits at longitudes between 90° west and 90° east, i.e. on the
+    /// near side, because that's where they are. The prime meridian points
+    /// at Earth.
     ///
-    /// Tycho är bara 85 km bred men har det tydligaste strålsystemet på månen,
-    /// synligt med blotta ögat vid fullmåne. Kratern är ung – hundra miljoner år,
-    /// vilket på månen är nyss – så strålarna har inte hunnit mörkna.
+    /// Tycho is only 85 km wide but has the clearest ray system on the
+    /// Moon, visible to the naked eye at full moon. The crater is young –
+    /// a hundred million years, which on the Moon is recent – so the rays
+    /// haven't had time to darken.
     /// </summary>
     public static readonly SurfaceMap Moon = BuildMoon();
 
@@ -614,8 +639,8 @@ public sealed class SurfaceMap
             Oval(raw, fill, lat, lon, radiusDeg, radiusDeg * widen);
         }
 
-        // Haven, med sina uppmätta lägen och storlekar. Oceanus Procellarum är
-        // det överlägset största: 2 500 km tvärs över.
+        // The maria, with their measured positions and sizes. Oceanus
+        // Procellarum is by far the largest: 2,500 km across.
         Mare(MoonMareDark, 18.4f, 302.6f, 42.4f);   // Oceanus Procellarum
         Mare(MoonMare, 32.8f, 344.4f, 18.9f);       // Mare Imbrium
         Mare(MoonMare, 28.0f, 17.5f, 11.7f);        // Mare Serenitatis
@@ -626,19 +651,19 @@ public sealed class SurfaceMap
         Mare(MoonMare, -21.3f, 343.4f, 11.8f);      // Mare Nubium
         Mare(MoonMare, -24.4f, 321.4f, 6.4f);       // Mare Humorum
         Mare(MoonMare, 13.3f, 3.6f, 4.0f);          // Mare Vaporum
-        Oval(raw, MoonMare, 56.0f, 1.4f, 4.5f, 46f); // Mare Frigoris, långsträckt
+        Oval(raw, MoonMare, 56.0f, 1.4f, 4.5f, 46f); // Mare Frigoris, elongated
 
-        // Tychos strålsystem. Strålarna är smala – några tiotal kilometer breda
-        // men tusentals långa – och sitter oregelbundet. Jämna mellanrum och
-        // grova spikar ger en tecknad stjärna i stället för en krater, så både
-        // riktningar och längder varierar.
+        // Tycho's ray system. The rays are narrow – a few tens of
+        // kilometres wide but thousands long – and irregularly spaced.
+        // Even spacing and blunt spikes give a cartoon star instead of a
+        // crater, so both directions and lengths vary.
         float[] tychoBearing = [8, 41, 67, 96, 129, 158, 187, 214, 243, 271, 302, 334];
         float[] tychoLength = [52, 34, 47, 28, 55, 38, 44, 31, 50, 36, 45, 40];
         for (int i = 0; i < tychoBearing.Length; i++)
             Streak(raw, MoonRay, -43.3f, 348.8f, tychoBearing[i], tychoLength[i], 2.4f);
         Oval(raw, MoonRay, -43.3f, 348.8f, 2.2f, 3.0f);
 
-        // Copernicus, den andra kratern med tydliga strålar, kortare och svagare.
+        // Copernicus, the other crater with clear rays, shorter and fainter.
         float[] copBearing = [17, 63, 104, 148, 196, 241, 288, 331];
         for (int i = 0; i < copBearing.Length; i++)
             Streak(raw, MoonRay, 9.6f, 339.9f, copBearing[i], 14f + (i % 3) * 5f, 1.8f);
@@ -652,15 +677,15 @@ public sealed class SurfaceMap
     static readonly Color PlutoDark = Color.FromArgb("#71503E");
 
     /// <summary>
-    /// Pluto som New Horizons såg den i juli 2015 – de första bilderna någonsin
-    /// av dess yta, efter nio och ett halvt års färd.
+    /// Pluto as New Horizons saw it in July 2015 – the first images ever of
+    /// its surface, after nine and a half years of travel.
     ///
-    /// Tombaugh Regio är hjärtat: ett ljust fält av frusen kväve, uppkallat
-    /// efter Clyde Tombaugh som upptäckte Pluto 1930. Dess västra lob, Sputnik
-    /// Planitia, är en slätt utan en enda krater, vilket betyder att ytan förnyas
-    /// – kvävet flyter långsamt som en glaciär. Bredvid ligger Cthulhu Macula,
-    /// ett mörkt band av tholiner, organiska ämnen som solljuset bakat fram ur
-    /// metan.
+    /// Tombaugh Regio is the heart: a bright field of frozen nitrogen, named
+    /// after Clyde Tombaugh, who discovered Pluto in 1930. Its western lobe,
+    /// Sputnik Planitia, is a plain without a single crater, meaning the
+    /// surface renews itself – the nitrogen flows slowly like a glacier.
+    /// Next to it lies Cthulhu Macula, a dark band of tholins, organic
+    /// compounds sunlight has baked out of methane.
     /// </summary>
     public static readonly SurfaceMap Pluto = BuildPluto();
 
@@ -668,12 +693,12 @@ public sealed class SurfaceMap
     {
         var raw = new List<(Color Fill, (float Lat, float Lon)[] Pts)>();
 
-        // Cthulhu Macula, det mörka bandet längs ekvatorn väster om hjärtat.
+        // Cthulhu Macula, the dark band along the equator west of the heart.
         Oval(raw, PlutoDark, -5f, 90f, 20f, 62f);
-        // Den ljusa nordpolskalotten av metanis.
+        // The bright north polar cap of methane ice.
         Cap(raw, PlutoIce, 68f);
 
-        // Hjärtat: två lober och en spets nedåt.
+        // The heart: two lobes and a point downward.
         Oval(raw, PlutoIce, 20f, 175f, 22f, 27f);   // Sputnik Planitia
         Oval(raw, PlutoIce, 18f, 212f, 16f, 21f);
         raw.Add((PlutoIce, [(6f, 150f), (10f, 225f), (-8f, 214f), (-26f, 186f), (-8f, 160f)]));
@@ -688,17 +713,17 @@ public sealed class SurfaceMap
     static readonly Color MercuryRay = Color.FromArgb("#ADABA8");
 
     /// <summary>
-    /// Merkurius är grå och full av kratrar, så lik månen att bilderna är svåra
-    /// att skilja åt. Den saknar atmosfär som kunnat vittra ned dem, så ytan har
-    /// legat i stort sett orörd sedan det stora bombardemanget för fyra
-    /// miljarder år sedan.
+    /// Mercury is grey and full of craters, so similar to the Moon that
+    /// photos are hard to tell apart. It has no atmosphere to have weathered
+    /// them down, so the surface has stayed largely untouched since the
+    /// heavy bombardment four billion years ago.
     ///
-    /// De fyra namngivna bassängerna ligger på sina uppmätta lägen i östlig
-    /// longitud. Caloris är den överlägset största: 1 550 km tvärs över, alltså
-    /// en fjärdedel av hela planetens omkrets, slagen av något som nästan
-    /// klöv den. De spridda kratrarna är däremot inte verkliga utan slumpade ur
-    /// ett fast frö, så att bilden blir densamma varje gång utan att någon
-    /// behöver rita in fyrtio kratrar för hand.
+    /// The four named basins sit at their measured positions in east
+    /// longitude. Caloris is by far the largest: 1,550 km across, a quarter
+    /// of the whole planet's circumference, struck by something that nearly
+    /// split it in two. The scattered craters, on the other hand, aren't
+    /// real but randomised from a fixed seed, so the picture comes out the
+    /// same every time without anyone having to draw forty craters by hand.
     /// </summary>
     public static readonly SurfaceMap Mercury = BuildMercury();
 
@@ -706,19 +731,21 @@ public sealed class SurfaceMap
     {
         var raw = new List<(Color Fill, (float Lat, float Lon)[] Pts)>();
 
-        /// En krater är rund på klotet, inte i gradnätet: longitudgrader trängs
-        /// ihop mot polerna, så halvaxeln i longitud måste vidgas med 1/cos(lat).
+        /// A crater is round on the globe, not in the lat/lon grid: degrees
+        /// of longitude bunch up toward the poles, so the semi-axis in
+        /// longitude must be widened by 1/cos(lat).
         void Crater(Color fill, float lat, float lon, float radiusDeg)
         {
             float widen = 1f / MathF.Max(0.25f, MathF.Cos(lat * MathF.PI / 180f));
             Oval(raw, fill, lat, lon, radiusDeg, radiusDeg * widen);
         }
 
-        // De släta slätterna i norr, utlagda av lava.
+        // The smooth plains in the north, laid down by lava.
         Cap(raw, MercuryPlains, 62);
 
-        // Spridda kratrar ur ett fast frö. Latituden dras ur arcsin så att de
-        // fördelas jämnt över klotet och inte klumpar ihop sig vid polerna.
+        // Scattered craters from a fixed seed. Latitude is drawn through
+        // arcsin so they're spread evenly over the globe rather than
+        // clumping at the poles.
         uint seed = 20260901;
         float Next()
         {
@@ -733,20 +760,21 @@ public sealed class SurfaceMap
             Crater(Next() < 0.45f ? MercuryLight : MercuryDark, lat, lon, r);
         }
 
-        // Caloris: 1 550 km tvärs över, den största nedslagsbassängen. Golvet är
-        // ljusare än omgivningen eftersom det fyllts av lava.
+        // Caloris: 1,550 km across, the largest impact basin. The floor is
+        // brighter than its surroundings since it's been filled with lava.
         Crater(MercuryLight, 30.5f, 189.8f, 18.2f);
         Crater(MercuryDark, 20.8f, 236.2f, 7.4f);    // Beethoven
         Crater(MercuryDark, -32.9f, 271.8f, 8.4f);   // Rembrandt
-        Crater(MercuryDark, -16.3f, 195.1f, 4.6f);   // Tolstoj
+        Crater(MercuryDark, -16.3f, 195.1f, 4.6f);   // Tolstoy
 
-        // Kuiper: liten men med ett ljust strålsystem, ung nog att strålarna
-        // inte hunnit mörkna.
+        // Kuiper: small but with a bright ray system, young enough that the
+        // rays haven't had time to darken.
         Crater(MercuryRay, -11.3f, 328.6f, 5.0f);
         Crater(MercuryRay, -33.0f, 12.0f, 4.0f);     // Debussy
 
-        // Ingen utjämning: kratrarna är redan runda från Oval, och att runda
-        // dem en gång till skulle fyrdubbla antalet punkter utan att synas.
+        // No smoothing: the craters are already round via Oval, and
+        // rounding them again would quadruple the point count without any
+        // visible effect.
         return new SurfaceMap(MercuryBase, [.. raw]);
     }
 
@@ -755,20 +783,24 @@ public sealed class SurfaceMap
     static readonly Color VenusPolar = Color.FromArgb("#EEDDB2");
 
     /// <summary>
-    /// Venus visar ingenting av sin yta. Molntäcket av svavelsyra är helt
-    /// ogenomskinligt, och det tog radar från omloppsbana att kartlägga marken
-    /// under. I vanligt ljus är planeten en jämn gulvit skiva utan drag.
+    /// Venus shows none of its surface. The sulphuric-acid cloud deck is
+    /// completely opaque, and it took orbital radar to map the ground
+    /// beneath it. In ordinary light the planet is an even yellow-white
+    /// disc without features.
     ///
-    /// De svaga strimmorna nedan är det Y-formade mönster som syns i
-    /// ultraviolett ljus, återgivet så blekt att det knappt märks. De finns med
-    /// av ett enda skäl: utan något att följa med blicken går det inte att se
-    /// att planeten roterar, och att den roterar baklänges är hela poängen med
-    /// Venus. En helt jämn skiva hade varit ärligare mot ögat men dolt saken.
+    /// The faint streaks below are the Y-shaped pattern visible in
+    /// ultraviolet light, rendered so pale it's barely noticeable. They're
+    /// included for a single reason: without something for the eye to
+    /// follow, there's no way to see that the planet rotates, and that it
+    /// rotates backwards is the whole point of Venus. A perfectly even disc
+    /// would have been more honest to the eye but would have hidden the
+    /// fact.
     ///
-    /// Med det följer en förenkling värd att känna till: molnen i verkligheten
-    /// far runt planeten på fyra dygn, medan marken under tar 243. Appen låter
-    /// strimmorna följa marken. Det som visas är alltså planetens rotation, inte
-    /// molnens – och det är planetens rotation etappen handlar om.
+    /// That comes with a simplification worth knowing: the clouds in
+    /// reality race around the planet in four days, while the ground
+    /// beneath takes 243. The app lets the streaks follow the ground. What's
+    /// shown is therefore the planet's rotation, not the clouds' – and it's
+    /// the planet's rotation this stage is about.
     /// </summary>
     public static readonly SurfaceMap Venus = BuildVenus();
 
@@ -776,8 +808,9 @@ public sealed class SurfaceMap
     {
         var raw = new List<(Color Fill, (float Lat, float Lon)[] Pts)>();
 
-        // Y-mönstrets stam längs ekvatorn och dess två armar, plus de ljusare
-        // polhättorna. Allt med minimal kontrast mot grundtonen.
+        // The Y-pattern's stem along the equator and its two arms, plus the
+        // lighter polar hoods. All with minimal contrast against the base
+        // colour.
         Band(raw, VenusShade, -12, 12, 6);
         Oval(raw, VenusShade, 28, 60, 12f, 55f);
         Oval(raw, VenusShade, -30, 55, 12f, 55f);
@@ -785,8 +818,8 @@ public sealed class SurfaceMap
         Cap(raw, VenusPolar, 68);
         Cap(raw, VenusPolar, -68);
 
-        // Ingen utjämning: bandet består av fyrhörningar som måste behålla sina
-        // raka kanter, annars glipar fogarna mellan dem.
+        // No smoothing: the band is made of quadrilaterals that must keep
+        // their straight edges, otherwise gaps open up between them.
         return new SurfaceMap(VenusBase, [.. raw]);
     }
 
@@ -799,15 +832,16 @@ public sealed class SurfaceMap
     static readonly Color SaturnHexagon = Color.FromArgb("#BDB7A6");
 
     /// <summary>
-    /// Saturnus har samma slags band som Jupiter men mycket svagare. Dimman
-    /// högre upp i atmosfären suddar ut dem, så planeten ser nästan enfärgat
-    /// gulbeige ut i ett litet teleskop – bandmönstret finns där, men det syns
-    /// först vid närmare påseende.
+    /// Saturn has the same kind of bands as Jupiter but much fainter. Haze
+    /// higher up in the atmosphere blurs them out, so the planet looks
+    /// almost uniformly tan-yellow in a small telescope – the band pattern
+    /// is there, but only shows on closer inspection.
     ///
-    /// Kring nordpolen ligger sexhörningen: en jetström som håller sex raka
-    /// sidor, nästan 30 000 km tvärs över, upptäckt av Voyager 1980 och
-    /// fotograferad på nytt av Cassini. Ingen annan känd form i solsystemet
-    /// beter sig så, och ingen vet säkert varför den håller ihop.
+    /// Around the north pole sits the hexagon: a jet stream holding six
+    /// straight sides, nearly 30,000 km across, discovered by Voyager in
+    /// 1980 and photographed again by Cassini. No other known shape in the
+    /// Solar System behaves like that, and nobody knows for certain why it
+    /// holds together.
     /// </summary>
     public static readonly SurfaceMap Saturn = BuildSaturn();
 
@@ -827,8 +861,8 @@ public sealed class SurfaceMap
         Cap(raw, SaturnPolar, 72);
         Cap(raw, SaturnPolar, -72);
 
-        // Sexhörningen: hörnen 14,3° från polen, alltså på 75,7° nord, vilket
-        // ger de 29 000 km tvärs över som Cassini mätte upp.
+        // The hexagon: vertices 14.3° from the pole, i.e. at 75.7° north,
+        // which gives the 29,000 km across that Cassini measured.
         PolarPolygon(raw, SaturnHexagon, 6, 75.7f);
 
         return new SurfaceMap(SaturnZone, [.. raw]);
@@ -839,15 +873,16 @@ public sealed class SurfaceMap
     static readonly Color UranusPolar = Color.FromArgb("#B4E2E5");
 
     /// <summary>
-    /// Uranus är den släta. Metanet i atmosfären slukar rött ljus och lämnar
-    /// det blågröna, och där Jupiter och Saturnus har bandmönster har Uranus
-    /// nästan ingenting – Voyager 2 passerade 1986 och fann en planet så jämn
-    /// att bilderna såg ut som en målad boll.
+    /// Uranus is the smooth one. Methane in the atmosphere swallows red
+    /// light and leaves the blue-green, and where Jupiter and Saturn have
+    /// band patterns, Uranus has almost nothing – Voyager 2 flew past in
+    /// 1986 and found a planet so even the images looked like a painted
+    /// ball.
     ///
-    /// De två svaga banden och den ljusare polkalotten finns med av ett skäl
-    /// utöver att de är verkliga: utan minsta drag på ytan går det inte att se
-    /// att planeten rullar i stället för att snurra, och det är hela poängen
-    /// med Uranus.
+    /// The two faint bands and the lighter polar cap are included for a
+    /// reason beyond being real: without the slightest feature on the
+    /// surface, there's no way to see that the planet rolls rather than
+    /// spins, and that's the whole point of Uranus.
     /// </summary>
     public static readonly SurfaceMap Uranus = BuildUranus();
 
@@ -867,15 +902,16 @@ public sealed class SurfaceMap
     static readonly Color NeptuneCloud = Color.FromArgb("#DCE8F5");
 
     /// <summary>
-    /// Neptunus är djupare blå än Uranus trots nästan samma sammansättning, och
-    /// ingen vet riktigt varför. Den har också väder, vilket Uranus knappt har:
-    /// de snabbaste vindarna i solsystemet, över 2 000 km/h.
+    /// Neptune is a deeper blue than Uranus despite an almost identical
+    /// composition, and nobody really knows why. It also has weather, which
+    /// Uranus barely does: the fastest winds in the Solar System, over
+    /// 2,000 km/h.
     ///
-    /// Stora mörka fläcken är ritad som Voyager 2 såg den 1989, på 22° syd och
-    /// ungefär lika stor som jorden, med sitt vita följeslagarmoln. Den är
-    /// däremot inte permanent som Jupiters röda fläck: när Hubble tittade efter
-    /// 1994 var den borta, och nya mörka fläckar har kommit och gått sedan dess.
-    /// Appen visar alltså ett tillstånd, inte ett bestående drag.
+    /// The Great Dark Spot is drawn as Voyager 2 saw it in 1989, at 22°
+    /// south and roughly Earth-sized, with its white companion cloud. It
+    /// isn't permanent like Jupiter's Red Spot, though: when Hubble checked
+    /// in 1994 it was gone, and new dark spots have come and gone since.
+    /// The app therefore shows a state, not a lasting feature.
     /// </summary>
     public static readonly SurfaceMap Neptune = BuildNeptune();
 
@@ -889,10 +925,11 @@ public sealed class SurfaceMap
         Cap(raw, NeptuneZone, 62);
         Cap(raw, NeptuneZone, -62);
 
-        // Stora mörka fläcken, ungefär jordstor: 13 000 × 6 600 km, vilket på
-        // Neptunus blir en tredjedel av vägen runt planeten i longitud.
+        // The Great Dark Spot, roughly Earth-sized: 13,000 × 6,600 km,
+        // which on Neptune comes to a third of the way around the planet in
+        // longitude.
         Oval(raw, GreatDarkSpot, -22, 40, 7.7f, 16.3f);
-        // "Scooter", det ljusa molnet som följde med fläcken.
+        // "Scooter", the bright cloud that travelled with the spot.
         Oval(raw, NeptuneCloud, -33, 32, 2.5f, 7f);
 
         return new SurfaceMap(NeptuneBase, [.. raw]);
@@ -901,20 +938,22 @@ public sealed class SurfaceMap
 
 
     /// <summary>
-    /// Rundar av en polygon med Chaikins hörnkapning: varje hörn ersätts av två
-    /// punkter en fjärdedel in på vardera kanten. Två varv räcker för att en
-    /// sexhörning ska läsas som en fläck i stället för som en polygon.
+    /// Rounds off a polygon with Chaikin's corner-cutting: every vertex is
+    /// replaced by two points a quarter of the way along each edge. Two
+    /// rounds are enough for a hexagon to read as a blob instead of a
+    /// polygon.
     ///
-    /// Görs bara där gränsen verkligen är diffus, och det är ett val per karta.
-    /// Jordens kustlinjer ÄR kantiga och ska inte jämnas ut. Jupiters band får
-    /// heller inte rundas – de är fyrhörningar som ska ha raka kanter, annars
-    /// öppnar sig glipor mellan dem. Mars albedofält är dammgränser utan skarpa
-    /// kanter och blir polygoner om de lämnas som de är.
+    /// Only done where the boundary is genuinely diffuse, and that's a
+    /// choice made per map. Earth's coastlines ARE jagged and shouldn't be
+    /// smoothed. Jupiter's bands can't be rounded either – they're
+    /// quadrilaterals that need straight edges, otherwise gaps open up
+    /// between them. Mars's albedo features are dust boundaries without
+    /// sharp edges and read as polygons if left as they are.
     ///
-    /// Longituderna vecklas ut till en sammanhängande följd först. Utan det
-    /// skulle medelvärdet av 358° och 8° bli 183°, alltså rakt över på andra
-    /// sidan klotet, för varje yta som korsar nollmeridianen – och Sinus
-    /// Meridiani gör just det.
+    /// The longitudes are unwrapped into a continuous sequence first.
+    /// Without that, the average of 358° and 8° would come out as 183°,
+    /// i.e. straight across on the far side of the globe, for any region
+    /// crossing the prime meridian – and Sinus Meridiani does exactly that.
     /// </summary>
     static (float Lat, float Lon)[] Smooth((float Lat, float Lon)[] pts, int rounds = 2)
     {
@@ -938,9 +977,10 @@ public sealed class SurfaceMap
                 float lonJ = lon[j];
                 if (j == 0)
                 {
-                    // Sista kanten sluter kurvan. Ta den variant av startpunkten
-                    // som ligger närmast slutpunkten, annars viks ett helt varv
-                    // runt klotet ihop till ingenting – polarisarna är sådana.
+                    // The last edge closes the curve. Take the version of the
+                    // starting point closest to the end point, otherwise a
+                    // full turn around the globe folds up into nothing – the
+                    // polar caps are like that.
                     float d = lon[0] - lon[^1];
                     lonJ = lon[0] - 360f * MathF.Round(d / 360f);
                 }
@@ -956,25 +996,27 @@ public sealed class SurfaceMap
         return [.. lat.Select((v, i) => (v, lon[i]))];
     }
 
-    // ------------------------------------------------------------------ solen
+    // ------------------------------------------------------------------ the Sun
 
-    /// <summary>Fotosfären, den yta vi ser. Ritas i appen med en gradient, se nedan.</summary>
+    /// <summary>The photosphere, the surface we see. Drawn in the app with a gradient, see below.</summary>
     static readonly Color Photosphere = Color.FromArgb("#FFE08A");
 
-    /// <summary>Fläckens halvskugga, ungefär 1 000 grader kallare än ytan omkring.</summary>
+    /// <summary>The spot's penumbra, roughly 1,000 degrees cooler than the surrounding surface.</summary>
     static readonly Color Penumbra = Color.FromArgb("#C98A3A");
 
-    /// <summary>Kärnskuggan, 1 500 grader kallare. Fortfarande glödande – bara mörkare än allt annat.</summary>
+    /// <summary>The umbra, 1,500 degrees cooler. Still glowing – just darker than everything else.</summary>
     static readonly Color Umbra = Color.FromArgb("#6B4116");
 
     /// <summary>
-    /// En solfläck: en mörk kärna i en ljusare gård. Storleken är gårdens
-    /// halvbredd i grader – en stor grupp mäter tio grader tvärs över, alltså
-    /// mer än hundratusen kilometer, mer än tio jordklot i bredd.
+    /// A sunspot: a dark core in a lighter penumbra. The size is the
+    /// penumbra's half-width in degrees – a large group spans ten degrees
+    /// across, i.e. over a hundred thousand kilometres, more than ten
+    /// Earths wide.
     ///
-    /// Longitudhalvaxeln delas med cosinus för breddgraden. En rund fläck täcker
-    /// fler longitudgrader ju längre från ekvatorn den ligger, precis som en
-    /// stad på höga breddgrader ligger mellan tätare meridianer.
+    /// The longitude semi-axis is divided by the cosine of the latitude. A
+    /// round spot covers more degrees of longitude the farther from the
+    /// equator it sits, just as a city at high latitude sits between more
+    /// closely spaced meridians.
     /// </summary>
     static void Spot(List<(Color Fill, (float Lat, float Lon)[] Pts)> raw,
         float lat, float lon, float size)
@@ -985,32 +1027,36 @@ public sealed class SurfaceMap
     }
 
     /// <summary>
-    /// Solens yta: en handfull solfläcksgrupper.
+    /// The Sun's surface: a handful of sunspot groups.
     ///
-    /// Fläckarna ligger inte var som helst. De håller sig till två bälten på
-    /// ömse sidor om ekvatorn, mellan fem och trettio graders bredd, och det är
-    /// inte en slump utan en följd av att solen roterar olika fort på olika
-    /// breddgrader: rotationen drar ut magnetfältet till buntar som till slut
-    /// bryter igenom ytan i par. Där de bryter igenom hindras värmen underifrån,
-    /// och fläcken blir 1 500 grader kallare än ytan omkring. Den ser svart ut,
-    /// men bara i jämförelse – lyfte man ut en fläck ur solen skulle den lysa
-    /// starkare än fullmånen.
+    /// The spots don't sit just anywhere. They keep to two belts on either
+    /// side of the equator, between five and thirty degrees of latitude, and
+    /// that's no coincidence but a consequence of the Sun rotating at
+    /// different speeds at different latitudes: the rotation stretches the
+    /// magnetic field into bundles that eventually break through the
+    /// surface in pairs. Where they break through, heat from below is
+    /// blocked, and the spot ends up 1,500 degrees cooler than the
+    /// surrounding surface. It looks black, but only by comparison – lift a
+    /// spot out of the Sun and it would shine brighter than the full moon.
     ///
-    /// Grupperna kommer i par, en ledande och en följande fläck. Det är
-    /// magnetfältets två ändar, och de har motsatt polaritet – ett faktum som
-    /// inte syns i bild men som förklarar varför de alltid uppträder två och två.
+    /// The groups come in pairs, a leading and a following spot. That's the
+    /// magnetic field's two ends, and they have opposite polarity – a fact
+    /// invisible in the image but which explains why they always appear two
+    /// by two.
     ///
-    /// <b>Förbehåll:</b> fläckarna ligger stilla här och finns för alltid. I
-    /// verkligheten lever en grupp några veckor och antalet följer elvaårscykeln:
-    /// vid minimum är solen helt slät, vid maximum full av fläckar. Deras
-    /// breddgrader vandrar dessutom mot ekvatorn under cykelns gång – ritar man
-    /// det i ett diagram blir mönstret ett fjärilspar, och den bilden har inget
-    /// utrymme i en karta som är sig lik i alla tider. Kartan visar alltså hur
-    /// solen ser ut ett år nära maximum.
+    /// <b>Caveat:</b> the spots sit still here and exist forever. In
+    /// reality a group lives a few weeks, and the count follows the
+    /// eleven-year cycle: at minimum the Sun is completely smooth, at
+    /// maximum full of spots. Their latitudes also migrate toward the
+    /// equator over the course of the cycle – plotted on a diagram the
+    /// pattern becomes the famous butterfly, and that picture has no room
+    /// in a map that looks the same at every point in time. The map
+    /// therefore shows how the Sun looks in a year near maximum.
     ///
-    /// Fackelfälten, de ljusa slöjorna kring fläckarna, är utelämnade med flit:
-    /// de syns nästan bara nära randen, där man ser snett genom gasen, och det
-    /// är en effekt en platt färgyta inte kan uttrycka.
+    /// The faculae, the bright veils around the spots, are deliberately
+    /// left out: they're visible almost only near the limb, where you're
+    /// looking obliquely through the gas, and that's an effect a flat
+    /// colour surface can't express.
     /// </summary>
     public static readonly SurfaceMap Sun = BuildSun();
 
@@ -1018,7 +1064,7 @@ public sealed class SurfaceMap
     {
         var raw = new List<(Color Fill, (float Lat, float Lon)[] Pts)>();
 
-        // Norra bältet. Varje rad är en grupp: ledande fläck, sedan följande.
+        // The northern belt. Each pair is a group: leading spot, then following.
         Spot(raw, 14f, 40f, 3.2f);
         Spot(raw, 12f, 51f, 1.9f);
 
@@ -1028,7 +1074,7 @@ public sealed class SurfaceMap
         Spot(raw, 8f, 248f, 3.6f);
         Spot(raw, 10f, 259f, 2.1f);
 
-        // Södra bältet.
+        // The southern belt.
         Spot(raw, -12f, 95f, 2.9f);
         Spot(raw, -13f, 105f, 1.7f);
 
@@ -1037,8 +1083,8 @@ public sealed class SurfaceMap
 
         Spot(raw, -7f, 318f, 1.6f);
 
-        // Enstaka porer: små fläckar utan halvskugga, de som kommer och går på
-        // ett dygn. Ritade som bara kärnskugga.
+        // Individual pores: small spots without a penumbra, the kind that
+        // come and go within a day. Drawn as umbra only.
         Oval(raw, Umbra, 17f, 88f, 0.7f, 0.75f);
         Oval(raw, Umbra, -25f, 271f, 0.6f, 0.66f);
         Oval(raw, Umbra, 6f, 175f, 0.5f, 0.5f);
@@ -1047,10 +1093,10 @@ public sealed class SurfaceMap
     }
 
     /// <summary>
-    /// Delar upp långa kanter i steg om högst 5 grader så att kustlinjerna
-    /// följer klotets buktning och klipps snyggt mot dess rand. Sinus/cosinus
-    /// för latituden förberäknas – vid ritning varierar bara longituden
-    /// (kroppens rotation).
+    /// Splits long edges into steps of at most 5 degrees so coastlines
+    /// follow the globe's curvature and clip cleanly against its limb.
+    /// Sine/cosine for the latitude are precomputed – at render time only
+    /// the longitude varies (the body's rotation).
     /// </summary>
     static Region Densify(Color fill, (float Lat, float Lon)[] pts)
     {
@@ -1061,7 +1107,7 @@ public sealed class SurfaceMap
             var a = pts[i];
             var b = pts[(i + 1) % pts.Length];
             float dLon = b.Lon - a.Lon;
-            while (dLon > 180) dLon -= 360;   // kortaste vägen runt klotet
+            while (dLon > 180) dLon -= 360;   // the shortest way around the globe
             while (dLon < -180) dLon += 360;
             float dLat = b.Lat - a.Lat;
             int steps = Math.Max(1, (int)MathF.Ceiling(MathF.Max(MathF.Abs(dLat), MathF.Abs(dLon)) / 5f));

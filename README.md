@@ -3,6 +3,8 @@
 A .NET MAUI desktop app (Windows) that shows the Solar System in 3D – built
 for teaching, so students can see how the planets move around the Sun.
 
+![Screenshot of the app showing the Solar System](Resources/Images/screenshot.png)
+
 ## Features
 
 - **Real orbits**: the eight planets plus the dwarf planet Pluto follow
@@ -425,13 +427,28 @@ still.
 
 ## Building and running
 
-Open `Solarsystem.sln` in Visual Studio (with the ".NET Multi-platform App UI
-development" workload installed) and press F5, or from the command line:
+Requirements: the .NET 10 SDK, the ".NET Multi-platform App UI development"
+workload (installed via the Visual Studio Installer, or `dotnet workload
+install maui` from the command line), and Windows – see *Platform* below.
+
+Open `Solarsystem.sln` in Visual Studio and press F5, or from the command
+line:
 
 ```
 dotnet build Solarsystem.csproj
 dotnet run --project Solarsystem.csproj -f net10.0-windows10.0.19041.0
 ```
+
+## Platform
+
+Windows only, for now. The project is a .NET MAUI app, which is normally
+cross-platform, but only `net10.0-windows10.0.19041.0` is listed in
+`Solarsystem.csproj`'s `TargetFrameworks` – the Android, iOS and MacCatalyst
+platform folders that the project template generates were removed, since
+keeping them would have implied a support that doesn't exist. Nothing in the
+simulation or rendering code is Windows-specific, so adding a platform back
+is mainly a matter of re-adding its `Platforms/` folder and target framework
+and testing the result – untried so far.
 
 ## Language
 
@@ -443,7 +460,22 @@ switches at any time, defaulting to the operating system's language. See
 
 See [TODO.md](TODO.md) – a staged list for further moons, rings and
 asteroid/Kuiper belts, meant to be built and verified one stage at a time.
-It's written in Swedish, as the app's own development log.
+
+## Credits
+
+- **Orbital elements** for the planets, dwarf planets and moons are from
+  NASA/JPL.
+- **Pole directions and rotation periods** (`BodyAxis` constants in
+  `Simulation/SolarSystemData.cs`) are from the IAU Working Group on
+  Cartographic Coordinates and Rotational Elements.
+- **The star catalogue** (`Simulation/StarCatalog.cs`) is drawn from the Yale
+  Bright Star Catalogue.
+- **Open Sans**, the UI typeface (`Resources/Fonts/`), is licensed under the
+  Apache License 2.0 – see [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
+
+## License
+
+MIT – see [LICENSE](LICENSE).
 
 ## Code overview
 

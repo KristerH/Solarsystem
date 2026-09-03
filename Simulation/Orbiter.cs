@@ -3,39 +3,40 @@ using System.Numerics;
 namespace Solarsystem.Simulation;
 
 /// <summary>
-/// En sond som kretsar kring en planet i stället för att fara förbi den:
-/// Cassini vid Saturnus och Juno vid Jupiter. Enklare fall än de fem sonder
-/// som lämnat solsystemet – här är banan en vanlig ellips, precis som månarnas.
+/// A probe that orbits a planet instead of flying past it: Cassini at Saturn
+/// and Juno at Jupiter. A simpler case than the five probes that left the
+/// Solar System – here the orbit is a plain ellipse, just like the moons'.
 ///
-/// En viktig skillnad mot Voyager och de andra: de banorna är återskapade ur
-/// verkliga datum, så sonderna står på rätt plats rätt dag. Här går det inte.
-/// Cassini flög nästan tre hundra olika varv kring Saturnus under tretton år,
-/// med omloppstider från en vecka till fyra månader och lutningar från
-/// ringplanet ända upp till 75 grader. Det som visas är därför ett
-/// representativt varv: storleken, formen, omloppstiden och banplanet är
-/// verkliga, men var sonden befinner sig i banan ett givet datum är det inte.
+/// One important difference from Voyager and the others: those orbits are
+/// reconstructed from real dates, so the probes stand in the right place on
+/// the right day. Here that's not possible. Cassini flew nearly three hundred
+/// different laps around Saturn over thirteen years, with periods from a week
+/// to four months and inclinations to the ring plane ranging up to 75
+/// degrees. What's shown is therefore a representative lap: the size, shape,
+/// period and orbital plane are real, but where the probe sits in the orbit
+/// on a given date is not.
 /// </summary>
 public sealed class Orbiter
 {
-    /// <summary>Sondens namn, visas vid pricken.</summary>
+    /// <summary>The probe's name, shown at the dot.</summary>
     public string Name { get; }
 
-    /// <summary>Färgen sonden och dess bana ritas i.</summary>
+    /// <summary>The colour the probe and its orbit are drawn in.</summary>
     public Color Color { get; }
 
-    /// <summary>Planeten sonden kretsar kring.</summary>
+    /// <summary>The planet the probe orbits.</summary>
     public CelestialBody Center { get; }
 
-    /// <summary>Banan, räknad kring planeten och inte kring solen.</summary>
+    /// <summary>The orbit, computed around the planet rather than the Sun.</summary>
     public Conic Path { get; }
 
-    /// <summary>Dagen sonden gick in i omloppsbana.</summary>
+    /// <summary>The day the probe entered orbit.</summary>
     public double ArrivalDay { get; }
 
-    /// <summary>Dagen uppdraget tog slut, eller null medan det pågår.</summary>
+    /// <summary>The day the mission ended, or null while it's ongoing.</summary>
     public double? EndDay { get; }
 
-    /// <summary>Vad som hände på slutet, för panelen. Tom sträng när uppdraget pågår.</summary>
+    /// <summary>What happened at the end, for the panel. Empty string while the mission is ongoing.</summary>
     public string Ending { get; }
 
     Orbiter(string name, Color color, CelestialBody center, Conic path,
@@ -51,14 +52,15 @@ public sealed class Orbiter
     }
 
     /// <summary>
-    /// Bygger sonden ur banans storlek och form uttryckt i planetradier, som är
-    /// det mått uppgifterna om sådana här banor brukar anges i.
+    /// Builds the probe from the orbit's size and shape expressed in planet
+    /// radii, which is the unit these orbits are normally reported in.
     ///
-    /// Banplanet anges i förhållande till planetens ekvator, inte till
-    /// ekliptikan: en polär bana är 90 grader mot ekvatorn oavsett hur planeten
-    /// själv lutar. Lutningen läggs därför till planetens egen, som hämtas ur
-    /// dess rotationsaxel, med samma uppstigande nod – att vrida ekvatorsplanet
-    /// ett kvarts varv kring nodlinjen ger just ett plan genom båda polerna.
+    /// The orbital plane is given relative to the planet's equator, not the
+    /// ecliptic: a polar orbit is 90 degrees to the equator regardless of how
+    /// the planet itself is tilted. The inclination is therefore added to the
+    /// planet's own, taken from its rotation axis, with the same ascending
+    /// node – rotating the equatorial plane a quarter turn around the node
+    /// line gives exactly a plane through both poles.
     /// </summary>
     public static Orbiter? Build(string name, Color color, CelestialBody center,
         double periapsisRadii, double apoapsisRadii, double inclinationToEquatorDeg,
@@ -67,7 +69,7 @@ public sealed class Orbiter
         if (center.Mu <= 0 || periapsisRadii <= 0 || apoapsisRadii < periapsisRadii)
             return null;
         if (center.Axis is not BodyAxis equator)
-            return null;   // utan känd ekvator går banplanet inte att lägga ut
+            return null;   // without a known equator, the orbital plane can't be laid out
 
         double rp = periapsisRadii * center.RadiusKm / SolarSystemData.AuKm;
         double ra = apoapsisRadii * center.RadiusKm / SolarSystemData.AuKm;
@@ -84,23 +86,23 @@ public sealed class Orbiter
             end is { } e ? (e - SolarSystemData.EpochJ2000).TotalDays : null, ending);
     }
 
-    /// <summary>Sant när sonden kretsar kring planeten just den dagen.</summary>
+    /// <summary>True while the probe is orbiting the planet on the given day.</summary>
     public bool Exists(double day)
         => day >= ArrivalDay && (EndDay is not double end || day <= end);
 
-    /// <summary>Omloppstiden i dygn.</summary>
+    /// <summary>The orbital period in days.</summary>
     public double PeriodDays => Path.PeriodDays ?? 0.0;
 
-    /// <summary>Sondens läge i förhållande till planeten.</summary>
+    /// <summary>The probe's position relative to the planet.</summary>
     public Vector3 PositionAt(double day, float unitsPerAu)
         => Path.PositionAt(day, unitsPerAu);
 
-    /// <summary>Sondens fart i km/s. Störst vid periapsis, precis som för allt annat.</summary>
+    /// <summary>The probe's speed in km/s. Greatest at periapsis, as for everything else.</summary>
     public double SpeedKmPerSecond(double day) => Path.SpeedKmPerSecond(day);
 
     /// <summary>
-    /// Hela banellipsen som punktlista, planetcentriskt. Ett varv räcker –
-    /// banan är sluten.
+    /// The whole orbital ellipse as a list of points, planet-centric. One lap
+    /// is enough – the orbit is closed.
     /// </summary>
     public Vector3[] OrbitPath(int samples, float unitsPerAu)
     {

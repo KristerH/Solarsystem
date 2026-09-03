@@ -3,8 +3,8 @@ using System.Numerics;
 namespace Solarsystem.Simulation;
 
 /// <summary>
-/// En stjärna med verkliga koordinater (rektascension/deklination, epok J2000),
-/// skenbar magnitud och färgindex B-V.
+/// A star with real coordinates (right ascension/declination, epoch J2000),
+/// apparent magnitude and B-V colour index.
 /// </summary>
 public sealed record Star(
     string Id,
@@ -14,46 +14,49 @@ public sealed record Star(
     double Magnitude,
     double ColorIndex)
 {
-    /// <summary>Riktning i världskoordinater, samma system som planeternas banor.</summary>
+    /// <summary>Direction in world coordinates, the same system the planets' orbits use.</summary>
     public Vector3 Direction { get; } = StarCatalog.EquatorialToWorld(RaHours, DecDeg);
 }
 
-/// <summary>En stjärnbild: svenskt namn och de linjer som binder ihop figuren.</summary>
+/// <summary>A constellation: a name and the lines that connect the figure.</summary>
 /// <param name="Key">
-/// Stjärnbildens språkneutrala nyckel, det latinska namnet (<c>UrsaMajor</c>).
-/// Namnet att visa slås upp ur den – "Karlavagnen - Stora björn" på svenska,
-/// "Big Dipper - Ursa Major" på engelska.
+/// The constellation's language-neutral key, the Latin name (<c>UrsaMajor</c>).
+/// The name to display is looked up from it – "Big Dipper - Ursa Major" in
+/// English, "Karlavagnen - Stora björn" in Swedish.
 /// </param>
 public sealed record Constellation(string Key, (string A, string B)[] Lines);
 
 /// <summary>
-/// Ljusstarka stjärnor ur Yale Bright Star-katalogen samt figurlinjer för de
-/// stjärnbilder som är lättast att känna igen. Positionerna är verkliga, så
-/// stjärnhimlen stämmer med den man ser ute – och eftersom stjärnorna räknas om
-/// från ekvatorial- till ekliptikakoordinater hamnar de rätt i förhållande till
-/// planeternas banplan (planeterna rör sig genom zodiakens stjärnbilder).
+/// The brightest stars from the Yale Bright Star Catalogue, plus figure lines
+/// for the constellations that are easiest to recognise. The positions are
+/// real, so the night sky matches what you'd see outside – and since the
+/// stars are converted from equatorial to ecliptic coordinates, they land
+/// correctly relative to the planets' orbital plane (the planets move
+/// through the zodiac constellations).
 /// </summary>
 public static class StarCatalog
 {
-    /// <summary>Ekliptikans lutning vid J2000.</summary>
+    /// <summary>The ecliptic's obliquity at J2000.</summary>
     const double ObliquityDeg = 23.4392911;
 
-    /// <summary>Galaktiska nordpolen (J2000) – Vintergatans plan står vinkelrätt mot den.</summary>
+    /// <summary>The galactic north pole (J2000) – the Milky Way's plane is perpendicular to it.</summary>
     public static readonly Vector3 GalacticNorthPole = EquatorialToWorld(192.85948 / 15.0, 27.12825);
 
-    /// <summary>Galaktiska centrum i Skytten – Vintergatan är som tätast åt det hållet.</summary>
+    /// <summary>The galactic centre, in Sagittarius – the Milky Way is densest in that direction.</summary>
     public static readonly Vector3 GalacticCenter = EquatorialToWorld(266.40510 / 15.0, -28.93617);
 
     /// <summary>
-    /// Ekvatorialkoordinater (J2000) till samma världssystem som planeterna använder:
-    /// först rotation till ekliptiska koordinater, sedan Y = norr om ekliptikan.
+    /// Equatorial coordinates (J2000) into the same world system the planets
+    /// use: first a rotation to ecliptic coordinates, then Y = north of the
+    /// ecliptic.
     /// </summary>
     public static Vector3 EquatorialToWorld(double raHours, double decDeg)
         => EquatorialToWorldAu(raHours, decDeg).ToVector3();
 
     /// <summary>
-    /// Samma omräkning i dubbel precision. Sondernas kända lägen på himlen går
-    /// den här vägen: därifrån byggs den sista banan, och då behövs varje siffra.
+    /// The same conversion in double precision. The probes' known positions
+    /// in the sky go through here: the final orbit is built from that, and
+    /// there every digit matters.
     /// </summary>
     public static Vec3 EquatorialToWorldAu(double raHours, double decDeg)
     {
@@ -61,17 +64,17 @@ public static class StarCatalog
         double dec = decDeg * Math.PI / 180.0;
         double eps = ObliquityDeg * Math.PI / 180.0;
 
-        // Enhetsvektor i ekvatorialsystemet.
+        // Unit vector in the equatorial system.
         double xq = Math.Cos(dec) * Math.Cos(ra);
         double yq = Math.Cos(dec) * Math.Sin(ra);
         double zq = Math.Sin(dec);
 
-        // Rotation kring vårdagjämningsaxeln -> ekliptiska koordinater.
+        // Rotation around the equinox axis -> ecliptic coordinates.
         double xe = xq;
         double ye = yq * Math.Cos(eps) + zq * Math.Sin(eps);
         double ze = -yq * Math.Sin(eps) + zq * Math.Cos(eps);
 
-        // Samma avbildning som planeternas banor: ekliptikan horisontell, norr uppåt.
+        // Same mapping as the planets' orbits: ecliptic horizontal, north up.
         return new Vec3(xe, ze, -ye).Normalized();
     }
 
@@ -87,7 +90,7 @@ public static class StarCatalog
         new("Saiph", "Saiph", 5.7959, -9.670, 2.06, -0.17),
         new("Meissa", null, 5.5855, 9.934, 3.39, -0.16),
 
-        // --- Stora hunden / Lilla hunden
+        // --- Canis Major / Canis Minor
         new("Sirius", "Sirius", 6.7525, -16.716, -1.46, 0.00),
         new("Mirzam", "Mirzam", 6.3783, -17.956, 1.98, -0.24),
         new("Adhara", "Adhara", 6.9770, -28.972, 1.50, -0.21),
@@ -97,7 +100,7 @@ public static class StarCatalog
         new("Procyon", "Procyon", 7.6551, 5.225, 0.34, 0.42),
         new("Gomeisa", null, 7.4527, 8.289, 2.89, -0.09),
 
-        // --- Oxen
+        // --- Taurus
         new("Aldebaran", "Aldebaran", 4.5987, 16.509, 0.85, 1.54),
         new("Elnath", "Elnath", 5.4381, 28.608, 1.65, -0.13),
         new("Alcyone", "Pleiades", 3.7914, 24.105, 2.87, -0.09),
@@ -107,7 +110,7 @@ public static class StarCatalog
         new("EpsilonTau", null, 4.4776, 19.180, 3.53, 1.01),
         new("Theta2Tau", null, 4.4784, 15.871, 3.40, 0.18),
 
-        // --- Tvillingarna
+        // --- Gemini
         new("Castor", "Castor", 7.5766, 31.888, 1.58, 0.03),
         new("Pollux", "Pollux", 7.7553, 28.026, 1.14, 1.00),
         new("Alhena", "Alhena", 6.6285, 16.399, 1.93, 0.00),
@@ -120,14 +123,14 @@ public static class StarCatalog
         new("TauGem", null, 7.1861, 30.245, 4.41, 1.26),
         new("LambdaGem", null, 7.4287, 16.540, 3.58, 0.11),
 
-        // --- Kusken
+        // --- Auriga
         new("Capella", "Capella", 5.2782, 45.998, 0.08, 0.80),
         new("Menkalinan", null, 5.9922, 44.947, 1.90, 0.08),
         new("ThetaAur", null, 5.9953, 37.213, 2.62, -0.08),
         new("IotaAur", null, 4.9497, 33.166, 2.69, 1.53),
         new("EpsilonAur", null, 5.0328, 43.823, 2.99, 0.54),
 
-        // --- Lejonet
+        // --- Leo
         new("Regulus", "Regulus", 10.1395, 11.967, 1.35, -0.11),
         new("Denebola", "Denebola", 11.8177, 14.572, 2.14, 0.09),
         new("Algieba", "Algieba", 10.3329, 19.841, 2.08, 1.13),
@@ -138,7 +141,7 @@ public static class StarCatalog
         new("Rasalas", null, 9.8792, 26.007, 3.88, 1.22),
         new("Algenubi", null, 9.7642, 23.774, 2.98, 0.80),
 
-        // --- Stora björnen (Karlavagnen)
+        // --- Ursa Major (the Big Dipper)
         new("Dubhe", "Dubhe", 11.0622, 61.751, 1.79, 1.07),
         new("Merak", "Merak", 11.0307, 56.383, 2.37, 0.03),
         new("Phecda", null, 11.8972, 53.695, 2.44, 0.04),
@@ -147,7 +150,7 @@ public static class StarCatalog
         new("Mizar", "Mizar", 13.3988, 54.925, 2.27, 0.02),
         new("Alkaid", "Alkaid", 13.7923, 49.313, 1.86, -0.19),
 
-        // --- Lilla björnen
+        // --- Ursa Minor
         new("Polaris", "Polaris", 2.5303, 89.264, 1.98, 0.60),
         new("Kochab", "Kochab", 14.8451, 74.156, 2.08, 1.47),
         new("Pherkad", null, 15.3455, 71.834, 3.05, 0.05),
@@ -171,7 +174,7 @@ public static class StarCatalog
         new("ZetaCep", null, 22.1811, 58.201, 3.35, 1.56),
         new("IotaCep", null, 22.8281, 66.201, 3.52, 1.05),
 
-        // --- Draken
+        // --- Draco
         new("Eltanin", "Eltanin", 17.9434, 51.489, 2.23, 1.52),
         new("Rastaban", null, 17.5072, 52.301, 2.79, 0.95),
         new("XiDra", null, 17.8926, 56.873, 3.75, 1.18),
@@ -180,7 +183,7 @@ public static class StarCatalog
         new("EtaDra", null, 16.3999, 61.514, 2.73, 0.91),
         new("IotaDra", null, 15.4155, 58.966, 3.29, 1.16),
 
-        // --- Svanen
+        // --- Cygnus
         new("Deneb", "Deneb", 20.6906, 45.280, 1.25, 0.09),
         new("Albireo", "Albireo", 19.5121, 27.960, 3.08, 1.09),
         new("Sadr", "Sadr", 20.3705, 40.257, 2.23, 0.68),
@@ -188,14 +191,14 @@ public static class StarCatalog
         new("DeltaCyg", null, 19.7495, 45.131, 2.87, -0.03),
         new("EtaCyg", null, 19.9484, 35.083, 3.89, 1.02),
 
-        // --- Lyran
+        // --- Lyra
         new("Vega", "Vega", 18.6156, 38.784, 0.03, 0.00),
         new("Sheliak", null, 18.8347, 33.363, 3.52, 0.00),
         new("Sulafat", null, 18.9824, 32.690, 3.24, -0.05),
         new("ZetaLyr", null, 18.7461, 37.605, 4.36, 0.19),
         new("Delta2Lyr", null, 18.9111, 36.899, 4.30, 1.68),
 
-        // --- Örnen
+        // --- Aquila
         new("Altair", "Altair", 19.8464, 8.868, 0.77, 0.22),
         new("Tarazed", null, 19.7709, 10.613, 2.72, 1.52),
         new("Alshain", null, 19.9214, 6.407, 3.71, 0.86),
@@ -205,7 +208,7 @@ public static class StarCatalog
         new("LambdaAql", null, 19.1041, -4.882, 3.43, -0.09),
         new("EtaAql", null, 19.8735, 1.006, 3.90, 0.79),
 
-        // --- Herkules
+        // --- Hercules
         new("Rasalgethi", null, 17.2443, 14.390, 3.06, 1.44),
         new("Kornephoros", null, 16.5036, 21.490, 2.77, 0.94),
         new("ZetaHer", null, 16.6881, 31.603, 2.81, 0.65),
@@ -214,7 +217,7 @@ public static class StarCatalog
         new("EpsilonHer", null, 17.0048, 30.926, 3.92, 0.00),
         new("DeltaHer", null, 17.2504, 24.839, 3.12, 0.08),
 
-        // --- Björnvaktaren / Norra kronan
+        // --- Boötes / Corona Borealis
         new("Arcturus", "Arcturus", 14.2610, 19.182, -0.05, 1.23),
         new("Izar", null, 14.7498, 27.074, 2.37, 0.97),
         new("Muphrid", null, 13.9114, 18.398, 2.68, 0.58),
@@ -230,7 +233,7 @@ public static class StarCatalog
         new("ThetaCrB", null, 15.5488, 31.359, 4.14, -0.13),
         new("IotaCrB", null, 16.0244, 29.851, 4.96, 0.05),
 
-        // --- Jungfrun
+        // --- Virgo
         new("Spica", "Spica", 13.4199, -11.161, 0.98, -0.24),
         new("Porrima", null, 12.6944, -1.449, 2.74, 0.36),
         new("Vindemiatrix", null, 13.0362, 10.959, 2.83, 0.94),
@@ -239,7 +242,7 @@ public static class StarCatalog
         new("Heze", null, 13.5786, -0.596, 3.37, 0.11),
         new("EtaVir", null, 12.3325, -0.667, 3.89, 0.02),
 
-        // --- Skorpionen
+        // --- Scorpius
         new("Antares", "Antares", 16.4901, -26.432, 1.09, 1.83),
         new("Shaula", "Shaula", 17.5601, -37.104, 1.62, -0.23),
         new("Sargas", "Sargas", 17.6220, -42.998, 1.86, 0.40),
@@ -256,7 +259,7 @@ public static class StarCatalog
         new("EtaSco", null, 17.2032, -43.239, 3.32, 0.41),
         new("Iota1Sco", null, 17.7932, -40.127, 2.99, 0.51),
 
-        // --- Skytten
+        // --- Sagittarius
         new("KausAustralis", "Kaus Australis", 18.4029, -34.385, 1.85, -0.03),
         new("KausMedia", null, 18.3499, -29.828, 2.70, 1.38),
         new("KausBorealis", null, 18.4661, -25.422, 2.81, 1.02),
@@ -266,7 +269,7 @@ public static class StarCatalog
         new("TauSgr", null, 19.1156, -27.670, 3.32, 1.19),
         new("Gamma2Sgr", null, 18.0966, -30.424, 2.99, 1.00),
 
-        // --- Kentauren och Södra korset
+        // --- Centaurus and the Southern Cross
         new("RigilKentaurus", "Rigil Kentaurus", 14.6600, -60.835, -0.27, 0.71),
         new("Hadar", "Hadar", 14.0637, -60.373, 0.61, -0.23),
         new("Menkent", null, 14.1114, -36.370, 2.06, 1.01),
@@ -287,7 +290,7 @@ public static class StarCatalog
         new("DeltaPer", null, 3.7154, 47.788, 3.01, -0.13),
         new("EtaPer", null, 2.8450, 55.895, 3.76, 1.69),
 
-        // --- Andromeda och Pegasus
+        // --- Andromeda and Pegasus
         new("Alpheratz", "Alpheratz", 0.1398, 29.091, 2.06, -0.11),
         new("Mirach", "Mirach", 1.1622, 35.621, 2.06, 1.58),
         new("Almach", "Almach", 2.0650, 42.330, 2.10, 1.37),
@@ -300,13 +303,13 @@ public static class StarCatalog
         new("ZetaPeg", null, 22.6912, 10.831, 3.40, -0.09),
         new("ThetaPeg", null, 22.1699, 6.198, 3.53, 0.09),
 
-        // --- Väduren
+        // --- Aries
         new("Hamal", "Hamal", 2.1195, 23.462, 2.00, 1.15),
         new("Sheratan", null, 1.9105, 20.808, 2.64, 0.13),
         new("Mesarthim", null, 1.8925, 19.294, 3.88, 0.01),
         new("Ari41", null, 2.8330, 27.261, 3.61, -0.10),
 
-        // --- Övriga ljusstarka stjärnor
+        // --- Other bright stars
         new("Canopus", "Canopus", 6.3992, -52.696, -0.72, 0.15),
         new("Achernar", "Achernar", 1.6286, -57.237, 0.46, -0.16),
         new("Fomalhaut", "Fomalhaut", 22.9608, -29.622, 1.16, 0.09),

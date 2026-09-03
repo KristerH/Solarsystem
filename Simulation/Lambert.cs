@@ -1,30 +1,32 @@
 namespace Solarsystem.Simulation;
 
 /// <summary>
-/// Lamberts problem: vilken bana går från ett läge till ett annat på exakt en
-/// given tid?
+/// Lambert's problem: which orbit goes from one position to another in
+/// exactly a given time?
 ///
-/// Det är den frågan som gör att rymdsonderna kan byggas ur verkliga datum.
-/// Voyager 1 sköts upp 5 september 1977 och var vid Jupiter 5 mars 1979. Var
-/// jorden och Jupiter stod de dagarna vet appen redan, och restiden är känd –
-/// alltså är banan bestämd, utan att ett enda banelement behöver matas in.
+/// That question is what lets the spacecraft be built from real dates.
+/// Voyager 1 launched on 5 September 1977 and was at Jupiter on 5 March 1979.
+/// Where Earth and Jupiter stood on those dates the app already knows, and
+/// the travel time is known too – so the orbit is determined, without a
+/// single orbital element needing to be entered.
 ///
-/// Lösningen använder Bate, Mueller och Whites universella variabler. Tanken är
-/// att beskriva alla kägelsnitt med samma formler genom variabeln z, som är
-/// positiv för ellipser, negativ för hyperbler och noll för parabeln mitt
-/// emellan. Restiden växer monotont med z, så rätt bana går att klämma in med
-/// intervallhalvering.
+/// The solution uses Bate, Mueller and White's universal variables. The idea
+/// is to describe every conic section with the same formulas through the
+/// variable z, which is positive for ellipses, negative for hyperbolas and
+/// zero for the parabola in between. Travel time grows monotonically with z,
+/// so the right orbit can be pinned down by bisection.
 ///
-/// Metoden hanterar färder på mindre än ett varv, vilket räcker för alla
-/// sondben i appen.
+/// The method handles trips of less than one full lap, which covers every
+/// probe leg in the app.
 /// </summary>
 public static class Lambert
 {
     /// <summary>
-    /// Löser banan mellan två lägen (AU) på given tid (dygn). Hastigheterna
-    /// returneras i AU/dygn vid start och vid ankomst. Falskt när ingen bana
-    /// hittas – till exempel när lägena ligger rakt mitt emot varandra sett från
-    /// centrum, där banplanet inte går att bestämma.
+    /// Solves the orbit between two positions (AU) in a given time (days).
+    /// The velocities are returned in AU/day at departure and at arrival.
+    /// False when no orbit is found – for example when the two positions lie
+    /// directly opposite each other seen from the centre, where the orbital
+    /// plane can't be determined.
     /// </summary>
     public static bool Solve(Vec3 from, Vec3 to, double travelDays, double mu,
         out Vec3 departureVelocity, out Vec3 arrivalVelocity)
@@ -37,13 +39,14 @@ public static class Lambert
 
         double cosSweep = Math.Clamp(Vec3.Dot(from, to) / (r1 * r2), -1.0, 1.0);
         if (1.0 - cosSweep < 1e-12)
-            return false;                       // samma riktning: ingen bana
+            return false;                       // same direction: no orbit
 
         double sweep = Math.Acos(cosSweep);
 
-        // Alla sonder går prograd, alltså moturs sett norrifrån. I appens
-        // koordinater pekar Y norrut, så ett moturs varv har r1×r2 uppåt. Är den
-        // nedåt har färden svept mer än ett halvt varv – den "långa vägen".
+        // All probes travel prograde, i.e. counterclockwise seen from the
+        // north. In the app's coordinates, Y points north, so a
+        // counterclockwise lap has r1×r2 pointing up. If it points down, the
+        // trip has swept more than half a turn – the "long way round".
         if (Vec3.Cross(from, to).Y < 0)
             sweep = Math.PI * 2 - sweep;
 
@@ -51,20 +54,22 @@ public static class Lambert
         if (Math.Abs(a) < 1e-14)
             return false;
 
-        // Klämma in z. Restiden växer monotont med z: långt ned i det negativa
-        // ligger de snabba hyperblerna, vid noll parabeln, och uppåt allt
-        // långsammare ellipser, ända tills restiden går mot oändligheten vid
-        // ett helt varv.
+        // Pin down z. Travel time grows monotonically with z: far down in
+        // negative territory sit the fast hyperbolas, at zero the parabola,
+        // and upward increasingly slow ellipses, until travel time goes to
+        // infinity at a full lap.
         //
-        // Under en viss gräns finns ingen bana alls – kägelsnittet når helt
-        // enkelt inte fram, vilket y avslöjar genom att bli negativ. Restiden
-        // går mot noll när den gränsen närmas underifrån, så de omöjliga z:na
-        // räknas som "snabbare än allt annat". Då förblir sökningen monoton och
-        // intervallhalveringen kan inte fastna i det omöjliga området.
+        // Below a certain limit there's no orbit at all – the conic section
+        // simply doesn't reach, which y reveals by going negative. Travel
+        // time approaches zero as that limit is neared from below, so the
+        // impossible z values register as "faster than everything else".
+        // That keeps the search monotonic, and bisection can't get stuck in
+        // the impossible region.
         double lo = -4096.0, hi = 4.0 * Math.PI * Math.PI - 1e-9;
-        // 60 halveringar krymper intervallet från fyra tusen till långt under
-        // vad flyttalen kan skilja på; fler varv skulle bara kosta tid, och den
-        // här sökningen körs hundratals gånger när ett startfönster ska hittas.
+        // 60 bisections shrink the interval from four thousand down to well
+        // below what floating point can tell apart; more laps would only
+        // cost time, and this search runs hundreds of times when a launch
+        // window is being found.
         for (int k = 0; k < 60; k++)
         {
             double mid = 0.5 * (lo + hi);
@@ -78,32 +83,35 @@ public static class Lambert
         if (YOf(z, a, r1, r2) is not { } y || y <= 0)
             return false;
 
-        // Lagranges f och g: de knyter ihop de två lägena med hastigheterna.
+        // Lagrange's f and g: they tie the two positions together with the
+        // velocities.
         double f = 1.0 - y / r1;
         double g = a * Math.Sqrt(y / mu);
         double gDot = 1.0 - y / r2;
         if (Math.Abs(g) < 1e-14)
             return false;
 
-        // Subtraktionerna nedan tar bort nästan lika stora tal, och då spelar
-        // varje siffra roll: räknas de i float blir hastigheten så pass fel att
-        // en sond missar Jupiter med ett par planetradier efter två års färd.
-        // Därför lämnas de i dubbel precision hela vägen ut ur lösaren också –
-        // den som bygger banan ur dem behöver varje siffra.
+        // The subtractions below remove nearly equal numbers, and every
+        // digit matters there: computed in float, the velocity would be off
+        // enough that a probe misses Jupiter by a couple of planet radii
+        // after a two-year flight. So they're kept in double precision all
+        // the way out of the solver too – whatever builds the orbit from
+        // them needs every digit.
         departureVelocity = Combine(to, 1.0 / g, from, -f / g);
         arrivalVelocity = Combine(to, gDot / g, from, -1.0 / g);
         return true;
     }
 
-    /// <summary>Räknar ut u·a + v·b komponentvis.</summary>
+    /// <summary>Computes u·a + v·b component-wise.</summary>
     static Vec3 Combine(Vec3 a, double u, Vec3 b, double v) => new(
         a.X * u + b.X * v,
         a.Y * u + b.Y * v,
         a.Z * u + b.Z * v);
 
     /// <summary>
-    /// Hjälpstorheten y: hur långt kägelsnittet sträcker sig för ett givet z.
-    /// Negativ y betyder att banan inte når fram, och då finns ingen restid.
+    /// The helper quantity y: how far the conic section reaches for a given
+    /// z. A negative y means the orbit doesn't reach, in which case there is
+    /// no travel time.
     /// </summary>
     static double? YOf(double z, double a, double r1, double r2)
     {
@@ -115,7 +123,7 @@ public static class Lambert
         return y > 0 ? y : null;
     }
 
-    /// <summary>Restiden i dygn för ett givet z, eller null när banan inte når fram.</summary>
+    /// <summary>Travel time in days for a given z, or null when the orbit doesn't reach.</summary>
     static double? TimeOfFlight(double z, double a, double r1, double r2, double mu)
     {
         if (YOf(z, a, r1, r2) is not { } y)
@@ -125,10 +133,10 @@ public static class Lambert
         return (x * x * x * StumpffS(z) + a * Math.Sqrt(y)) / Math.Sqrt(mu);
     }
 
-    // Stumpffs funktioner C och S. De är samma serieutveckling hela vägen, men
-    // skrivs med cosinus och sinus för ellipser (z > 0), med hyperbolfunktioner
-    // för hyperbler (z < 0) och som serie nära noll, där båda formerna annars
-    // blir noll delat med noll.
+    // Stumpff's functions C and S. They're the same series expansion
+    // throughout, but written with cosine and sine for ellipses (z > 0),
+    // with hyperbolic functions for hyperbolas (z < 0), and as a series near
+    // zero, where both forms would otherwise be zero divided by zero.
     static double StumpffC(double z)
     {
         if (z > 1e-6)

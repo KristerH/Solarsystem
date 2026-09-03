@@ -1,22 +1,23 @@
-﻿using System.Numerics;
+using System.Numerics;
 
 namespace Solarsystem.Simulation;
 
 /// <summary>
-/// En himlakropp med keplerska banelement (epok J2000).
-/// Vinklar i grader: banlutning i, uppstigande nodens longitud Ω,
-/// perihelielongitud ϖ samt medellongitud L0 vid epoken.
+/// A celestial body with Keplerian orbital elements (epoch J2000).
+/// Angles in degrees: inclination i, ascending node longitude Ω,
+/// perihelion longitude ϖ, and mean longitude L0 at the epoch.
 /// </summary>
 /// <summary>
-/// Ett ringsystem kring en planet. Radierna anges i planetradier och planet
-/// tas direkt ur planetens rotationsaxel, så att ringarna hamnar i samma plan
-/// som månarna utan att lutningen behöver skrivas en gång till.
+/// A ring system around a planet. Radii are given in planet radii, and the
+/// plane is taken directly from the planet's rotation axis, so the rings
+/// end up in the same plane as the moons without the inclination needing to
+/// be written a second time.
 /// </summary>
 /// <param name="MinScreenRadius">
-/// Ringen ritas först när den når så här många pixlar på skärmen. Saturnus
-/// ringar syns med blotta ögat i ett litet teleskop och får därför ett lågt
-/// värde; de övriga tre är så svaga att de upptäcktes först med rymdsonder,
-/// och dyker därför upp först vid rejäl inzoomning.
+/// The ring is drawn only once it reaches this many pixels on screen.
+/// Saturn's rings are visible to the naked eye in a small telescope and so
+/// get a low value; the other three are so faint they were only discovered
+/// by space probes, and so only appear once zoomed in substantially.
 /// </param>
 public sealed record PlanetRing(
     float InnerRadii,
@@ -26,10 +27,11 @@ public sealed record PlanetRing(
     float MinScreenRadius);
 
 /// <param name="Key">
-/// Kroppens språkneutrala nyckel, till exempel <c>Earth</c> eller <c>Ganymede</c>.
-/// Det är inte ett namn att visa: namnet slås upp i resursfilerna, som har en rad
-/// per språk. Nyckeln används både som identitet i koden och som uppslagsord, och
-/// den är på engelska av samma skäl som all annan kod är det.
+/// The body's language-neutral key, e.g. <c>Earth</c> or <c>Ganymede</c>.
+/// It's not a name to display: the name is looked up in the resource files,
+/// which have one row per language. The key is used both as an identity in
+/// the code and as a lookup term, and it's in English for the same reason
+/// all other code is.
 /// </param>
 public sealed record CelestialBody(
     string Key,
@@ -44,71 +46,76 @@ public sealed record CelestialBody(
     double OrbitalPeriodDays)
 {
     /// <summary>
-    /// Månar som kretsar kring den här kroppen. Deras banelement är
-    /// planetcentriska – PositionAt ger då förskjutningen från planeten,
-    /// inte från solen.
+    /// Moons orbiting this body. Their orbital elements are planet-centric –
+    /// PositionAt then gives the offset from the planet, not from the Sun.
     /// </summary>
     public CelestialBody[] Moons { get; init; } = [];
 
     /// <summary>
-    /// Månens andel av systemets totala massa. Styr hur mycket moderkroppen
-    /// själv vaggar kring den gemensamma tyngdpunkten. Noll (standard) betyder
-    /// att moderkroppen står stilla, vilket räcker för alla lätta månar.
+    /// The moon's share of the system's total mass. Controls how much the
+    /// parent body itself wobbles around their common centre of mass. Zero
+    /// (the default) means the parent body stands still, which is enough for
+    /// every lightweight moon.
     /// </summary>
     public double MassFraction { get; init; }
 
-    /// <summary>Planetens ringsystem, eller null för kroppar utan ringar.</summary>
+    /// <summary>The planet's ring system, or null for bodies without rings.</summary>
     public PlanetRing? Ring { get; init; }
 
     /// <summary>
-    /// Kroppens rotationsaxel och rotationstid, eller null för kroppar där det
-    /// inte spelar någon roll. Månar och ringar i ekvatorsplanet läser sitt
-    /// banplan härifrån, så samma två tal beskriver både polen och deras banor.
+    /// The body's rotation axis and rotation period, or null for bodies
+    /// where it doesn't matter. Moons and rings in the equatorial plane read
+    /// their orbital plane from here, so the same two numbers describe both
+    /// the pole and their orbits.
     /// </summary>
     public BodyAxis? Axis { get; init; }
 
     /// <summary>
-    /// Ytkarta, för de kroppar som ritas som glob när man zoomat in nog. Null
-    /// betyder att kroppen ritas som en skiva med ljus och skugga – antingen för
-    /// att den är för liten för att synas, eller för att det inte finns någon yta
-    /// att visa (Venus moln, Titans dis).
+    /// Surface map, for the bodies drawn as a globe once zoomed in enough.
+    /// Null means the body is drawn as a shaded disc – either because it's
+    /// too small to matter, or because there's no surface to show (Venus's
+    /// clouds, Titan's haze).
     /// </summary>
     public SurfaceMap? Surface { get; init; }
 
     /// <summary>
-    /// Hur fort banans uppstigande nod vandrar, i grader per dygn. Negativt
-    /// betyder baklänges, vilket är det vanliga.
+    /// How fast the orbit's ascending node drifts, in degrees per day.
+    /// Negative means backward, which is the usual case.
     ///
-    /// Ett banplan ligger inte stilla. Månens nod går ett helt varv baklänges på
-    /// 18,6 år, och det är den rörelsen som gör att förmörkelsesäsongerna glider
-    /// nitton dygn bakåt varje år i stället för att infalla på samma datum. Med
-    /// noden fastlåst blir den saken omöjlig att visa.
+    /// An orbital plane doesn't sit still. The Moon's node completes a full
+    /// backward turn in 18.6 years, and it's that motion that makes eclipse
+    /// seasons drift nineteen days earlier each year instead of falling on
+    /// the same date. With the node locked in place, that would be
+    /// impossible to show.
     ///
-    /// Noll för allt som inte har någon känd eller märkbar precession.
+    /// Zero for everything with no known or noticeable precession.
     /// </summary>
     public double AscNodeRateDegPerDay { get; init; }
 
     /// <summary>
-    /// Hur fort periheliet vandrar, i grader per dygn. Positivt betyder framåt.
+    /// How fast perihelion drifts, in degrees per day. Positive means
+    /// forward.
     ///
-    /// Hör ihop med noden och måste sättas tillsammans med den. Skälet är att
-    /// medelanomalin räknas som medellongitud minus perihelielongitud: låter man
-    /// periheliet stå stilla medan noden rör sig, får banan rätt plan men fel
-    /// läge i planet. Månens perigeum går ett varv framåt på 8,85 år, och den
-    /// rörelsen är dessutom det som skiljer det anomalistiska månvarvet (27,55
-    /// dygn) från det sideriska (27,32).
+    /// Tied to the node and must be set together with it. The reason is
+    /// that the mean anomaly is computed as mean longitude minus perihelion
+    /// longitude: letting perihelion stand still while the node moves gives
+    /// the orbit the right plane but the wrong position within it. The
+    /// Moon's perigee advances a full turn in 8.85 years, and that motion is
+    /// also what separates the anomalistic lunar month (27.55 days) from the
+    /// sidereal one (27.32).
     /// </summary>
     public double PerihelionRateDegPerDay { get; init; }
 
     /// <summary>
-    /// Kroppens gravitationsparameter G·M i AU³/dygn² – måttet på hur hårt den
-    /// drar i det som kretsar kring den. Ur den följer omloppstiderna: ett varv
-    /// på halva storaxeln a tar 2π·√(a³/µ). Behövs bara för de kroppar som
-    /// något faktiskt kretsar kring i appen, och är noll för de övriga.
+    /// The body's gravitational parameter G·M in AU³/day² – the measure of
+    /// how hard it pulls on whatever orbits it. Orbital periods follow from
+    /// it: one lap at semi-major axis a takes 2π·√(a³/µ). Only needed for
+    /// the bodies something actually orbits in the app, and zero for the
+    /// rest.
     /// </summary>
     public double Mu { get; init; }
 
-    /// <summary>Position i världskoordinater (Y = norr om ekliptikan) vid given tid.</summary>
+    /// <summary>Position in world coordinates (Y = north of the ecliptic) at a given time.</summary>
     public Vector3 PositionAt(double daysSinceJ2000, float unitsPerAu)
     {
         var p = PositionAuAt(daysSinceJ2000);
@@ -117,42 +124,44 @@ public sealed record CelestialBody(
     }
 
     /// <summary>
-    /// Samma läge i AU, men utan att gå ned till enkel precision.
+    /// The same position in AU, but without dropping to single precision.
     ///
-    /// Ritningen behöver inte det, men banbyggandet gör det: en bana som ska
-    /// räknas fram ur ett läge och en hastighet tappar annars siffror redan
-    /// innan räkningen börjar. Se <see cref="Vec3"/> för varför det slår så hårt
-    /// just där.
+    /// Rendering doesn't need this, but building an orbit does: an orbit
+    /// computed from a position and a velocity otherwise loses digits before
+    /// the computation even starts. See <see cref="Vec3"/> for why that hits
+    /// so hard right there.
     /// </summary>
     public Vec3 PositionAuAt(double daysSinceJ2000)
     {
         double meanMotion = 360.0 / OrbitalPeriodDays;
-        // Medelanomalin räknas mot det vandrande periheliet. Att dra bort dess
-        // rörelse här är också det som gör att medellongituden ändå går sitt
-        // sideriska varv – de två effekterna tar ut varandra, precis som de gör
-        // i verkligheten.
+        // The mean anomaly is measured against the drifting perihelion.
+        // Subtracting its motion here is also what makes the mean longitude
+        // still complete its sidereal lap – the two effects cancel out, just
+        // as they do in reality.
         double mDeg = MeanLonJ2000Deg + meanMotion * daysSinceJ2000
                       - PerihelionAt(daysSinceJ2000);
-        // Vik ned till ett varv innan omvandlingen till radianer. Snabba månar
-        // (Phobos hinner tre varv per dygn) ger annars miljontals grader, vilket
-        // tär på flyttalsprecisionen. Banpositionen är oförändrad.
+        // Wrapped down to one turn before converting to radians. Fast moons
+        // (Phobos manages three laps a day) would otherwise produce millions
+        // of degrees, which eats into floating-point precision. The orbital
+        // position is unchanged.
         double M = DegToRad(mDeg % 360.0);
         double E = SolveKepler(M, Eccentricity);
         return ToWorldAu(E, daysSinceJ2000);
     }
 
-    /// <summary>Uppstigande nodens longitud vid given tid.</summary>
+    /// <summary>The ascending node's longitude at a given time.</summary>
     public double AscNodeAt(double daysSinceJ2000)
         => AscNodeDeg + AscNodeRateDegPerDay * daysSinceJ2000;
 
-    /// <summary>Perihelielongituden vid given tid.</summary>
+    /// <summary>The perihelion longitude at a given time.</summary>
     public double PerihelionAt(double daysSinceJ2000)
         => PerihelionLonDeg + PerihelionRateDegPerDay * daysSinceJ2000;
 
-    /// <summary>Hela banellipsen som punktlista (sluten kurva, jämnt samplad i excentrisk anomali).</summary>
+    /// <summary>The whole orbital ellipse as a list of points (closed curve, evenly sampled in eccentric anomaly).</summary>
     /// <param name="daysSinceJ2000">
-    /// Vilken dag banan ska ritas för. Spelar roll bara för kroppar vars plan
-    /// vrider sig; för de övriga ser banan likadan ut i alla tider.
+    /// Which day the orbit should be drawn for. Only matters for bodies
+    /// whose plane rotates; for the rest the orbit looks the same at every
+    /// time.
     /// </param>
     public Vector3[] OrbitPath(int samples, float unitsPerAu, double daysSinceJ2000 = 0)
     {
@@ -169,30 +178,30 @@ public sealed record CelestialBody(
     Vec3 ToWorldAu(double E, double daysSinceJ2000)
     {
         double e = Eccentricity;
-        // Position i banplanet (fokus = solen).
+        // Position in the orbital plane (focus = Sun).
         double xv = SemiMajorAu * (Math.Cos(E) - e);
         double yv = SemiMajorAu * Math.Sqrt(1.0 - e * e) * Math.Sin(E);
 
         double node = AscNodeAt(daysSinceJ2000);
-        double w = DegToRad(PerihelionAt(daysSinceJ2000) - node); // periheliets argument
+        double w = DegToRad(PerihelionAt(daysSinceJ2000) - node); // argument of perihelion
         double O = DegToRad(node);
         double i = DegToRad(InclinationDeg);
         double cw = Math.Cos(w), sw = Math.Sin(w);
         double cO = Math.Cos(O), sO = Math.Sin(O);
         double ci = Math.Cos(i), si = Math.Sin(i);
 
-        // Rotation banplan -> ekliptiska koordinater.
+        // Rotation orbital plane -> ecliptic coordinates.
         double x = (cw * cO - sw * sO * ci) * xv + (-sw * cO - cw * sO * ci) * yv;
         double y = (cw * sO + sw * cO * ci) * xv + (-sw * sO + cw * cO * ci) * yv;
         double z = (sw * si) * xv + (cw * si) * yv;
 
-        // Ekliptikans plan läggs horisontellt; norr (+z) pekar uppåt (+Y).
+        // The ecliptic's plane is laid horizontal; north (+z) points up (+Y).
         return new Vec3(x, z, -y);
     }
 
     static double SolveKepler(double M, double e)
     {
-        // Newton-Raphson på Keplers ekvation E - e·sin E = M.
+        // Newton-Raphson on Kepler's equation E - e·sin E = M.
         double E = M;
         for (int k = 0; k < 12; k++)
             E -= (E - e * Math.Sin(E) - M) / (1.0 - e * Math.Cos(E));
@@ -207,177 +216,192 @@ public static class SolarSystemData
     public const double AuKm = 149_597_870.7;
 
     /// <summary>
-    /// Solens gravitationsparameter G·M i AU³/dygn². Att jordens bana med
-    /// a = 1 AU tar 365,26 dygn är just detta tal skrivet baklänges.
+    /// The Sun's gravitational parameter G·M in AU³/day². That Earth's orbit
+    /// with a = 1 AU takes 365.26 days is exactly this number written
+    /// backward.
     /// </summary>
     public const double SunMu = 2.959122082855911e-4;
 
     /// <summary>
-    /// Jordens och månens gemensamma gravitationsparameter, 403 503 km³/s²
-    /// omräknat till AU och dygn. Solens är 330 000 gånger större – därför tar
-    /// månens varv kring jorden 27 dygn medan jordens varv kring solen tar ett år,
-    /// trots att avstånden skiljer nästan 400 gånger.
+    /// Earth and the Moon's combined gravitational parameter, 403,503 km³/s²
+    /// converted to AU and days. The Sun's is 330,000 times larger – which
+    /// is why the Moon's lap around Earth takes 27 days while Earth's lap
+    /// around the Sun takes a year, even though the distances differ by
+    /// nearly 400 times.
     /// </summary>
     public const double EarthMu = 8.9971e-10;
 
     /// <summary>
-    /// Jupiters gravitationsparameter (126 687 000 km³/s²), för sonder som
-    /// kretsar kring planeten. Att den stämmer syns på månarna: talet ger Io ett
-    /// varv på 1,770 dygn, mot uppmätta 1,769.
+    /// Jupiter's gravitational parameter (126,687,000 km³/s²), for probes
+    /// orbiting the planet. That it's accurate shows up in the moons: the
+    /// number gives Io a lap of 1.770 days, against a measured 1.769.
     /// </summary>
     public const double JupiterMu = 2.8248e-7;
 
     /// <summary>
-    /// Saturnus gravitationsparameter (37 931 000 km³/s²). Ger Titan ett varv på
-    /// 15,95 dygn, vilket är precis dess uppmätta omloppstid.
+    /// Saturn's gravitational parameter (37,931,000 km³/s²). Gives Titan a
+    /// lap of 15.95 days, exactly its measured orbital period.
     /// </summary>
     public const double SaturnMu = 8.4573e-8;
 
     public const double SunRadiusKm = 696_340.0;
     public static readonly DateTime EpochJ2000 = new(2000, 1, 1, 12, 0, 0, DateTimeKind.Utc);
 
-    // ---------------------------------------------------------- rotationsaxlar
+    // ---------------------------------------------------------- rotation axes
     //
-    // Axlarna är räknade ur IAU:s polriktningar (rektascension och deklination
-    // för nordpolen, plus nollmeridianens läge W0) och omräknade till ekliptiska
-    // koordinater. Nordpolen följer högerhandsregeln, så lutningar över 90 grader
-    // betyder retrograd rotation – se BodyAxis för varför konventionen ser ut så.
+    // The axes are computed from the IAU's pole directions (right ascension
+    // and declination of the north pole, plus the prime meridian's position
+    // W0) and converted to ecliptic coordinates. The north pole follows the
+    // right-hand rule, so inclinations above 90 degrees mean retrograde
+    // rotation – see BodyAxis for why the convention looks that way.
     //
-    // Att talen stämmer går att pröva mot annat än sig självt: Merkurius axel
-    // hamnar 7,0 grader från ekliptikan med noden 48,2, vilket är dess egen
-    // banlutning och bannod på pricken – planeten står alltså rakt upp i sin
-    // egen bana, precis som uppmätt. Jordens data ger subsolär punkt 0,8 grader
-    // öster om Greenwich vid J2000,0 (middag i Greenwich den 1 januari 2000,
-    // tidsekvationen inräknad) och deklination -23,0 grader, alltså mitt i vintern.
+    // That the numbers check out can be tested against more than
+    // themselves: Mercury's axis lands 7.0 degrees from the ecliptic with
+    // node 48.2, matching its own orbital inclination and node exactly – the
+    // planet stands bolt upright relative to its own orbit, exactly as
+    // measured. Earth's data gives a sub-solar point 0.8 degrees east of
+    // Greenwich at J2000.0 (noon in Greenwich on 1 January 2000, the
+    // equation of time included) and a declination of -23.0 degrees, i.e.
+    // the middle of winter.
 
     /// <summary>
-    /// Solens egen rotation. Att den har en är inte självklart – Galilei visade
-    /// det 1613 genom att följa solfläckar över skivan, och det var samma
-    /// observation som avslöjade att fläckarna sitter på solen och inte är små
-    /// kroppar som passerar framför.
+    /// The Sun's own rotation. That it has one isn't obvious – Galileo showed
+    /// it in 1613 by following sunspots across the disc, and it was the same
+    /// observation that revealed the spots sit on the Sun and aren't small
+    /// bodies passing in front of it.
     ///
-    /// Ekvatorn lutar 7,25 grader mot ekliptikan. Följden går att se i appen:
-    /// vi ser mer av solens nordpol i september och mer av sydpolen i mars.
+    /// The equator tilts 7.25 degrees to the ecliptic. The consequence can
+    /// be seen in the app: we see more of the Sun's north pole in September
+    /// and more of the south pole in March.
     ///
-    /// Rotationstiden 25,03 dygn gäller <b>vid ekvatorn</b> och är mätt på
-    /// solfläckar, alltså på just det som ritas. Talet är sideriskt – ett varv
-    /// mot stjärnorna. Sett från jorden, som själv hinner en bit i sin bana
-    /// under tiden, tar samma varv knappt 27 dygn, och det är den siffran
-    /// solfläcksobservatörer alltid citerat.
+    /// The rotation period of 25.03 days applies <b>at the equator</b> and
+    /// is measured on sunspots, i.e. on exactly what's drawn. The number is
+    /// sidereal – one turn against the stars. Seen from Earth, which itself
+    /// moves a bit along its orbit in the meantime, the same lap takes just
+    /// under 27 days, and that's the figure sunspot observers have always
+    /// quoted.
     ///
-    /// Nollmeridianen är Carringtons, och det är en ren överenskommelse: solen
-    /// har inga bestående drag att räkna från. Det finns ingen krater och ingen
-    /// kust – bara gas som byts ut.
+    /// The prime meridian is Carrington's, and that's a pure convention: the
+    /// Sun has no lasting features to measure from. There's no crater and no
+    /// coastline – just gas being replaced.
     /// </summary>
     public static readonly BodyAxis SunAxis = new(7.252, 75.77, 25.03, 23.075)
     {
-        // Solen roterar långsammare ju längre från ekvatorn man kommer. Det är
-        // det enda stället i appen där talet inte är noll, och det som gör det
-        // intressant är vad det bevisar: en fast kropp kan inte göra så. Solen
-        // är gas rakt igenom.
+        // The Sun rotates more slowly the farther from the equator you get.
+        // It's the only place in the app where this number isn't zero, and
+        // what makes it interesting is what it proves: a solid body can't do
+        // that. The Sun is gas all the way through.
         //
-        // Talet är Newton och Nunns mätning på solfläckar från 1951,
-        // ω(φ) = 14,38 − 2,96·sin²φ grader per dygn. Vid ekvatorn ger den 25,0
-        // dygn, vid 30 graders bredd 26,4.
+        // The number is Newton and Nunn's 1951 sunspot measurement,
+        // ω(φ) = 14.38 − 2.96·sin²φ degrees per day. At the equator it gives
+        // 25.0 days, at 30 degrees latitude 26.4.
         //
-        // **Förbehåll:** lagen är mätt på fläckar och gäller därför bara där
-        // fläckar finns, alltså inom ±35 grader. Sträcker man ut den till polen
-        // ger den 31,5 dygn mot uppmätta 34. Skillnaden spelar ingen roll här,
-        // eftersom det bara är fläckar som ritas – men den vore fel att dölja.
+        // **Caveat:** the law is measured on spots and so only applies where
+        // spots occur, i.e. within ±35 degrees. Stretched to the pole it
+        // gives 31.5 days against a measured 34. The difference doesn't
+        // matter here, since only spots are drawn – but it would be wrong to
+        // hide it.
         DifferentialDegPerDay = -2.96,
     };
 
     /// <summary>
-    /// Merkurius: 58,6 dygn, exakt två tredjedelar av dess år – en 3:2-resonans
-    /// med solen. Lutningen mot den egna banan är bara 0,03 grader, den minsta i
-    /// solsystemet; att talet nedan ändå är 7,0 beror på att banan själv lutar 7,0.
+    /// Mercury: 58.6 days, exactly two-thirds of its year – a 3:2 resonance
+    /// with the Sun. Its tilt relative to its own orbit is only 0.03
+    /// degrees, the smallest in the Solar System; the number below still
+    /// comes out at 7.0 because the orbit itself tilts 7.0.
     /// </summary>
     public static readonly BodyAxis MercuryAxis = new(7.037, 48.24, 58.6461459, 291.274);
 
     /// <summary>
-    /// Venus roterar baklänges: polen pekar nästan rakt söderut om ekliptikan
-    /// (178,8 grader). Ett varv tar 243 dygn, längre än dess år på 225 – dygnet
-    /// är alltså längre än året. Varför den vänts upp och ner vet ingen säkert.
+    /// Venus rotates backwards: the pole points almost due south of the
+    /// ecliptic (178.8 degrees). One turn takes 243 days, longer than its
+    /// 225-day year – the day is therefore longer than the year. Why it
+    /// ended up flipped upside down, nobody knows for certain.
     /// </summary>
     public static readonly BodyAxis VenusAxis = new(178.761, 300.19, 243.0184840, 137.449);
 
     /// <summary>
-    /// Jorden: 23,44 graders lutning – hela förklaringen till årstiderna – och
-    /// ett varv per stjärndygn, 23 h 56 min 4,1 s. Det är fyra minuter kortare än
-    /// ett soldygn, eftersom jorden hinner flytta sig ett stycke i sin bana under
-    /// tiden. Nollmeridianen är hämtad ur samma uttryck för stjärntiden som
-    /// stjärnhimlen använder, så himlen och jordklotet vrider sig i takt.
+    /// Earth: a 23.44-degree tilt – the whole explanation for the seasons –
+    /// and one turn per sidereal day, 23h 56m 4.1s. That's four minutes
+    /// shorter than a solar day, because Earth manages to move a bit along
+    /// its orbit in the meantime. The prime meridian is taken from the same
+    /// sidereal-time expression the night sky uses, so the sky and the
+    /// globe turn in step.
     /// </summary>
     public static readonly BodyAxis EarthAxis = new(23.4392911, 180.0, 0.9972695663290739, 100.46061837);
 
     /// <summary>
-    /// Månen är bunden: ett varv kring axeln på exakt en omloppsbana, därför samma
-    /// sida vänd mot oss. Axeln lutar bara 1,5 grader mot ekliptikan men 6,7 grader
-    /// mot månens egen bana, och den pekar alltid åt motsatt håll mot banpolen
-    /// (Cassinis andra lag). Att banan är elliptisk gör att månen ändå vaggar
-    /// sex grader fram och tillbaka i longitud – den libration som visar oss lite
-    /// mer än halva månen.
+    /// The Moon is tidally locked: one turn on its axis per orbit, hence the
+    /// same side always facing us. The axis tilts only 1.5 degrees to the
+    /// ecliptic but 6.7 degrees to the Moon's own orbit, and it always
+    /// points the opposite way from the orbital pole (Cassini's second law).
+    /// The orbit being elliptical still makes the Moon wobble six degrees
+    /// back and forth in longitude – the libration that shows us a bit more
+    /// than half the Moon.
     /// </summary>
     public static readonly BodyAxis MoonAxis = new(1.5424, 305.045, 27.32166, 93.293);
 
-    /// <summary>Mars dygn är nästan jordens: 24 h 37 min. Lutningen 25,4 grader ger den årstider.</summary>
+    /// <summary>Mars's day is nearly Earth's: 24h 37m. The 25.4-degree tilt gives it seasons.</summary>
     public static readonly BodyAxis MarsAxis = new(25.404, 84.84, 1.0259568, 133.120);
 
     /// <summary>
-    /// Jupiter snurrar fortast av alla: 9 h 55 min, trots att den är störst.
-    /// Axeln står nästan rakt upp (2,2 grader), så Jupiter saknar årstider.
+    /// Jupiter spins fastest of all: 9h 55m, despite being the largest. The
+    /// axis stands nearly upright (2.2 degrees), so Jupiter has no seasons.
     /// </summary>
     public static readonly BodyAxis JupiterAxis = new(2.217, 337.82, 0.4135383, 305.363);
 
-    /// <summary>Saturnus: 10 h 39 min och 28,1 graders lutning – det är den lutningen ringarna visar upp.</summary>
+    /// <summary>Saturn: 10h 39m and a 28.1-degree tilt – that tilt is what the rings show off.</summary>
     public static readonly BodyAxis SaturnAxis = new(28.052, 169.53, 0.4440093, 358.934);
 
     /// <summary>
-    /// Uranus ligger på sidan och rullar: 97,7 grader betyder att axeln nästan
-    /// ligger i banplanet och att rotationen är retrograd. Under dess 84 år långa
-    /// varv pekar än den ena, än den andra polen mot solen, med fyrtio års dag och
-    /// fyrtio års natt.
+    /// Uranus lies on its side and rolls: 97.7 degrees means the axis lies
+    /// almost in the orbital plane and the rotation is retrograde. Over its
+    /// 84-year orbit, first one pole then the other points at the Sun, with
+    /// forty years of day and forty years of night.
     /// </summary>
     public static readonly BodyAxis UranusAxis = new(97.722, 167.65, 0.7183333, 331.131);
 
-    /// <summary>Neptunus: 16 h 06 min och 28,0 graders lutning, nästan samma som Saturnus.</summary>
+    /// <summary>Neptune: 16h 06m and a 28.0-degree tilt, almost the same as Saturn.</summary>
     public static readonly BodyAxis NeptuneAxis = new(28.026, 49.24, 0.6712500, 228.657);
 
     /// <summary>
-    /// Pluto roterar baklänges (lutning 112,8 grader) och är bunden till Charon:
-    /// 6,387 dygn är både Plutos dygn och Charons omloppstid. De två vänder alltså
-    /// ständigt samma sida mot varandra – det enda paret i solsystemet som gör så.
+    /// Pluto rotates backwards (inclination 112.8 degrees) and is tidally
+    /// locked to Charon: 6.387 days is both Pluto's day and Charon's orbital
+    /// period. The two therefore constantly show the same face to each
+    /// other – the only pair in the Solar System that does.
     /// </summary>
     public static readonly BodyAxis PlutoAxis = new(112.816, 227.35, 6.3872230, 319.809);
 
     /// <summary>
-    /// Månen med geocentriska medelbanelement (J2000): banan beräknas kring
-    /// jorden i stället för kring solen, med samma Kepler-matematik.
-    /// Ett varv tar 27,3 dygn (siderisk månad).
+    /// The Moon with geocentric mean orbital elements (J2000): the orbit is
+    /// computed around Earth instead of the Sun, with the same Kepler math.
+    /// One lap takes 27.3 days (a sidereal month).
     /// </summary>
     public static readonly CelestialBody Moon = new(
         "Moon", Color.FromArgb("#BEBEB6"), 1_737.4,
-        0.0025696 /* = 384 399 km */, 0.0549, 5.145, 125.045, 83.353, 218.316, 27.32166)
+        0.0025696 /* = 384,399 km */, 0.0549, 5.145, 125.045, 83.353, 218.316, 27.32166)
     {
         Axis = MoonAxis,
         Surface = SurfaceMap.Moon,
-        // Noden ett varv baklänges på 18,6 år, perigeum ett varv framåt på 8,85.
-        // De två talen är de äldsta i hela appen: babylonierna hade nodcykeln
-        // redan på 500-talet f.Kr. och kunde förutsäga förmörkelser med den.
+        // The node completes a backward turn in 18.6 years, perigee a
+        // forward turn in 8.85. The two numbers are the oldest in the whole
+        // app: the Babylonians knew the node cycle as early as the 6th
+        // century BC and could predict eclipses with it.
         AscNodeRateDegPerDay = -0.0529539,
         PerihelionRateDegPerDay = 0.1114041,
     };
 
-    // Mars två små, oregelbundna månar – troligen infångade asteroider. De
-    // kretsar mycket nära Mars: Phobos på bara 2,8 marsradier (jämför Månens
-    // 60 jordradier). Banorna ligger i Mars ekvatorsplan, som lutar 25,4° mot
-    // ekliptikan – det är därför banlutningen inte är nära noll. Planet läses ur
-    // MarsAxis, så det står bara på ett ställe.
-    // Not: faslägena (medellongituderna) är approximativa. Med omloppstider på
-    // timmar hinner även ett mycket litet periodfel bli hela varv över de
-    // årtionden appen kan simulera, så månarnas exakta placering i banan vid
-    // ett givet datum går ändå inte att lita på. Avstånd, storlekar, banplan
-    // och omloppstider är däremot verkliga.
+    // Mars's two small, irregular moons – probably captured asteroids. They
+    // orbit very close to Mars: Phobos at just 2.8 Mars radii (compare the
+    // Moon's 60 Earth radii). Their orbits lie in Mars's equatorial plane,
+    // which tilts 25.4° to the ecliptic – that's why the orbital
+    // inclination isn't near zero. The plane is read from MarsAxis, so it's
+    // written in only one place.
+    // Note: the phase angles (mean longitudes) are approximate. With
+    // orbital periods of hours, even a very small period error accumulates
+    // into whole laps over the decades the app can simulate, so the moons'
+    // exact position in orbit on a given date still can't be trusted.
+    // Distance, size, orbital plane and period are real, though.
     public static readonly CelestialBody Phobos = new(
         "Phobos", Color.FromArgb("#A89684"), 11.267,
         9_376.0 / AuKm, 0.0151, MarsAxis.InclinationDeg, MarsAxis.NodeDeg,
@@ -388,22 +412,25 @@ public static class SolarSystemData
         23_463.2 / AuKm, 0.00033, MarsAxis.InclinationDeg, MarsAxis.NodeDeg,
         0.0, 180.0, 1.2624407);
 
-    // Jupiters fyra stora månar, de som Galilei såg 1610 och som avslöjade att
-    // allt inte kretsar kring jorden. Banorna ligger i Jupiters ekvatorsplan,
-    // som bara lutar 2,2° mot ekliptikan (Jupiter står nästan rakt upp).
+    // Jupiter's four large moons, the ones Galileo saw in 1610 and that
+    // revealed not everything orbits Earth. Their orbits lie in Jupiter's
+    // equatorial plane, which tilts only 2.2° to the ecliptic (Jupiter
+    // stands nearly upright).
     //
-    // Faslägena är valda så att Laplace-resonansen gäller:
-    //     medellongitud(Io) - 3*medellongitud(Europa) + 2*medellongitud(Ganymedes) = 180°
-    // Eftersom omloppstiderna redan uppfyller resonansen i medelrörelse hålls
-    // villkoret över tid. Följden är att de tre inre månarna aldrig kan stå på
-    // linje samtidigt – när Io och Europa möts står Ganymedes alltid 90° bort.
-    // De fyra galileiska månarna och Titan är bundna: ett varv kring axeln per
-    // varv i banan, så samma sida är alltid vänd mot planeten. Axeln står
-    // vinkelrätt mot banplanet, alltså samma lutning och nod som banan, och
-    // rotationstiden är banans egen. Nollmeridianerna är uträknade så att
-    // longitud noll pekar mot planeten vid epoken, med månens MEDELläge som
-    // ankare – tas det verkliga läget hamnar nollan i ett librationsytterläge
-    // och vaggningen blir osymmetrisk.
+    // The phase angles are chosen so the Laplace resonance holds:
+    //     meanLongitude(Io) - 3*meanLongitude(Europa) + 2*meanLongitude(Ganymede) = 180°
+    // Since the orbital periods already satisfy the resonance in mean
+    // motion, the condition holds over time. The consequence is that the
+    // three inner moons can never line up at once – whenever Io and Europa
+    // meet, Ganymede is always 90° away. The four Galilean moons and Titan
+    // are tidally locked: one turn on the axis per orbit, so the same side
+    // always faces the planet. The axis stands perpendicular to the
+    // orbital plane, i.e. the same inclination and node as the orbit, and
+    // the rotation period is the orbit's own. The prime meridians are
+    // computed so longitude zero points at the planet at the epoch, using
+    // the moon's MEAN position as the anchor – using the true position
+    // instead would land the zero at a libration extreme and make the
+    // wobble asymmetric.
 
     public static readonly CelestialBody Io = new(
         "Io", Color.FromArgb("#E0C96A"), 1_821.6,
@@ -441,23 +468,25 @@ public static class SolarSystemData
         Surface = SurfaceMap.Callisto,
     };
 
-    // Charon, Plutos stora följeslagare. Med halva Plutos diameter och en
-    // åttondel av dess massa är paret nästan en dubbelplanet: systemets
-    // gemensamma tyngdpunkt ligger 2 126 km från Plutos centrum, alltså
-    // utanför Pluto självt (som har radien 1 188 km). Därför vaggar Pluto
-    // synligt kring tyngdpunkten i stället för att stå stilla.
+    // Charon, Pluto's large companion. With half Pluto's diameter and an
+    // eighth of its mass, the pair is nearly a double planet: their common
+    // centre of mass sits 2,126 km from Pluto's centre, i.e. outside Pluto
+    // itself (which has a radius of 1,188 km). Pluto therefore visibly
+    // wobbles around that centre instead of standing still.
     //
-    // Banan ligger i Plutos ekvatorsplan. Eftersom Pluto roterar retrograd
-    // lutar det planet mer än 90 grader mot ekliptikan – Charon går alltså
-    // "baklänges" jämfört med de flesta månar. De två är dessutom helt
-    // tidvattenlåsta: de vänder ständigt samma sida mot varandra.
+    // The orbit lies in Pluto's equatorial plane. Since Pluto rotates
+    // retrograde, that plane tilts more than 90 degrees to the ecliptic –
+    // Charon therefore travels "backwards" compared to most moons. The two
+    // are also fully tidally locked: they constantly show the same face to
+    // each other.
     //
-    // Medellongituden är inte hämtad ur en efemerid utan satt så att Charon
-    // hamnar över Plutos nollmeridian, vilket är just vad tidvattenlåsningen
-    // innebär – IAU definierar Plutos nollmeridian som den som pekar mot Charon.
-    // Följden är att Sputnik Planitia, som ligger kring 175 grader öst, vänder
-    // sig bort från Charon. Så ser det verkligen ut, och det är förmodligen
-    // ingen slump: slätten är tung nog att ha vridit hela Pluto på plats.
+    // The mean longitude isn't taken from an ephemeris but set so Charon
+    // sits above Pluto's prime meridian, which is exactly what tidal
+    // locking means – the IAU defines Pluto's prime meridian as the one
+    // pointing at Charon. The consequence is that Sputnik Planitia, which
+    // sits around 175 degrees east, faces away from Charon. That's really
+    // how it looks, and it's probably no coincidence: the plain is heavy
+    // enough to have rotated the whole of Pluto into place.
     public static readonly CelestialBody Charon = new(
         "Charon", Color.FromArgb("#9A9188"), 606.0,
         19_591.4 / AuKm, 0.0002, PlutoAxis.InclinationDeg, PlutoAxis.NodeDeg,
@@ -466,11 +495,12 @@ public static class SolarSystemData
         MassFraction = 0.1085,
     };
 
-    // Saturnus tre mest kända månar. Banorna ligger i Saturnus ekvatorsplan,
-    // samma plan som ringarna lutar i (28,0 grader mot ekliptikan).
-    // Enceladus är solsystemets ljusaste kropp – en isvit måne med gejsrar som
-    // sprutar vatten från ett hav under isen. Titan är större än Merkurius och
-    // den enda månen med tät atmosfär, med sjöar av flytande metan.
+    // Saturn's three best-known moons. Their orbits lie in Saturn's
+    // equatorial plane, the same plane the rings tilt in (28.0 degrees to
+    // the ecliptic). Enceladus is the brightest body in the Solar System –
+    // an ice-white moon with geysers spraying water from an ocean under the
+    // ice. Titan is larger than Mercury and the only moon with a thick
+    // atmosphere, with lakes of liquid methane.
     public static readonly CelestialBody Enceladus = new(
         "Enceladus", Color.FromArgb("#F0F4F5"), 252.1,
         237_948.0 / AuKm, 0.0047, SaturnAxis.InclinationDeg, SaturnAxis.NodeDeg,
@@ -486,18 +516,21 @@ public static class SolarSystemData
         1_221_870.0 / AuKm, 0.0288, SaturnAxis.InclinationDeg, SaturnAxis.NodeDeg,
         0.0, 240.0, 15.945421)
     {
-        // Titan får ingen ytkarta, och det är svaret på uppgiften snarare än en
-        // lucka: dimman är ogenomskinlig och ingen yta syns. Månen ritas som en
-        // jämnt orange skiva med ljus och skugga, precis som Venus. Axeln finns
-        // ändå med, eftersom bundenheten är sann oavsett om den syns.
+        // Titan gets no surface map, and that's the answer to the puzzle
+        // rather than a gap: the haze is opaque and no surface is visible.
+        // The moon is drawn as an evenly lit and shaded orange disc, just
+        // like Venus. The axis is still included, since the tidal lock is
+        // true whether or not it's visible.
         Axis = new BodyAxis(SaturnAxis.InclinationDeg, SaturnAxis.NodeDeg, 15.945421, 250.470),
     };
 
-    // Uranus månar, uppkallade efter figurer hos Shakespeare och Pope. Eftersom
-    // Uranus ligger på sidan står hela månsystemet nästan på högkant mot
-    // ekliptikan: lutningen de läser ur UranusAxis är 97,7 grader, alltså över 90.
-    // Uranus roterar retrograd och månarna följer sin planets rotation. Samma plan
-    // med lutningen 82,3 grader hade gett rätt plan men fel färdriktning.
+    // Uranus's moons, named after characters from Shakespeare and Pope.
+    // Since Uranus lies on its side, the whole moon system stands nearly on
+    // edge relative to the ecliptic: the inclination read from UranusAxis
+    // is 97.7 degrees, i.e. above 90. Uranus rotates retrograde and the
+    // moons follow their planet's rotation. The same plane with an
+    // inclination of 82.3 degrees would have given the right plane but the
+    // wrong direction of travel.
 
     public static readonly CelestialBody Miranda = new(
         "Miranda", Color.FromArgb("#A8A5A0"), 235.8,
@@ -514,35 +547,38 @@ public static class SolarSystemData
         583_520.0 / AuKm, 0.0014, UranusAxis.InclinationDeg, UranusAxis.NodeDeg,
         0.0, 260.0, 13.463234);
 
-    // Triton är solsystemets stora undantag: den kretsar RETROGRAD, alltså åt
-    // motsatt håll mot Neptunus rotation och mot allt annat i den här appen.
-    // En måne som bildats tillsammans med sin planet kan inte göra så – Triton
-    // är därför med all sannolikhet en infångad dvärgplanet från Kuiperbältet.
-    // Banlutningen över 90 grader är just det som gör rörelsen retrograd.
-    // Not: banplanet precesserar med ca 640 års period, så orienteringen nedan
-    // är läget vid epoken snarare än en bestående egenskap.
-    // Triton har eget banplan eftersom den inte följer ekvatorn; ringarna läser
-    // sitt ur NeptuneAxis.
+    // Triton is the Solar System's great exception: it orbits RETROGRADE,
+    // i.e. opposite to Neptune's rotation and to everything else in this
+    // app. A moon formed together with its planet can't do that – Triton is
+    // therefore almost certainly a captured dwarf planet from the Kuiper
+    // belt. The inclination above 90 degrees is exactly what makes the
+    // motion retrograde.
+    // Note: the orbital plane precesses with a period of about 640 years,
+    // so the orientation below is the position at the epoch rather than a
+    // lasting property.
+    // Triton has its own orbital plane since it doesn't follow the
+    // equator; the rings read theirs from NeptuneAxis.
     public static readonly CelestialBody Triton = new(
         "Triton", Color.FromArgb("#D8CFC8"), 1_353.4,
         354_759.0 / AuKm, 0.000016, 130.0, 240.93, 0.0, 0.0, 5.876854)
     {
-        // Ett varv på ungefär 640 år, alltså 0,0015 grader per dygn. Riktningen
-        // följer av att banan är retrograd: Neptunus tillplattning vrider noden
-        // med en hastighet som går som cosinus för banlutningen, och lutningen
-        // är över 90 grader. Där de flesta månar får sin nod dragen baklänges
-        // vandrar Tritons alltså framåt.
+        // One turn in about 640 years, i.e. 0.0015 degrees per day. The
+        // direction follows from the orbit being retrograde: Neptune's
+        // oblateness turns the node at a rate that goes as the cosine of the
+        // orbital inclination, and that inclination is above 90 degrees.
+        // Where most moons have their node dragged backward, Triton's
+        // therefore moves forward.
         AscNodeRateDegPerDay = 360.0 / (640.0 * 365.25),
     };
 
-    // Ringsystemen. Alla fyra jätteplaneter har ringar – inte bara Saturnus.
-    // Radierna är verkliga, uttryckta i planetradier:
-    //   Jupiter   122 500 – 129 000 km  (den tunna huvudringen av damm)
-    //   Saturnus   74 700 – 136 800 km  (C-ringen ut till A-ringens ytterkant)
-    //   Uranus     38 000 –  51 150 km  (de smala, kolmörka ringarna)
-    //   Neptunus   41 900 –  62 933 km  (ut till Adams-ringen)
-    // Saturnus ringar är ljusa isPartiklar; de tre andra är så mörka att de
-    // upptäcktes först på 1970- och 80-talen.
+    // The ring systems. All four giant planets have rings – not just
+    // Saturn. The radii are real, expressed in planet radii:
+    //   Jupiter   122,500 – 129,000 km  (the thin main ring of dust)
+    //   Saturn     74,700 – 136,800 km  (the C ring out to the A ring's outer edge)
+    //   Uranus     38,000 –  51,150 km  (the narrow, coal-dark rings)
+    //   Neptune    41,900 –  62,933 km  (out to the Adams ring)
+    // Saturn's rings are bright ice particles; the other three are so dark
+    // they weren't discovered until the 1970s and 80s.
     static readonly PlanetRing JupiterRing = new(
         1.75f, 1.85f, JupiterAxis, Color.FromRgba(0.58f, 0.45f, 0.36f, 0.30f), 25f);
 
@@ -556,52 +592,55 @@ public static class SolarSystemData
         1.70f, 2.56f, NeptuneAxis, Color.FromRgba(0.50f, 0.58f, 0.74f, 0.26f), 25f);
 
     /// <summary>
-    /// Dvärgplaneten Ceres, den i särklass största kroppen i asteroidbältet –
-    /// den rymmer ungefär en fjärdedel av hela bältets massa. Ligger utanför
-    /// planetlistan och ritas tillsammans med bältet.
+    /// The dwarf planet Ceres, by far the largest body in the asteroid belt
+    /// – it alone holds about a quarter of the whole belt's mass. Lies
+    /// outside the planet list and is drawn together with the belt.
     /// </summary>
     public static readonly CelestialBody Ceres = new(
         "Ceres", Color.FromArgb("#A79C90"), 469.7,
         2.7675, 0.0758, 10.593, 80.393, 153.990, 249.979, 1_681.63);
 
     /// <summary>
-    /// Halleys komet: den enda ljusstarka kometen med så kort omloppstid att en
-    /// människa kan hinna se den två gånger.
+    /// Halley's Comet: the only bright comet with a short enough period that
+    /// a person can see it twice in a lifetime.
     ///
-    /// Banan är allt som planeternas inte är. Excentriciteten 0,967 drar ut den
-    /// så till den grad att kometen svänger in innanför Venus bana i perihelium
-    /// (0,586 AU) och ut förbi Neptunus i aphelium (35,1 AU) – sextio gånger
-    /// längre bort som mest än som minst. Av det följer farten, genom Keplers
-    /// andra lag: 54 km/s vid perihelium och under 1 km/s vid aphelium. Kometen
-    /// tillbringar alltså nästan hela sitt varv långt ute i kylan och rusar genom
-    /// det inre solsystemet på några månader.
+    /// The orbit is everything the planets' aren't. The eccentricity of
+    /// 0.967 draws it out so far that the comet swings in inside Venus's
+    /// orbit at perihelion (0.586 AU) and out past Neptune at aphelion (35.1
+    /// AU) – sixty times farther out at most than at least. The speed
+    /// follows from that, via Kepler's second law: 54 km/s at perihelion and
+    /// under 1 km/s at aphelion. The comet therefore spends nearly its whole
+    /// lap far out in the cold and rushes through the inner Solar System in
+    /// a matter of months.
     ///
-    /// Banlutningen 162 grader betyder att den går RETROGRAD, mot planeternas
-    /// färdriktning. Det är därför mötet med jorden 1986 blev så kort: de två
-    /// kropparna kom mot varandra i stället för att köra i kapp.
+    /// The 162-degree inclination means it travels RETROGRADE, against the
+    /// planets' direction of travel. That's why the 1986 encounter with
+    /// Earth was so brief: the two bodies were coming toward each other
+    /// instead of racing in the same direction.
     ///
-    /// Elementen är förankrade i två kända perihelier, 9 februari 1986 och
-    /// 28 juli 2061. Det ger omloppstiden 27 563 dygn (75,5 år), och ur den
-    /// följer halva storaxeln.
+    /// The elements are anchored to two known perihelia, 9 February 1986
+    /// and 28 July 2061. That gives an orbital period of 27,563 days (75.5
+    /// years), from which the semi-major axis follows.
     ///
-    /// Radien avser kärnan, som är en potatisformad klump på ungefär 15 x 8 x 8
-    /// km och svartare än kol – ljuset kommer inte från den utan från gasen och
-    /// dammet omkring, vilket också är vad färgen nedan beskriver.
+    /// The radius refers to the nucleus, a potato-shaped lump roughly 15 x 8
+    /// x 8 km and blacker than coal – the light doesn't come from it but
+    /// from the gas and dust around it, which is also what the colour below
+    /// describes.
     ///
-    /// **Förbehåll:** en fast keplerbana kan inte träffa alla perihelier. Halleys
-    /// verkliga omloppstid varierar mellan 74 och 79 år, eftersom Jupiter och
-    /// Saturnus drar i kometen vid varje varv och gasstrålarna från den upphettade
-    /// kärnan knuffar den som en svag raket. Modellen lägger därför 1910 års
-    /// perihelium i slutet av augusti i stället för den 20 april – fyra månader
-    /// fel redan ett varv bakåt. Kring 1986 och 2061 stämmer den, och det är
-    /// där den används.
+    /// **Caveat:** a fixed Kepler orbit can't hit every perihelion. Halley's
+    /// real orbital period varies between 74 and 79 years, since Jupiter and
+    /// Saturn tug at the comet on every lap and jets of gas from the heated
+    /// nucleus give it a further nudge, like a weak rocket. The model
+    /// therefore places the 1910 perihelion in late August instead of 20
+    /// April – four months off just one lap back. Around 1986 and 2061 it's
+    /// accurate, and that's where it's used.
     /// </summary>
     public static readonly CelestialBody Halley = new(
         "Halley", Color.FromArgb("#CFEDE8"), 5.5,
         17.85745, 0.9671858, 162.262, 58.420, 169.753, 236.026, 27_562.54);
 
-    // Banelement vid J2000 (NASA/JPL, medelvärden). Tillräckligt noggranna för att
-    // planeternas positioner ungefär ska stämma med verkligheten för ett givet datum.
+    // Orbital elements at J2000 (NASA/JPL, mean values). Accurate enough
+    // that the planets' positions roughly match reality for a given date.
     public static readonly CelestialBody[] Planets =
     [
         new("Mercury", Color.FromArgb("#B5A79B"),  2_439.7, 0.38710, 0.20563, 7.005,  48.331,  77.456, 252.251,    87.969) { Axis = MercuryAxis, Surface = SurfaceMap.Mercury },
@@ -612,8 +651,9 @@ public static class SolarSystemData
         new("Saturn",    Color.FromArgb("#E8D5A8"), 58_232.0, 9.53668, 0.05386, 2.486, 113.662,  92.599,  49.954, 10_759.22) { Axis = SaturnAxis, Moons = [Enceladus, Rhea, Titan], Ring = SaturnRing, Mu = SaturnMu, Surface = SurfaceMap.Saturn },
         new("Uranus",    Color.FromArgb("#9BD4E4"), 25_362.0, 19.18916, 0.04726, 0.773, 74.017, 170.954, 313.238, 30_688.5) { Axis = UranusAxis, Moons = [Miranda, Titania, Oberon], Ring = UranusRing, Surface = SurfaceMap.Uranus },
         new("Neptune",   Color.FromArgb("#5A78E8"), 24_622.0, 30.06992, 0.00859, 1.770, 131.784,  44.965, 304.880, 60_182.0) { Axis = NeptuneAxis, Moons = [Triton], Ring = NeptuneRing, Surface = SurfaceMap.Neptune },
-        // Dvärgplaneten Pluto: kraftigt lutande (17°) och excentrisk bana som
-        // tidvis går innanför Neptunus. Ett varv tar nästan 248 år.
+        // The dwarf planet Pluto: strongly tilted (17°) and an eccentric
+        // orbit that dips inside Neptune's at times. One lap takes nearly
+        // 248 years.
         new("Pluto",     Color.FromArgb("#C4AB94"),  1_188.3, 39.48212, 0.24883, 17.140, 110.304, 224.069, 238.929, 90_560.0) { Axis = PlutoAxis, Moons = [Charon], Surface = SurfaceMap.Pluto },
     ];
 }

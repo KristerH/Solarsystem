@@ -3,76 +3,80 @@ using System.Numerics;
 namespace Solarsystem.Simulation;
 
 /// <summary>
-/// En rymdfärd från en kropp till en annan, längs en överföringsbana som
-/// farkosten följer utan att styra – precis som en verklig sond gör mellan
-/// raketmotorns två korta brinntider.
+/// A space trip from one body to another, along a transfer orbit the craft
+/// follows without steering – exactly as a real probe does between the
+/// rocket engine's two brief burns.
 ///
-/// Banan löses ur sina randvillkor med Lambert-lösaren: den ska starta vid
-/// jordens läge på uppskjutningsdagen och nå målets läge på ankomstdagen. Den
-/// enda kvarvarande frågan är alltså hur lång restiden ska vara, och den väljs
-/// så att uppskjutningen blir så billig som möjligt – mätt som den fart
-/// farkosten måste ha i förhållande till jorden när den lämnar. Det är samma
-/// avvägning som verkliga uppdrag gör, och den ger omkring 3 km/s för Mars i de
-/// bästa fönstren, vilket också är vad verkligheten kostar.
+/// The orbit is solved from its boundary conditions with the Lambert solver:
+/// it must start at Earth's position on launch day and reach the target's
+/// position on arrival day. The only remaining question is therefore how
+/// long the travel time should be, and it's chosen to make the launch as
+/// cheap as possible – measured as the speed the craft needs relative to
+/// Earth when it departs. That's the same trade-off real missions make, and
+/// it comes out to around 3 km/s for Mars in the best windows, which is also
+/// what it costs in reality.
 ///
-/// Banan är i grunden en Hohmann-överföring – en halv ellips från jordens bana
-/// ut till målets, den energisnålaste vägen. Men exakt en halv ellips duger
-/// inte: den kan bara nå punkter rakt mitt emot starten, och just där blir
-/// banplanet obestämt och priset skenar. Mars ligger dessutom 1,85 grader ur
-/// ekliptikan. Den billigaste lösningen landar därför en bit förbi ett halvt
-/// varv, kring 200 graders svep.
+/// The orbit is basically a Hohmann transfer – half an ellipse from Earth's
+/// orbit out to the target's, the most fuel-efficient path. But exactly half
+/// an ellipse won't do: it can only reach points directly opposite the
+/// start, and right there the orbital plane becomes undefined and the price
+/// runs away. Mars also sits 1.85 degrees out of the ecliptic. The cheapest
+/// solution therefore lands a bit past half a turn, around a 200-degree
+/// sweep.
 ///
-/// Samma klass beskriver också färder som kretsar kring en planet i stället
-/// för kring solen, som resan till månen – se PlanToMoon. Skillnaden ligger
-/// bara i vilken kropp banan räknas kring och hur hårt den drar (µ); ellipsen
-/// och Keplers ekvation är desamma.
+/// The same class also describes trips that orbit a planet instead of the
+/// Sun, like the trip to the Moon – see PlanToMoon. The difference lies only
+/// in which body the orbit is computed around and how hard it pulls (µ); the
+/// ellipse and Kepler's equation are the same.
 /// </summary>
 public sealed class Mission
 {
     /// <summary>
-    /// Farkostens språkneutrala nyckel. Namnet vid pricken slås upp ur den, på
-    /// samma sätt som kropparnas.
+    /// The craft's language-neutral key. The name shown at the dot is looked
+    /// up from it, the same way as the bodies'.
     /// </summary>
     public string Key { get; }
 
-    /// <summary>Målet som farkosten är på väg mot.</summary>
+    /// <summary>The target the craft is heading toward.</summary>
     public CelestialBody Target { get; }
 
     /// <summary>
-    /// Kroppen banan kretsar kring: null för solen, eller planeten när färden
-    /// går till en av dess månar. Farkostens lägen räknas i förhållande till
-    /// den, precis som månarnas banelement är planetcentriska.
+    /// The body the orbit is computed around: null for the Sun, or the
+    /// planet when the trip goes to one of its moons. The craft's positions
+    /// are computed relative to it, the same way the moons' orbital elements
+    /// are planet-centric.
     /// </summary>
     public CelestialBody? Center { get; }
 
-    /// <summary>Uppskjutningsögonblicket, i dygn sedan J2000.</summary>
+    /// <summary>The moment of launch, in days since J2000.</summary>
     public double LaunchDay { get; }
 
-    /// <summary>Ankomstögonblicket, i dygn sedan J2000.</summary>
+    /// <summary>The moment of arrival, in days since J2000.</summary>
     public double ArrivalDay { get; }
 
-    /// <summary>Restidens längd i dygn.</summary>
+    /// <summary>The length of the travel time in days.</summary>
     public double TravelDays => ArrivalDay - LaunchDay;
 
-    /// <summary>Halva storaxeln i AU.</summary>
+    /// <summary>Semi-major axis in AU.</summary>
     public double SemiMajorAu => _transfer.SemiMajorAu;
 
-    /// <summary>Banans excentricitet.</summary>
+    /// <summary>The orbit's eccentricity.</summary>
     public double Eccentricity => _transfer.Eccentricity;
 
     /// <summary>
-    /// Hur många grader farkosten sveper kring centralkroppen på vägen, räknat
-    /// åt det håll planeterna går. En ren Hohmann-överföring sveper exakt 180
-    /// grader; de billigaste verkliga banorna hamnar strax över, eftersom målet
-    /// ska hinna fram till mötet.
+    /// How many degrees the craft sweeps around the central body along the
+    /// way, measured in the direction the planets travel. A pure Hohmann
+    /// transfer sweeps exactly 180 degrees; the cheapest real orbits land
+    /// just above that, since the target needs time to arrive at the
+    /// rendezvous.
     /// </summary>
     public double SweepDegrees { get; }
 
     /// <summary>
-    /// Farten farkosten måste ha i förhållande till startkroppen i det ögonblick
-    /// den lämnar den. Det är måttet på hur stor raket färden kräver, och det som
-    /// avgör om ett startfönster är öppet: verkliga Mars-uppdrag ligger kring
-    /// 3 km/s.
+    /// The speed the craft must have relative to the departure body at the
+    /// moment it leaves it. This is the measure of how big a rocket the trip
+    /// requires, and it's what determines whether a launch window is open:
+    /// real Mars missions sit around 3 km/s.
     /// </summary>
     public double DepartureSpeedKmS { get; }
 
@@ -91,21 +95,21 @@ public sealed class Mission
         DepartureSpeedKmS = departureSpeedKmS;
     }
 
-    // --------------------------------------------------- färd mellan planeter
+    // --------------------------------------------------- trips between planets
 
-    /// <summary>Kortaste restid som prövas när banan söks, i dygn.</summary>
+    /// <summary>Shortest travel time tried when searching for an orbit, in days.</summary>
     const double MinTravelDays = 120.0;
 
-    /// <summary>Längsta restid som prövas när banan söks, i dygn.</summary>
+    /// <summary>Longest travel time tried when searching for an orbit, in days.</summary>
     const double MaxTravelDays = 480.0;
 
-    /// <summary>Antal stickprov över restiden i den grova sökningen.</summary>
+    /// <summary>Number of samples over the travel time in the coarse search.</summary>
     const int TravelSamples = 12;
 
     /// <summary>
-    /// Planerar en färd från en kropp till en annan med uppskjutning en given
-    /// dag, längs den billigaste bana som finns den dagen. Returnerar null när
-    /// ingen bana går att räkna fram.
+    /// Plans a trip from one body to another with launch on a given day,
+    /// along the cheapest orbit available that day. Returns null when no
+    /// orbit can be computed.
     /// </summary>
     public static Mission? Plan(string key, CelestialBody origin, CelestialBody target,
         double launchDay)
@@ -114,8 +118,8 @@ public sealed class Mission
         if (double.IsInfinity(departureSpeed))
             return null;
 
-        // Allt räknas i AU och i dubbel precision; skalan till världsenheter
-        // läggs på först vid ritning.
+        // Everything is computed in AU and double precision; the scale to
+        // world units is applied only when rendering.
         var r1 = origin.PositionAuAt(launchDay);
         var r2 = target.PositionAuAt(launchDay + travelDays);
         if (!Lambert.Solve(r1, r2, travelDays, SolarSystemData.SunMu, out var v1, out _))
@@ -130,9 +134,9 @@ public sealed class Mission
     }
 
     /// <summary>
-    /// Vinkeln mellan två lägen, räknad åt det håll planeterna går. Ligger målet
-    /// mindre än ett halvt varv bort åt andra hållet, så har färden i själva
-    /// verket svept mer än ett halvt varv.
+    /// The angle between two positions, measured in the direction the
+    /// planets travel. If the target lies less than half a turn away the
+    /// other way, the trip has actually swept more than half a turn.
     /// </summary>
     static double SweepBetween(Vec3 from, Vec3 to)
     {
@@ -143,15 +147,16 @@ public sealed class Mission
     }
 
     /// <summary>
-    /// Den billigaste uppskjutningen en given dag: farten som krävs i
-    /// förhållande till startkroppen, och restiden som ger den. Oändlig fart
-    /// betyder att ingen bana alls hittades.
+    /// The cheapest launch on a given day: the speed required relative to
+    /// the departure body, and the travel time that gives it. Infinite speed
+    /// means no orbit at all was found.
     ///
-    /// Kostnaden växlar kraftigt med restiden. Korta färder kräver mycket fart,
-    /// och mitt i intervallet ligger dessutom en topp: där hamnar målet rakt mitt
-    /// emot starten sett från solen, och då är banplanet obestämt och priset
-    /// skenar. Sökningen tar därför stickprov över hela intervallet innan den
-    /// förfinar kring det bästa av dem.
+    /// The cost swings sharply with travel time. Short trips need a lot of
+    /// speed, and partway through the interval there's also a peak: there
+    /// the target lands directly opposite the start as seen from the Sun,
+    /// which leaves the orbital plane undefined and the price runs away. The
+    /// search therefore samples across the whole interval before refining
+    /// around the best of them.
     /// </summary>
     public static (double SpeedKmS, double TravelDays) CheapestDeparture(
         CelestialBody origin, CelestialBody target, double day, bool refine = true)
@@ -172,8 +177,8 @@ public sealed class Mission
         if (!refine || double.IsInfinity(bestSpeed))
             return (bestSpeed, bestTravel);
 
-        // Halvera steglängden och pröva åt båda hållen, tills restiden är
-        // bestämd på ungefär ett dygn när.
+        // Halve the step size and try both directions, until the travel time
+        // is determined to within about a day.
         for (double step = (MaxTravelDays - MinTravelDays) / TravelSamples * 0.5;
              step > 0.5; step *= 0.5)
         {
@@ -196,8 +201,8 @@ public sealed class Mission
     }
 
     /// <summary>
-    /// Vad en given restid kostar: farten farkosten måste ha i förhållande till
-    /// startkroppen när den lämnar den.
+    /// What a given travel time costs: the speed the craft must have
+    /// relative to the departure body when it leaves it.
     /// </summary>
     static double DepartureSpeed(CelestialBody origin, CelestialBody target,
         double day, double travelDays)
@@ -210,19 +215,19 @@ public sealed class Mission
         return (v1 - VelocityOf(origin, day)).Length * SolarSystemData.AuKm / 86_400.0;
     }
 
-    /// <summary>Kroppens egen hastighet i AU/dygn, ur lägena ett halvt dygn isär.</summary>
+    /// <summary>The body's own velocity in AU/day, from its positions half a day apart.</summary>
     static Vec3 VelocityOf(CelestialBody body, double day)
         => body.PositionAuAt(day + 0.5) - body.PositionAuAt(day - 0.5);
 
-    // ------------------------------------------------------------------ lägen
+    // ------------------------------------------------------------------ positions
 
     /// <summary>
-    /// Farkostens läge vid given tid, räknat från centralkroppen – solen, eller
-    /// planeten när färden går till en måne. Efter ankomsten
-    /// följer den med målet: en verklig sond går in i omloppsbana eller landar,
-    /// och blir alltså kvar vid planeten. Utan det blir farkosten stående still
-    /// i tomma rymden medan planeten åker vidare – efter ett halvt år ligger de
-    /// nästan 400 miljoner kilometer isär.
+    /// The craft's position at a given time, measured from the central body
+    /// – the Sun, or the planet when the trip goes to a moon. After arrival
+    /// it travels along with the target: a real probe enters orbit or
+    /// lands, and so stays with the planet. Without that, the craft would
+    /// end up standing still in empty space while the planet moves on – after
+    /// half a year they'd be nearly 400 million kilometres apart.
     /// </summary>
     public Vector3 PositionAt(double day, float unitsPerAu)
     {
@@ -232,19 +237,20 @@ public sealed class Mission
     }
 
     /// <summary>
-    /// Läget på själva överföringsbanan, oavsett om farkosten redan kommit fram.
-    /// Används för att rita banan.
+    /// The position on the transfer orbit itself, whether or not the craft
+    /// has already arrived. Used to draw the orbit.
     /// </summary>
     public Vector3 TransferPositionAt(double day, float unitsPerAu)
         => _transfer.PositionAt(day, unitsPerAu);
 
-    /// <summary>Sant när farkosten har nått fram.</summary>
+    /// <summary>True once the craft has arrived.</summary>
     public bool HasArrived(double day) => day >= ArrivalDay;
 
     /// <summary>
-    /// Hur långt farkosten har kvar till målet, i kilometer. Både farkost och mål
-    /// mäts i banans eget system, så samma räkning gäller för en färd kring solen
-    /// som för en kring en planet.
+    /// How far the craft has left to the target, in kilometres. Both craft
+    /// and target are measured in the orbit's own system, so the same
+    /// computation applies to a trip around the Sun as to one around a
+    /// planet.
     /// </summary>
     public double DistanceToTargetKm(double day)
     {
@@ -253,50 +259,52 @@ public sealed class Mission
     }
 
     /// <summary>
-    /// Farkostens fart i km/s vid given tid, ur vis-viva-ekvationen. Farten är
-    /// högst vid uppskjutningen och lägst vid ankomsten, precis som Keplers
-    /// andra lag säger.
+    /// The craft's speed in km/s at a given time, from the vis-viva
+    /// equation. Speed is highest at launch and lowest at arrival, exactly
+    /// as Kepler's second law says.
     /// </summary>
     public double SpeedKmPerSecond(double day)
         => _transfer.SpeedKmPerSecond(Math.Min(day, ArrivalDay));
 
-    // ------------------------------------------------------------ startfönster
+    // ------------------------------------------------------------ launch windows
 
     /// <summary>
-    /// Hur mycket dyrare än fönstrets allra bästa dag en uppskjutning får vara
-    /// och ändå räknas som ett startfönster.
+    /// How much more expensive than the window's very best day a launch is
+    /// allowed to be and still count as a launch window.
     ///
-    /// Måttet är relativt i stället för en fast gräns i km/s, eftersom fönstren
-    /// är olika bra: Mars excentriska bana gör att det billigaste tillfället
-    /// växlar mellan 2,9 och 3,1 km/s beroende på var planeten står. En fast
-    /// gräns hade gjort somliga fönster obefintliga och andra halvårslånga.
+    /// The measure is relative rather than a fixed km/s limit, since windows
+    /// vary in quality: Mars's eccentric orbit means the cheapest occasion
+    /// swings between 2.9 and 3.1 km/s depending on where the planet stands.
+    /// A fixed limit would have made some windows nonexistent and others
+    /// half a year long.
     /// </summary>
     public const double WindowMarginKmS = 0.1;
 
-    /// <summary>Hur långt åt vardera hållet fönstrets bästa dag söks.</summary>
+    /// <summary>How far in each direction the window's best day is searched for.</summary>
     const double WindowSearchDays = 180.0;
 
     /// <summary>
-    /// Avståndet mellan stickproven när kostnadskurvan kartläggs.
+    /// The spacing between samples when the cost curve is mapped out.
     ///
-    /// Rutnätet är fast, räknat från epoken, och inte lagt kring den dag frågan
-    /// gäller. Det är avgörande: både "är fönstret öppet i dag?" och "när öppnar
-    /// nästa?" mäter mot samma stickprov och kan därför aldrig ge motstridiga
-    /// svar. Med varsitt rutnät hände det att knappen "Nästa startfönster"
-    /// hoppade till en dag som knappen "Skjut upp" sedan vägrade släppa fram.
+    /// The grid is fixed, measured from the epoch, and not laid out around
+    /// the day the question concerns. That matters: both "is the window open
+    /// today?" and "when does the next one open?" measure against the same
+    /// samples and so can never give contradictory answers. With separate
+    /// grids, it used to happen that the "Next launch window" button jumped
+    /// to a day that the "Launch" button then refused to let through.
     /// </summary>
     const double CostStepDays = 5.0;
 
     /// <summary>
-    /// Kostnaden i rutnätets punkter, undansparad. Fönsterkollen tittar ett
-    /// halvår åt vardera hållet flera gånger i sekunden, och stickproven är då
-    /// till nio tiondelar desamma som förra gången – medan varje enskilt
-    /// stickprov kräver en egen sökning efter bästa restid. Planetbanorna ändrar
-    /// sig aldrig, så ett sparat värde kan aldrig bli inaktuellt.
+    /// The cost at the grid points, cached. The window check looks half a
+    /// year in each direction several times a second, and the samples are
+    /// then nine-tenths the same as last time – while each individual sample
+    /// requires its own search for the best travel time. The planetary
+    /// orbits never change, so a cached value can never go stale.
     /// </summary>
     static readonly Dictionary<(string Origin, string Target, long Index), double> GridCost = new();
 
-    /// <summary>Kostnaden i en av rutnätets punkter.</summary>
+    /// <summary>The cost at one of the grid points.</summary>
     static double CostAtGridPoint(CelestialBody origin, CelestialBody target, long index)
     {
         var key = (origin.Key, target.Key, index);
@@ -305,9 +313,9 @@ public sealed class Mission
 
         double cost = CheapestDeparture(origin, target, index * CostStepDays, refine: false).SpeedKmS;
 
-        // Rutnätet är glest – 8192 punkter räcker till mer än hundra år – men
-        // den som spolar tiden riktigt långt ska inte samla på sig minne i
-        // oändlighet.
+        // The grid is sparse – 8192 points cover more than a hundred years –
+        // but whoever winds time forward far enough shouldn't accumulate
+        // memory forever.
         if (GridCost.Count > 8192)
             GridCost.Clear();
 
@@ -315,7 +323,7 @@ public sealed class Mission
         return cost;
     }
 
-    /// <summary>Sant om en energisnål färd kan påbörjas just den dagen.</summary>
+    /// <summary>True if a fuel-efficient trip can be started on that particular day.</summary>
     public static bool IsLaunchWindow(CelestialBody origin, CelestialBody target, double day)
     {
         double here = CheapestDeparture(origin, target, day, refine: false).SpeedKmS;
@@ -326,10 +334,11 @@ public sealed class Mission
     }
 
     /// <summary>
-    /// Den billigaste uppskjutningen i närheten av en dag. Sökvidden är ett
-    /// halvår åt vardera hållet: tillräckligt för att hitta botten i det fönster
-    /// man befinner sig i, men klart kortare än de 780 dygn som skiljer fönstren
-    /// åt, så att nästa fönsters botten inte råkar tas med.
+    /// The cheapest launch near a given day. The search range is half a year
+    /// in each direction: enough to find the bottom of the window you're
+    /// currently in, but clearly shorter than the 780 days separating
+    /// windows, so the next window's bottom doesn't accidentally get
+    /// included.
     /// </summary>
     static double BestNearby(CelestialBody origin, CelestialBody target, double day)
     {
@@ -343,13 +352,13 @@ public sealed class Mission
     }
 
     /// <summary>
-    /// Letar upp nästa dag då en färd kan påbörjas. Kostnadskurvan kartläggs en
-    /// gång över hela sökhorisonten – med ett halvårs marginal åt vardera hållet,
-    /// eftersom varje punkt jämförs med det billigaste i sin omgivning – och
-    /// första dagen som ryms inom marginalen är svaret. Returnerar null om inget
-    /// fönster hittas inom horisonten, men eftersom varje fönster per definition
-    /// innehåller sin egen bottenpunkt inträffar det bara för orimligt korta
-    /// horisonter.
+    /// Finds the next day a trip can be started. The cost curve is mapped
+    /// out once over the whole search horizon – with half a year of margin
+    /// in each direction, since every point is compared against the
+    /// cheapest in its neighbourhood – and the first day that falls within
+    /// the margin is the answer. Returns null if no window is found within
+    /// the horizon, but since every window by definition contains its own
+    /// bottom point, that only happens for unreasonably short horizons.
     /// </summary>
     public static double? NextLaunchWindow(CelestialBody origin, CelestialBody target,
         double fromDay, double horizonDays = 900.0)
@@ -358,8 +367,9 @@ public sealed class Mission
         long first = (long)Math.Round(fromDay / CostStepDays) - span;
         long last = (long)Math.Round((fromDay + horizonDays) / CostStepDays) + span;
 
-        // Kartlägg kostnaden en gång; varje stickprov kräver en egen sökning
-        // efter bästa restid, så de ska inte räknas om i onödan.
+        // Map out the cost once; every sample requires its own search for
+        // the best travel time, so they shouldn't be recomputed
+        // unnecessarily.
         var cost = new double[last - first + 1];
         for (int i = 0; i < cost.Length; i++)
             cost[i] = CostAtGridPoint(origin, target, first + i);
@@ -375,8 +385,9 @@ public sealed class Mission
             if (cost[i] > best + WindowMarginKmS)
                 continue;
 
-            // Stega bakåt till fönstrets första dag. Marginalen mäts mot samma
-            // omgivning hela vägen, så länge dagarna hör till samma rutpunkt.
+            // Step backward to the window's first day. The margin is
+            // measured against the same neighbourhood throughout, as long
+            // as the days belong to the same grid point.
             double day = k * CostStepDays;
             while (day - 1.0 >= fromDay &&
                    (long)Math.Round((day - 1.0) / CostStepDays) == k &&
@@ -390,34 +401,36 @@ public sealed class Mission
         return null;
     }
 
-    // ---------------------------------------------------------------- månfärd
+    // ---------------------------------------------------------------- trip to the Moon
 
-    /// <summary>Höjden över jordytan där färden börjar: en låg parkeringsbana.</summary>
+    /// <summary>Altitude above Earth's surface where the trip begins: a low parking orbit.</summary>
     public const double ParkingOrbitAltitudeKm = 400.0;
 
     /// <summary>
-    /// Restiden till månen i dygn. Apollo 11 var framme efter 76 timmar, alltså
-    /// drygt tre dygn.
+    /// Travel time to the Moon in days. Apollo 11 arrived after 76 hours,
+    /// just over three days.
     /// </summary>
     public const double MoonTravelDays = 3.0;
 
     /// <summary>
-    /// Planerar en färd till en av planetens egna månar. Här kretsar farkosten
-    /// kring planeten i stället för kring solen, och skillnaden mot Mars-färden
-    /// är större än den ser ut.
+    /// Plans a trip to one of the planet's own moons. Here the craft orbits
+    /// the planet instead of the Sun, and the difference from the Mars trip
+    /// is bigger than it looks.
     ///
-    /// Uppskjutningen sker från en låg omloppsbana, och därifrån kan farkosten
-    /// lämna åt vilket håll som helst. Startpunkten är alltså inte given på
-    /// förhand, som jordens läge är vid en Mars-färd, utan väljs så att banan
-    /// möter månen. Det är därför en månfärd kan påbörjas nästan vilken dag som
-    /// helst medan Mars kräver ett startfönster vartannat år.
+    /// Launch happens from a low orbit, and from there the craft can leave
+    /// in any direction. The starting point therefore isn't given in
+    /// advance, the way Earth's position is for a Mars trip, but is instead
+    /// chosen so the orbit meets the Moon. That's why a lunar trip can start
+    /// on almost any day while Mars needs a launch window every couple of
+    /// years.
     ///
-    /// Restiden bestäms i stället i förväg, och banan söks fram till den. En ren
-    /// Hohmann-bana ut till månen tar nästan fem dygn; för att hinna på tre måste
-    /// farkosten skjutas upp med mer fart, så att banans bortre ände hamnar en
-    /// bra bit bortom månen – 440 000 till 630 000 km beroende på var månen står
-    /// – och månen alltså hinns ikapp på vägen ut, före vändpunkten. Det var
-    /// precis så Apollo flög.
+    /// The travel time is instead fixed in advance, and the orbit is solved
+    /// to match it. A pure Hohmann orbit out to the Moon takes nearly five
+    /// days; to make it in three, the craft must be launched with more
+    /// speed, so the orbit's far end lands well beyond the Moon –
+    /// 440,000 to 630,000 km depending on where the Moon stands – and the
+    /// Moon is caught up with on the way out, before the turning point.
+    /// That's exactly how Apollo flew.
     /// </summary>
     public static Mission? PlanToMoon(string key, CelestialBody planet, CelestialBody moon,
         double launchDay, double travelDays = MoonTravelDays)
@@ -426,32 +439,33 @@ public sealed class Mission
         if (mu <= 0 || travelDays <= 0)
             return null;
 
-        // Parkeringsbanan blir banans perigeum, punkten närmast planeten.
+        // The parking orbit becomes the orbit's perigee, the point closest to the planet.
         double rp = (planet.RadiusKm + ParkingOrbitAltitudeKm) / SolarSystemData.AuKm;
 
         double arrivalDay = launchDay + travelDays;
-        var r2 = moon.PositionAt(arrivalDay, 1f);   // planetcentriskt läge vid ankomsten
+        var r2 = moon.PositionAt(arrivalDay, 1f);   // planet-centric position at arrival
         double r2Len = r2.Length();
         if (r2Len <= rp)
             return null;
         var r2Dir = r2 / (float)r2Len;
 
-        // Sök halva storaxeln så att restiden blir den önskade. Restiden avtar
-        // när banan görs större – mer fart vid uppskjutningen – så en
-        // intervallhalvering hittar rätt utan omvägar. Undre gränsen är den
-        // energisnålaste ellipsen som överhuvudtaget når ut till målet, alltså
-        // den långsammaste; åtta gånger den är gott och väl snabbare än tre dygn.
+        // Search for the semi-major axis that gives the desired travel time.
+        // Travel time decreases as the orbit is made larger – more speed at
+        // launch – so bisection finds the right one directly. The lower
+        // bound is the most fuel-efficient ellipse that reaches the target
+        // at all, i.e. the slowest; eight times that is comfortably faster
+        // than three days.
         double lo = 0.5 * (rp + r2Len);
         double hi = lo * 8.0;
         if (TimeToRadius(lo, rp, r2Len, mu) < travelDays ||
             TimeToRadius(hi, rp, r2Len, mu) > travelDays)
-            return null;    // den önskade restiden går inte att uppfylla
+            return null;    // the desired travel time can't be met
 
         for (int k = 0; k < 80; k++)
         {
             double mid = 0.5 * (lo + hi);
             if (TimeToRadius(mid, rp, r2Len, mu) > travelDays)
-                lo = mid;   // för långsam – banan behöver göras större
+                lo = mid;   // too slow – the orbit needs to be made larger
             else
                 hi = mid;
         }
@@ -459,14 +473,15 @@ public sealed class Mission
         double a = 0.5 * (lo + hi);
         double e = 1.0 - rp / a;
 
-        // Sveptvinkeln: hur långt runt planeten farkosten hinner på vägen ut.
+        // The sweep angle: how far around the planet the craft travels on the way out.
         double cosSweep = Math.Clamp((a * (1.0 - e * e) / r2Len - 1.0) / e, -1.0, 1.0);
         double sweep = Math.Acos(cosSweep);
 
-        // Banplanet läggs i månens eget banplan, precis som Apollo-färderna gjorde.
-        // Normalen fås ur månens läge ett halvt dygn före och efter ankomsten och
-        // pekar då åt samma håll som månens eget rörelsemängdsmoment, så att
-        // farkosten går åt samma håll som månen.
+        // The orbital plane is laid in the Moon's own orbital plane, exactly
+        // as the Apollo missions did. The normal is taken from the Moon's
+        // position half a day before and after arrival, and points the same
+        // way as the Moon's own angular momentum, so the craft travels the
+        // same direction as the Moon.
         var normalRaw = Vector3.Cross(
             moon.PositionAt(arrivalDay - 0.5, 1f),
             moon.PositionAt(arrivalDay + 0.5, 1f));
@@ -474,15 +489,15 @@ public sealed class Mission
             return null;
         var normal = Vector3.Normalize(normalRaw);
 
-        // Uppskjutningspunkten fås genom att vrida ankomstriktningen tillbaka
-        // sveptvinkeln, alltså baklänges längs banan.
+        // The launch point is found by rotating the arrival direction back
+        // by the sweep angle, i.e. backward along the orbit.
         var forward = Vector3.Cross(normal, r2Dir);
         var periDir = Vector3.Normalize(
             r2Dir * (float)Math.Cos(sweep) - forward * (float)Math.Sin(sweep));
         var sideDir = Vector3.Normalize(Vector3.Cross(normal, periDir));
 
-        // Uppskjutningen sker i perigeum, så banan byggs därifrån direkt – den
-        // vägen in tappar ingen precision.
+        // Launch happens at perigee, so the orbit is built from there
+        // directly – that entry point loses no precision.
         var transfer = Conic.FromPeriapsis(periDir, sideDir, rp, e, launchDay, mu);
         if (transfer is null)
             return null;
@@ -492,9 +507,10 @@ public sealed class Mission
     }
 
     /// <summary>
-    /// Restiden från perigeum ut till en given radie, för ellipsen med halva
-    /// storaxeln a och perigeum rp. Keplers ekvation baklänges mot hur den annars
-    /// används: först excentrisk anomali ur radien, sedan tiden ur den.
+    /// The travel time from perigee out to a given radius, for the ellipse
+    /// with semi-major axis a and perigee rp. Kepler's equation run
+    /// backward from how it's otherwise used: first the eccentric anomaly
+    /// from the radius, then the time from that.
     /// </summary>
     static double TimeToRadius(double a, double rp, double r, double mu)
     {

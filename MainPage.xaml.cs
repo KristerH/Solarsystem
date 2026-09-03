@@ -9,23 +9,26 @@ namespace Solarsystem;
 public partial class MainPage : ContentPage
 {
     /// <summary>
-    /// Språket operativsystemet står på, avläst innan appen hunnit byta något.
-    /// Det är utgångsläget, och det väljaren återgår till med "Följ systemet".
-    /// Står datorn på ett språk appen inte har faller texterna tillbaka på
-    /// engelska av sig själva – så fungerar .NET:s resurshantering – medan
-    /// datum och tal ändå följer datorns egna vanor.
+    /// The language the operating system is set to, read before the app has
+    /// had a chance to change anything. This is the starting point, and
+    /// what the selector returns to with "Follow the system". If the
+    /// computer is set to a language the app doesn't have, texts fall back
+    /// to English on their own – that's how .NET's resource handling works
+    /// – while dates and numbers still follow the computer's own
+    /// conventions.
     /// </summary>
     static readonly CultureInfo SystemCulture = CultureInfo.CurrentUICulture;
 
     static readonly CultureInfo Swedish = new("sv-SE");
     static readonly CultureInfo English = new("en-US");
 
-    /// <summary>Språkväljarens rader. Null betyder "följ systemet".</summary>
+    /// <summary>The language selector's rows. Null means "follow the system".</summary>
     static readonly CultureInfo?[] Languages = [null, Swedish, English];
 
     /// <summary>
-    /// Sant medan väljarnas innehåll byggs om vid ett språkbyte, så att de
-    /// byten som sker på vägen inte tolkas som något användaren gjort.
+    /// True while the selectors' contents are being rebuilt for a language
+    /// switch, so the changes that happen along the way aren't interpreted
+    /// as something the user did.
     /// </summary>
     bool _rebuilding;
 
@@ -35,30 +38,30 @@ public partial class MainPage : ContentPage
 
     double _lastSeconds;
     bool _running = true;
-    double _simDays;                       // simulerade dygn sedan start
+    double _simDays;                       // simulated days since start
     double _daysPerSecond = 30;
     DateTime _startDate = DateTime.Now;
 
     double _panLastX, _panLastY;
-    int _focusIndex;                       // 0 = solen, sedan kroppar, sist sonder
+    int _focusIndex;                       // 0 = the Sun, then bodies, then probes
 
-    /// <summary>Månarna dras in ett steg i fokusväljaren så att de hör ihop med sin planet.</summary>
+    /// <summary>Moons are indented one step in the focus selector so they read as belonging to their planet.</summary>
     const string MoonEntry = "\u00b7 ";
 
-    // Senast ritade tillstånd – när inget ändrats hoppas omritningen över helt.
+    // Last rendered state – when nothing has changed, redrawing is skipped entirely.
     float _drawnYaw = float.NaN, _drawnPitch, _drawnDist;
     Vector3 _drawnTarget;
     double _drawnSimDays = double.NaN;
-    double _resizeQuietUntil;              // klocktid då renderingen får vakna igen
+    double _resizeQuietUntil;              // clock time when rendering is allowed to wake up again
     bool _settingsChanged = true;
 
-    // Startfönster: varje prövning kräver att en hel bana räknas fram, så
-    // resultatet cachas och kontrolleras högst några gånger per sekund.
+    // Launch window: every check requires a full orbit to be computed, so
+    // the result is cached and checked at most a few times per second.
     double _windowCheckedDay = double.NaN;
     double _windowCheckedAt;
     bool _inLaunchWindow;
     double? _nextWindowDay;
-    double _departureSpeedKmS;             // vad uppskjutningen kostar just nu
+    double _departureSpeedKmS;             // what the launch costs right now
 
     public MainPage()
     {
@@ -66,10 +69,11 @@ public partial class MainPage : ContentPage
 
         SpaceView.Drawable = _drawable;
 
-        // Pausa renderingen medan fönstret ändrar storlek. Varje storlekssteg
-        // hade annars tvingat fram ombyggda cachar och en full omritning, i takt
-        // med att fönsterhanteraren väntar – det var det som frös hela systemet.
-        // 300 ms efter sista steget vaknar renderingen och räknar om allt en gång.
+        // Pause rendering while the window is being resized. Every resize
+        // step would otherwise force rebuilt caches and a full redraw,
+        // keeping pace with the window manager as it waits – that was what
+        // froze the whole system. 300 ms after the last step, rendering
+        // wakes up and recomputes everything once.
         SpaceView.SizeChanged += (_, _) =>
         {
             _drawable.Suspended = true;
@@ -78,7 +82,7 @@ public partial class MainPage : ContentPage
 
         BuildProbeMenu();
 
-        // Följ datorns språk tills någon väljer något annat.
+        // Follow the computer's language until someone picks something else.
         Strings.Use(SystemCulture);
         StarDensityPicker.SelectedIndex = (int)_drawable.StarDensity;
         LanguagePicker.SelectedIndex = 0;
@@ -94,11 +98,11 @@ public partial class MainPage : ContentPage
 
         HookPlatformInput();
 
-        // Fönstret finns först nu, så titeln kan inte sättas i konstruktorn.
+        // The window exists only now, so the title can't be set in the constructor.
         if (Window is not null)
             Window.Title = Strings.WindowTitle;
 
-        // 30 bildrutor/sekund räcker gott och halverar CPU-lasten mot 60.
+        // 30 frames/second is plenty and halves the CPU load compared to 60.
         _timer = Dispatcher.CreateTimer();
         _timer.Interval = TimeSpan.FromMilliseconds(33);
         _timer.Tick += OnTick;
@@ -107,7 +111,7 @@ public partial class MainPage : ContentPage
     }
 
 
-    // ------------------------------------------------------------- simulering
+    // ------------------------------------------------------------- simulation
 
     void OnTick(object? sender, EventArgs e)
     {
@@ -118,7 +122,7 @@ public partial class MainPage : ContentPage
         if (_drawable.Suspended)
         {
             if (now < _resizeQuietUntil)
-                return; // storleksändring pågår – varken simulera eller rita
+                return; // resizing in progress – neither simulate nor draw
             _drawable.Suspended = false;
             _settingsChanged = true;
         }
@@ -139,8 +143,9 @@ public partial class MainPage : ContentPage
         ElapsedLabel.Text = FormatElapsed(_simDays);
         UpdateLaunchWindow(daysSinceJ2000);
 
-        // Rita bara om när något faktiskt har ändrats (tiden gått framåt eller
-        // kameran flyttats). Pausad och stillastående vy kostar då nästan inget.
+        // Only redraw when something has actually changed (time has advanced
+        // or the camera has moved). A paused, still view then costs almost
+        // nothing.
         var cam = _drawable.Camera;
         if (_simDays != _drawnSimDays || cam.Yaw != _drawnYaw ||
             cam.Pitch != _drawnPitch || cam.Distance != _drawnDist ||
@@ -158,7 +163,7 @@ public partial class MainPage : ContentPage
 
     static string FormatElapsed(double days)
     {
-        // Tiden kan numera gå åt båda hållen, så negativa värden räknas som "tillbaka".
+        // Time can now run either direction, so negative values count as "back".
         string label = days < 0 ? Strings.Back : Strings.Elapsed;
         double span = Math.Abs(days);
         if (span < 1.0)
@@ -170,16 +175,17 @@ public partial class MainPage : ContentPage
             : Strings.Format("msg.elapsedDays", label, rest);
     }
 
-    // ------------------------------------------------------------------ språk
+    // ------------------------------------------------------------------ language
 
     /// <summary>
-    /// Byter språk på allt som redan står i fönstret.
+    /// Switches language on everything already in the window.
     ///
-    /// Texterna sätts härifrån och inte i XAML, och det är hela skälet till att
-    /// varje etikett har ett namn: en text som skrivs in i XAML går inte att
-    /// byta sedan, och språkbytet ska slå igenom medan appen kör. Det som ritas
-    /// i vyn behöver däremot ingenting här – ritkoden slår upp namnen varje
-    /// bildruta, så planeterna byter språk av sig själva.
+    /// The texts are set from here and not in XAML, and that's the whole
+    /// reason every label has a name: text written into XAML can't be
+    /// changed afterward, and the language switch has to take effect while
+    /// the app is running. What's drawn in the view, on the other hand,
+    /// needs nothing here – the rendering code looks up the names every
+    /// frame, so the planets switch language on their own.
     /// </summary>
     void ApplyLanguage()
     {
@@ -228,8 +234,9 @@ public partial class MainPage : ContentPage
         AllProbesButton.Text = Strings.All;
         NoProbesButton.Text = Strings.None;
 
-        // Väljarnas innehåll byts ut, men valet ska stå kvar. Att sätta
-        // ItemsSource nollställer SelectedIndex, så det sparas undan först.
+        // The selectors' contents are swapped out, but the selection should
+        // stay put. Setting ItemsSource resets SelectedIndex, so it's saved
+        // aside first.
         int language = Math.Max(0, LanguagePicker.SelectedIndex);
         LanguagePicker.ItemsSource = new List<string>
             { Strings.FollowSystem, "Svenska", "English" };
@@ -244,7 +251,7 @@ public partial class MainPage : ContentPage
         MeetingPicker.ItemsSource = SkyEvent.Choices.Select(ChoiceLabel).ToList();
         MeetingPicker.SelectedIndex = meeting;
 
-        // De texter som byggs av tillstånd får skrivas om från sina egna ställen.
+        // The texts built from state get rewritten from their own places.
         UpdateSpeedFromSlider();
         UpdateProbeMenuButton();
         UpdateMissionUi((CurrentDate - SolarSystemData.EpochJ2000).TotalDays);
@@ -265,10 +272,10 @@ public partial class MainPage : ContentPage
     }
 
     /// <summary>
-    /// Etiketten för ett val i mötesväljaren. Den byggs här och inte i
-    /// <see cref="SkyEvent"/>, eftersom den beror på språket: "Mars i opposition"
-    /// är sorten och kroppens namn satta samman, och båda delarna byts vid ett
-    /// språkbyte.
+    /// The label for a choice in the meeting selector. Built here and not in
+    /// <see cref="SkyEvent"/>, since it depends on the language: "Mars at
+    /// opposition" is the kind and the body's name put together, and both
+    /// parts change on a language switch.
     /// </summary>
     static string ChoiceLabel(SkyEvent.Choice choice) => choice.Kind switch
     {
@@ -282,7 +289,7 @@ public partial class MainPage : ContentPage
         _ => Strings.ChoicePerihelion,
     };
 
-    // ---------------------------------------------------------------- reglage
+    // ---------------------------------------------------------------- controls
 
     void OnStartStopClicked(object? sender, EventArgs e) => ToggleRunning();
 
@@ -296,8 +303,9 @@ public partial class MainPage : ContentPage
 
     void UpdateSpeedFromSlider()
     {
-        // Logaritmisk skala: 0,1 dygn/s upp till 1000 dygn/s. Reglaget går från
-        // -1 till 1, där negativa värden spelar tiden baklänges och mitten står still.
+        // Logarithmic scale: 0.1 days/s up to 1000 days/s. The slider runs
+        // from -1 to 1, where negative values play time backward and the
+        // middle stands still.
         double v = SpeedSlider.Value;
         _daysPerSecond = Math.Abs(v) < 0.02
             ? 0.0
@@ -320,12 +328,12 @@ public partial class MainPage : ContentPage
         };
     }
 
-    // ------------------------------------------------------------------ datum
+    // ------------------------------------------------------------------ date
 
-    /// <summary>Det datum simuleringen just nu står på.</summary>
+    /// <summary>The date the simulation currently stands on.</summary>
     DateTime CurrentDate => _startDate.AddDays(_simDays);
 
-    /// <summary>Flyttar simuleringen till ett givet datum, bakåt eller framåt.</summary>
+    /// <summary>Moves the simulation to a given date, backward or forward.</summary>
     void GoToDate(DateTime date)
     {
         _simDays = (date - _startDate).TotalDays;
@@ -338,16 +346,16 @@ public partial class MainPage : ContentPage
     void OnDateEntryCompleted(object? sender, EventArgs e) => ApplyTypedDate();
 
     /// <summary>
-    /// Läser datumfältet och hoppar dit. Accepterar både "2026-09-06" och andra
-    /// format som svensk kultur förstår; vid felskrivning händer ingenting mer än
-    /// att fältet markeras.
+    /// Reads the date field and jumps there. Accepts both "2026-09-06" and
+    /// other formats the selected culture understands; on a typo, nothing
+    /// happens beyond the field being flagged.
     /// </summary>
     void ApplyTypedDate()
     {
         string text = DateEntry.Text?.Trim() ?? string.Empty;
-        // ÅÅÅÅ-MM-DD först, oavsett språk: det formatet står i fältet och betyder
-        // samma sak överallt. Går det inte, pröva det valda språkets eget sätt att
-        // skriva datum.
+        // YYYY-MM-DD first, regardless of language: that's the format shown
+        // in the field and it means the same thing everywhere. If that
+        // fails, try the selected language's own way of writing dates.
         if (DateTime.TryParse(text, CultureInfo.InvariantCulture, DateTimeStyles.None, out var date)
             || DateTime.TryParse(text, Strings.Culture, DateTimeStyles.None, out date))
         {
@@ -360,7 +368,7 @@ public partial class MainPage : ContentPage
         }
     }
 
-    /// <summary>Stegar datumet en dag, månad eller ett år i taget.</summary>
+    /// <summary>Steps the date one day, month or year at a time.</summary>
     void OnStepDateClicked(object? sender, EventArgs e)
     {
         if (sender is not Button { CommandParameter: string step })
@@ -379,7 +387,7 @@ public partial class MainPage : ContentPage
         });
     }
 
-    /// <summary>Återställer klockan till nuet.</summary>
+    /// <summary>Resets the clock to now.</summary>
     void OnTodayClicked(object? sender, EventArgs e)
     {
         _startDate = DateTime.Now;
@@ -387,10 +395,10 @@ public partial class MainPage : ContentPage
         _settingsChanged = true;
     }
 
-    // --------------------------------------------------------------- rymdfärd
+    // --------------------------------------------------------------- space missions
 
-    // MAUI gråar inte själv en knapp som fått en egen bakgrundsfärg, så de
-    // avstängda lägena målas om för hand.
+    // MAUI doesn't itself grey out a button that's been given its own
+    // background colour, so the disabled states are repainted by hand.
     static readonly Color LaunchReady = Color.FromArgb("#2E5A4A");
     static readonly Color LaunchClosed = Color.FromArgb("#222A28");
     static readonly Color StepReady = Color.FromArgb("#26303C");
@@ -403,27 +411,29 @@ public partial class MainPage : ContentPage
     static readonly CelestialBody MoonBody = SolarSystemData.Moon;
 
     /// <summary>
-    /// Ställer fokusväljaren på en kropp. Kroppen söks upp i listan i stället för
-    /// att platsen räknas fram: listan innehåller både månar och sonder, och
-    /// vilka av dem som visas växlar under körningen. Att söka på kroppen och
-    /// inte på namnet är dessutom det enda som håller när språket byts.
+    /// Sets the focus selector to a body. The body is looked up in the list
+    /// rather than the position computed: the list contains both moons and
+    /// probes, and which of them are shown changes at runtime. Searching by
+    /// the body rather than the name is also the only thing that still
+    /// works once the language changes.
     /// </summary>
     void FocusOn(CelestialBody body)
     {
         int index = _focusBodies.IndexOf(body);
         if (index >= 0)
-            FocusPicker.SelectedIndex = index + 1;      // plats 0 är solen
+            FocusPicker.SelectedIndex = index + 1;      // slot 0 is the Sun
     }
 
     /// <summary>
-    /// Skjuter upp en farkost mot Mars från det datum vyn står på, eller avbryter
-    /// en pågående färd.
+    /// Launches a craft toward Mars from the date the view stands on, or
+    /// cancels an ongoing trip.
     /// </summary>
     /// <summary>
-    /// Håller reda på om ett startfönster är öppet just nu och när nästa infaller.
-    /// Kontrollen är dyr – varje prövning räknar fram en hel överföringsbana –
-    /// så den görs bara när datumet flyttat sig märkbart, och högst fyra gånger
-    /// per sekund oavsett hur snabbt tiden spolas.
+    /// Keeps track of whether a launch window is open right now and when
+    /// the next one falls. The check is expensive – every trial computes a
+    /// full transfer orbit – so it's only done when the date has moved
+    /// noticeably, and at most four times a second no matter how fast time
+    /// is wound forward.
     /// </summary>
     void UpdateLaunchWindow(double day)
     {
@@ -449,13 +459,13 @@ public partial class MainPage : ContentPage
         UpdateMissionUi(day);
     }
 
-    /// <summary>Uppdaterar knappar och statustext efter färdens och fönstrets läge.</summary>
+    /// <summary>Updates buttons and status text based on the trip's and window's state.</summary>
     void UpdateMissionUi(double day)
     {
         if (_drawable.Mission is { } mission)
         {
-            // En färd i taget: knappen för den pågående färden avbryter den, och
-            // den andra är avstängd så länge.
+            // One trip at a time: the button for the ongoing trip cancels it,
+            // and the other is disabled meanwhile.
             bool toMoon = ReferenceEquals(mission.Target, MoonBody);
 
             LaunchButton.Text = toMoon ? Strings.LaunchMars : Strings.AbortMission;
@@ -467,7 +477,7 @@ public partial class MainPage : ContentPage
             NextWindowButton.IsEnabled = false;
             NextWindowButton.BackgroundColor = StepClosed;
 
-            // Restid, avstånd och fart står i färdpanelen i stället.
+            // Travel time, distance and speed are shown in the mission panel instead.
             MissionLabel.Text = string.Empty;
             return;
         }
@@ -476,8 +486,8 @@ public partial class MainPage : ContentPage
         LaunchButton.IsEnabled = _inLaunchWindow;
         LaunchButton.BackgroundColor = _inLaunchWindow ? LaunchReady : LaunchClosed;
 
-        // Månen är tillbaka på samma ställe var 27:e dygn, så dit går det att åka
-        // i stort sett vilken dag som helst – där behövs inga startfönster.
+        // The Moon is back in the same spot every 27 days, so you can travel
+        // there on almost any day – no launch windows are needed.
         MoonButton.Text = Strings.LaunchMoon;
         MoonButton.IsEnabled = true;
         MoonButton.BackgroundColor = LaunchReady;
@@ -487,8 +497,9 @@ public partial class MainPage : ContentPage
 
         if (_inLaunchWindow)
         {
-            // Farten i förhållande till jorden är måttet på hur stor raket som
-            // behövs, och det är den som avgör om fönstret räknas som öppet.
+            // The speed relative to Earth is the measure of how big a rocket
+            // is needed, and it's what decides whether the window counts as
+            // open.
             MissionLabel.Text = Strings.Format("msg.windowOpen", _departureSpeedKmS);
         }
         else if (_nextWindowDay is double next)
@@ -502,19 +513,21 @@ public partial class MainPage : ContentPage
         }
     }
 
-    // Kameran ska följa med farkosten ner till målet när den kommer fram. Det
-    // sker en gång, i själva ankomstögonblicket – därefter får användaren styra
-    // fritt igen, och ett nytt val i fokusväljaren stänger av följandet.
+    // The camera should follow the craft down to the target when it
+    // arrives. That happens once, at the moment of arrival itself –
+    // afterward the user steers freely again, and a new choice in the focus
+    // selector turns off the following.
     bool _arrivalSeen;
     bool _followCraft;
 
     /// <summary>
-    /// Hur nära kameran får komma det den tittar på. Räknas om varje bildruta
-    /// ur den valda kroppens ritade radie, eftersom den ändras både när man
-    /// byter kropp och när man slår om mellan förstorat och verkligt läge.
+    /// How close the camera is allowed to get to what it's looking at.
+    /// Recomputed every frame from the selected body's drawn radius, since
+    /// that changes both when the body is switched and when toggling
+    /// between magnified and real scale.
     ///
-    /// En farkost eller en sond är en punkt utan utsträckning och får därför
-    /// komma hur nära som helst.
+    /// A craft or a probe is a point with no extent and so may get as close
+    /// as it likes.
     /// </summary>
     float FocusMinDistance()
     {
@@ -525,18 +538,18 @@ public partial class MainPage : ContentPage
         bool sun = body < 0 || body >= _focusBodies.Count;
         double radiusKm = sun ? SolarSystemData.SunRadiusKm : _focusBodies[body].RadiusKm;
 
-        // En bit utanför ytan, så att klotet fyller bilden utan att kameran
-        // hamnar inuti det.
+        // A bit outside the surface, so the globe fills the frame without
+        // the camera ending up inside it.
         return _drawable.VisualRadius(radiusKm, sun) * 1.15f;
     }
 
-    /// <summary>Vad kameran tittar på: farkosten efter ankomsten, annars vald kropp.</summary>
+    /// <summary>What the camera is looking at: the craft after arrival, otherwise the selected body.</summary>
     Vector3 CameraTarget(double day)
     {
         if (_followCraft && _drawable.CraftPosition() is { } craft)
             return craft;
 
-        // Före uppskjutningen finns sonden inte, och kameran står kvar vid solen.
+        // Before launch the probe doesn't exist, and the camera stays at the Sun.
         if (FocusedProbe is { } probe)
             return probe.PositionAt(day, SolarSystemDrawable.UnitsPerAu) ?? Vector3.Zero;
 
@@ -544,17 +557,17 @@ public partial class MainPage : ContentPage
         if (body < 0 || body >= _focusBodies.Count)
             return Vector3.Zero;
 
-        // En måne ritas inte där den verkligen är, så kameran måste fråga
-        // ritkoden var den hamnade.
+        // A moon isn't drawn where it really is, so the camera has to ask
+        // the rendering code where it ended up.
         return _focusParents[body] is { } planet
             ? _drawable.MoonPosition(planet, _focusBodies[body], day)
             : _focusBodies[body].PositionAt(day, SolarSystemDrawable.UnitsPerAu);
     }
 
     /// <summary>
-    /// Sonden som är vald i fokusväljaren, eller null. Väljaren räknar solen
-    /// först, sedan kropparna – planeter med sina månar under sig – och sist de
-    /// sonder som visas.
+    /// The probe selected in the focus selector, or null. The selector
+    /// counts the Sun first, then the bodies – planets with their moons
+    /// underneath – and finally the probes that are shown.
     /// </summary>
     Probe? FocusedProbe
     {
@@ -566,9 +579,10 @@ public partial class MainPage : ContentPage
     }
 
     /// <summary>
-    /// Sondpanelen: var sonden är, hur fort den går och vad den senaste
-    /// planetpassagen gav. Farthoppet är hela poängen – det är slungan, och utan
-    /// den hade ingen av sonderna kommit längre än till Jupiter.
+    /// The probe panel: where the probe is, how fast it's going, and what
+    /// the last planetary flyby gave it. The speed jump is the whole point
+    /// – that's the gravity assist, and without it none of the probes would
+    /// have reached farther than Jupiter.
     /// </summary>
     void UpdateProbePanel(double day)
     {
@@ -612,7 +626,7 @@ public partial class MainPage : ContentPage
         }
     }
 
-    /// <summary>Beskriver en passerad milstolpe, med farten planeten gav eller tog.</summary>
+    /// <summary>Describes a passed milestone, with the speed the planet gave or took.</summary>
     static string MilestoneText(Probe probe, Milestone milestone)
     {
         var date = SolarSystemData.EpochJ2000.AddDays(milestone.Day);
@@ -621,7 +635,7 @@ public partial class MainPage : ContentPage
 
         string name = SolarSystemDrawable.MilestoneName(probe, milestone);
 
-        // En gräns gav ingen fart och ska inte beskrivas som en förbiflygning.
+        // A boundary gave no speed and shouldn't be described as a flyby.
         if (milestone.IsBoundary)
             return Strings.Format("msg.probePassed", name, date);
 
@@ -631,17 +645,18 @@ public partial class MainPage : ContentPage
     }
 
     /// <summary>
-    /// Zoomar ut så att både sonden och solen ryms i bild när en sond väljs.
-    /// Sonderna är över hundra gånger längre bort än jorden, så hela
-    /// planetsystemet krymper då till en prick kring solen – vilket i sig är
-    /// det man ska se.
+    /// Zooms out so both the probe and the Sun fit in frame when a probe is
+    /// selected. The probes are over a hundred times farther out than
+    /// Earth, so the whole planetary system then shrinks to a dot around
+    /// the Sun – which is itself the point.
     ///
-    /// Faktorn styr hur långt bort kameran ställer sig, räknat i sondens eget
-    /// avstånd från solen. Står kameran f gånger så långt bort hamnar solen som
-    /// mest arcsin(1/f) från bildens mitt, och det måste rymmas inom halva
-    /// bildhöjden på 25 grader. Det ger f minst 2,37. Här stod tidigare 2,2,
-    /// vilket ger 27 grader: solen gled utanför över- eller underkanten så snart
-    /// kameran lutades, i ungefär vart tionde läge.
+    /// The factor controls how far away the camera positions itself,
+    /// measured in the probe's own distance from the Sun. With the camera f
+    /// times that distance away, the Sun sits at most arcsin(1/f) from the
+    /// centre of frame, and that has to fit within half the frame height of
+    /// 25 degrees. That gives f at least 2.37. This used to be 2.2, which
+    /// gives 27 degrees: the Sun slid past the top or bottom edge as soon as
+    /// the camera was tilted, in roughly one case in ten.
     /// </summary>
     void ZoomToProbe(Probe probe)
     {
@@ -652,11 +667,12 @@ public partial class MainPage : ContentPage
     }
 
     /// <summary>
-    /// Panelen som följer färden: hur länge farkosten varit i väg, hur länge det
-    /// är kvar, hur långt den har till målet och hur fort den går. Farten är den
-    /// intressanta raden. Den faller med avståndet, precis som Keplers andra lag
-    /// säger: mot månen från 10,8 km/s vid uppskjutningen till under 1 km/s vid
-    /// framkomsten, mot Mars från 33 till 21 km/s.
+    /// The panel that follows the trip: how long the craft has been
+    /// travelling, how long remains, how far it has left to the target, and
+    /// how fast it's going. Speed is the interesting line. It falls with
+    /// distance, exactly as Kepler's second law says: toward the Moon from
+    /// 10.8 km/s at launch to under 1 km/s on arrival, toward Mars from 33
+    /// to 21 km/s.
     /// </summary>
     void UpdateMissionPanel(double day)
     {
@@ -669,7 +685,7 @@ public partial class MainPage : ContentPage
 
         MissionPanel.IsVisible = true;
 
-        // Ankomsten: följ med ner till målet, en gång.
+        // Arrival: follow down to the target, once.
         bool arrived = mission.HasArrived(day);
         if (arrived && !_arrivalSeen)
         {
@@ -705,8 +721,9 @@ public partial class MainPage : ContentPage
     }
 
     /// <summary>
-    /// Restider skrivs i timmar när de är korta – en månfärd tar bara tre dygn,
-    /// och då säger "0,4 dygn" mindre än "9,6 timmar".
+    /// Travel times are written in hours when they're short – a lunar trip
+    /// only takes three days, and there "0.4 days" says less than "9.6
+    /// hours".
     /// </summary>
     static string FormatTravelTime(double days)
     {
@@ -716,13 +733,13 @@ public partial class MainPage : ContentPage
             : Strings.Format("msg.days", span);
     }
 
-    /// <summary>Avstånd i kilometer, i miljoner när talen blir för långa att läsa.</summary>
+    /// <summary>Distance in kilometres, in millions once the numbers get too long to read.</summary>
     static string FormatDistance(double km)
         => km >= 1e6
             ? Strings.Format("msg.millionKm", km / 1e6)
             : Strings.Format("msg.km", km);
 
-    /// <summary>Hoppar fram till nästa uppskjutningstillfälle.</summary>
+    /// <summary>Jumps forward to the next launch opportunity.</summary>
     void OnNextWindowClicked(object? sender, EventArgs e)
     {
         if (_nextWindowDay is not double next)
@@ -751,10 +768,11 @@ public partial class MainPage : ContentPage
     }
 
     /// <summary>
-    /// Skjuter upp en farkost mot månen från det datum vyn står på, eller
-    /// avbryter en pågående månfärd. Vyn flyttas samtidigt till jorden: hela
-    /// månfärden ryms inom 0,003 AU, alltså under en femtedels pixel i
-    /// översiktsvyn, så utan inzoomning vore det ingenting att se.
+    /// Launches a craft toward the Moon from the date the view stands on, or
+    /// cancels an ongoing lunar trip. The view is moved to Earth at the same
+    /// time: the whole lunar trip fits within 0.003 AU, under a fifth of a
+    /// pixel in the overview, so without zooming in there'd be nothing to
+    /// see.
     /// </summary>
     void OnMoonLaunchClicked(object? sender, EventArgs e)
     {
@@ -773,11 +791,11 @@ public partial class MainPage : ContentPage
         }
 
         _drawable.Mission = mission;
-        FocusOn(EarthBody);                            // zoomar in via OnFocusChanged
+        FocusOn(EarthBody);                            // zooms in via OnFocusChanged
         StartMission(launchDay);
     }
 
-    /// <summary>Gemensamt för båda uppskjutningarna: färden börjar om från början.</summary>
+    /// <summary>Shared by both launches: the trip starts over from the beginning.</summary>
     void StartMission(double launchDay)
     {
         _arrivalSeen = false;
@@ -786,7 +804,7 @@ public partial class MainPage : ContentPage
         _settingsChanged = true;
     }
 
-    /// <summary>Avbryter färden och tvingar fram en ny koll av startfönstret.</summary>
+    /// <summary>Cancels the trip and forces a fresh check of the launch window.</summary>
     void CancelMission()
     {
         _drawable.Mission = null;
@@ -805,8 +823,9 @@ public partial class MainPage : ContentPage
     void OnMoonsChanged(object? sender, CheckedChangedEventArgs e)
     {
         _drawable.ShowMoons = e.Value;
-        // Släcks månarna ska de också ut ur fokusväljaren, och följde kameran en
-        // av dem faller fokus tillbaka till solen.
+        // If the moons are turned off, they should also leave the focus
+        // selector, and if the camera was following one, focus falls back
+        // to the Sun.
         RebuildFocusPicker(CurrentFocus());
         _settingsChanged = true;
     }
@@ -830,8 +849,9 @@ public partial class MainPage : ContentPage
     }
 
     /// <summary>
-    /// Tänder och släcker Halleys komet. Kometen går också att följa, så
-    /// fokusväljaren byggs om – på samma sätt som när månarna släcks.
+    /// Turns Halley's Comet on and off. The comet can also be followed, so
+    /// the focus selector is rebuilt – the same way as when the moons are
+    /// turned off.
     /// </summary>
     void OnHalleyChanged(object? sender, CheckedChangedEventArgs e)
     {
@@ -840,27 +860,28 @@ public partial class MainPage : ContentPage
         _settingsChanged = true;
     }
 
-    // ----------------------------------------------------------- sondväljaren
+    // ----------------------------------------------------------- the probe selector
 
     /// <summary>
-    /// Sonderna som just nu går att välja i fokusväljaren, i väljarens ordning.
-    /// Listan förs parallellt eftersom väljarens innehåll ändras när sonder
-    /// tänds och släcks – index går alltså inte längre att räkna ur ProbeData.
+    /// The probes currently selectable in the focus selector, in the
+    /// selector's order. The list is kept in parallel since the selector's
+    /// contents change as probes are turned on and off – so the index can
+    /// no longer be computed straight from ProbeData.
     /// </summary>
     readonly List<Probe> _focusProbes = new();
 
-    /// <summary>Kropparna i fokusväljaren, i samma ordning som namnen efter solen.</summary>
+    /// <summary>The bodies in the focus selector, in the same order as the names after the Sun.</summary>
     readonly List<CelestialBody> _focusBodies = new();
 
-    /// <summary>Planeten en måne hör till, eller null för planeterna själva.</summary>
+    /// <summary>The planet a moon belongs to, or null for the planets themselves.</summary>
     readonly List<CelestialBody?> _focusParents = new();
 
-    /// <summary>Sant medan fokusväljaren byggs om, så att bytet inte tolkas som ett val.</summary>
+    /// <summary>True while the focus selector is being rebuilt, so the change isn't interpreted as a choice.</summary>
     bool _rebuildingFocus;
 
     /// <summary>
-    /// Bygger sondväljarens rader ur sonddata: först de fem som lämnat
-    /// solsystemet, sedan de två som kretsar kring en planet.
+    /// Builds the probe selector's rows from the probe data: first the five
+    /// that left the Solar System, then the two orbiting a planet.
     /// </summary>
     void BuildProbeMenu()
     {
@@ -880,7 +901,7 @@ public partial class MainPage : ContentPage
         UpdateProbeMenuButton();
     }
 
-    /// <summary>En rad i väljaren: kryssruta och namn i sondens egen färg.</summary>
+    /// <summary>A row in the selector: checkbox and name in the probe's own colour.</summary>
     View ProbeMenuRow(string name, Color color)
     {
         var check = new CheckBox
@@ -915,7 +936,7 @@ public partial class MainPage : ContentPage
 
     void OnNoProbesClicked(object? sender, EventArgs e) => SetAllProbes(false);
 
-    /// <summary>Tänder eller släcker allihop via kryssrutorna, som i sin tur gör jobbet.</summary>
+    /// <summary>Turns everything on or off via the checkboxes, which do the actual work.</summary>
     void SetAllProbes(bool visible)
     {
         foreach (var row in ProbeMenuItems.Children.OfType<HorizontalStackLayout>())
@@ -924,9 +945,10 @@ public partial class MainPage : ContentPage
     }
 
     /// <summary>
-    /// En sond tänds eller släcks. Släcks den sond kameran följer faller fokus
-    /// tillbaka till solen och vyn zoomar ut till översikten – kameran ska aldrig
-    /// bli stående och följa något som inte ritas.
+    /// A probe is turned on or off. If the probe the camera is following is
+    /// turned off, focus falls back to the Sun and the view zooms out to
+    /// the overview – the camera should never be left following something
+    /// that isn't drawn.
     /// </summary>
     void OnProbeToggled(string name, bool visible)
     {
@@ -944,7 +966,7 @@ public partial class MainPage : ContentPage
         _settingsChanged = true;
     }
 
-    /// <summary>Knappens text visar hur många sonder som är ivalda.</summary>
+    /// <summary>The button's text shows how many probes are selected.</summary>
     void UpdateProbeMenuButton()
     {
         int total = ProbeData.All.Length + ProbeData.Orbiters.Length;
@@ -953,16 +975,17 @@ public partial class MainPage : ContentPage
     }
 
     /// <summary>
-    /// Bygger om fokusväljaren så att den bara listar de sonder som visas – man
-    /// ska inte kunna välja att följa något som inte ritas. Går det tidigare
-    /// valet inte att behålla faller det tillbaka till solen, och då zoomar vyn
-    /// ut till översikten; annars hade kameran blivit stående hundra AU ut i
-    /// tomma rymden.
+    /// Rebuilds the focus selector so it only lists the probes that are
+    /// shown – you shouldn't be able to choose to follow something that
+    /// isn't drawn. If the previous choice can't be kept, it falls back to
+    /// the Sun, and the view zooms out to the overview; otherwise the
+    /// camera would be left standing a hundred AU out in empty space.
     /// </summary>
     /// <summary>
-    /// Det som är valt i fokusväljaren just nu: null för solen, annars kroppen
-    /// eller sonden. Valet följs som en sak och inte som en text – namnen byter
-    /// språk, och en text går då inte att känna igen efteråt.
+    /// What's currently selected in the focus selector: null for the Sun,
+    /// otherwise the body or the probe. The selection is tracked as an
+    /// object rather than a text string – names switch language, and a text
+    /// string wouldn't be recognisable afterward.
     /// </summary>
     object? CurrentFocus()
     {
@@ -978,10 +1001,10 @@ public partial class MainPage : ContentPage
         _focusProbes.Clear();
         _focusProbes.AddRange(ProbeData.All.Where(p => _drawable.VisibleProbes.Contains(p.Name)));
 
-        // Varje planet följs av sina månar, med en punkt framför så att
-        // grupperingen syns i en lista som inte kan dra in rader. Månarna listas
-        // bara när de ritas – man ska inte kunna följa något som inte syns,
-        // samma regel som för sonderna.
+        // Each planet is followed by its moons, with a dot in front so the
+        // grouping shows in a list that can't indent rows. Moons are only
+        // listed while drawn – you shouldn't be able to follow something
+        // that isn't visible, the same rule as for the probes.
         _focusBodies.Clear();
         _focusParents.Clear();
         var names = new List<string> { Strings.Name("Sun") };
@@ -1000,9 +1023,10 @@ public partial class MainPage : ContentPage
                 names.Add(MoonEntry + Strings.Name(moon.Key));
             }
         }
-        // Kometen sist bland kropparna, och bara när den ritas. Att kunna följa
-        // den är mer värt än för planeterna: banan är sextio gånger längre än den
-        // är bred, så utan kamera på plats försvinner kometen ur bild i årtionden.
+        // The comet last among the bodies, and only while drawn. Being able
+        // to follow it matters more than for the planets: the orbit is
+        // sixty times longer than it is wide, so without the camera in
+        // place the comet disappears from view for decades.
         if (_drawable.ShowHalley)
         {
             _focusBodies.Add(SolarSystemData.Halley);
@@ -1012,9 +1036,9 @@ public partial class MainPage : ContentPage
 
         names.AddRange(_focusProbes.Select(p => p.Name));
 
-        // Tappas valet – för att sonden släckts, eller för att månarna gömts –
-        // faller det tillbaka till solen.
-        int found = 0;                                  // null betyder solen
+        // If the selection is lost – because the probe was turned off, or
+        // the moons were hidden – it falls back to the Sun.
+        int found = 0;                                  // null means the Sun
         if (keep is CelestialBody body)
         {
             int i = _focusBodies.IndexOf(body);
@@ -1056,7 +1080,7 @@ public partial class MainPage : ContentPage
     void OnStarDensityChanged(object? sender, EventArgs e)
     {
         if (_rebuilding)
-            return;     // väljaren fylls om vid språkbyte, inget användaren gjort
+            return;     // the selector is refilled on a language switch, not something the user did
 
         _drawable.StarDensity = (StarDensity)Math.Max(0, StarDensityPicker.SelectedIndex);
         _settingsChanged = true;
@@ -1065,12 +1089,12 @@ public partial class MainPage : ContentPage
     void OnFocusChanged(object? sender, EventArgs e)
     {
         if (_rebuildingFocus)
-            return;     // väljaren byggs om, inget användaren klickat på
+            return;     // the selector is being rebuilt, nothing the user clicked
 
         _focusIndex = Math.Max(0, FocusPicker.SelectedIndex);
         _followCraft = false;
         _drawable.FocusedProbe = FocusedProbe;
-        // Gränsen först, annars kläms det nya avståndet av den förra kroppens.
+        // The limit first, otherwise the new distance gets clamped by the previous body's.
         _drawable.Camera.MinDistance = FocusMinDistance();
 
         if (FocusedProbe is { } probe)
@@ -1079,8 +1103,8 @@ public partial class MainPage : ContentPage
         }
         else if (_focusIndex - 1 is int body && body >= 0 && body < _focusBodies.Count)
         {
-            // En måne fyller bilden; en planet ramas in så att hela dess
-            // månsystem ryms.
+            // A moon fills the frame; a planet is framed so its whole moon
+            // system fits.
             _drawable.Camera.Distance = _focusParents[body] is null
                 ? _drawable.SuggestedFocusDistance(_focusBodies[body])
                 : _drawable.SuggestedMoonDistance(_focusBodies[body]);
@@ -1090,16 +1114,17 @@ public partial class MainPage : ContentPage
     }
 
     /// <summary>
-    /// Hoppar till nästa möte av den valda sorten. Sökningen börjar vid det
-    /// datum man står på, så trycker man igen kommer man till nästa i tur och
-    /// ordning – och söker man bakåt får man byta datum först.
+    /// Jumps to the next meeting of the selected kind. The search starts at
+    /// the date currently displayed, so pressing again gives the next one
+    /// in turn – and searching backward means changing the date first.
     ///
-    /// Ett par saker är värda att veta om det som visas. Vid opposition står
-    /// planeten närmast jorden, och avståndet skiljer sig rejält mellan
-    /// tillfällena: Mars kan vara 0,37 AU bort en gynnsam gång och 0,68 en
-    /// ogynnsam, vilket är hela skälet till att somliga oppositioner blir
-    /// nyheter. Vid konjunktion står de två bara i samma riktning sett
-    /// härifrån – i rymden kan de vara miljardtals kilometer isär.
+    /// A couple of things are worth knowing about what's shown. At
+    /// opposition the planet stands closest to Earth, and the distance
+    /// differs considerably between occasions: Mars can be 0.37 AU away on
+    /// a favourable one and 0.68 on an unfavourable one, which is the whole
+    /// reason some oppositions make the news. At conjunction the two merely
+    /// stand in the same direction as seen from here – in space they can be
+    /// billions of kilometres apart.
     /// </summary>
     void OnNextMeetingClicked(object? sender, EventArgs e)
     {
@@ -1119,7 +1144,7 @@ public partial class MainPage : ContentPage
         var date = SolarSystemData.EpochJ2000.AddDays(meeting.Day);
         GoToDate(date);
 
-        // Hela meningen, inte bara siffran: vad som hittades, när, och hur nära.
+        // The whole sentence, not just the number: what was found, when, and how close.
         string detail = choice.Kind switch
         {
             SkyEvent.Kind.Opposition =>
@@ -1128,10 +1153,11 @@ public partial class MainPage : ContentPage
                 Strings.Format("msg.meetingSolarEclipse", meeting.SeparationDeg),
             SkyEvent.Kind.LunarEclipse =>
                 Strings.Format("msg.meetingLunarEclipse", meeting.SeparationDeg),
-            // Vid periheliet är avståndet till solen alltid detsamma, så det som
-            // är värt att veta är hur besöket blir sett härifrån: hur nära jorden
-            // kometen kommer, och hur långt från solen den står på himlen. Under
-            // ett tiotal grader drunknar den i dagsljuset.
+            // At perihelion the distance to the Sun is always the same, so
+            // what's worth knowing is what the visit looks like from here:
+            // how close to Earth the comet comes, and how far from the Sun
+            // it stands in the sky. Under about ten degrees it drowns in
+            // daylight.
             SkyEvent.Kind.Perihelion =>
                 Strings.Format("msg.meetingPerihelion",
                     meeting.DistanceAu, meeting.SeparationDeg),
@@ -1139,9 +1165,10 @@ public partial class MainPage : ContentPage
         };
         MeetingLabel.Text = Strings.Format("msg.meetingLine", ChoiceLabel(choice), date, detail);
 
-        // Vid en förmörkelse är förklaringen mer värd än datumet. Ställ in vyn
-        // så att den syns: månbanan fram och kameran vid jorden, där man ser att
-        // solen står vid nodlinjen just den dagen och därför kan komma i vägen.
+        // For an eclipse, the explanation is worth more than the date. Set
+        // up the view so it's visible: the Moon's orbit shown and the camera
+        // at Earth, where you can see the Sun standing on the node line that
+        // very day and so being able to get in the way.
         if (choice.Kind is SkyEvent.Kind.SolarEclipse or SkyEvent.Kind.LunarEclipse)
         {
             MoonOrbitCheck.IsChecked = true;
@@ -1149,10 +1176,11 @@ public partial class MainPage : ContentPage
             FocusOn(EarthBody);
         }
 
-        // Att hoppa till Halleys perihelium utan att tända kometen vore att resa
-        // till ett tomt datum. Kameran lämnas däremot där den står: det är i
-        // översikten man ser vad som faktiskt händer, att kometen dyker in genom
-        // hela planetsystemet. Vill man gå nära finns den i fokusväljaren.
+        // Jumping to Halley's perihelion without lighting up the comet would
+        // be travelling to an empty date. The camera, though, is left where
+        // it stands: it's in the overview that you see what actually
+        // happens, the comet diving in through the whole planetary system.
+        // To get close, it's in the focus selector.
         if (choice.Kind is SkyEvent.Kind.Perihelion)
             HalleyCheck.IsChecked = true;
     }
@@ -1164,9 +1192,9 @@ public partial class MainPage : ContentPage
     }
 
     /// <summary>
-    /// Fäller ihop kontrollpanelen till bara sin list. Panelen har vuxit till
-    /// fem rader och tar då en femtedel av fönstret, vilket är i mesta laget när
-    /// man bara vill titta på solsystemet.
+    /// Collapses the control panel down to just its bar. The panel has
+    /// grown to five rows and then takes up a fifth of the window, which is
+    /// a lot when all you want to do is look at the Solar System.
     /// </summary>
     void OnPanelToggleClicked(object? sender, EventArgs e) => TogglePanel();
 
@@ -1186,7 +1214,7 @@ public partial class MainPage : ContentPage
         FocusPicker.SelectedIndex = 0;
     }
 
-    // ------------------------------------------------------------ mus & gester
+    // ------------------------------------------------------------ mouse & gestures
 
     void OnPanUpdated(object? sender, PanUpdatedEventArgs e)
     {
@@ -1211,7 +1239,7 @@ public partial class MainPage : ContentPage
             _drawable.Camera.ZoomBy(1f / (float)e.Scale);
     }
 
-    // --------------------------------------------- tangentbord & skrollhjul
+    // --------------------------------------------- keyboard & scroll wheel
 
     void HookPlatformInput()
     {
@@ -1254,12 +1282,12 @@ public partial class MainPage : ContentPage
                 break;
             case Windows.System.VirtualKey.W:
             case Windows.System.VirtualKey.Add:
-            case (Windows.System.VirtualKey)187: // "+" på huvudtangentbordet
+            case (Windows.System.VirtualKey)187: // "+" on the main keyboard
                 _drawable.Camera.ZoomBy(0.86f);
                 break;
             case Windows.System.VirtualKey.S:
             case Windows.System.VirtualKey.Subtract:
-            case (Windows.System.VirtualKey)189: // "-" på huvudtangentbordet
+            case (Windows.System.VirtualKey)189: // "-" on the main keyboard
                 _drawable.Camera.ZoomBy(1.16f);
                 break;
             case Windows.System.VirtualKey.Space:

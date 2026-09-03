@@ -5,17 +5,17 @@ using Solarsystem.Simulation;
 namespace Solarsystem.Rendering;
 
 /// <summary>
-/// Ritar hela scenen: stjärnhimmel, banor, solen, planeter (djupsorterade,
-/// skuggade mot solen), Saturnus ringar samt namnetiketter.
+/// Draws the whole scene: the night sky, orbits, the Sun, planets
+/// (depth-sorted, shaded against the Sun), Saturn's rings, and name labels.
 /// </summary>
 public sealed class SolarSystemDrawable : IDrawable
 {
-    /// <summary>Världsskala: 1 AU = 60 enheter. Avstånden är alltid skalenliga.</summary>
+    /// <summary>World scale: 1 AU = 60 units. Distances are always to scale.</summary>
     public const float UnitsPerAu = 60f;
 
-    // Med helt verklig skala är planeterna mindre än en pixel, därför kan de
-    // förstoras (inbördes fortfarande skalenliga). Solen förstoras mindre för
-    // att inte sluka Merkurius bana.
+    // At fully real scale the planets are smaller than a pixel, so they're
+    // enlarged (still to scale relative to each other). The Sun is enlarged
+    // less, so it doesn't swallow Mercury's orbit.
     const float PlanetBoost = 1000f;
     const float SunBoost = 30f;
 
@@ -28,60 +28,64 @@ public sealed class SolarSystemDrawable : IDrawable
     public bool ShowConstellations { get; set; } = true;
     public bool ShowStarNames { get; set; }
 
-    /// <summary>Om planeternas månar ska ritas alls.</summary>
+    /// <summary>Whether the planets' moons should be drawn at all.</summary>
     public bool ShowMoons { get; set; } = true;
 
-    /// <summary>Om asteroidbältet mellan Mars och Jupiter ska ritas.</summary>
+    /// <summary>Whether the asteroid belt between Mars and Jupiter should be drawn.</summary>
     public bool ShowAsteroidBelt { get; set; }
 
-    /// <summary>Pågående rymdfärd, eller null när ingen farkost är på väg.</summary>
+    /// <summary>The ongoing space mission, or null when no craft is under way.</summary>
     public Mission? Mission { get; set; }
 
-    /// <summary>Om Kuiperbältet bortom Neptunus ska ritas.</summary>
+    /// <summary>Whether the Kuiper belt beyond Neptune should be drawn.</summary>
     public bool ShowKuiperBelt { get; set; }
 
     /// <summary>
-    /// Namnen på de rymdsonder som ska ritas – både de fem som lämnat
-    /// solsystemet och de två som kretsar kring en planet. Sonder som inte finns
-    /// i mängden ritas inte alls: varken prick, spår eller milstolpar. Tom mängd
-    /// släcker allihop.
+    /// The names of the spacecraft that should be drawn – both the five that
+    /// left the Solar System and the two orbiting a planet. Probes not in
+    /// the set aren't drawn at all: no dot, trail or milestones. An empty
+    /// set turns everything off.
     ///
-    /// Namnen duger som nyckel eftersom de är unika och redan används för att
-    /// identifiera kroppar på andra håll i appen, till exempel i fokusväljaren.
+    /// The names work as a key since they're unique and already used to
+    /// identify bodies elsewhere in the app, for instance in the focus
+    /// selector.
     ///
-    /// Tom från start: sonderna är en fördjupning och deras spår korsar hela
-    /// vyn, så översikten ska vara ren tills någon bockar i dem i väljaren.
+    /// Empty from the start: the probes are a deeper layer and their trails
+    /// cross the whole view, so the overview should stay clean until someone
+    /// checks them in the selector.
     /// </summary>
     public HashSet<string> VisibleProbes { get; } = [];
 
     /// <summary>
-    /// Ritar Halleys komet med sin bana och sina svansar. Av som standard: den
-    /// är borta 74 år av 75, och dess bana är så utdragen att den skymmer
-    /// planeternas när den ligger kvar i bilden.
+    /// Draws Halley's Comet with its orbit and its tails. Off by default:
+    /// it's absent 74 years out of 75, and its orbit is so elongated that it
+    /// obscures the planets' orbits when left in the picture.
     /// </summary>
     public bool ShowHalley { get; set; }
 
     /// <summary>
-    /// Ritar månbanan mot ekliptikan med noderna utmärkta. Av som standard –
-    /// det är en fördjupning och inte något som hör hemma i översiktsvyn.
+    /// Draws the Moon's orbit against the ecliptic with the nodes marked.
+    /// Off by default – it's a deeper layer and not something that belongs
+    /// in the overview.
     /// </summary>
     public bool ShowMoonOrbit { get; set; }
 
     /// <summary>
-    /// Sonden som är vald i fokusväljaren, eller null. Dess milstolpar skrivs
-    /// ut med planetnamn och datum; de övrigas markeras bara med årtal, annars
-    /// blir vyn full av text.
+    /// The probe selected in the focus selector, or null. Its milestones are
+    /// printed with planet name and date; the others' are marked with just
+    /// the year, otherwise the view fills up with text.
     /// </summary>
     public Probe? FocusedProbe { get; set; }
 
     /// <summary>
-    /// Sant medan fönstret håller på att ändra storlek. Då ritas bara svart –
-    /// plattformen ritar om vid varje storlekssteg, och att projicera om hela
-    /// scenen för varje sådant steg är det som annars fryser fönsterhanteraren.
+    /// True while the window is being resized. Then only black is drawn –
+    /// the platform redraws on every resize step, and reprojecting the
+    /// whole scene for every such step is what would otherwise freeze the
+    /// window manager.
     /// </summary>
     public bool Suspended { get; set; }
 
-    /// <summary>Hur många stjärnor som ritas (inställning i appen).</summary>
+    /// <summary>How many stars are drawn (a setting in the app).</summary>
     public StarDensity StarDensity
     {
         get => _sky.Density;
@@ -90,20 +94,20 @@ public sealed class SolarSystemDrawable : IDrawable
 
     readonly StarSky _sky = new();
 
-    // Bältet byggs först när det efterfrågas, så att appen startar lika snabbt
-    // som förut för den som aldrig slår på det.
+    // The belt is built only when requested, so the app starts just as fast
+    // as before for anyone who never turns it on.
     SmallBodyBelt? _asteroids, _kuiper;
     Vector3[]? _asteroidPositions, _kuiperPositions;
     double _asteroidTime = double.NaN, _kuiperTime = double.NaN;
 
-    // Asteroider är steniga och gråbruna; Kuiperkropparna är isiga och kallare i tonen.
+    // Asteroids are rocky and grey-brown; Kuiper bodies are icy and cooler in tone.
     static readonly Color AsteroidColor = Color.FromArgb("#B4A794");
     static readonly Color KuiperColor = Color.FromArgb("#A9BCC8");
     static readonly Color CeresLabelColor = Color.FromRgba(0.82f, 0.78f, 0.72f, 0.85f);
     Vector3[][]? _orbitPaths;
     readonly List<(string Name, float X, float Y)> _labels = new(16);
 
-    // Cache av banornas skärmfigurer – giltig tills kameran flyttas.
+    // Cache of the orbits' screen shapes – valid until the camera moves.
     float _orbYaw = float.NaN, _orbPitch, _orbDist, _orbW, _orbH;
     Vector3 _orbTarget;
     PathF[] _orbitScreenPaths = [];
@@ -116,8 +120,8 @@ public sealed class SolarSystemDrawable : IDrawable
         {
             canvas.FillColor = Colors.Black;
             canvas.FillRectangle(rect);
-            // Negerad jämförelse så att även NaN-mått (mitt under en pågående
-            // storleksändring) stoppas här.
+            // A negated comparison so NaN dimensions (mid-resize) are also
+            // caught here.
             if (Suspended || !(rect.Width >= 10 && rect.Height >= 10))
                 return;
 
@@ -156,20 +160,20 @@ public sealed class SolarSystemDrawable : IDrawable
         }
         catch (Exception ex)
         {
-            Diagnostics.Log($"ritfel: {ex}\n");
+            Diagnostics.Log($"draw error: {ex}\n");
             throw;
         }
     }
 
-    // ------------------------------------------------------------------- banor
+    // ------------------------------------------------------------------- orbits
 
     void DrawOrbits(ICanvas canvas, RectF rect)
     {
         _orbitPaths ??= [.. SolarSystemData.Planets
             .Select(p => p.OrbitPath(OrbitSamples, UnitsPerAu))];
 
-        // Banorna ligger stilla i världen, så deras skärmfigurer behöver bara
-        // byggas om när kameran faktiskt flyttas.
+        // The orbits sit still in the world, so their screen shapes only
+        // need rebuilding when the camera actually moves.
         if (Camera.Yaw != _orbYaw || Camera.Pitch != _orbPitch ||
             Camera.Distance != _orbDist || Camera.Target != _orbTarget ||
             rect.Width != _orbW || rect.Height != _orbH)
@@ -188,8 +192,8 @@ public sealed class SolarSystemDrawable : IDrawable
             {
                 var pts = _orbitPaths[i];
                 var path = new PathF();
-                // En delfigur får bara börja när minst två punkter i rad är
-                // synliga – en ensam MoveTo utan LineTo är ogiltig i Win2D.
+                // A subpath may only start once at least two points in a row
+                // are visible – a lone MoveTo with no LineTo is invalid in Win2D.
                 bool started = false, hasPrev = false;
                 float px = 0, py = 0;
                 for (int k = 0; k <= pts.Length; k++)
@@ -224,9 +228,9 @@ public sealed class SolarSystemDrawable : IDrawable
         }
     }
 
-    // ------------------------------------------------------------- bältena
+    // ------------------------------------------------------------- the belts
 
-    /// <summary>Hur många kroppar som ritas i respektive bälte.</summary>
+    /// <summary>How many bodies are drawn in each belt.</summary>
     const int AsteroidCount = 1400;
     const int KuiperCount = 1100;
 
@@ -237,7 +241,7 @@ public sealed class SolarSystemDrawable : IDrawable
         DrawBelt(canvas, rect, _asteroids, _asteroidPositions, AsteroidColor,
             ref _asteroidTime, 1.1f);
 
-        // Ceres är så mycket större än allt annat i bältet att den får namn.
+        // Ceres is so much larger than everything else in the belt that it gets a name.
         var ceres = SolarSystemData.Ceres.PositionAt(DaysSinceJ2000, UnitsPerAu);
         if (Camera.Project(ceres, out float cx, out float cy, out _))
         {
@@ -250,17 +254,19 @@ public sealed class SolarSystemDrawable : IDrawable
     }
 
     /// <summary>
-    /// Ritar ett bälte som ett fint stoft av prickar. Varje kropp får sin plats
-    /// ur en egen Kepler-bana, så att bältet roterar med inre varv snabbare än
-    /// yttre precis som i verkligheten. Prickar utanför bildkanten hoppas över.
+    /// Draws a belt as a fine dust of dots. Each body gets its position from
+    /// its own Kepler orbit, so the belt rotates with the inner laps faster
+    /// than the outer, exactly as in reality. Dots outside the screen edge
+    /// are skipped.
     /// </summary>
     void DrawBelt(ICanvas canvas, RectF rect, SmallBodyBelt belt, Vector3[] positions,
         Color colour, ref double cachedTime, float dotRadius)
     {
-        // Kropparna kryper framåt i sina banor – ett varv tar år till århundraden.
-        // Positionerna behöver därför inte lösas ur Keplers ekvation varje bildruta,
-        // utan först när rörelsen hunnit bli en pixel på skärmen. Toleransen följer
-        // både zoomen och hur snabbt just det här bältet rör sig.
+        // The bodies creep forward in their orbits – one lap takes years to
+        // centuries. The positions therefore don't need to be solved from
+        // Kepler's equation every frame, only once the motion has become a
+        // pixel on screen. The tolerance follows both the zoom and how fast
+        // this particular belt moves.
         float tolerance = MathF.Max(0.02f, Camera.Distance / (belt.DriftPerDay * Camera.Focal));
         if (double.IsNaN(cachedTime) || Math.Abs(DaysSinceJ2000 - cachedTime) > tolerance)
         {
@@ -279,7 +285,7 @@ public sealed class SolarSystemDrawable : IDrawable
             if (sx < -40f || sx > maxX || sy < -40f || sy > maxY)
                 continue;
 
-            // Listan är sorterad efter ljusstyrka, så detta slår till tre gånger.
+            // The list is sorted by brightness, so this triggers three times.
             float alpha = belt.Bodies[i].Alpha;
             if (alpha != currentAlpha)
             {
@@ -290,13 +296,13 @@ public sealed class SolarSystemDrawable : IDrawable
         }
     }
 
-    // ------------------------------------------------------------ himlakroppar
+    // ------------------------------------------------------------ celestial bodies
 
     void DrawBodies(ICanvas canvas, RectF rect)
     {
         double t = DaysSinceJ2000;
 
-        // Solens skärmposition behövs för planeternas ljussättning.
+        // The Sun's screen position is needed for the planets' lighting.
         bool sunVisible = Camera.Project(Vector3.Zero, out float sunX, out float sunY, out float sunDepth);
 
         var bodies = new List<(CelestialBody? Body, bool IsMoon, Vector3 Pos, float WorldRadius, float Depth, float Sx, float Sy)>(16);
@@ -307,9 +313,10 @@ public sealed class SolarSystemDrawable : IDrawable
 
         foreach (var planet in SolarSystemData.Planets)
         {
-            // Kepler-banan beskriver egentligen systemets tyngdpunkt. Med en så
-            // tung måne som Charon ligger den utanför moderkroppen, som då
-            // vaggar synligt kring den i stället för att stå stilla.
+            // The Kepler orbit really describes the system's centre of mass.
+            // With a moon as heavy as Charon, that centre lies outside the
+            // parent body, which then visibly wobbles around it instead of
+            // standing still.
             var barycentre = planet.PositionAt(t, UnitsPerAu);
             var pos = barycentre;
             float moonScale = 0f;
@@ -329,7 +336,7 @@ public sealed class SolarSystemDrawable : IDrawable
                 AddMoons(bodies, planet, barycentre, moonScale, t);
         }
 
-        // Måla bakifrån och fram (painter's algorithm).
+        // Paint back to front (painter's algorithm).
         bodies.Sort((a, b) => b.Depth.CompareTo(a.Depth));
 
         foreach (var (body, isMoon, pos, worldR, depth, sx, sy) in bodies)
@@ -343,13 +350,14 @@ public sealed class SolarSystemDrawable : IDrawable
             }
             else
             {
-                // Småmånar som Phobos (11 km radie) blir försvinnande små även
-                // förstorade, så de garanteras en synlig prick.
+                // Tiny moons like Phobos (11 km radius) become vanishingly small
+                // even magnified, so they're guaranteed a visible dot.
                 r = MathF.Max(r, RealScale ? 0.45f : isMoon ? 2.5f : 1.1f);
                 if (body.Ring is PlanetRing ring)
                 {
-                    // Den bortre ringhalvan målas före planeten och den främre efter,
-                    // så att ringen ser ut att gå bakom och framför klotet.
+                    // The far half of the ring is painted before the planet and the
+                    // near half after, so the ring appears to pass behind and in
+                    // front of the globe.
                     BuildRingPaths(ring, pos, worldR, depth, out var farRing, out var nearRing);
                     FillRing(canvas, ring, farRing);
                     DrawBody(canvas, body, pos, sx, sy, r, sunX, sunY);
@@ -359,7 +367,7 @@ public sealed class SolarSystemDrawable : IDrawable
                 {
                     DrawBody(canvas, body, pos, sx, sy, r, sunX, sunY);
                 }
-                // Månar ritas utan namnetikett – de känns igen på sin plats vid planeten.
+                // Moons are drawn without a name label – they're recognised by their position next to the planet.
                 if (!isMoon)
                     _labels.Add((Strings.Name(body.Key), sx, sy + r + 6));
             }
@@ -367,14 +375,16 @@ public sealed class SolarSystemDrawable : IDrawable
     }
 
     /// <summary>
-    /// Heliopausens avstånd från solen. Där möter solvinden det interstellära
-    /// mediet och solens välde tar slut – det närmaste solsystemet har en kant.
+    /// The heliopause's distance from the Sun. There the solar wind meets
+    /// the interstellar medium and the Sun's domain ends – the nearest thing
+    /// the Solar System has to an edge.
     ///
-    /// Att rita den som en kula är en förenkling. I verkligheten buktar den:
-    /// solsystemet far genom det interstellära mediet i 25 km/s och får en
-    /// stötvåg framför sig, så gränsen ligger närmare åt det håll vi är på väg
-    /// och dras ut till en svans bakåt. Voyagersonderna korsade den på 121,6
-    /// respektive 119,0 AU, och att de två talen inte är lika är just det.
+    /// Drawing it as a sphere is a simplification. In reality it's not
+    /// round: the Solar System travels through the interstellar medium at
+    /// 25 km/s and gets a bow shock ahead of it, so the boundary sits closer
+    /// in the direction we're heading and is drawn out into a tail behind.
+    /// The Voyager probes crossed it at 121.6 and 119.0 AU respectively, and
+    /// that the two numbers aren't equal is exactly why.
     /// </summary>
     public const double HeliopauseAu = 120.0;
 
@@ -382,19 +392,20 @@ public sealed class SolarSystemDrawable : IDrawable
     static readonly Color HeliopauseRim = Color.FromRgba(0.55f, 0.75f, 1.00f, 0.30f);
 
     /// <summary>
-    /// Ritar heliopausen som en cirkel, men bara när kameran står utanför den.
-    /// Innanför skulle sfären fylla hela bilden och bara vara en blå slöja.
+    /// Draws the heliopause as a circle, but only while the camera stands
+    /// outside it. From inside, the sphere would fill the whole frame and
+    /// just be a blue haze.
     ///
-    /// En kula sedd utifrån projiceras till en cirkel med vinkelradien
-    /// arcsin(R/d), vilket på skärmen blir R·f/√(d²−R²). Det är alltså inte
-    /// samma sak som att projicera kulans kant rakt av.
+    /// A sphere seen from outside projects to a circle with angular radius
+    /// arcsin(R/d), which on screen becomes R·f/√(d²−R²). So it's not the
+    /// same thing as projecting the sphere's edge directly.
     /// </summary>
     void DrawHeliopause(ICanvas canvas, RectF rect)
     {
         float radius = (float)HeliopauseAu * UnitsPerAu;
         float distance = Camera.Position.Length();
 
-        // Innanför, eller precis på gränsen där uttrycket spårar ur.
+        // Inside, or right at the limit where the expression derails.
         if (distance <= radius * 1.02f)
             return;
         if (!Camera.Project(Vector3.Zero, out float sx, out float sy, out _))
@@ -402,8 +413,9 @@ public sealed class SolarSystemDrawable : IDrawable
 
         float screen = Camera.Focal * radius
                        / MathF.Sqrt(distance * distance - radius * radius);
-        // Cirkeln ska rymmas i bild. Är den större än så ser man ingen kant alls,
-        // bara en blå slöja över allt – och då är det bättre att inte rita den.
+        // The circle has to fit in frame. Bigger than that, no edge is
+        // visible at all, just a blue haze over everything – and then it's
+        // better not to draw it.
         if (screen < 8f || screen > MathF.Min(rect.Width, rect.Height) * 0.55f)
             return;
 
@@ -417,45 +429,46 @@ public sealed class SolarSystemDrawable : IDrawable
     }
 
 
-    // ---------------------------------------------------- Halleys komet
+    // ---------------------------------------------------- Halley's Comet
 
     /// <summary>
-    /// Bortom det här avståndet från solen har kometen ingen svans. Gränsen är
-    /// inte vald för att det ser bra ut: svansen finns bara så länge isen i
-    /// kärnan ångar, och vattenis börjar ånga först när solen värmt den nog,
-    /// vilket sker kring tre astronomiska enheter.
+    /// Beyond this distance from the Sun, the comet has no tail. The limit
+    /// isn't chosen for looks: the tail exists only as long as the ice in
+    /// the nucleus is vaporising, and water ice only starts vaporising once
+    /// the Sun has warmed it enough, which happens around three astronomical
+    /// units.
     ///
-    /// Följden är värd att se i appen. Av sina 27 563 dygn tillbringar Halley
-    /// 368 innanför gränsen – ett år av sjuttiofem. Resten av tiden är den en
-    /// mörk isklump som ingen kan se.
+    /// The consequence is worth seeing in the app. Of its 27,563 days,
+    /// Halley spends 368 inside the limit – one year out of seventy-five.
+    /// The rest of the time it's a dark lump of ice nobody can see.
     /// </summary>
     const double TailLimitAu = 3.0;
 
     /// <summary>
-    /// Svansens längd på en astronomisk enhets avstånd. Den växer som 1/r², i
-    /// takt med solljusets styrka, vilket ger 0,29 AU i periheliet och några
-    /// hundradelar vid gränsen ovan.
+    /// The tail's length at one astronomical unit of distance. It grows as
+    /// 1/r², in step with the strength of sunlight, giving 0.29 AU at
+    /// perihelion and a few hundredths at the limit above.
     /// </summary>
     const double TailScaleAu = 0.10;
 
-    /// <summary>Tak för längden, så att den inte skenar i väg innanför periheliet.</summary>
+    /// <summary>Cap on the length, so it doesn't run away inside perihelion.</summary>
     const double MaxTailAu = 0.30;
 
-    /// <summary>Hur lång dammsvansen är i förhållande till jonsvansen.</summary>
+    /// <summary>How long the dust tail is relative to the ion tail.</summary>
     const double DustLengthShare = 0.65;
 
-    /// <summary>Hur hårt dammsvansen böjs bakåt i banan vid sin spets.</summary>
+    /// <summary>How sharply the dust tail curves backward in the orbit toward its tip.</summary>
     const double DustCurve = 0.5;
 
-    /// <summary>Antal punkter varje svans byggs av.</summary>
+    /// <summary>Number of points each tail is built from.</summary>
     const int TailSteps = 16;
 
     /// <summary>
-    /// Kortaste svans som ritas, i bildpunkter. En svans på 0,3 AU är stor i
-    /// jämförelse med jordens bana men liten i jämförelse med Halleys egen, så
-    /// utzoomat vore den bara några pixlar lång. Den sträcks då ut till den här
-    /// längden med riktningen behållen – samma sorts förstoring som planeterna
-    /// får för att alls synas.
+    /// The shortest tail that's drawn, in pixels. A tail of 0.3 AU is large
+    /// compared to Earth's orbit but small compared to Halley's own, so
+    /// zoomed out it would only be a few pixels long. It's then stretched
+    /// out to this length with its direction kept – the same kind of
+    /// magnification the planets get to be visible at all.
     /// </summary>
     const float MinTailPixels = 24f;
 
@@ -469,18 +482,19 @@ public sealed class SolarSystemDrawable : IDrawable
     Vector3[]? _halleyOrbit;
 
     /// <summary>
-    /// Halleys bana. Den ritas inte tillsammans med planeternas, dels för att
-    /// den bara hör hemma i bilden när kometen är framme, dels för att den är
-    /// sextio gånger längre än den är bred och därför inte tål att buntas ihop
-    /// med cirklarna.
+    /// Halley's orbit. It isn't drawn together with the planets' orbits,
+    /// partly because it only belongs in the picture while the comet is
+    /// present, partly because it's sixty times longer than it is wide and
+    /// so can't be lumped in with the circles.
     /// </summary>
     void DrawHalleyOrbit(ICanvas canvas)
     {
-        // Banan ligger stilla, så punkterna räknas fram en gång.
+        // The orbit sits still, so the points are computed once.
         _halleyOrbit ??= SolarSystemData.Halley.OrbitPath(HalleyOrbitSamples, UnitsPerAu);
 
-        // Samma regel som för planetbanorna: en delfigur får börja först när två
-        // punkter i rad är synliga, annars blir det en MoveTo utan LineTo.
+        // The same rule as for the planetary orbits: a subpath may only
+        // start once two points in a row are visible, otherwise it becomes a
+        // MoveTo with no LineTo.
         var path = new PathF();
         bool started = false, hasPrev = false;
         float px = 0, py = 0;
@@ -511,20 +525,20 @@ public sealed class SolarSystemDrawable : IDrawable
     }
 
     /// <summary>
-    /// Kometen med sina två svansar.
+    /// The comet with its two tails.
     ///
-    /// Det som är lättast att ha fel för sig om är åt vilket håll de pekar. En
-    /// svans ligger inte bakom kometen i färdriktningen, som ett bloss efter en
-    /// raket, utan bort från solen – och på vägen ut från periheliet går
-    /// kometen alltså med svansen före.
+    /// What's easiest to get wrong is which way they point. A tail doesn't
+    /// trail behind the comet in its direction of travel, like a rocket's
+    /// exhaust, but away from the Sun – and on the way out from perihelion
+    /// the comet therefore travels tail-first.
     ///
-    /// Att det finns två svansar, och varför de skiljer sig åt, är samma sak
-    /// sedd närmare. Jonsvansen är gas som solljuset laddat elektriskt;
-    /// solvinden blåser i 400 km/s och river med den rakt bort från solen utan
-    /// att bry sig om vart kometen är på väg. Dammsvansen är korn som är för
-    /// tunga för att ryckas med: de får en knuff av ljuset men behåller
-    /// kometens egen fart, hamnar i egna banor kring solen och blir därför
-    /// kortare, bredare och böjda bakåt.
+    /// That there are two tails, and why they differ, is the same thing
+    /// seen up close. The ion tail is gas that sunlight has electrically
+    /// charged; the solar wind blows at 400 km/s and tears it straight away
+    /// from the Sun without caring where the comet is headed. The dust tail
+    /// is grains too heavy to be swept along: they get a push from the
+    /// light but keep the comet's own speed, end up in their own orbits
+    /// around the Sun, and so come out shorter, wider and curved backward.
     /// </summary>
     void DrawHalley(ICanvas canvas)
     {
@@ -540,7 +554,7 @@ public sealed class SolarSystemDrawable : IDrawable
 
         if (tailAu > 0)
         {
-            // Solen ligger i origo, så riktningen bort från den är läget självt.
+            // The Sun sits at the origin, so the direction away from it is the position itself.
             var away = posAu.Normalized();
             var motion = (comet.PositionAuAt(t + 0.5) - comet.PositionAuAt(t - 0.5)).Normalized();
 
@@ -551,8 +565,9 @@ public sealed class SolarSystemDrawable : IDrawable
                 double s = (double)k / TailSteps;
                 ion[k] = ((posAu + away * (tailAu * s)) * UnitsPerAu).ToVector3();
 
-                // Dammet släpar efter i banan, och eftersläpningen växer med
-                // avståndet från kärnan eftersom de kornen släpptes tidigare.
+                // The dust lags behind in the orbit, and the lag grows with
+                // distance from the nucleus since those grains were released
+                // earlier.
                 double along = tailAu * DustLengthShare * s;
                 dust[k] = ((posAu + away * along - motion * (along * DustCurve * s))
                            * UnitsPerAu).ToVector3();
@@ -563,10 +578,11 @@ public sealed class SolarSystemDrawable : IDrawable
             DrawTail(canvas, ion, hx, hy, stretch, IonTailColor, 1.6f);
         }
 
-        // Kärnan är fem kilometer bred och skulle aldrig gå att se. Det man ser
-        // är kaman: gasmolnet omkring kärnan, som nära solen blir hundratusen
-        // kilometer brett och alltså större än solen själv. Prickens storlek
-        // följer därför aktiviteten och inte kroppens mått.
+        // The nucleus is five kilometres wide and would never be visible.
+        // What's seen is the coma: the gas cloud around the nucleus, which
+        // near the Sun becomes a hundred thousand kilometres wide and so
+        // larger than the Sun itself. The dot's size therefore follows the
+        // activity, not the body's actual measurements.
         float coma = 2.4f + 4.6f * (float)(tailAu / MaxTailAu);
         canvas.FillColor = ComaGlow;
         canvas.FillCircle(hx, hy, coma * 2.4f);
@@ -577,9 +593,9 @@ public sealed class SolarSystemDrawable : IDrawable
     }
 
     /// <summary>
-    /// Hur mycket svansen behöver sträckas för att synas. Ett medgivande till
-    /// kameran och inte till fysiken: riktningen är den uträknade, det är bara
-    /// längden som är tilltagen.
+    /// How much the tail needs to be stretched to be visible. A concession
+    /// to the camera and not to the physics: the direction is the computed
+    /// one, only the length is exaggerated.
     /// </summary>
     float TailStretch(Vector3 tip, float hx, float hy)
     {
@@ -590,8 +606,8 @@ public sealed class SolarSystemDrawable : IDrawable
     }
 
     /// <summary>
-    /// Ritar en svans som en rad streck som blir bredare och blekare utåt –
-    /// tätast och ljusast vid kärnan, precis som en riktig svans.
+    /// Draws a tail as a row of strokes that grow wider and paler outward –
+    /// densest and brightest at the nucleus, just like a real tail.
     /// </summary>
     void DrawTail(ICanvas canvas, Vector3[] points, float hx, float hy,
         float stretch, Color colour, float maxWidth)
@@ -622,25 +638,26 @@ public sealed class SolarSystemDrawable : IDrawable
         }
     }
 
-    // -------------------------------------------------- månbanan och noderna
+    // -------------------------------------------------- the Moon's orbit and its nodes
 
     static readonly Color MoonOrbitColor = Color.FromRgba(0.70f, 0.75f, 0.85f, 0.55f);
     static readonly Color EclipticRingColor = Color.FromRgba(0.95f, 0.82f, 0.45f, 0.40f);
     static readonly Color NodeLineColor = Color.FromRgba(0.95f, 0.82f, 0.45f, 0.75f);
 
     /// <summary>
-    /// Ritar månbanan mot ekliptikans plan och märker ut de två noderna – de
-    /// punkter där banan korsar ekliptikan.
+    /// Draws the Moon's orbit against the ecliptic plane and marks the two
+    /// nodes – the points where the orbit crosses the ecliptic.
     ///
-    /// Det är dem hela förmörkelsefrågan hänger på. Månen går varv efter varv
-    /// utan att någon förmörkelse blir av, eftersom banan lutar 5,1 grader och
-    /// månen därför passerar ovanför eller under solen. Bara när solen råkar stå
-    /// nära nodlinjen kan de tre hamna på rad. Nodlinjen vrider sig dessutom ett
-    /// varv baklänges på 18,6 år, vilket är varför förmörkelsesäsongerna glider
-    /// bakåt genom kalendern i stället för att ligga still.
+    /// These are what the whole eclipse question hinges on. The Moon goes
+    /// around lap after lap without any eclipse happening, because the orbit
+    /// tilts 5.1 degrees and the Moon therefore passes above or below the
+    /// Sun. Only when the Sun happens to stand near the node line can the
+    /// three line up. The node line also turns backward once every 18.6
+    /// years, which is why eclipse seasons drift backward through the
+    /// calendar instead of staying put.
     ///
-    /// Banan ritas med samma komprimering som månen själv, annars hade kurvan
-    /// hamnat någon annanstans än månen.
+    /// The orbit is drawn with the same compression as the Moon itself,
+    /// otherwise the curve would end up somewhere other than the Moon.
     /// </summary>
     void DrawMoonOrbit(ICanvas canvas, double day)
     {
@@ -652,19 +669,19 @@ public sealed class SolarSystemDrawable : IDrawable
         var centre = earth.PositionAt(day, UnitsPerAu);
         float scale = MoonDisplayScale(earth) * (1f - (float)moon.MassFraction);
 
-        // Under den här storleken är banan bara en kringla kring en prick.
+        // Below this size, the orbit is just a squiggle around a dot.
         if (!Camera.Project(centre, out _, out _, out float depth))
             return;
         float radius = (float)(moon.SemiMajorAu * UnitsPerAu) * scale;
         if (Camera.ScreenRadius(radius, depth) < 30f)
             return;
 
-        // Själva banan, med den precession den har just den här dagen.
+        // The orbit itself, with the precession it has on this particular day.
         const int samples = 96;
         var path = moon.OrbitPath(samples, UnitsPerAu, day);
         DrawClosedCurve(canvas, centre, path, MoonOrbitColor, 1.4f);
 
-        // Ekliptikans plan som en cirkel med samma radie, att jämföra mot.
+        // The ecliptic's plane as a circle of the same radius, to compare against.
         var flat = new Vector3[samples];
         for (int i = 0; i < samples; i++)
         {
@@ -673,8 +690,8 @@ public sealed class SolarSystemDrawable : IDrawable
         }
         DrawClosedCurve(canvas, centre, flat, EclipticRingColor, 1.0f);
 
-        // Nodlinjen: där de två planen skär varandra. Riktningen följer av
-        // nodens longitud, och den vrider sig med tiden.
+        // The node line: where the two planes intersect. The direction
+        // follows from the node's longitude, and it turns over time.
         double node = moon.AscNodeAt(day) * Math.PI / 180.0;
         var along = new Vector3((float)Math.Cos(node), 0f, (float)(-Math.Sin(node)));
         var up = new Vector3(0f, 1f, 0f);
@@ -695,7 +712,7 @@ public sealed class SolarSystemDrawable : IDrawable
             canvas.FillCircle(bx, by, 3f);
         }
 
-        // En liten pil vinkelrätt mot ekliptikan, så att lutningen syns.
+        // A small arrow perpendicular to the ecliptic, so the tilt is visible.
         if (Camera.Project(centre, out float cx, out float cy, out _) &&
             Camera.Project(centre + up * radius * 0.4f, out float ux, out float uy, out _))
         {
@@ -705,7 +722,7 @@ public sealed class SolarSystemDrawable : IDrawable
         }
     }
 
-    /// <summary>Ritar en sluten kurva av världspunkter kring en medelpunkt.</summary>
+    /// <summary>Draws a closed curve of world points around a centre.</summary>
     void DrawClosedCurve(ICanvas canvas, Vector3 centre, Vector3[] points, Color color, float width)
     {
         var path = new PathF();
@@ -726,26 +743,27 @@ public sealed class SolarSystemDrawable : IDrawable
         canvas.DrawPath(path);
     }
 
-    /// <summary>Innersta månen får som mest hamna så här långt ut (planetradier).</summary>
+    /// <summary>The innermost moon may end up at most this far out (planet radii).</summary>
     const float MoonInnerMaxRadii = 3f;
 
-    /// <summary>Yttersta månen får som mest hamna så här långt ut (planetradier).</summary>
+    /// <summary>The outermost moon may end up at most this far out (planet radii).</summary>
     const float MoonOuterMaxRadii = 10f;
 
     /// <summary>
-    /// Innersta månen får aldrig tryckas närmare än så här (planetradier).
-    /// Utan den här spärren skulle Titans stora bana pressa in Enceladus i
-    /// Saturnus ringar, som når ut till 2,3 planetradier.
+    /// The innermost moon may never be pushed closer than this (planet
+    /// radii). Without this floor, Titan's large orbit would press
+    /// Enceladus into Saturn's rings, which reach out to 2.3 planet radii.
     /// </summary>
     const float MoonInnerMinRadii = 2.5f;
 
     /// <summary>
-    /// Hur månbanorna skalas i förhållande till planeten. Utgångspunkten är att
-    /// följa planeternas egen förstoring, så att systemets geometri blir exakt
-    /// rätt (Mars månar ligger verkligen så nära som de ser ut). Systemet
-    /// komprimeras först när det behövs: när innersta månen skulle hamna
-    /// längre ut än 3 planetradier (vår egen måne ligger på 60) eller yttersta
-    /// månen längre ut än 10 (Callisto ligger på 27 jupiterradier).
+    /// How the moon orbits are scaled relative to the planet. The starting
+    /// point is to follow the planets' own magnification, so the system's
+    /// geometry comes out exactly right (Mars's moons really do sit as close
+    /// as they look). The system is only compressed when needed: when the
+    /// innermost moon would land farther out than 3 planet radii (our own
+    /// Moon sits at 60) or the outermost moon farther out than 10 (Callisto
+    /// sits at 27 Jupiter radii).
     /// </summary>
     float MoonDisplayScale(CelestialBody planet)
     {
@@ -760,25 +778,27 @@ public sealed class SolarSystemDrawable : IDrawable
             parentVisR * MoonInnerMaxRadii / (float)(innerAu * UnitsPerAu),
             parentVisR * MoonOuterMaxRadii / (float)(outerAu * UnitsPerAu)));
 
-        // ... men aldrig så hårt att innersta månen hamnar inne i planeten
-        // eller dess ringar.
+        // ... but never so hard that the innermost moon ends up inside the
+        // planet or its rings.
         return MathF.Max(scale,
             parentVisR * MoonInnerMinRadii / (float)(innerAu * UnitsPerAu));
     }
 
     /// <summary>
-    /// Lämpligt kameraavstånd när en kropp väljs i fokusväljaren: nära nog för
-    /// att se planeten, men tillräckligt långt bort för att hela månsystemet
-    /// ska rymmas i bild.
+    /// Suitable camera distance when a body is selected in the focus
+    /// selector: close enough to see the planet, but far enough away for
+    /// its whole moon system to fit in frame.
     /// </summary>
     /// <summary>
-    /// Var en måne faktiskt hamnar på skärmen: planetens läge plus månens
-    /// banläge, med samma komprimering som ritningen använder.
+    /// Where a moon actually ends up on screen: the planet's position plus
+    /// the moon's orbital position, with the same compression the rendering
+    /// uses.
     ///
-    /// Kameran måste sikta på det ritade läget och inte på det verkliga. Månarna
-    /// dras in mot sin planet för att inte hamna utanför bild – vår egen måne
-    /// ligger på 60 jordradier och skulle annars försvinna – och siktar man på
-    /// den verkliga positionen pekar kameran långt bredvid.
+    /// The camera has to aim at the drawn position and not the real one.
+    /// Moons are pulled in toward their planet so they don't end up outside
+    /// the frame – our own Moon sits at 60 Earth radii and would otherwise
+    /// disappear – and aiming at the real position would point the camera
+    /// far off to the side.
     /// </summary>
     public Vector3 MoonPosition(CelestialBody planet, CelestialBody moon, double day)
         => planet.PositionAt(day, UnitsPerAu)
@@ -786,9 +806,10 @@ public sealed class SolarSystemDrawable : IDrawable
              * MoonDisplayScale(planet) * (1f - (float)moon.MassFraction);
 
     /// <summary>
-    /// Kameraavstånd när en måne väljs: samma bildvinkel som en planet får, så
-    /// att klotet fyller lika mycket av rutan. Utan det hamnar man antingen
-    /// inuti månen eller så långt bort att den bara blir en prick.
+    /// Camera distance when a moon is selected: the same viewing angle a
+    /// planet gets, so the globe fills the same share of the frame. Without
+    /// this, you'd end up either inside the moon or so far away it's just a
+    /// dot.
     /// </summary>
     public float SuggestedMoonDistance(CelestialBody moon)
         => MathF.Max(VisualRadius(moon.RadiusKm, isSun: false) * 12f,
@@ -796,8 +817,8 @@ public sealed class SolarSystemDrawable : IDrawable
 
     public float SuggestedFocusDistance(CelestialBody planet)
     {
-        // Kometen har ingen storlek att tala om – kärnan är fem kilometer – så
-        // avståndet ramar in svansen i stället för kroppen.
+        // The comet has no size worth speaking of – the nucleus is five
+        // kilometres – so the distance frames the tail instead of the body.
         if (ReferenceEquals(planet, SolarSystemData.Halley))
             return (float)(MaxTailAu * UnitsPerAu) * 3f;
 
@@ -810,28 +831,31 @@ public sealed class SolarSystemDrawable : IDrawable
                           * MoonDisplayScale(planet);
             distance = MathF.Max(distance, outer * 2.7f);
         }
-        // Golvet var tidigare ett fast tal, vilket gjorde läget "Verklig storlek"
-        // omöjligt att zooma in i: där är jordens radie 0,0026 enheter och åtta
-        // enheter är tretusen jordradier bort. Nu följer det kroppen.
+        // The floor used to be a fixed number, which made "Real size" mode
+        // impossible to zoom into: there, Earth's radius is 0.0026 units and
+        // eight units is three thousand Earth radii away. Now it follows
+        // the body.
         return MathF.Max(distance, MathF.Max(visR * 2f, OrbitCamera.AbsoluteMinDistance));
     }
 
     /// <summary>
-    /// Lägger till en planets månar. Varje måne kretsar med sina riktiga
-    /// banelement kring planeten. I förstorat läge vore de verkliga avstånden
-    /// missvisande stora (jordens måne ligger på 60 jordradier), så där
-    /// komprimeras systemet: den innersta månen hamnar på 3 x planetens
-    /// visuella radie och de övriga behåller sina inbördes avståndsproportioner.
-    /// Banornas form, riktning och fart är fortfarande korrekta. Månarna ritas
-    /// bara när man zoomat in så nära att banan täcker något tiotal pixlar.
+    /// Adds a planet's moons. Each moon orbits the planet with its real
+    /// orbital elements. In magnified mode the real distances would be
+    /// misleadingly large (Earth's Moon sits at 60 Earth radii), so the
+    /// system is compressed there: the innermost moon lands at 3x the
+    /// planet's visual radius, and the others keep their proportions
+    /// relative to each other. The orbits' shape, direction and speed are
+    /// still correct. Moons are only drawn once zoomed in close enough that
+    /// the orbit spans a few tens of pixels.
     /// </summary>
     void AddMoons(List<(CelestialBody? Body, bool IsMoon, Vector3 Pos, float WorldRadius, float Depth, float Sx, float Sy)> bodies,
         CelestialBody planet, Vector3 barycentre, float displayScale, double t)
     {
         foreach (var moon in planet.Moons)
         {
-            // Separationen mäts från moderkroppen; månen placeras på sin sida om
-            // tyngdpunkten så att avståndet mellan kropparna blir det rätta.
+            // The separation is measured from the parent body; the moon is
+            // placed on its side of the centre of mass so the distance between
+            // the bodies comes out right.
             var offset = moon.PositionAt(t, UnitsPerAu) * displayScale; // planetcentriskt
             var moonPos = barycentre + offset * (1f - (float)moon.MassFraction);
 
@@ -839,7 +863,7 @@ public sealed class SolarSystemDrawable : IDrawable
                 continue;
             float orbitRadius = (float)(moon.SemiMajorAu * UnitsPerAu) * displayScale;
             if (Camera.ScreenRadius(orbitRadius, depth) < 10f)
-                continue; // för utzoomat – månen skulle bara smeta ihop med planeten
+                continue; // too zoomed out – the moon would just smear into the planet
 
             bodies.Add((moon, true, moonPos,
                 VisualRadius(moon.RadiusKm, isSun: false), depth, sx, sy));
@@ -847,8 +871,9 @@ public sealed class SolarSystemDrawable : IDrawable
     }
 
     /// <summary>
-    /// Kroppens ritade radie i världsenheter. Publik därför att kameran behöver
-    /// den: hur nära man får komma beror på hur stor kroppen ritas.
+    /// The body's drawn radius in world units. Public because the camera
+    /// needs it: how close you're allowed to get depends on how large the
+    /// body is drawn.
     /// </summary>
     public float VisualRadius(double radiusKm, bool isSun)
     {
@@ -859,17 +884,17 @@ public sealed class SolarSystemDrawable : IDrawable
     }
 
     /// <summary>
-    /// Solen: glöd, skiva och – när man zoomat in nog – solfläckar.
+    /// The Sun: glow, disc, and – once zoomed in enough – sunspots.
     ///
-    /// Skivan målas med en gradient i stället för en jämn färg, och det är
-    /// ingen utsmyckning utan randmörkning. Solen är verkligen mörkare och
-    /// rödare vid kanten än i mitten, eftersom man där ser snett in i gasen och
-    /// bara når de övre, svalare lagren. Effekten syns i vilken solteleskopbild
-    /// som helst.
+    /// The disc is painted with a gradient instead of a flat colour, and
+    /// that's not decoration but limb darkening. The Sun really is darker
+    /// and redder at the edge than in the middle, since there you're looking
+    /// obliquely into the gas and only reach the upper, cooler layers. The
+    /// effect shows up in any solar telescope image.
     /// </summary>
     void DrawSun(ICanvas canvas, float x, float y, float r)
     {
-        // Yttre glöd.
+        // Outer glow.
         float glow = MathF.Max(r * 3.2f, r + 12f);
         var glowRect = new RectF(x - glow, y - glow, glow * 2, glow * 2);
         var glowPaint = new RadialGradientPaint(
@@ -882,7 +907,7 @@ public sealed class SolarSystemDrawable : IDrawable
         canvas.SetFillPaint(glowPaint, glowRect);
         canvas.FillCircle(x, y, glow);
 
-        // Solskivan.
+        // The solar disc.
         var coreRect = new RectF(x - r, y - r, r * 2, r * 2);
         var corePaint = new RadialGradientPaint(
         [
@@ -894,10 +919,11 @@ public sealed class SolarSystemDrawable : IDrawable
         canvas.SetFillPaint(corePaint, coreRect);
         canvas.FillCircle(x, y, r);
 
-        // Fläckarna först när skivan är stor nog. Tröskeln är högre än
-        // planeternas, och det följer av hur stora fläckarna är: den största
-        // gruppen mäter sju grader tvärs över, vilket på en skiva med radien r
-        // blir 0,12·r. Vid planeternas fjorton pixlar vore den under en pixel.
+        // Spots only once the disc is large enough. The threshold is higher
+        // than the planets', which follows from how big the spots are: the
+        // largest group spans seven degrees across, which on a disc of
+        // radius r comes to 0.12·r. At the planets' fourteen pixels it would
+        // be under a pixel.
         if (r >= SunSpotMinRadius)
             DrawSurfaceRegions(canvas, SurfaceMap.Sun, SolarSystemData.SunAxis,
                 Vector3.Zero, x, y, r);
@@ -907,13 +933,13 @@ public sealed class SolarSystemDrawable : IDrawable
     {
         if (r < 1.6f)
         {
-            // För liten för skuggning – rita en enkel punkt.
+            // Too small for shading – draw a simple dot.
             canvas.FillColor = body.BodyColor;
             canvas.FillCircle(x, y, r);
             return;
         }
 
-        // Ljusare på sidan som vetter mot solen.
+        // Brighter on the side facing the Sun.
         float dx = sunX - x, dy = sunY - y;
         float len = MathF.Sqrt(dx * dx + dy * dy);
         if (len > 1e-3f) { dx /= len; dy /= len; }
@@ -935,24 +961,24 @@ public sealed class SolarSystemDrawable : IDrawable
         canvas.FillCircle(x, y, r);
     }
 
-    // ------------------------------------------------------------ jordgloben
+    // ------------------------------------------------------------ globe rendering
 
     /// <summary>
-    /// Ytan ritas först när klotet nått så här många pixlar i radie. Under det
-    /// blir världsdelarna ändå bara ett par suddiga fläckar, och en skiva med
-    /// ljus och skugga ser bättre ut.
+    /// The surface is only drawn once the globe has reached this many
+    /// pixels in radius. Below that, the continents would just be a couple
+    /// of blurry smudges anyway, and a shaded disc looks better.
     /// </summary>
     const float GlobeMinRadius = 14f;
 
-    /// <summary>Solskivans minsta radie för att fläckarna ska ritas. Se DrawSun.</summary>
+    /// <summary>The Sun disc's minimum radius for spots to be drawn. See DrawSun.</summary>
     const float SunSpotMinRadius = 30f;
 
     readonly List<Vector3> _globeDirs = new(256);
     readonly List<Vector3> _globeClipped = new(256);
 
     /// <summary>
-    /// Ritar en kropp: som glob med yta om den har en ytkarta och är stor nog i
-    /// bild, annars som en skiva med ljus och skugga.
+    /// Draws a body: as a globe with a surface if it has a surface map and
+    /// is large enough in frame, otherwise as a shaded disc.
     /// </summary>
     void DrawBody(ICanvas canvas, CelestialBody body, Vector3 center,
         float sx, float sy, float r, float sunX, float sunY)
@@ -964,10 +990,11 @@ public sealed class SolarSystemDrawable : IDrawable
     }
 
     /// <summary>
-    /// En kropp som glob med sin yta och sin verkliga rotation, synlig när man
-    /// zoomat in. Varje ytpunkts riktning byggs ur kroppens rotationsaxel: därmed
-    /// lutar jordaxeln 23,4° mot Polstjärnan och rätt kontinent är vänd mot solen
-    /// vid rätt klockslag, med ett varv per stjärndygn (23 h 56 min).
+    /// A body as a globe with its surface and its real rotation, visible
+    /// once zoomed in. Each surface point's direction is built from the
+    /// body's rotation axis: so Earth's axis tilts 23.4° toward Polaris and
+    /// the right continent faces the Sun at the right time of day, with one
+    /// turn per sidereal day (23h 56m).
     /// </summary>
     void DrawGlobe(ICanvas canvas, SurfaceMap surface, BodyAxis axis, Vector3 center,
         float sx, float sy, float r, float sunX, float sunY)
@@ -977,7 +1004,7 @@ public sealed class SolarSystemDrawable : IDrawable
 
         DrawSurfaceRegions(canvas, surface, axis, center, sx, sy, r);
 
-        // Dag/natt: ljus ton mot solsidan, mörk skugga på nattsidan.
+        // Day/night: a light tint toward the sunlit side, a dark shadow on the night side.
         float dx = sunX - sx, dy = sunY - sy;
         float len = MathF.Sqrt(dx * dx + dy * dy);
         if (len > 1e-3f) { dx /= len; dy /= len; }
@@ -997,21 +1024,25 @@ public sealed class SolarSystemDrawable : IDrawable
     }
 
     /// <summary>
-    /// Ytkartans polygoner målade på en klotskiva som redan ligger på plats.
-    /// Bruten ur globritningen därför att solen behöver samma sak men ingenting
-    /// annat: den har ingen dag- och nattsida att skugga, och dess skiva är en
-    /// gradient och inte en jämn färg.
+    /// The surface map's polygons painted onto a globe disc already in
+    /// place. Split out from the globe rendering since the Sun needs the
+    /// same thing but nothing else: it has no day and night side to shade,
+    /// and its disc is a gradient rather than a flat colour.
     ///
-    /// Ytpunkterna ritas med ortografisk projektion inom den ritade cirkeln:
-    /// skärmläget ges av riktningens komposanter längs kamerans höger- och
-    /// uppaxlar gånger cirkelns radie. Då kan land aldrig hamna utanför globen
-    /// (perspektivprojektion av randpunkter gjorde precis det när kameran var
-    /// nära). Synligt är det halvklot som vetter mot kameran.
+    /// The surface points are drawn with orthographic projection within the
+    /// drawn circle: the screen position is given by the direction's
+    /// components along the camera's right and up axes times the circle's
+    /// radius. That way land can never end up outside the globe
+    /// (perspective projection of limb points did exactly that when the
+    /// camera was close). What's visible is the hemisphere facing the
+    /// camera.
     ///
-    /// Vridningen tas per yta och inte per hörn. För allt fast spelar det ingen
-    /// roll – hela kroppen vrider sig lika – men solen vrider sig olika fort på
-    /// olika breddgrader, och då är ytan rätt nivå: en solfläcksgrupp följer med
-    /// som en klump. Se <see cref="SurfaceMap.Region.MeanSinLat"/>.
+    /// The rotation is taken per region rather than per vertex. For
+    /// anything solid it doesn't matter – the whole body turns the same
+    /// amount – but the Sun rotates at different speeds at different
+    /// latitudes, and there the region is the right level: a sunspot group
+    /// follows along as one clump. See
+    /// <see cref="SurfaceMap.Region.MeanSinLat"/>.
     /// </summary>
     void DrawSurfaceRegions(ICanvas canvas, SurfaceMap surface, BodyAxis axis,
         Vector3 center, float sx, float sy, float r)
@@ -1056,8 +1087,8 @@ public sealed class SolarSystemDrawable : IDrawable
     }
 
     /// <summary>
-    /// Sutherland-Hodgman-klippning av en polygon på klotytan mot den synliga
-    /// kalotten (dot(riktning, mot kameran) >= cosLimb).
+    /// Sutherland-Hodgman clipping of a polygon on the globe's surface
+    /// against the visible cap (dot(direction, toward camera) >= cosLimb).
     /// </summary>
     static void ClipToVisibleCap(List<Vector3> dirs, List<Vector3> result,
         Vector3 toCam, float cosLimb)
@@ -1075,7 +1106,7 @@ public sealed class SolarSystemDrawable : IDrawable
                 result.Add(a);
             if (da >= 0 != db >= 0)
             {
-                // Kanten korsar randen – interpolera fram skärningspunkten.
+                // The edge crosses the limb – interpolate the crossing point.
                 float t = da / (da - db);
                 result.Add(Vector3.Normalize(Vector3.Lerp(a, b, t)));
             }
@@ -1091,10 +1122,10 @@ public sealed class SolarSystemDrawable : IDrawable
     }
 
     /// <summary>
-    /// Saturnus ringar som ett band i planetens ekvatorsplan, uppdelat i två
-    /// figurer: den bortre halvan (ritas bakom planeten) och den främre (ritas
-    /// framför). Segmenten samlas i två banor så att hela ringen fylls med två
-    /// anrop i stället för ett per segment.
+    /// Saturn's rings as a band in the planet's equatorial plane, split into
+    /// two shapes: the far half (drawn behind the planet) and the near half
+    /// (drawn in front). The segments are gathered into two paths so the
+    /// whole ring is filled with two calls instead of one per segment.
     /// </summary>
     void BuildRingPaths(PlanetRing ring, Vector3 center, float worldR, float planetDepth,
         out PathF? farRing, out PathF? nearRing)
@@ -1106,9 +1137,9 @@ public sealed class SolarSystemDrawable : IDrawable
         if (Camera.ScreenRadius(outer, planetDepth) < ring.MinScreenRadius)
             return;
 
-        // Ringarna ligger i planetens ekvatorsplan, så basvektorerna kommer
-        // färdiga ur dess rotationsaxel: nodlinjen som den ena och punkten ett
-        // kvarts varv öster om den som den andra.
+        // The rings lie in the planet's equatorial plane, so the basis
+        // vectors come ready-made from its rotation axis: the node line as
+        // one and the point a quarter turn east of it as the other.
         var u = ring.Axis.NodeAxis;
         var v = ring.Axis.EastAxis;
 
@@ -1116,7 +1147,7 @@ public sealed class SolarSystemDrawable : IDrawable
         for (int i = 0; i < segments; i++)
         {
             float a0 = i * MathF.PI * 2f / segments;
-            float a1 = (i + 1.05f) * MathF.PI * 2f / segments; // liten överlappning mot skarvar
+            float a1 = (i + 1.05f) * MathF.PI * 2f / segments; // slight overlap against seams
             var d0 = u * MathF.Cos(a0) + v * MathF.Sin(a0);
             var d1 = u * MathF.Cos(a1) + v * MathF.Sin(a1);
 
@@ -1144,20 +1175,20 @@ public sealed class SolarSystemDrawable : IDrawable
         }
     }
 
-    // --------------------------------------------------------------- rymdsonder
+    // --------------------------------------------------------------- spacecraft
 
-    /// <summary>Antal punkter varje ben av en sondbana ritas med.</summary>
+    /// <summary>Number of points each leg of a probe's orbit is drawn with.</summary>
     const int ProbeTrailSteps = 70;
 
     /// <summary>
-    /// Ritar de verkliga sonderna med spåret efter sig. Spåret räknas fram ur
-    /// banan i stället för att sparas undan bildruta för bildruta, så det ser
-    /// likadant ut även om man hoppar i tiden eller spelar den baklänges.
+    /// Draws the real spacecraft with their trails behind them. The trail
+    /// is computed from the orbit rather than saved frame by frame, so it
+    /// looks the same whether time is jumped or played backward.
     ///
-    /// Sonderna är i dag över 150 AU bort, alltså fyra gånger längre ut än
-    /// Neptunus. I översiktsvyn syns därför bara spårets innersta del, och man
-    /// får zooma ut rejält för att se hela – vilket i sig är poängen med hur
-    /// långt de har kommit.
+    /// The probes are today over 150 AU out, four times farther than
+    /// Neptune. In the overview only the trail's innermost part is
+    /// therefore visible, and you have to zoom out a great deal to see the
+    /// whole thing – which is itself the point of how far they've come.
     /// </summary>
     void DrawProbes(ICanvas canvas)
     {
@@ -1166,16 +1197,16 @@ public sealed class SolarSystemDrawable : IDrawable
         foreach (var probe in ProbeData.All)
         {
             if (!VisibleProbes.Contains(probe.Name))
-                continue;   // bortvald i sondväljaren
+                continue;   // deselected in the probe selector
             if (!probe.Exists(now))
-                continue;   // ännu inte uppskjuten
+                continue;   // not launched yet
 
             canvas.StrokeSize = 1.4f;
             canvas.StrokeColor = probe.Color.WithAlpha(0.55f);
             foreach (var leg in probe.Legs)
             {
                 if (leg.StartDay >= now)
-                    break;  // benen ligger i tidsordning, resten är framtid
+                    break;  // the legs are in time order, the rest is future
                 DrawProbeTrail(canvas, leg, Math.Min(leg.EndDay, now));
             }
 
@@ -1192,20 +1223,22 @@ public sealed class SolarSystemDrawable : IDrawable
     }
 
     /// <summary>
-    /// Ritar milstolparna – uppskjutningen och planetpassagerna – som ringar
-    /// längs spåret. Den valda sondens milstolpar får planetnamn och datum,
-    /// de övriga bara årtalet.
+    /// Draws the milestones – launch and the planetary flybys – as rings
+    /// along the trail. The selected probe's milestones get the planet's
+    /// name and the date; the others just the year.
     ///
-    /// Årtalen ritas direkt i stället för att gå via etikettstaplingen, som är
-    /// gjord för himlakroppar: elva passager som staplas nedåt hade blivit en
-    /// textpelare tvärs över vyn. I stället hoppas ett årtal över när det skulle
-    /// hamna ovanpå ett som redan skrivits.
+    /// The years are drawn directly instead of going through the label
+    /// stacking made for celestial bodies: eleven flybys stacking downward
+    /// would become a text column running clear across the view. Instead a
+    /// year is skipped whenever it would land on top of one already
+    /// written.
     /// </summary>
     /// <summary>
-    /// Vad en milstolpe heter. Nyckeln är oftast en kropps – "Jupiter" – men kan
-    /// också vara en egen, och en av dem behöver sondens namn ifyllt: "Voyager 1
-    /// i dag". Att alltid gå via <c>Format</c> gör att de två fallen ser likadana
-    /// ut på anropsstället; en text utan platshållare bryr sig inte om argumentet.
+    /// What a milestone is called. The key is usually a body's – "Jupiter" –
+    /// but can also be its own, with one needing the probe's name filled in:
+    /// "Voyager 1 today". Always going through <c>Format</c> makes the two
+    /// cases look the same at the call site; a text with no placeholder
+    /// doesn't care about the argument.
     /// </summary>
     public static string MilestoneName(Probe probe, Milestone milestone)
         => string.Format(Strings.Culture, Strings.Name(milestone.Key), probe.Name);
@@ -1218,7 +1251,7 @@ public sealed class SolarSystemDrawable : IDrawable
         foreach (var milestone in probe.Milestones)
         {
             if (milestone.Day > now)
-                break;      // milstolparna ligger i tidsordning
+                break;      // the milestones are in time order
 
             if (!Camera.Project(milestone.PositionAu * UnitsPerAu,
                     out float x, out float y, out _))
@@ -1231,7 +1264,7 @@ public sealed class SolarSystemDrawable : IDrawable
             var date = SolarSystemData.EpochJ2000.AddDays(milestone.Day);
             if (focused)
             {
-                // Den valda sonden får hela historien utskriven.
+                // The selected probe gets its whole history written out.
                 string name = MilestoneName(probe, milestone);
                 string text = milestone switch
                 {
@@ -1251,14 +1284,16 @@ public sealed class SolarSystemDrawable : IDrawable
     }
 
     /// <summary>
-    /// Ritar sonderna som kretsar kring en planet: hela banellipsen och sondens
-    /// läge på den. Banan trycks ihop med samma faktor som planetens månar, så
-    /// att den hamnar i samma storleksordning som dem i stället för att
-    /// försvinna inne i det förstorade klotet. Cassinis varv är ungefär lika
-    /// stort som Titans bana, och det syns nu också i vyn.
+    /// Draws the probes orbiting a planet: the whole orbital ellipse and the
+    /// probe's position on it. The orbit is compressed by the same factor
+    /// as the planet's moons, so it ends up on the same order of magnitude
+    /// as them instead of disappearing inside the magnified globe. Cassini's
+    /// lap is roughly the same size as Titan's orbit, and that now shows in
+    /// the view too.
     ///
-    /// Ritas bara när man zoomat in så nära att banan täcker något tiotal
-    /// pixlar – på håll skulle den ändå bara bli en prick ovanpå planeten.
+    /// Only drawn once zoomed in close enough that the orbit spans a few
+    /// tens of pixels – from farther out it would just be a dot on top of
+    /// the planet anyway.
     /// </summary>
     void DrawOrbiters(ICanvas canvas)
     {
@@ -1267,9 +1302,9 @@ public sealed class SolarSystemDrawable : IDrawable
         foreach (var orbiter in ProbeData.Orbiters)
         {
             if (!VisibleProbes.Contains(orbiter.Name))
-                continue;   // bortvald i sondväljaren
+                continue;   // deselected in the probe selector
             if (!orbiter.Exists(now))
-                continue;   // ännu inte framme, eller uppdraget slut
+                continue;   // not yet arrived, or mission over
 
             var center = orbiter.Center;
             float scale = MoonDisplayScale(center);
@@ -1280,7 +1315,7 @@ public sealed class SolarSystemDrawable : IDrawable
 
             float radius = (float)orbiter.Path.SemiMajorAu * UnitsPerAu * scale;
             if (Camera.ScreenRadius(radius, depth) < 10f)
-                continue;   // för utzoomat
+                continue;   // too zoomed out
 
             DrawOrbiterPath(canvas, orbiter, origin, scale);
 
@@ -1294,7 +1329,7 @@ public sealed class SolarSystemDrawable : IDrawable
         }
     }
 
-    /// <summary>Ritar banellipsen som en sluten polylinje.</summary>
+    /// <summary>Draws the orbital ellipse as a closed polyline.</summary>
     void DrawOrbiterPath(ICanvas canvas, Orbiter orbiter, Vector3 origin, float scale)
     {
         const int samples = 180;
@@ -1322,7 +1357,7 @@ public sealed class SolarSystemDrawable : IDrawable
         canvas.DrawPath(path);
     }
 
-    /// <summary>Var milstolpstexterna hamnade den här bildrutan.</summary>
+    /// <summary>Where the milestone texts landed this frame.</summary>
     readonly List<(float X, float Y)> _milestoneText = new(16);
 
     void DrawMilestoneText(ICanvas canvas, string text, float x, float y, Color color,
@@ -1330,7 +1365,7 @@ public sealed class SolarSystemDrawable : IDrawable
     {
         foreach (var (px, py) in _milestoneText)
             if (Math.Abs(px - x) < minSeparation && Math.Abs(py - y) < minSeparation)
-                return;     // krockar med en text som redan står där
+                return;     // collides with a text already placed there
 
         _milestoneText.Add((x, y));
 
@@ -1340,7 +1375,7 @@ public sealed class SolarSystemDrawable : IDrawable
         canvas.DrawString(text, x + 6f, y - 5f, HorizontalAlignment.Left);
     }
 
-    /// <summary>Ritar ett ben av en sondbana fram till en given dag.</summary>
+    /// <summary>Draws one leg of a probe's orbit up to a given day.</summary>
     void DrawProbeTrail(ICanvas canvas, ProbeLeg leg, double toDay)
     {
         if (toDay - leg.StartDay < 1e-6)
@@ -1376,16 +1411,16 @@ public sealed class SolarSystemDrawable : IDrawable
             canvas.DrawPath(path);
     }
 
-    // ---------------------------------------------------------------- rymdfärd
+    // ---------------------------------------------------------------- space mission
 
     static readonly Color CraftTrailColor = Color.FromRgba(0.55f, 0.85f, 1.00f, 0.75f);
     static readonly Color CraftFutureColor = Color.FromRgba(0.45f, 0.70f, 0.90f, 0.28f);
     static readonly Color CraftColor = Color.FromArgb("#E8F4FF");
 
     /// <summary>
-    /// Ritar farkostens bana och dess nuvarande läge. Spåret räknas fram ur
-    /// banan i stället för att sparas undan bildruta för bildruta – då ser det
-    /// likadant ut även om man hoppar i tiden eller spelar den baklänges.
+    /// Draws the craft's orbit and its current position. The trail is
+    /// computed from the orbit rather than saved frame by frame – that way
+    /// it looks the same whether time is jumped or played backward.
     /// </summary>
     void DrawMission(ICanvas canvas, Mission mission)
     {
@@ -1394,17 +1429,18 @@ public sealed class SolarSystemDrawable : IDrawable
 
         canvas.StrokeSize = 1.4f;
         canvas.StrokeColor = CraftFutureColor;
-        DrawMissionArc(canvas, mission, now, mission.ArrivalDay, origin, scale);   // vad som återstår
+        DrawMissionArc(canvas, mission, now, mission.ArrivalDay, origin, scale);   // what remains
 
         canvas.StrokeSize = 1.8f;
         canvas.StrokeColor = CraftTrailColor;
-        DrawMissionArc(canvas, mission, mission.LaunchDay, now, origin, scale);    // det tillryggalagda
+        DrawMissionArc(canvas, mission, mission.LaunchDay, now, origin, scale);    // the distance already covered
 
         if (DaysSinceJ2000 < mission.LaunchDay)
             return;
 
-        // Efter ankomsten följer farkosten med målet i stället för att bli stående
-        // kvar där planeten råkade vara – en sond går ju in i omloppsbana eller landar.
+        // After arrival the craft travels along with the target instead of
+        // staying put wherever the planet happened to be – a real probe does
+        // enter orbit or land, after all.
         var pos = origin + mission.PositionAt(DaysSinceJ2000, UnitsPerAu) * scale;
         if (!Camera.Project(pos, out float sx, out float sy, out _))
             return;
@@ -1417,12 +1453,13 @@ public sealed class SolarSystemDrawable : IDrawable
     }
 
     /// <summary>
-    /// Var farkostens bana hör hemma i världen. En färd kring solen ritas som
-    /// den är, medan en månfärd måste följa med planeten och tryckas ihop på
-    /// exakt samma sätt som månbanorna – annars skulle hela banan försvinna inne
-    /// i det kraftigt förstorade jordklotet. Den ritas dessutom kring planetens
-    /// nuvarande läge, alltså sedd från jorden precis som månarna, i stället för
-    /// att släpa efter längs jordens egen färd kring solen.
+    /// Where the craft's orbit belongs in the world. A trip around the Sun
+    /// is drawn as it is, while a lunar trip has to travel along with the
+    /// planet and be compressed exactly like the moon orbits – otherwise the
+    /// whole orbit would disappear inside the heavily magnified globe of
+    /// Earth. It's also drawn around the planet's current position, i.e.
+    /// seen from Earth just like the moons, rather than lagging behind along
+    /// Earth's own trip around the Sun.
     /// </summary>
     Vector3 MissionOrigin(Mission mission, out float scale)
     {
@@ -1437,9 +1474,10 @@ public sealed class SolarSystemDrawable : IDrawable
     }
 
     /// <summary>
-    /// Farkostens läge i världen, precis som det ritas – med planetens läge och
-    /// månsystemets hoptryckning inräknade. Null när ingen färd pågår. Kameran
-    /// använder det för att följa med farkosten ner till målet vid ankomsten.
+    /// The craft's position in the world, exactly as drawn – with the
+    /// planet's position and the moon system's compression included. Null
+    /// when no trip is under way. The camera uses this to follow the craft
+    /// down to the target on arrival.
     /// </summary>
     public Vector3? CraftPosition()
     {
@@ -1451,7 +1489,7 @@ public sealed class SolarSystemDrawable : IDrawable
         return origin + mission.PositionAt(day, UnitsPerAu) * scale;
     }
 
-    /// <summary>Ritar en del av banan som en polylinje.</summary>
+    /// <summary>Draws part of the orbit as a polyline.</summary>
     void DrawMissionArc(ICanvas canvas, Mission mission, double fromDay, double toDay,
         Vector3 origin, float scale)
     {
@@ -1487,12 +1525,13 @@ public sealed class SolarSystemDrawable : IDrawable
             canvas.DrawPath(path);
     }
 
-    // --------------------------------------------------------------- etiketter
+    // --------------------------------------------------------------- labels
 
     /// <summary>
-    /// Ritar namnen. När planeterna trängs ihop (t.ex. det inre solsystemet sett
-    /// på långt håll) staplas etiketterna nedåt i stället för att skriva över
-    /// varandra, och den som flyttats får en tunn streckad linje till sin planet.
+    /// Draws the names. When planets crowd together (e.g. the inner Solar
+    /// System seen from far away), labels stack downward instead of
+    /// overwriting each other, and one that's been moved gets a thin line
+    /// back to its planet.
     /// </summary>
     static readonly Color LabelShadowColor = Colors.Black.WithAlpha(0.8f);
     static readonly Color LabelLineColor = Colors.White.WithAlpha(0.28f);
@@ -1507,14 +1546,15 @@ public sealed class SolarSystemDrawable : IDrawable
 
         foreach (var (name, x, anchorY) in _labels.OrderBy(l => l.Y))
         {
-            // Etiketter långt utanför skärmen behöver varken staplas eller ritas.
+            // Labels far outside the screen need neither stacking nor drawing.
             if (!(x > -200 && x < rect.Width + 200 && anchorY > -200 && anchorY < rect.Height + 200))
                 continue;
 
             float y = anchorY;
-            // Hårt tak på antalet omflyttningsvarv: varje varv ska flytta
-            // etiketten strikt nedåt, men flyttalsavrundning i extremfall får
-            // aldrig kunna låsa UI-tråden i en evig loop igen.
+            // A hard cap on the number of relocation passes: every pass
+            // should move the label strictly downward, but floating-point
+            // rounding in extreme cases must never be able to lock the UI
+            // thread in an infinite loop again.
             for (int pass = 0; pass < 16; pass++)
             {
                 bool moved = false;

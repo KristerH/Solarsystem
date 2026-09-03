@@ -3,22 +3,23 @@ using System.Numerics;
 namespace Solarsystem.Simulation;
 
 /// <summary>
-/// En punkt där en sond bevisligen befann sig: en planet ett visst datum, eller
-/// ett känt läge i rymden ett visst datum. Uppskjutningen räknas som jorden.
+/// A point where a probe demonstrably was: a planet on a given date, or a
+/// known location in space on a given date. Launch counts as Earth.
 /// </summary>
 public sealed class Waypoint
 {
     /// <summary>
-    /// Punktens språkneutrala nyckel – en kropps nyckel för en planetpassage,
-    /// annars en egen (<c>probeToday</c>, <c>lastContact</c>). Namnet att visa
-    /// slås upp ur den, se resursfilerna.
+    /// The point's language-neutral key – a body's key for a planetary
+    /// flyby, otherwise one of its own (<c>probeToday</c>,
+    /// <c>lastContact</c>). The name to display is looked up from it, see the
+    /// resource files.
     /// </summary>
     public string Key { get; }
 
-    /// <summary>Datumet sonden var där.</summary>
+    /// <summary>The date the probe was there.</summary>
     public DateTime Date { get; }
 
-    /// <summary>Samma datum i dygn sedan J2000.</summary>
+    /// <summary>The same date in days since J2000.</summary>
     public double Day => (Date - SolarSystemData.EpochJ2000).TotalDays;
 
     readonly CelestialBody? _body;
@@ -32,93 +33,95 @@ public sealed class Waypoint
         _fixedAu = fixedAu;
     }
 
-    /// <summary>Sonden var vid en planet det här datumet.</summary>
+    /// <summary>The probe was at a planet on this date.</summary>
     public static Waypoint At(CelestialBody body, DateTime date)
         => new(body.Key, date, body, default);
 
     /// <summary>
-    /// Sonden var på ett känt avstånd i en känd riktning på himlen. Så anges
-    /// sondernas nuvarande lägen, och det är den uppgiften som bestämmer hur
-    /// den sista sträckan ut ur solsystemet lutar: banan dit räknas fram ur
-    /// avståndet och riktningen, i stället för att lutningen matas in.
+    /// The probe was at a known distance in a known direction in the sky.
+    /// This is how the probes' current positions are given, and it's this
+    /// data that determines how the final stretch out of the Solar System is
+    /// tilted: the orbit there is computed from the distance and direction,
+    /// rather than the tilt being entered directly.
     /// </summary>
     public static Waypoint InSky(string key, DateTime date, double distanceAu,
         double raHours, double decDeg)
         => new(key, date, null,
             StarCatalog.EquatorialToWorldAu(raHours, decDeg) * distanceAu);
 
-    /// <summary>Punktens läge i AU, solcentriskt och i dubbel precision.</summary>
+    /// <summary>The point's position in AU, Sun-centred and in double precision.</summary>
     public Vec3 PositionAu() => _body?.PositionAuAt(Day) ?? _fixedAu;
 }
 
 /// <summary>
-/// Ett ben av en sonds färd: banan från en punkt till nästa. Banan är den som
-/// verkligen går mellan de två lägena på exakt den tid som förflöt mellan
-/// datumen, och den är oftast en hyperbel – sonderna har fart nog att aldrig
-/// komma tillbaka.
+/// One leg of a probe's journey: the orbit from one point to the next. The
+/// orbit is the one that genuinely goes between the two positions in exactly
+/// the time that elapsed between the dates, and it's usually a hyperbola –
+/// the probes have enough speed to never come back.
 /// </summary>
 public sealed record ProbeLeg(string From, string To, double StartDay, double EndDay, Conic Path)
 {
-    /// <summary>Hur länge benet varade, i dygn.</summary>
+    /// <summary>How long the leg lasted, in days.</summary>
     public double Days => EndDay - StartDay;
 }
 
 /// <summary>
-/// En milstolpe längs färden: uppskjutningen, eller en planetpassage.
+/// A milestone along the journey: the launch, or a planetary flyby.
 ///
-/// Farten före och efter är hämtad från de två ben som möts i punkten. De möts
-/// i samma läge men med olika hastighet, och skillnaden är gravitationsslungan:
-/// sonden lånar fart av planetens rörelse kring solen. Vid uppskjutningen finns
-/// inget ben före, och farten före är då noll.
+/// The speed before and after is taken from the two legs that meet at that
+/// point. They meet at the same position but with different velocities, and
+/// the difference is the gravity assist: the probe borrows speed from the
+/// planet's motion around the Sun. At launch there's no leg before, so the
+/// speed before is zero.
 /// </summary>
 public sealed record Milestone(
     string Key, double Day, Vector3 PositionAu, double SpeedBeforeKmS, double SpeedAfterKmS)
 {
-    /// <summary>Sant för uppskjutningen, som inte är någon passage.</summary>
+    /// <summary>True for the launch, which isn't a flyby.</summary>
     public bool IsLaunch => SpeedBeforeKmS <= 0;
 
     /// <summary>
-    /// Sant för en gräns sonden passerade utan att något hände med farten –
-    /// heliopausen är den enda hittills. Den hör hemma bland milstolparna
-    /// eftersom den är en plats sonden bevisligen passerade ett känt datum, men
-    /// den är ingen förbiflygning och ska inte beskrivas som en sådan.
+    /// True for a boundary the probe passed without anything happening to
+    /// its speed – the heliopause is the only one so far. It belongs among
+    /// the milestones since it's a place the probe demonstrably passed on a
+    /// known date, but it isn't a flyby and shouldn't be described as one.
     /// </summary>
     public bool IsBoundary { get; init; }
 
-    /// <summary>Hur mycket fart planeten gav – eller tog, vilket också händer.</summary>
+    /// <summary>How much speed the planet gave – or took, which also happens.</summary>
     public double SpeedGainKmS => IsLaunch || IsBoundary ? 0 : SpeedAfterKmS - SpeedBeforeKmS;
 }
 
 /// <summary>
-/// En verklig rymdsond, byggd ur de datum den faktiskt passerade planeterna.
+/// A real spacecraft, built from the dates it actually passed the planets.
 ///
-/// Banelement matas alltså inte in. I stället får varje ben av färden vara den
-/// bana som går från en planet till nästa på exakt den tid passagerna tog,
-/// räknad ur appens egna planetpositioner med Lambert-lösaren. Två saker följer
-/// av det: sonden hamnar vid rätt planet rätt dag av sig själv, och farten
-/// hoppar uppåt vid varje passage utan att någon har lagt in hoppet – det är
-/// gravitationsslungan, och den är hela förklaringen till hur sonderna kunde nå
-/// så långt.
+/// No orbital elements are entered, then. Instead, each leg of the journey
+/// is allowed to be the orbit that goes from one planet to the next in
+/// exactly the time the flybys took, computed from the app's own planet
+/// positions with the Lambert solver. Two things follow from that: the probe
+/// lands at the right planet on the right day on its own, and the speed
+/// jumps at every flyby without anyone entering the jump – that's the
+/// gravity assist, and it's the whole reason the probes could reach so far.
 ///
-/// Sista benet går ut till sondens läge i dag, angivet som avstånd och riktning
-/// på himlen. Därför blir också lutningen ut ur ekliptikan ett resultat och inte
-/// en inmatning.
+/// The final leg runs out to the probe's position today, given as a
+/// distance and direction in the sky. That makes its inclination out of the
+/// ecliptic a result too, rather than an input.
 /// </summary>
 public sealed class Probe
 {
-    /// <summary>Sondens namn, visas vid pricken.</summary>
+    /// <summary>The probe's name, shown at the dot.</summary>
     public string Name { get; }
 
-    /// <summary>Färgen sonden och dess spår ritas i.</summary>
+    /// <summary>The colour the probe and its trail are drawn in.</summary>
     public Color Color { get; }
 
-    /// <summary>Färdens ben, i tidsordning.</summary>
+    /// <summary>The journey's legs, in time order.</summary>
     public IReadOnlyList<ProbeLeg> Legs { get; }
 
-    /// <summary>Uppskjutningen och planetpassagerna, i tidsordning.</summary>
+    /// <summary>Launch and the planetary flybys, in time order.</summary>
     public IReadOnlyList<Milestone> Milestones { get; private set; }
 
-    /// <summary>Uppskjutningsdagen, i dygn sedan J2000.</summary>
+    /// <summary>The launch day, in days since J2000.</summary>
     public double LaunchDay { get; }
 
     Probe(string name, Color color, IReadOnlyList<ProbeLeg> legs)
@@ -131,9 +134,9 @@ public sealed class Probe
     }
 
     /// <summary>
-    /// Milstolparna faller ut ur benen: varje ben börjar i en, och farthoppet
-    /// är skillnaden mellan det avslutande och det påbörjade benets fart i just
-    /// den punkten.
+    /// The milestones fall out of the legs: each leg starts at one, and the
+    /// speed jump is the difference between the speed of the leg that ends
+    /// there and the leg that begins there, both evaluated at that point.
     /// </summary>
     static Milestone[] BuildMilestones(IReadOnlyList<ProbeLeg> legs)
     {
@@ -152,13 +155,13 @@ public sealed class Probe
     }
 
     /// <summary>
-    /// Lägger till en gräns sonden passerade ett känt datum, utan att farten
-    /// ändrades. Läget och farten hämtas ur den bana sonden följde just då, så
-    /// gränsen hamnar där sonden verkligen var – inte där någon skrivit in att
-    /// den var.
+    /// Adds a boundary the probe passed on a known date, without its speed
+    /// changing. The position and speed are taken from the orbit the probe
+    /// was following at that moment, so the boundary lands where the probe
+    /// genuinely was – not where someone entered that it was.
     ///
-    /// Skrivs efter Build, eftersom Build tar sina punkter som params och inte
-    /// har någon plats kvar för fler sorters uppgifter.
+    /// Written after Build, since Build takes its points as params and has
+    /// no room left for other kinds of data.
     /// </summary>
     public Probe Crossing(string key, DateTime date)
     {
@@ -176,7 +179,7 @@ public sealed class Probe
         return this;
     }
 
-    /// <summary>Den senast passerade milstolpen, eller null före uppskjutningen.</summary>
+    /// <summary>The most recently passed milestone, or null before launch.</summary>
     public Milestone? LastMilestone(double day)
     {
         Milestone? last = null;
@@ -189,7 +192,7 @@ public sealed class Probe
         return last;
     }
 
-    /// <summary>Nästa milstolpe sonden är på väg mot, eller null när alla passerats.</summary>
+    /// <summary>The next milestone the probe is heading toward, or null once all have passed.</summary>
     public Milestone? NextMilestone(double day)
     {
         foreach (var milestone in Milestones)
@@ -199,21 +202,22 @@ public sealed class Probe
     }
 
     /// <summary>
-    /// Bygger sonden ur punkterna den passerade. Ett ben som inte går att lösa
-    /// hoppas över; det märks i att Legs blir kortare än väntat, och kontrolleras
-    /// bäst utanför appen.
+    /// Builds the probe from the points it passed. A leg that can't be
+    /// solved is skipped; that shows up as Legs being shorter than expected,
+    /// and is best checked outside the app.
     /// </summary>
     /// <summary>
-    /// Ben som inte gick att bygga, med sonden och passagerna utskrivna. Tom
-    /// lista betyder att all sonddata gick igenom.
+    /// Legs that couldn't be built, with the probe and the flybys written
+    /// out. An empty list means all the probe data went through.
     ///
-    /// Sonden byggs av de ben som fungerar, eftersom en sond med en lucka är
-    /// bättre än ingen sond alls och eftersom `Build` anropas ur statiska fält –
-    /// ett undantag där skulle fälla hela appen vid start, för ett fel i data.
-    /// Men det får inte passera obemärkt: förut blev följden att banan tyst fick
-    /// ett hopp, och den som lagt in ett omöjligt datumpar hade ingenting att gå
-    /// på. Nu skrivs det till loggen och finns kvar här att fråga efter, så att
-    /// provprogrammen utanför appen kan kräva att listan är tom.
+    /// The probe is built from the legs that work, since a probe with a gap
+    /// is better than no probe at all, and since `Build` is called from
+    /// static fields – an exception there would take down the whole app at
+    /// startup over one bad piece of data. But it must not pass unnoticed:
+    /// it used to be that the orbit silently got a jump, and whoever had
+    /// entered an impossible pair of dates had nothing to go on. Now it's
+    /// written to the log and kept here to query, so the test programs
+    /// outside the app can require the list to be empty.
     /// </summary>
     public static IReadOnlyList<string> SkippedLegs => Skipped;
 
@@ -229,7 +233,7 @@ public sealed class Probe
             double travelDays = to.Day - from.Day;
             if (travelDays <= 0)
             {
-                Skip(name, from, to, "passagerna kommer inte i tidsordning");
+                Skip(name, from, to, "the flybys aren't in time order");
                 continue;
             }
 
@@ -237,14 +241,14 @@ public sealed class Probe
             var r2 = to.PositionAu();
             if (!Lambert.Solve(r1, r2, travelDays, SolarSystemData.SunMu, out var v1, out _))
             {
-                Skip(name, from, to, "Lambert hittade ingen bana på den tiden");
+                Skip(name, from, to, "Lambert found no orbit for that time");
                 continue;
             }
 
             if (Conic.FromState(r1, v1, from.Day, SolarSystemData.SunMu) is { } path)
                 legs.Add(new ProbeLeg(from.Key, to.Key, from.Day, to.Day, path));
             else
-                Skip(name, from, to, "banan gick inte att bygga ur läge och hastighet");
+                Skip(name, from, to, "the orbit couldn't be built from position and velocity");
         }
 
         return new Probe(name, color, legs);
@@ -254,17 +258,18 @@ public sealed class Probe
     {
         double days = to.Day - from.Day;
         string message = string.Create(System.Globalization.CultureInfo.InvariantCulture,
-            $"{probe}: benet {from.Key} -> {to.Key} hoppades over ({days:0.#} dygn) - {why}.");
+            $"{probe}: leg {from.Key} -> {to.Key} skipped ({days:0.#} days) - {why}.");
         Skipped.Add(message);
         Diagnostics.Log(message);
     }
 
-    /// <summary>Sant när sonden har skjutits upp och alltså finns att rita.</summary>
+    /// <summary>True once the probe has launched and so exists to be drawn.</summary>
     public bool Exists(double day) => Legs.Count > 0 && day >= LaunchDay;
 
     /// <summary>
-    /// Benet sonden befinner sig på. Efter sista punkten fortsätter den på sitt
-    /// sista ben – banan gäller ju vidare, sonden är fortfarande på väg utåt.
+    /// The leg the probe is currently on. After the last point it continues
+    /// on its last leg – the orbit still applies further out, the probe is
+    /// still on its way outward.
     /// </summary>
     public ProbeLeg? LegAt(double day)
     {
@@ -277,17 +282,18 @@ public sealed class Probe
         return leg;
     }
 
-    /// <summary>Sondens läge, eller null innan den skjutits upp.</summary>
+    /// <summary>The probe's position, or null before it has launched.</summary>
     public Vector3? PositionAt(double day, float unitsPerAu)
         => LegAt(day)?.Path.PositionAt(day, unitsPerAu);
 
-    /// <summary>Sondens avstånd från solen i AU, eller noll innan uppskjutningen.</summary>
+    /// <summary>The probe's distance from the Sun in AU, or zero before launch.</summary>
     public double DistanceAu(double day)
         => LegAt(day)?.Path.DistanceAu(day) ?? 0.0;
 
     /// <summary>
-    /// Sondens fart i km/s. Farten hoppar vid varje planetpassage, eftersom
-    /// benen möts i samma läge men med olika hastighet – det är slungan.
+    /// The probe's speed in km/s. The speed jumps at every planetary flyby,
+    /// since the legs meet at the same position but with different
+    /// velocities – that's the gravity assist.
     /// </summary>
     public double SpeedKmPerSecond(double day)
         => LegAt(day)?.Path.SpeedKmPerSecond(day) ?? 0.0;

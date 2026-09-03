@@ -22,7 +22,7 @@ public partial class App : Application
 		}
 		catch
 		{
-			// Kraschloggning får aldrig själv orsaka fel.
+			// Crash logging must never itself cause a failure.
 		}
 	}
 
@@ -30,7 +30,7 @@ public partial class App : Application
 	{
 		return new Window(new AppShell())
 		{
-			// Titeln sätts om när sidan laddats, och igen vid varje språkbyte.
+			// The title is reset once the page has loaded, and again on every language switch.
 			Title = Strings.WindowTitle,
 			Width = 1400,
 			Height = 900,

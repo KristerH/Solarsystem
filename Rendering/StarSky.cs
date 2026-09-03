@@ -3,48 +3,49 @@ using Solarsystem.Simulation;
 
 namespace Solarsystem.Rendering;
 
-/// <summary>Hur många stjärnor som ritas – en inställning i appen.</summary>
+/// <summary>How many stars are drawn – a setting in the app.</summary>
 public enum StarDensity
 {
     /// <summary>
-    /// Ingen stjärnhimmel alls – helt svart bakgrund. Bra när man vill att
-    /// eleverna ska titta enbart på solsystemet utan att distraheras.
+    /// No night sky at all – a fully black background. Good for when
+    /// students should look only at the Solar System without distraction.
     /// </summary>
     None = 0,
-    /// <summary>Endast katalogens riktiga, namngivna stjärnor.</summary>
+    /// <summary>Only the catalogue's real, named stars.</summary>
     Low = 1,
-    /// <summary>Riktiga stjärnor plus ett måttligt bakgrundsbrus och Vintergatan.</summary>
+    /// <summary>Real stars plus a moderate background haze and the Milky Way.</summary>
     Medium = 2,
-    /// <summary>Full stjärnhimmel.</summary>
+    /// <summary>The full night sky.</summary>
     High = 3,
 }
 
 /// <summary>
-/// Stjärnhimlen: verkliga stjärnor ur katalogen, ett svagare bakgrundsbrus och
-/// Vintergatans band längs det galaktiska planet.
+/// The night sky: real stars from the catalogue, a fainter background haze,
+/// and the Milky Way's band along the galactic plane.
 ///
-/// Prestanda: himlen ligger "på oändligt avstånd", så skärmpositionerna beror
-/// bara på kamerans riktning och vyns storlek – inte på zoom, panorering mot
-/// mål eller planeternas rörelse. Alla positioner cachas därför och räknas om
-/// först när riktningen faktiskt ändras. Alla färger är förberäknade och allt
-/// som hamnar utanför skärmen hoppas över.
+/// Performance: the sky sits "at infinite distance", so screen positions
+/// depend only on the camera's direction and the view's size – not on zoom,
+/// panning toward a target, or the planets' motion. All positions are
+/// therefore cached and only recomputed once the direction actually changes.
+/// All colours are precomputed, and anything that ends up off-screen is
+/// skipped.
 /// </summary>
 public sealed class StarSky
 {
     /// <summary>
-    /// Stjärnor ljusare än så här får sitt namn utskrivet. Gränsen är satt så
-    /// att Polstjärnan (magnitud 1,98) kommer med – den är inte särskilt ljus,
-    /// men desto viktigare att kunna peka ut.
+    /// Stars brighter than this get their name printed. The limit is set so
+    /// Polaris (magnitude 1.98) is included – it's not especially bright, but
+    /// all the more important to be able to point out.
     /// </summary>
     const double NameMagnitudeLimit = 2.10;
 
-    /// <summary>Marginal utanför skärmkanten innan något kastas bort.</summary>
+    /// <summary>Margin outside the screen edge before something is discarded.</summary>
     const float Margin = 80f;
 
     /// <summary>
-    /// En katalogstjärna färdig att rita. <c>NameKey</c> är en nyckel och inte en
-    /// färdig text: namnet slås upp när stjärnan ritas, så att ett språkbyte
-    /// syns direkt utan att hela himlen byggs om.
+    /// A catalogue star ready to draw. <c>NameKey</c> is a key, not finished
+    /// text: the name is looked up when the star is drawn, so a language
+    /// switch shows immediately without the whole sky being rebuilt.
     /// </summary>
     readonly record struct CatalogEntry(
         Vector3 Dir, Color Color, Color GlowColor, float Radius, bool Glow, string? NameKey);
@@ -52,15 +53,15 @@ public sealed class StarSky
     readonly record struct BlobEntry(Vector3 Dir, Color Color, float WorldRadius);
 
     readonly CatalogEntry[] _catalog;
-    readonly PointEntry[] _uniform;   // jämnt spridda svaga stjärnor
-    readonly PointEntry[] _band;      // svaga stjärnor längs Vintergatan
-    readonly BlobEntry[] _blobs;      // Vintergatans mjuka glöd
+    readonly PointEntry[] _uniform;   // evenly spread faint stars
+    readonly PointEntry[] _band;      // faint stars along the Milky Way
+    readonly BlobEntry[] _blobs;      // the Milky Way's soft glow
     readonly (Vector3 A, Vector3 B)[] _lines;
     readonly (string Key, Vector3 Dir)[] _constellationLabels;
 
     public StarDensity Density { get; set; } = StarDensity.Medium;
 
-    // ---------------- positionscache (ogiltig först när kameran roteras) ----
+    // ---------------- position cache (invalid only once the camera rotates) ----
     float _sigYaw = float.NaN, _sigPitch, _sigFocal, _sigW, _sigH;
     readonly PointF[] _catalogPos;
     readonly bool[] _catalogVis;
@@ -118,8 +119,9 @@ public sealed class StarSky
     public void Draw(ICanvas canvas, OrbitCamera camera, RectF rect,
         bool showConstellations, bool showStarNames)
     {
-        // Vid "Inga" ritas ingenting alls – varken stjärnor, stjärnbilder eller
-        // Vintergata. Linjer mellan osynliga stjärnor vore ändå meningslösa.
+        // At "None" nothing is drawn at all – no stars, constellations, or
+        // Milky Way. Lines between invisible stars would be meaningless
+        // anyway.
         if (Density == StarDensity.None)
             return;
 
@@ -133,8 +135,9 @@ public sealed class StarSky
                   Math.Min(40, _blobs.Length)),
         };
 
-        // Vintergatans glöd (längst bak). Tre koncentriska, mycket svaga cirklar
-        // per fläck ger en mjuk avtoning utan dyra gradientpenslar.
+        // The Milky Way's glow (farthest back). Three concentric, very faint
+        // circles per patch give a soft falloff without expensive gradient
+        // brushes.
         for (int i = 0; i < blobCount; i++)
         {
             if (!_blobVis[i])
@@ -146,7 +149,7 @@ public sealed class StarSky
             canvas.FillCircle(x, y, r * 0.42f);
         }
 
-        // Svaga bakgrundsstjärnor.
+        // Faint background stars.
         for (int i = 0; i < uniformCount; i++)
         {
             if (!_uniformVis[i])
@@ -180,7 +183,7 @@ public sealed class StarSky
             }
         }
 
-        // Katalogens riktiga stjärnor (alltid alla – de är få och billiga).
+        // The catalogue's real stars (always all of them – they're few and cheap).
         for (int i = 0; i < _catalog.Length; i++)
         {
             if (!_catalogVis[i])
@@ -202,9 +205,10 @@ public sealed class StarSky
             canvas.FontColor = StarNameColor;
             for (int i = 0; i < _catalog.Length; i++)
             {
-                // De flesta stjärnnamn är internationella – Betelgeuse heter så
-                // överallt – så uppslagningen faller tillbaka på nyckeln själv.
-                // Bara Plejaderna och Polstjärnan står i resursfilen.
+                // Most star names are international – Betelgeuse is called
+                // that everywhere – so the lookup falls back to the key
+                // itself. Only the Pleiades and Polaris live in the resource
+                // file.
                 if (_catalogVis[i] && _catalog[i].NameKey is string key)
                     canvas.DrawString(Strings.Name(key),
                         _catalogPos[i].X + 7, _catalogPos[i].Y + 4, HorizontalAlignment.Left);
@@ -212,7 +216,7 @@ public sealed class StarSky
         }
     }
 
-    // --------------------------------------------------------------- cachning
+    // --------------------------------------------------------------- caching
 
     void RefreshCache(OrbitCamera camera, RectF rect)
     {
@@ -269,9 +273,9 @@ public sealed class StarSky
     }
 
     /// <summary>
-    /// Bygger alla stjärnbildslinjer som en enda figur. Varje linje delas upp i
-    /// steg så att långa linjer följer himmelssfären i stället för att skära
-    /// rakt igenom den.
+    /// Builds every constellation line as a single figure. Each line is
+    /// broken into steps so long lines follow the celestial sphere instead
+    /// of cutting straight through it.
     /// </summary>
     void RebuildLinesPath(OrbitCamera camera, float maxX, float maxY)
     {
@@ -281,8 +285,9 @@ public sealed class StarSky
 
         foreach (var (a, b) in _lines)
         {
-            // En delfigur får bara börja när minst två punkter i rad är synliga –
-            // en ensam MoveTo utan efterföljande LineTo är ogiltig i Win2D.
+            // A subpath may only start once at least two points in a row are
+            // visible – a lone MoveTo with no following LineTo is invalid in
+            // Win2D.
             bool started = false, hasPrev = false;
             float px = 0, py = 0;
             for (int i = 0; i <= steps; i++)
@@ -311,12 +316,12 @@ public sealed class StarSky
         _linesPath = path;
     }
 
-    // ---------------------------------------------------------- uppbyggnad
+    // ---------------------------------------------------------- construction
 
     static CatalogEntry ToCatalogEntry(Star s)
     {
-        // Ljusstarka stjärnor ritas större; skalan är komprimerad så att
-        // Sirius inte blir en skiva medan magnitud 4 fortfarande syns.
+        // Brighter stars are drawn larger; the scale is compressed so Sirius
+        // doesn't become a disc while magnitude 4 is still visible.
         float radius = Math.Clamp((float)(2.6 - s.Magnitude * 0.42), 0.7f, 3.4f);
         var color = ColorFromColorIndex(s.ColorIndex, s.Magnitude);
         string? key = s.Magnitude <= NameMagnitudeLimit ? s.NameKey : null;
@@ -325,8 +330,9 @@ public sealed class StarSky
     }
 
     /// <summary>
-    /// Färgindex B-V -> ungefärlig yttemperatur -> RGB. Ger blåvita jättar som
-    /// Rigel och röda som Betelgeuse, precis som på himlen.
+    /// Colour index B-V -> approximate surface temperature -> RGB. Gives
+    /// blue-white giants like Rigel and red ones like Betelgeuse, just as in
+    /// the sky.
     /// </summary>
     static Color ColorFromColorIndex(double bv, double magnitude)
     {
@@ -346,7 +352,7 @@ public sealed class StarSky
             (float)Math.Clamp(g / 255.0, 0, 1),
             (float)Math.Clamp(b / 255.0, 0, 1));
 
-        // Ljussvaga stjärnor tonas ner; ögat ser dem ändå nästan färglösa.
+        // Faint stars are toned down; the eye sees them as nearly colourless anyway.
         float alpha = (float)Math.Clamp(1.15 - magnitude * 0.16, 0.42, 1.0);
         return color.WithAlpha(alpha);
     }
@@ -365,7 +371,7 @@ public sealed class StarSky
                 0.4f + (float)rnd.NextDouble() * 0.6f);
         }
 
-        // Extra täthet längs det galaktiska planet – där ligger de flesta stjärnorna.
+        // Extra density along the galactic plane – that's where most stars are.
         var band = new PointEntry[1900];
         for (int i = 0; i < band.Length; i++)
         {
@@ -394,9 +400,9 @@ public sealed class StarSky
             var dir = Vector3.Normalize(
                 u * (float)Math.Cos(lon) + v * (float)Math.Sin(lon) + pole * offset);
 
-            // Bandet är ljusast mot galaktiska centrum (longitud 0) och tunnas
-            // ut mot kanterna. Mjukheten kommer av att många mycket svaga
-            // cirklar överlappar – inga gradienter behövs.
+            // The band is brightest toward the galactic centre (longitude 0)
+            // and thins out toward the edges. The softness comes from many
+            // very faint circles overlapping – no gradients needed.
             float towardCenter = (float)((Math.Cos(lon) + 1.0) * 0.5);
             float alpha = (0.010f + towardCenter * 0.014f) *
                           MathF.Exp(-offset * offset * 45f);
@@ -408,7 +414,7 @@ public sealed class StarSky
         return blobs;
     }
 
-    /// <summary>Ortogonal bas där u pekar mot galaktiska centrum och pole mot galaktiska nordpolen.</summary>
+    /// <summary>Orthogonal basis where u points toward the galactic centre and pole toward the galactic north pole.</summary>
     static (Vector3 U, Vector3 V, Vector3 Pole) GalacticBasis()
     {
         var pole = StarCatalog.GalacticNorthPole;

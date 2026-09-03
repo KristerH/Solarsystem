@@ -3,39 +3,42 @@ using System.Numerics;
 namespace Solarsystem.Rendering;
 
 /// <summary>
-/// Kamera som kretsar kring en målpunkt (yaw/pitch/avstånd) och
-/// projicerar världskoordinater till skärmkoordinater med perspektiv.
+/// A camera that orbits a target point (yaw/pitch/distance) and projects
+/// world coordinates to screen coordinates with perspective.
 /// </summary>
 public sealed class OrbitCamera
 {
     /// <summary>
-    /// Absolut minsta kameraavstånd. Gränsen sätts av flyttalen och inte av
-    /// någon kropp: världskoordinaterna är enkel precision och når 2 400 enheter
-    /// ute vid Neptunus, där steget mellan två närliggande tal är ett par
-    /// tiotusendels enhet. Närmare än så finns ingen mening.
+    /// The absolute closest the camera can get. The limit is set by floating
+    /// point, not by any body: world coordinates are single precision and
+    /// reach 2,400 units out at Neptune, where the gap between two adjacent
+    /// numbers is a few ten-thousandths of a unit. Closer than that has no
+    /// meaning.
     /// </summary>
     public const float AbsoluteMinDistance = 1e-3f;
-    // 40 000 enheter är 666 AU. Rymdsonderna ligger på 65 till 170 AU, och för
-    // att se en av dem med solen kvar i bild måste kameran backa ett par gånger
-    // sondens avstånd – därav takhöjden.
+    // 40,000 units is 666 AU. The spacecraft sit between 65 and 170 AU, and
+    // to see one of them with the Sun still in frame the camera has to back
+    // off a couple of times the probe's distance – hence the headroom.
     public const float MaxDistance = 40_000f;
     public const float MaxPitch = 1.55f;
 
-    /// <summary>Kameraavståndet i översiktsvyn, som "Återställ vy" går tillbaka till.</summary>
+    /// <summary>The camera distance in the overview, which "Reset view" returns to.</summary>
     public const float DefaultDistance = 900f;
 
     public float Yaw { get; set; }
     public float Pitch { get; set; }
 
     /// <summary>
-    /// Hur nära kameran får komma målet. Måste kunna ändras under körningen och
-    /// inte vara en konstant: i förstorat läge har jorden radien 2,6 enheter, i
-    /// verklig skala 0,0026. Ett fast golv som duger för det ena håller kameran
-    /// tusen jordradier bort i det andra, och då syns ingenting av ytan.
+    /// How close the camera is allowed to get to the target. Has to be
+    /// changeable at runtime rather than a constant: in magnified mode Earth
+    /// has a radius of 2.6 units, in real scale 0.0026. A fixed floor that
+    /// suits one keeps the camera a thousand Earth radii away in the other,
+    /// where nothing of the surface would show.
     ///
-    /// Den som väljer vad kameran tittar på sätter också gränsen, eftersom det är
-    /// där man vet hur stor kroppen är. Avståndet kläms om direkt när gränsen
-    /// ändras, så man aldrig blir stående inuti en planet efter ett lägesbyte.
+    /// Whatever picks what the camera is looking at also sets this limit,
+    /// since that's where the body's size is known. The distance is clamped
+    /// immediately when the limit changes, so the camera never ends up stuck
+    /// inside a planet after a focus change.
     /// </summary>
     public float MinDistance
     {
@@ -47,7 +50,7 @@ public sealed class OrbitCamera
         }
     }
 
-    /// <summary>Avståndet till målet. Hålls alltid inom sina gränser.</summary>
+    /// <summary>Distance to the target. Always kept within its limits.</summary>
     public float Distance
     {
         get => _distance;
@@ -64,13 +67,13 @@ public sealed class OrbitCamera
 
     public Vector3 Position => _pos;
 
-    /// <summary>Fokallängd i pixlar för senaste bildrutan (sätts i UpdateFrame).</summary>
+    /// <summary>Focal length in pixels for the most recent frame (set in UpdateFrame).</summary>
     public float Focal => _focal;
 
-    /// <summary>Kamerans högerriktning i världskoordinater (senaste bildrutan).</summary>
+    /// <summary>The camera's right direction in world coordinates (most recent frame).</summary>
     public Vector3 RightAxis => _right;
 
-    /// <summary>Kamerans uppriktning i världskoordinater (senaste bildrutan).</summary>
+    /// <summary>The camera's up direction in world coordinates (most recent frame).</summary>
     public Vector3 UpAxis => _up;
 
     public OrbitCamera() => ResetView();
@@ -91,7 +94,7 @@ public sealed class OrbitCamera
         Pitch = Math.Clamp(Pitch + dPitch, -MaxPitch, MaxPitch);
     }
 
-    /// <summary>Räknar om kamerabas och fokallängd inför en ny bildruta.</summary>
+    /// <summary>Recomputes the camera basis and focal length ahead of a new frame.</summary>
     public void UpdateFrame(float width, float height)
     {
         float cp = MathF.Cos(Pitch);
@@ -104,7 +107,7 @@ public sealed class OrbitCamera
         var worldUp = Vector3.UnitY;
         var right = Vector3.Cross(_fwd, worldUp);
         if (right.LengthSquared() < 1e-8f)
-            right = Vector3.UnitX; // rakt uppifrån/nerifrån
+            right = Vector3.UnitX; // straight from above or below
         _right = Vector3.Normalize(right);
         _up = Vector3.Cross(_right, _fwd);
 
@@ -113,7 +116,7 @@ public sealed class OrbitCamera
         _focal = (height * 0.5f) / MathF.Tan(VerticalFovDeg * MathF.PI / 360f);
     }
 
-    /// <summary>Projicerar en världspunkt. Falskt om punkten ligger bakom kameran.</summary>
+    /// <summary>Projects a world point. False if the point is behind the camera.</summary>
     public bool Project(Vector3 world, out float sx, out float sy, out float depth)
     {
         var v = world - _pos;
@@ -125,7 +128,7 @@ public sealed class OrbitCamera
         return true;
     }
 
-    /// <summary>Projicerar en riktning "på oändligt avstånd" (för stjärnhimlen).</summary>
+    /// <summary>Projects a direction "at infinite distance" (for the night sky).</summary>
     public bool ProjectDirection(Vector3 dir, out float sx, out float sy)
     {
         float depth = Vector3.Dot(dir, _fwd);
@@ -136,6 +139,6 @@ public sealed class OrbitCamera
         return true;
     }
 
-    /// <summary>Skenbar radie i pixlar för en sfär med given världsradie på givet djup.</summary>
+    /// <summary>Apparent radius in pixels for a sphere with a given world radius at a given depth.</summary>
     public float ScreenRadius(float worldRadius, float depth) => worldRadius * _focal / depth;
 }
