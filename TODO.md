@@ -1519,6 +1519,91 @@ med enbart instruktionerna i README. Går det inte, är README inte färdig.
 ---
 
 
+## Etapp 14 – Dela logik och gränssnitt
+
+Målet är att samma solsystem ska kunna drivas av mer än ett gränssnitt, så att
+appen på sikt kan köras i en webbläsare vid sidan av skrivbordsappen.
+
+**Utgångsläget är bättre än det ser ut.** En mätning av kodens beroenden:
+
+| mapp | rader | beroenden till gränssnittet |
+|---|---|---|
+| `Simulation/` | 3 100 | enbart `Color`, 209 användningar |
+| `Rendering/` | 1 500 | `Microsoft.Maui.Graphics`: ICanvas, PathF, RectF, PointF |
+| `MainPage.xaml(.cs)` | 1 350 | hela MAUI Controls, 41 kontroller, 30 händelsemetoder |
+
+Simulationen importerar inte MAUI någonstans – enda `using` i hela mappen är
+`System.Numerics`. Det är inte en gissning: provprogrammet som verifierat varje
+etapp sedan etapp 9 kompilerar hela `Simulation/` med en tolv rader lång
+ersättning för `Color` och ingenting annat. Logiken är alltså redan fri, den bara
+bor i samma projekt som gränssnittet.
+
+### 14.1 – Bryt ut kärnan till ett eget projekt
+
+- [ ] Flytta `Simulation/` till `Solarsystem.Core`, ett bibliotek utan beroende
+      till MAUI.
+- [ ] Bestäm vad som ska hända med `Color`. Två vägar: en egen liten typ, eller
+      ett beroende till paketet `Microsoft.Maui.Graphics`. Det senare låter
+      mindre oskyldigt än det är – paketet är fristående från MAUI Controls och
+      innehåller bara rit- och färgprimitiver. Men en egen typ gör kärnan helt
+      beroendefri, och 209 användningar är ingen stor omskrivning.
+- [ ] Låt provprogrammet referera projektet i stället för att kopiera filerna
+      och shimma `Color`. Det har fungerat länge men är en kopia som kan hamna ur
+      fas med originalet.
+
+**Verifiera:** `Solarsystem.Core` ska bygga utan en enda referens till MAUI, och
+provprogrammets alla kontroller från etapp 9 till 12 ska gå igenom mot det
+byggda biblioteket i stället för mot kopierade filer.
+
+### 14.2 – Ritlagret som ett eget projekt
+
+- [ ] Flytta `Rendering/` till `Solarsystem.Rendering`, som får bero på
+      `Microsoft.Maui.Graphics` men inte på MAUI Controls.
+- [ ] Utred den fråga som avgör hela etapp 14:s värde – **går `ICanvas` att
+      genomföra på webben?** `SolarSystemDrawable` är 1 282 rader och ritar allt
+      genom det gränssnittet. Finns det en canvas-implementation för webben går
+      hela ritlagret att återanvända oförändrat. Finns det inte måste det skrivas
+      om, och då är det den största posten i hela projektet.
+
+**Verifiera:** Skrivbordsappen ska se likadan ut efter flytten. Ritkoden rörs
+inte, bara var den bor.
+
+### 14.3 – Tillståndet ur MainPage
+
+Det här är den egentliga svårigheten. `MainPage.xaml.cs` är 1 080 rader och
+innehåller två sorters kod blandat: det som pratar med MAUI:s kontroller, och det
+som vet vad appen gör. Det senare måste ett andra gränssnitt kunna använda.
+
+- [ ] Bryt ut tillståndet till en klass utan gränssnittsberoende: klockan och
+      hastigheten, vald kropp i fokusväljaren, pågående rymdfärd, vilka sonder
+      som visas, kameran.
+- [ ] Låt `MainPage` bli tunn – ta emot klick, skicka vidare, visa det som
+      kommer tillbaka.
+
+**Verifiera:** Räkna raderna i `MainPage.xaml.cs` efteråt. Blir den inte
+väsentligt kortare har tillståndet inte flyttat, bara fått sällskap.
+
+### 14.4 – Välj webbteknik
+
+Utredning, inte bygge. Frågan är inte avgjord och bör inte avgöras förrän 14.1
+till 14.3 visat hur mycket som faktiskt går att återanvända.
+
+- [ ] Jämför alternativen. Blazor WebAssembly ligger nära till hands eftersom
+      allt redan är C# och kärnan då kan följa med oförändrad. Men det finns
+      andra vägar: Blazor Server, kärnan kompilerad till WebAssembly med ett
+      gränssnitt i något annat, eller ett gränssnitt skrivet direkt mot en
+      webbcanvas.
+- [ ] Avgör ritfrågan från 14.2 först. Den väger tyngre än valet av ramverk:
+      går ritlagret att återanvända är resten mest arbete med knappar, medan ett
+      omskrivet ritlager är ett halvt nytt projekt.
+- [ ] Väg in att appen är beräkningstung på klienten – banor, ytor och
+      stjärnhimmel räknas om varje bildruta. Det talar för att räkningen ska ske
+      i webbläsaren och inte på en server.
+
+**Verifiera:** Ett beslut med skäl nedskrivna, inte ett ramverk valt på känsla.
+
+---
+
 ## Anteckningar och beslut
 
 - **Skala:** månar följer Månens princip – i förstorat läge komprimerat
