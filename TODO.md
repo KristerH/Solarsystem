@@ -1528,6 +1528,15 @@ Etapp 11:
       Åtgärdat genom att lägga månarna i fokusväljaren, se noten efter 11.7.
 - [x] Månen och Pluto i appen. Månen ritas som glob först när den blir stor nog
       i bild, och den tröskeln är inte prövad för en måne – bara för planeter.
+- [ ] Kontrollpanelen går att fälla ihop. Knappen "Dölj kontroller" i panelens
+      överkant, eller tangenten M, ska lämna kvar bara en 24 pixlar hög list och
+      låta vyn växa. Knapptexten ska växla till "Visa kontroller".
+- [ ] Månbanan och noderna i bild. Kryssa i "Månbanan", välj jorden och zooma in:
+      månbanan ska luta mot den gula ekliptikaringen och nodlinjen gå genom
+      jorden med båda noderna namngivna. Färger och storlekar är gissade.
+- [ ] Förmörkelsevyn. Välj "Solförmörkelse" och tryck "Gå till nästa": månbanan
+      och månarna ska slås på av sig själva, kameran ställa sig vid jorden, och
+      solen stå längs nodlinjen just den dagen.
 - [ ] Heliopausen i bild. Välj Voyager 1 i fokusväljaren så kameran hamnar på
       406 AU; sfären ska då synas som en svag cirkel med solsystemet inuti, och
       Voyager 1 ska ligga utanför den medan New Horizons ligger innanför.

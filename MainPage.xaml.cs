@@ -963,6 +963,21 @@ public partial class MainPage : ContentPage
         _settingsChanged = true;
     }
 
+    /// <summary>
+    /// Fäller ihop kontrollpanelen till bara sin list. Panelen har vuxit till
+    /// fem rader och tar då en femtedel av fönstret, vilket är i mesta laget när
+    /// man bara vill titta på solsystemet.
+    /// </summary>
+    void OnPanelToggleClicked(object? sender, EventArgs e) => TogglePanel();
+
+    void TogglePanel()
+    {
+        PanelBody.IsVisible = !PanelBody.IsVisible;
+        PanelToggleButton.Text = PanelBody.IsVisible
+            ? "\u25be  Dölj kontroller"
+            : "\u25b4  Visa kontroller";
+    }
+
     void OnResetClicked(object? sender, EventArgs e) => ResetView();
 
     void ResetView()
@@ -1055,6 +1070,9 @@ public partial class MainPage : ContentPage
                 break;
             case Windows.System.VirtualKey.R:
                 ResetView();
+                break;
+            case Windows.System.VirtualKey.M:
+                TogglePanel();
                 break;
         }
     }
