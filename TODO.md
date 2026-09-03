@@ -1399,7 +1399,13 @@ latituden.
 
 ---
 
-## Etapp 13 – Språkstöd (inför publik release)
+## Etapp 13 – Publik release
+
+Två delar som hör ihop utan att bero på varandra: att appen går att visa på fler
+språk än svenska, och att koden går att lägga ut öppet. De kan tas i vilken
+ordning som helst.
+
+### 13.1 – Språkstöd
 
 Appen ska kunna visas på svenska och engelska, med språken i egna filer så
 att fler språk (t.ex. tyska) bara blir en fil till – ingen kodändring.
@@ -1432,6 +1438,87 @@ kontrollpanelen. Svenska ska se exakt ut som i dag.
 
 ---
 
+### 13.2 – Öppen källkod på GitHub
+
+Genomgången nedan är gjord mot det här repot och inte skriven ur en allmän
+checklista. Sju saker hittades, och den andra bör avgöras innan något alls
+publiceras – den går inte att ta tillbaka.
+
+- [ ] **Det finns ingen licensfil.** Utan en sådan gäller full upphovsrätt som
+      standard: koden går att läsa på GitHub men ingen får lagligt använda,
+      ändra eller sprida den, vilket knappast är avsikten med att lägga upp den.
+      För en undervisningsapp ligger MIT eller Apache 2.0 nära till hands; MIT är
+      kortare, Apache 2.0 ger uttryckligt patentskydd.
+
+- [ ] **Arbetsmejlen ligger i varje commit.** Hela historiken är signerad
+      `krister.hellsing@swedavia.se`, alltså en arbetsgivaradress, och den följer
+      med när repot publiceras. Det är ett val att göra medvetet och inte att
+      upptäcka efteråt: går det att byta i efterhand krävs en omskrivning av hela
+      historien, vilket ändrar alla commit-id. Enklast är att bestämma sig först.
+      Värt att fundera på i samma veva är om något i arbetsgivarens regler rör
+      kod skriven på fritiden.
+
+- [ ] **Mallrester från projektmallen.** `ApplicationId` står kvar på
+      `com.companyname.solarsystem`. `Resources/Images/dotnet_bot.png` ligger
+      kvar men används ingenstans i koden – det är Microsofts maskot och behöver
+      inte följa med. Detsamma gäller `Resources/Raw/AboutAssets.txt`, som bara
+      är mallens egen instruktionstext. Appikonen och startskärmen är fortfarande
+      .NET-mallens lila.
+
+- [ ] **Attribution för det som lånats.** Open Sans används på riktigt, genom
+      `Styles.xaml`, och dess Apache 2.0-licens kräver att licenstexten följer
+      med. Datan bör också få sina källor utskrivna: banelementen kommer från
+      NASA/JPL, polriktningarna från IAU:s arbetsgrupp för kartografiska
+      koordinater, och stjärnkatalogens ursprung bör redas ut och anges.
+
+- [ ] **README behöver bli ett repo-README.** Den nuvarande är en utmärkt
+      funktionsbeskrivning men saknar det en besökare först vill ha: en mening om
+      vad det är, en skärmbild, hur man bygger det (.NET 10 SDK, MAUI-
+      arbetsbelastningen, Windows) och vilken licens som gäller.
+
+- [ ] **Plattformsmapparna lovar mer än appen håller.** `Platforms/Android`,
+      `iOS` och `MacCatalyst` finns kvar från mallen medan `TargetFrameworks`
+      bara innehåller Windows. Antingen bort, eller en rad i README om att bara
+      Windows är byggbart i dag.
+
+- [ ] **Översätt alla kodkommentarer till engelska.** De är svenska rakt igenom
+      i dag, vilket stänger ute alla som inte läser svenska – och det är de flesta
+      som hittar ett repo på GitHub.
+
+      Det är den största enskilda posten i hela etappen. Räknat i koden: 1 562
+      rader XML-dokumentation och 494 vanliga kommentarrader, tillsammans 2 056
+      av 7 329 rader, alltså 28 procent. Tyngst ligger `SurfaceMap.cs` med 339
+      rader, `SolarSystemDrawable.cs` med 279, `SolarSystemData.cs` med 263 och
+      `Mission.cs` med 202.
+
+      Det är heller ingen mekanisk översättning. Kommentarerna bär projektets
+      egentliga dokumentation – varför noderna låg 180 grader fel, varför
+      konjunktioner räknas från jorden och inte från solen, varför Venus har
+      strimmor trots att den är slät. Den sortens resonemang måste bära lika bra
+      på engelska, annars är det bättre att låta bli.
+
+      Skriv enkel engelska, inte elegant. Den som forkar har sannolikt varken
+      svenska eller engelska som modersmål utan engelska som andraspråk, och då
+      bär korta meningar och vanliga ord längre än idiom och ordvitsar. Flera av
+      de svenska kommentarerna leker med språket – det får gärna gå förlorat.
+
+      Kvar att bestämma: om `TODO.md` och `README.md` ska följa med över till
+      engelska (se punkten om TODO nedan). Att appen i övrigt är gjord för
+      svenska elever är däremot avgjort och kräver ingenting – se beslutet under
+      Anteckningar.
+
+- [ ] **Beslut: ska TODO.md följa med?** Den innehåller interna anteckningar och
+      provlistor, men också den enda samlade förklaringen till varför saker ser
+      ut som de gör – vilka fel som hittats, vilka förenklingar som gjorts och
+      varför. För någon som vill förstå koden är den förmodligen mer värd än
+      README.
+
+**Verifiera:** Klona repot till en tom katalog på en annan maskin och bygg det
+med enbart instruktionerna i README. Går det inte, är README inte färdig.
+
+---
+
+
 ## Anteckningar och beslut
 
 - **Skala:** månar följer Månens princip – i förstorat läge komprimerat
@@ -1444,8 +1531,16 @@ kontrollpanelen. Svenska ska se exakt ut som i dag.
 - **Månantal:** vi ritar bara de stora/pedagogiska månarna. Att Jupiter har
   ~95 och Saturnus ~274 kända månar kan i stället nämnas i en infotext.
 - **Nya texter fram till språkstödet:** skrivs tills vidare på svenska som i
-  dag, men samlas gärna på få ställen i koden så att etapp 13 (språkstöd)
+  dag, men samlas gärna på få ställen i koden så att etapp 13.1 (språkstöd)
   blir enkel att genomföra.
+- **Appen får förbli gjord för svenska elever.** Den frågan kom upp inför
+  etapp 13.2: ska det svenska anslaget tonas ned när koden läggs ut öppet?
+  Nej. Öppen källkod löser det på sitt eget sätt – den som vill ha en variant
+  för sitt land forkar och vrider till den. Det gäller ändå bara ett par saker,
+  eftersom solsystemet ser likadant ut överallt: gränssnittsspråket, som 13.1
+  gör valbart, och stjärnbildernas svenska namn som Karlavagnen. Kodkommentarerna
+  är en egen fråga och översätts till engelska i 13.2, så att en fork alls ska
+  vara möjlig att göra.
 
 ---
 
