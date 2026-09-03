@@ -1,0 +1,556 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="name.Sun">
+    <value>Solen</value>
+  </data>
+  <data name="name.Mercury">
+    <value>Merkurius</value>
+  </data>
+  <data name="name.Venus">
+    <value>Venus</value>
+  </data>
+  <data name="name.Earth">
+    <value>Jorden</value>
+  </data>
+  <data name="name.Mars">
+    <value>Mars</value>
+  </data>
+  <data name="name.Jupiter">
+    <value>Jupiter</value>
+  </data>
+  <data name="name.Saturn">
+    <value>Saturnus</value>
+  </data>
+  <data name="name.Uranus">
+    <value>Uranus</value>
+  </data>
+  <data name="name.Neptune">
+    <value>Neptunus</value>
+  </data>
+  <data name="name.Pluto">
+    <value>Pluto</value>
+  </data>
+  <data name="name.Moon">
+    <value>Månen</value>
+  </data>
+  <data name="name.Phobos">
+    <value>Phobos</value>
+  </data>
+  <data name="name.Deimos">
+    <value>Deimos</value>
+  </data>
+  <data name="name.Io">
+    <value>Io</value>
+  </data>
+  <data name="name.Europa">
+    <value>Europa</value>
+  </data>
+  <data name="name.Ganymede">
+    <value>Ganymedes</value>
+  </data>
+  <data name="name.Callisto">
+    <value>Callisto</value>
+  </data>
+  <data name="name.Charon">
+    <value>Charon</value>
+  </data>
+  <data name="name.Enceladus">
+    <value>Enceladus</value>
+  </data>
+  <data name="name.Rhea">
+    <value>Rhea</value>
+  </data>
+  <data name="name.Titan">
+    <value>Titan</value>
+  </data>
+  <data name="name.Miranda">
+    <value>Miranda</value>
+  </data>
+  <data name="name.Titania">
+    <value>Titania</value>
+  </data>
+  <data name="name.Oberon">
+    <value>Oberon</value>
+  </data>
+  <data name="name.Triton">
+    <value>Triton</value>
+  </data>
+  <data name="name.Ceres">
+    <value>Ceres</value>
+  </data>
+  <data name="name.Halley">
+    <value>Halleys komet</value>
+  </data>
+  <data name="name.Heliopause">
+    <value>Heliopausen</value>
+  </data>
+  <data name="name.probeToday">
+    <value>{0} i dag</value>
+  </data>
+  <data name="name.lastContact">
+    <value>Senast bekräftade kontakten</value>
+  </data>
+  <data name="name.burnedInSaturn">
+    <value>Styrdes ned i Saturnus atmosfär</value>
+  </data>
+  <data name="name.craft">
+    <value>Farkost</value>
+  </data>
+  <data name="name.ascendingNode">
+    <value>Uppstigande nod</value>
+  </data>
+  <data name="name.descendingNode">
+    <value>Nedstigande nod</value>
+  </data>
+  <data name="name.Pleiades">
+    <value>Plejaderna</value>
+  </data>
+  <data name="name.Polaris">
+    <value>Polstjärnan</value>
+  </data>
+  <data name="name.Orion">
+    <value>Orion</value>
+  </data>
+  <data name="name.UrsaMajor">
+    <value>Karlavagnen - Stora björn</value>
+  </data>
+  <data name="name.UrsaMinor">
+    <value>Lilla björn</value>
+  </data>
+  <data name="name.Cassiopeia">
+    <value>Cassiopeia</value>
+  </data>
+  <data name="name.Cygnus">
+    <value>Svanen</value>
+  </data>
+  <data name="name.Lyra">
+    <value>Lyran</value>
+  </data>
+  <data name="name.Aquila">
+    <value>Örnen</value>
+  </data>
+  <data name="name.Hercules">
+    <value>Herkules</value>
+  </data>
+  <data name="name.Bootes">
+    <value>Björnvaktaren</value>
+  </data>
+  <data name="name.CoronaBorealis">
+    <value>Norra kronan</value>
+  </data>
+  <data name="name.Leo">
+    <value>Lejonet</value>
+  </data>
+  <data name="name.Virgo">
+    <value>Jungfrun</value>
+  </data>
+  <data name="name.Taurus">
+    <value>Oxen</value>
+  </data>
+  <data name="name.Gemini">
+    <value>Tvillingarna</value>
+  </data>
+  <data name="name.Auriga">
+    <value>Kusken</value>
+  </data>
+  <data name="name.CanisMajor">
+    <value>Stora hunden</value>
+  </data>
+  <data name="name.CanisMinor">
+    <value>Lilla hunden</value>
+  </data>
+  <data name="name.Scorpius">
+    <value>Skorpionen</value>
+  </data>
+  <data name="name.Sagittarius">
+    <value>Skytten</value>
+  </data>
+  <data name="name.Crux">
+    <value>Södra korset</value>
+  </data>
+  <data name="name.Centaurus">
+    <value>Kentauren</value>
+  </data>
+  <data name="name.Perseus">
+    <value>Perseus</value>
+  </data>
+  <data name="name.Andromeda">
+    <value>Andromeda</value>
+  </data>
+  <data name="name.Pegasus">
+    <value>Pegasus</value>
+  </data>
+  <data name="name.Cepheus">
+    <value>Cepheus</value>
+  </data>
+  <data name="name.Draco">
+    <value>Draken</value>
+  </data>
+  <data name="name.Aries">
+    <value>Väduren</value>
+  </data>
+  <data name="ui.pause">
+    <value>⏸ Pausa</value>
+  </data>
+  <data name="ui.start">
+    <value>▶ Starta</value>
+  </data>
+  <data name="ui.speed">
+    <value>Hastighet:</value>
+  </data>
+  <data name="ui.showOrbits">
+    <value>Visa banor</value>
+  </data>
+  <data name="ui.showMoons">
+    <value>Visa månar</value>
+  </data>
+  <data name="ui.realScale">
+    <value>Verklig storlek</value>
+  </data>
+  <data name="ui.asteroidBelt">
+    <value>Asteroidbälte</value>
+  </data>
+  <data name="ui.kuiperBelt">
+    <value>Kuiperbälte</value>
+  </data>
+  <data name="ui.halley">
+    <value>Halleys komet</value>
+  </data>
+  <data name="ui.constellations">
+    <value>Stjärnbilder</value>
+  </data>
+  <data name="ui.starNames">
+    <value>Stjärnnamn</value>
+  </data>
+  <data name="ui.stars">
+    <value>Stjärnor:</value>
+  </data>
+  <data name="ui.focus">
+    <value>Fokus:</value>
+  </data>
+  <data name="ui.resetView">
+    <value>Återställ vy</value>
+  </data>
+  <data name="ui.date">
+    <value>Datum:</value>
+  </data>
+  <data name="ui.datePlaceholder">
+    <value>ÅÅÅÅ-MM-DD</value>
+  </data>
+  <data name="ui.goToDate">
+    <value>Gå dit</value>
+  </data>
+  <data name="ui.stepYearBack">
+    <value>‹‹ År</value>
+  </data>
+  <data name="ui.stepMonthBack">
+    <value>‹ Mån</value>
+  </data>
+  <data name="ui.stepDayBack">
+    <value>‹ Dag</value>
+  </data>
+  <data name="ui.todayButton">
+    <value>Idag</value>
+  </data>
+  <data name="ui.stepDayFwd">
+    <value>Dag ›</value>
+  </data>
+  <data name="ui.stepMonthFwd">
+    <value>Mån ›</value>
+  </data>
+  <data name="ui.stepYearFwd">
+    <value>År ››</value>
+  </data>
+  <data name="ui.mission">
+    <value>Rymdfärd:</value>
+  </data>
+  <data name="ui.launchMars">
+    <value>Skjut upp mot Mars</value>
+  </data>
+  <data name="ui.launchMoon">
+    <value>Skjut upp mot Månen</value>
+  </data>
+  <data name="ui.nextWindow">
+    <value>Nästa startfönster</value>
+  </data>
+  <data name="ui.abortMission">
+    <value>Avbryt färden</value>
+  </data>
+  <data name="ui.meetings">
+    <value>Möten:</value>
+  </data>
+  <data name="ui.goToNext">
+    <value>Gå till nästa</value>
+  </data>
+  <data name="ui.moonOrbit">
+    <value>Månbanan</value>
+  </data>
+  <data name="ui.probesButton">
+    <value>Rymdsonder {0}/{1} ▾</value>
+  </data>
+  <data name="ui.showProbes">
+    <value>Visa sonder</value>
+  </data>
+  <data name="ui.all">
+    <value>Alla</value>
+  </data>
+  <data name="ui.none">
+    <value>Inga</value>
+  </data>
+  <data name="ui.hidePanel">
+    <value>▾  Dölj kontroller</value>
+  </data>
+  <data name="ui.showPanel">
+    <value>▴  Visa kontroller</value>
+  </data>
+  <data name="ui.language">
+    <value>Språk:</value>
+  </data>
+  <data name="ui.starsNone">
+    <value>Inga</value>
+  </data>
+  <data name="ui.starsFew">
+    <value>Få</value>
+  </data>
+  <data name="ui.starsNormal">
+    <value>Normalt</value>
+  </data>
+  <data name="ui.starsMany">
+    <value>Många</value>
+  </data>
+  <data name="ui.followSystem">
+    <value>Följ systemet</value>
+  </data>
+  <data name="ui.help">
+    <value>Dra med musen = rotera • Skrollhjul = zooma • Piltangenter = rotera • W/S = zooma • Mellanslag = starta/pausa • R = återställ vyn • M = dölj menyn</value>
+  </data>
+  <data name="ui.windowTitle">
+    <value>Solsystemet i 3D</value>
+  </data>
+  <data name="msg.elapsed">
+    <value>Förflutet</value>
+  </data>
+  <data name="msg.back">
+    <value>Tillbaka</value>
+  </data>
+  <data name="msg.elapsedHours">
+    <value>{0}: {1:0.0} timmar</value>
+  </data>
+  <data name="msg.elapsedYears">
+    <value>{0}: {1} år, {2} dagar</value>
+  </data>
+  <data name="msg.elapsedDays">
+    <value>{0}: {1} dagar</value>
+  </data>
+  <data name="msg.speedStopped">
+    <value>stillastående</value>
+  </data>
+  <data name="msg.speedBackwards" xml:space="preserve">
+    <value> bakåt</value>
+  </data>
+  <data name="msg.speedHours">
+    <value>{0:0.#} timmar/sek{1}</value>
+  </data>
+  <data name="msg.speedDays">
+    <value>{0:0.#} dygn/sek{1}</value>
+  </data>
+  <data name="msg.speedYears">
+    <value>{0:0.##} år/sek{1}</value>
+  </data>
+  <data name="msg.windowOpen">
+    <value>Startfönstret är öppet – uppskjutningen kräver {0:0.0} km/s</value>
+  </data>
+  <data name="msg.windowClosedNext">
+    <value>Stängt – nästa fönster om {0:0} dygn ({1:yyyy-MM-dd})</value>
+  </data>
+  <data name="msg.windowClosed">
+    <value>Stängt</value>
+  </data>
+  <data name="msg.probeLaunches">
+    <value>Skjuts upp {0:yyyy-MM-dd}</value>
+  </data>
+  <data name="msg.probeWindTime">
+    <value>Spola tiden framåt för att följa färden</value>
+  </data>
+  <data name="msg.probeDistance">
+    <value>Avstånd från solen: {0:0.0} AU ({1:0.0} miljarder km)</value>
+  </data>
+  <data name="msg.probeSpeed">
+    <value>Fart: {0:0.00} km/s</value>
+  </data>
+  <data name="msg.probeNext">
+    <value>Nästa: {0} {1:yyyy-MM-dd}, om {2:0} dygn</value>
+  </data>
+  <data name="msg.probeNoMore">
+    <value>Inga fler passager – på väg ut ur solsystemet</value>
+  </data>
+  <data name="msg.probeLaunched">
+    <value>Uppskjuten {0:yyyy-MM-dd}</value>
+  </data>
+  <data name="msg.probePassed">
+    <value>Passerade {0} {1:yyyy-MM-dd}</value>
+  </data>
+  <data name="msg.gained">
+    <value>gav</value>
+  </data>
+  <data name="msg.cost">
+    <value>tog</value>
+  </data>
+  <data name="msg.probePast">
+    <value>Förbi {0} {1:yyyy-MM-dd}: {2} {3:0.0} km/s</value>
+  </data>
+  <data name="msg.craftArrived">
+    <value>Farkost framme vid {0}</value>
+  </data>
+  <data name="msg.craftTravelTime">
+    <value>Restid: {0}</value>
+  </data>
+  <data name="msg.craftArrivedOn">
+    <value>Framme {0:yyyy-MM-dd}</value>
+  </data>
+  <data name="msg.craftTravellingWith">
+    <value>Följer nu med {0}</value>
+  </data>
+  <data name="msg.craftArrivalSpeed">
+    <value>Fart vid ankomsten: {0:0.00} km/s</value>
+  </data>
+  <data name="msg.craftHeadingFor">
+    <value>Farkost mot {0}</value>
+  </data>
+  <data name="msg.craftElapsed">
+    <value>Förfluten restid: {0}</value>
+  </data>
+  <data name="msg.craftRemaining">
+    <value>Återstår: {0} (framme {1:yyyy-MM-dd})</value>
+  </data>
+  <data name="msg.craftDistanceTo">
+    <value>Avstånd till {0}: {1}</value>
+  </data>
+  <data name="msg.craftSpeed">
+    <value>Fart: {0:0.00} km/s</value>
+  </data>
+  <data name="msg.craftNoPath">
+    <value>Ingen bana gick att räkna fram just nu</value>
+  </data>
+  <data name="msg.craftLabelArrived">
+    <value>{0} framme</value>
+  </data>
+  <data name="msg.hours">
+    <value>{0:0.0} timmar</value>
+  </data>
+  <data name="msg.days">
+    <value>{0:0.0} dygn</value>
+  </data>
+  <data name="msg.millionKm">
+    <value>{0:N1} miljoner km</value>
+  </data>
+  <data name="msg.km">
+    <value>{0:N0} km</value>
+  </data>
+  <data name="msg.noMeeting">
+    <value>Hittade inget sådant möte</value>
+  </data>
+  <data name="msg.meetingLine">
+    <value>{0} {1:d MMMM yyyy} – {2}</value>
+  </data>
+  <data name="msg.meetingOpposition">
+    <value>{0:0.00} AU från jorden</value>
+  </data>
+  <data name="msg.meetingSolarEclipse">
+    <value>{0:0.00}° från solen (typ och plats visas inte)</value>
+  </data>
+  <data name="msg.meetingLunarEclipse">
+    <value>{0:0.00}° från jordens skugga</value>
+  </data>
+  <data name="msg.meetingPerihelion">
+    <value>{0:0.00} AU från jorden, {1:0}° från solen på himlen</value>
+  </data>
+  <data name="msg.meetingConjunction">
+    <value>{0:0.0}° isär på himlen</value>
+  </data>
+  <data name="msg.choiceOpposition">
+    <value>{0} i opposition</value>
+  </data>
+  <data name="msg.choiceConjunction">
+    <value>{0} möter {1}</value>
+  </data>
+  <data name="msg.choiceSolarEclipse">
+    <value>Solförmörkelse</value>
+  </data>
+  <data name="msg.choiceLunarEclipse">
+    <value>Månförmörkelse</value>
+  </data>
+  <data name="msg.choicePerihelion">
+    <value>Halley i perihelium</value>
+  </data>
+  <data name="msg.milestoneLaunched">
+    <value>Uppskjuten {0:MMM yyyy}</value>
+  </data>
+  <data name="msg.milestonePass">
+    <value>{0} {1:MMM yyyy}</value>
+  </data>
+  <data name="msg.milestoneBoost">
+    <value>{0} {1:MMM yyyy}  {2:+0.0;-0.0} km/s</value>
+  </data>
+  <data name="msg.dateFormat">
+    <value>dddd d MMMM yyyy, HH:mm</value>
+  </data>
+</root>

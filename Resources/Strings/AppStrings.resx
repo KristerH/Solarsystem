@@ -1,0 +1,556 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="name.Sun">
+    <value>The Sun</value>
+  </data>
+  <data name="name.Mercury">
+    <value>Mercury</value>
+  </data>
+  <data name="name.Venus">
+    <value>Venus</value>
+  </data>
+  <data name="name.Earth">
+    <value>Earth</value>
+  </data>
+  <data name="name.Mars">
+    <value>Mars</value>
+  </data>
+  <data name="name.Jupiter">
+    <value>Jupiter</value>
+  </data>
+  <data name="name.Saturn">
+    <value>Saturn</value>
+  </data>
+  <data name="name.Uranus">
+    <value>Uranus</value>
+  </data>
+  <data name="name.Neptune">
+    <value>Neptune</value>
+  </data>
+  <data name="name.Pluto">
+    <value>Pluto</value>
+  </data>
+  <data name="name.Moon">
+    <value>The Moon</value>
+  </data>
+  <data name="name.Phobos">
+    <value>Phobos</value>
+  </data>
+  <data name="name.Deimos">
+    <value>Deimos</value>
+  </data>
+  <data name="name.Io">
+    <value>Io</value>
+  </data>
+  <data name="name.Europa">
+    <value>Europa</value>
+  </data>
+  <data name="name.Ganymede">
+    <value>Ganymede</value>
+  </data>
+  <data name="name.Callisto">
+    <value>Callisto</value>
+  </data>
+  <data name="name.Charon">
+    <value>Charon</value>
+  </data>
+  <data name="name.Enceladus">
+    <value>Enceladus</value>
+  </data>
+  <data name="name.Rhea">
+    <value>Rhea</value>
+  </data>
+  <data name="name.Titan">
+    <value>Titan</value>
+  </data>
+  <data name="name.Miranda">
+    <value>Miranda</value>
+  </data>
+  <data name="name.Titania">
+    <value>Titania</value>
+  </data>
+  <data name="name.Oberon">
+    <value>Oberon</value>
+  </data>
+  <data name="name.Triton">
+    <value>Triton</value>
+  </data>
+  <data name="name.Ceres">
+    <value>Ceres</value>
+  </data>
+  <data name="name.Halley">
+    <value>Halley's Comet</value>
+  </data>
+  <data name="name.Heliopause">
+    <value>The heliopause</value>
+  </data>
+  <data name="name.probeToday">
+    <value>{0} today</value>
+  </data>
+  <data name="name.lastContact">
+    <value>Last confirmed contact</value>
+  </data>
+  <data name="name.burnedInSaturn">
+    <value>Steered into Saturn's atmosphere</value>
+  </data>
+  <data name="name.craft">
+    <value>Spacecraft</value>
+  </data>
+  <data name="name.ascendingNode">
+    <value>Ascending node</value>
+  </data>
+  <data name="name.descendingNode">
+    <value>Descending node</value>
+  </data>
+  <data name="name.Pleiades">
+    <value>Pleiades</value>
+  </data>
+  <data name="name.Polaris">
+    <value>Polaris</value>
+  </data>
+  <data name="name.Orion">
+    <value>Orion</value>
+  </data>
+  <data name="name.UrsaMajor">
+    <value>Big Dipper - Ursa Major</value>
+  </data>
+  <data name="name.UrsaMinor">
+    <value>Little Bear - Ursa Minor</value>
+  </data>
+  <data name="name.Cassiopeia">
+    <value>Cassiopeia</value>
+  </data>
+  <data name="name.Cygnus">
+    <value>Cygnus - the Swan</value>
+  </data>
+  <data name="name.Lyra">
+    <value>Lyra</value>
+  </data>
+  <data name="name.Aquila">
+    <value>Aquila - the Eagle</value>
+  </data>
+  <data name="name.Hercules">
+    <value>Hercules</value>
+  </data>
+  <data name="name.Bootes">
+    <value>Boötes - the Herdsman</value>
+  </data>
+  <data name="name.CoronaBorealis">
+    <value>Northern Crown</value>
+  </data>
+  <data name="name.Leo">
+    <value>Leo - the Lion</value>
+  </data>
+  <data name="name.Virgo">
+    <value>Virgo</value>
+  </data>
+  <data name="name.Taurus">
+    <value>Taurus - the Bull</value>
+  </data>
+  <data name="name.Gemini">
+    <value>Gemini - the Twins</value>
+  </data>
+  <data name="name.Auriga">
+    <value>Auriga - the Charioteer</value>
+  </data>
+  <data name="name.CanisMajor">
+    <value>Canis Major</value>
+  </data>
+  <data name="name.CanisMinor">
+    <value>Canis Minor</value>
+  </data>
+  <data name="name.Scorpius">
+    <value>Scorpius</value>
+  </data>
+  <data name="name.Sagittarius">
+    <value>Sagittarius</value>
+  </data>
+  <data name="name.Crux">
+    <value>Southern Cross</value>
+  </data>
+  <data name="name.Centaurus">
+    <value>Centaurus</value>
+  </data>
+  <data name="name.Perseus">
+    <value>Perseus</value>
+  </data>
+  <data name="name.Andromeda">
+    <value>Andromeda</value>
+  </data>
+  <data name="name.Pegasus">
+    <value>Pegasus</value>
+  </data>
+  <data name="name.Cepheus">
+    <value>Cepheus</value>
+  </data>
+  <data name="name.Draco">
+    <value>Draco - the Dragon</value>
+  </data>
+  <data name="name.Aries">
+    <value>Aries - the Ram</value>
+  </data>
+  <data name="ui.pause">
+    <value>⏸ Pause</value>
+  </data>
+  <data name="ui.start">
+    <value>▶ Start</value>
+  </data>
+  <data name="ui.speed">
+    <value>Speed:</value>
+  </data>
+  <data name="ui.showOrbits">
+    <value>Show orbits</value>
+  </data>
+  <data name="ui.showMoons">
+    <value>Show moons</value>
+  </data>
+  <data name="ui.realScale">
+    <value>Real size</value>
+  </data>
+  <data name="ui.asteroidBelt">
+    <value>Asteroid belt</value>
+  </data>
+  <data name="ui.kuiperBelt">
+    <value>Kuiper belt</value>
+  </data>
+  <data name="ui.halley">
+    <value>Halley's Comet</value>
+  </data>
+  <data name="ui.constellations">
+    <value>Constellations</value>
+  </data>
+  <data name="ui.starNames">
+    <value>Star names</value>
+  </data>
+  <data name="ui.stars">
+    <value>Stars:</value>
+  </data>
+  <data name="ui.focus">
+    <value>Focus:</value>
+  </data>
+  <data name="ui.resetView">
+    <value>Reset view</value>
+  </data>
+  <data name="ui.date">
+    <value>Date:</value>
+  </data>
+  <data name="ui.datePlaceholder">
+    <value>YYYY-MM-DD</value>
+  </data>
+  <data name="ui.goToDate">
+    <value>Go there</value>
+  </data>
+  <data name="ui.stepYearBack">
+    <value>‹‹ Year</value>
+  </data>
+  <data name="ui.stepMonthBack">
+    <value>‹ Month</value>
+  </data>
+  <data name="ui.stepDayBack">
+    <value>‹ Day</value>
+  </data>
+  <data name="ui.todayButton">
+    <value>Today</value>
+  </data>
+  <data name="ui.stepDayFwd">
+    <value>Day ›</value>
+  </data>
+  <data name="ui.stepMonthFwd">
+    <value>Month ›</value>
+  </data>
+  <data name="ui.stepYearFwd">
+    <value>Year ››</value>
+  </data>
+  <data name="ui.mission">
+    <value>Mission:</value>
+  </data>
+  <data name="ui.launchMars">
+    <value>Launch to Mars</value>
+  </data>
+  <data name="ui.launchMoon">
+    <value>Launch to the Moon</value>
+  </data>
+  <data name="ui.nextWindow">
+    <value>Next launch window</value>
+  </data>
+  <data name="ui.abortMission">
+    <value>Abort the mission</value>
+  </data>
+  <data name="ui.meetings">
+    <value>Meetings:</value>
+  </data>
+  <data name="ui.goToNext">
+    <value>Go to next</value>
+  </data>
+  <data name="ui.moonOrbit">
+    <value>The Moon's orbit</value>
+  </data>
+  <data name="ui.probesButton">
+    <value>Probes {0}/{1} ▾</value>
+  </data>
+  <data name="ui.showProbes">
+    <value>Show probes</value>
+  </data>
+  <data name="ui.all">
+    <value>All</value>
+  </data>
+  <data name="ui.none">
+    <value>None</value>
+  </data>
+  <data name="ui.hidePanel">
+    <value>▾  Hide controls</value>
+  </data>
+  <data name="ui.showPanel">
+    <value>▴  Show controls</value>
+  </data>
+  <data name="ui.language">
+    <value>Language:</value>
+  </data>
+  <data name="ui.starsNone">
+    <value>None</value>
+  </data>
+  <data name="ui.starsFew">
+    <value>Few</value>
+  </data>
+  <data name="ui.starsNormal">
+    <value>Normal</value>
+  </data>
+  <data name="ui.starsMany">
+    <value>Many</value>
+  </data>
+  <data name="ui.followSystem">
+    <value>Follow the system</value>
+  </data>
+  <data name="ui.help">
+    <value>Drag with the mouse = rotate • Scroll wheel = zoom • Arrow keys = rotate • W/S = zoom • Space = start/pause • R = reset view • M = hide the menu</value>
+  </data>
+  <data name="ui.windowTitle">
+    <value>The Solar System in 3D</value>
+  </data>
+  <data name="msg.elapsed">
+    <value>Elapsed</value>
+  </data>
+  <data name="msg.back">
+    <value>Back</value>
+  </data>
+  <data name="msg.elapsedHours">
+    <value>{0}: {1:0.0} hours</value>
+  </data>
+  <data name="msg.elapsedYears">
+    <value>{0}: {1} years, {2} days</value>
+  </data>
+  <data name="msg.elapsedDays">
+    <value>{0}: {1} days</value>
+  </data>
+  <data name="msg.speedStopped">
+    <value>stopped</value>
+  </data>
+  <data name="msg.speedBackwards" xml:space="preserve">
+    <value> backwards</value>
+  </data>
+  <data name="msg.speedHours">
+    <value>{0:0.#} hours/sec{1}</value>
+  </data>
+  <data name="msg.speedDays">
+    <value>{0:0.#} days/sec{1}</value>
+  </data>
+  <data name="msg.speedYears">
+    <value>{0:0.##} years/sec{1}</value>
+  </data>
+  <data name="msg.windowOpen">
+    <value>The launch window is open – departure needs {0:0.0} km/s</value>
+  </data>
+  <data name="msg.windowClosedNext">
+    <value>Closed – next window in {0:0} days ({1:yyyy-MM-dd})</value>
+  </data>
+  <data name="msg.windowClosed">
+    <value>Closed</value>
+  </data>
+  <data name="msg.probeLaunches">
+    <value>Launches {0:yyyy-MM-dd}</value>
+  </data>
+  <data name="msg.probeWindTime">
+    <value>Wind time forward to follow the journey</value>
+  </data>
+  <data name="msg.probeDistance">
+    <value>Distance from the Sun: {0:0.0} AU ({1:0.0} billion km)</value>
+  </data>
+  <data name="msg.probeSpeed">
+    <value>Speed: {0:0.00} km/s</value>
+  </data>
+  <data name="msg.probeNext">
+    <value>Next: {0} {1:yyyy-MM-dd}, in {2:0} days</value>
+  </data>
+  <data name="msg.probeNoMore">
+    <value>No more flybys – on its way out of the Solar System</value>
+  </data>
+  <data name="msg.probeLaunched">
+    <value>Launched {0:yyyy-MM-dd}</value>
+  </data>
+  <data name="msg.probePassed">
+    <value>Passed {0} {1:yyyy-MM-dd}</value>
+  </data>
+  <data name="msg.gained">
+    <value>gained</value>
+  </data>
+  <data name="msg.cost">
+    <value>cost</value>
+  </data>
+  <data name="msg.probePast">
+    <value>Past {0} {1:yyyy-MM-dd}: {2} {3:0.0} km/s</value>
+  </data>
+  <data name="msg.craftArrived">
+    <value>Spacecraft arrived at {0}</value>
+  </data>
+  <data name="msg.craftTravelTime">
+    <value>Travel time: {0}</value>
+  </data>
+  <data name="msg.craftArrivedOn">
+    <value>Arrived {0:yyyy-MM-dd}</value>
+  </data>
+  <data name="msg.craftTravellingWith">
+    <value>Now travelling with {0}</value>
+  </data>
+  <data name="msg.craftArrivalSpeed">
+    <value>Speed on arrival: {0:0.00} km/s</value>
+  </data>
+  <data name="msg.craftHeadingFor">
+    <value>Spacecraft heading for {0}</value>
+  </data>
+  <data name="msg.craftElapsed">
+    <value>Elapsed travel time: {0}</value>
+  </data>
+  <data name="msg.craftRemaining">
+    <value>Remaining: {0} (arrives {1:yyyy-MM-dd})</value>
+  </data>
+  <data name="msg.craftDistanceTo">
+    <value>Distance to {0}: {1}</value>
+  </data>
+  <data name="msg.craftSpeed">
+    <value>Speed: {0:0.00} km/s</value>
+  </data>
+  <data name="msg.craftNoPath">
+    <value>No trajectory could be computed just now</value>
+  </data>
+  <data name="msg.craftLabelArrived">
+    <value>{0} arrived</value>
+  </data>
+  <data name="msg.hours">
+    <value>{0:0.0} hours</value>
+  </data>
+  <data name="msg.days">
+    <value>{0:0.0} days</value>
+  </data>
+  <data name="msg.millionKm">
+    <value>{0:N1} million km</value>
+  </data>
+  <data name="msg.km">
+    <value>{0:N0} km</value>
+  </data>
+  <data name="msg.noMeeting">
+    <value>No such meeting found</value>
+  </data>
+  <data name="msg.meetingLine">
+    <value>{0} {1:d MMMM yyyy} – {2}</value>
+  </data>
+  <data name="msg.meetingOpposition">
+    <value>{0:0.00} AU from Earth</value>
+  </data>
+  <data name="msg.meetingSolarEclipse">
+    <value>{0:0.00}° from the Sun (type and location not shown)</value>
+  </data>
+  <data name="msg.meetingLunarEclipse">
+    <value>{0:0.00}° from Earth's shadow</value>
+  </data>
+  <data name="msg.meetingPerihelion">
+    <value>{0:0.00} AU from Earth, {1:0}° from the Sun in the sky</value>
+  </data>
+  <data name="msg.meetingConjunction">
+    <value>{0:0.0}° apart in the sky</value>
+  </data>
+  <data name="msg.choiceOpposition">
+    <value>{0} at opposition</value>
+  </data>
+  <data name="msg.choiceConjunction">
+    <value>{0} meets {1}</value>
+  </data>
+  <data name="msg.choiceSolarEclipse">
+    <value>Solar eclipse</value>
+  </data>
+  <data name="msg.choiceLunarEclipse">
+    <value>Lunar eclipse</value>
+  </data>
+  <data name="msg.choicePerihelion">
+    <value>Halley at perihelion</value>
+  </data>
+  <data name="msg.milestoneLaunched">
+    <value>Launched {0:MMM yyyy}</value>
+  </data>
+  <data name="msg.milestonePass">
+    <value>{0} {1:MMM yyyy}</value>
+  </data>
+  <data name="msg.milestoneBoost">
+    <value>{0} {1:MMM yyyy}  {2:+0.0;-0.0} km/s</value>
+  </data>
+  <data name="msg.dateFormat">
+    <value>dddd d MMMM yyyy, HH:mm</value>
+  </data>
+</root>

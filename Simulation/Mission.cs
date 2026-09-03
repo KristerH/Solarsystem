@@ -29,8 +29,11 @@ namespace Solarsystem.Simulation;
 /// </summary>
 public sealed class Mission
 {
-    /// <summary>Farkostens namn, visas vid pricken.</summary>
-    public string Name { get; }
+    /// <summary>
+    /// Farkostens språkneutrala nyckel. Namnet vid pricken slås upp ur den, på
+    /// samma sätt som kropparnas.
+    /// </summary>
+    public string Key { get; }
 
     /// <summary>Målet som farkosten är på väg mot.</summary>
     public CelestialBody Target { get; }
@@ -75,10 +78,10 @@ public sealed class Mission
 
     readonly Conic _transfer;
 
-    Mission(string name, CelestialBody target, CelestialBody? center, Conic transfer,
+    Mission(string key, CelestialBody target, CelestialBody? center, Conic transfer,
         double launchDay, double arrivalDay, double sweepDegrees, double departureSpeedKmS)
     {
-        Name = name;
+        Key = key;
         Target = target;
         Center = center;
         _transfer = transfer;
@@ -104,7 +107,7 @@ public sealed class Mission
     /// dag, längs den billigaste bana som finns den dagen. Returnerar null när
     /// ingen bana går att räkna fram.
     /// </summary>
-    public static Mission? Plan(string name, CelestialBody origin, CelestialBody target,
+    public static Mission? Plan(string key, CelestialBody origin, CelestialBody target,
         double launchDay)
     {
         var (departureSpeed, travelDays) = CheapestDeparture(origin, target, launchDay);
@@ -122,7 +125,7 @@ public sealed class Mission
         if (transfer is null)
             return null;
 
-        return new Mission(name, target, center: null, transfer,
+        return new Mission(key, target, center: null, transfer,
             launchDay, launchDay + travelDays, SweepBetween(r1, r2), departureSpeed);
     }
 
@@ -296,7 +299,7 @@ public sealed class Mission
     /// <summary>Kostnaden i en av rutnätets punkter.</summary>
     static double CostAtGridPoint(CelestialBody origin, CelestialBody target, long index)
     {
-        var key = (origin.Name, target.Name, index);
+        var key = (origin.Key, target.Key, index);
         if (GridCost.TryGetValue(key, out double cached))
             return cached;
 
@@ -416,7 +419,7 @@ public sealed class Mission
     /// – och månen alltså hinns ikapp på vägen ut, före vändpunkten. Det var
     /// precis så Apollo flög.
     /// </summary>
-    public static Mission? PlanToMoon(string name, CelestialBody planet, CelestialBody moon,
+    public static Mission? PlanToMoon(string key, CelestialBody planet, CelestialBody moon,
         double launchDay, double travelDays = MoonTravelDays)
     {
         double mu = planet.Mu;
@@ -484,7 +487,7 @@ public sealed class Mission
         if (transfer is null)
             return null;
 
-        return new Mission(name, moon, planet, transfer, launchDay, arrivalDay,
+        return new Mission(key, moon, planet, transfer, launchDay, arrivalDay,
             sweep * 180.0 / Math.PI, transfer.SpeedKmPerSecond(launchDay));
     }
 

@@ -25,8 +25,14 @@ public sealed record PlanetRing(
     Color Color,
     float MinScreenRadius);
 
+/// <param name="Key">
+/// Kroppens språkneutrala nyckel, till exempel <c>Earth</c> eller <c>Ganymede</c>.
+/// Det är inte ett namn att visa: namnet slås upp i resursfilerna, som har en rad
+/// per språk. Nyckeln används både som identitet i koden och som uppslagsord, och
+/// den är på engelska av samma skäl som all annan kod är det.
+/// </param>
 public sealed record CelestialBody(
-    string Name,
+    string Key,
     Color BodyColor,
     double RadiusKm,
     double SemiMajorAu,
@@ -350,7 +356,7 @@ public static class SolarSystemData
     /// Ett varv tar 27,3 dygn (siderisk månad).
     /// </summary>
     public static readonly CelestialBody Moon = new(
-        "Månen", Color.FromArgb("#BEBEB6"), 1_737.4,
+        "Moon", Color.FromArgb("#BEBEB6"), 1_737.4,
         0.0025696 /* = 384 399 km */, 0.0549, 5.145, 125.045, 83.353, 218.316, 27.32166)
     {
         Axis = MoonAxis,
@@ -418,7 +424,7 @@ public static class SolarSystemData
     };
 
     public static readonly CelestialBody Ganymedes = new(
-        "Ganymedes", Color.FromArgb("#9E8E7C"), 2_634.1,
+        "Ganymede", Color.FromArgb("#9E8E7C"), 2_634.1,
         1_070_400.0 / AuKm, 0.0013, JupiterAxis.InclinationDeg, JupiterAxis.NodeDeg,
         0.0, 90.0, 7.154553)
     {
@@ -591,21 +597,21 @@ public static class SolarSystemData
     /// där den används.
     /// </summary>
     public static readonly CelestialBody Halley = new(
-        "Halleys komet", Color.FromArgb("#CFEDE8"), 5.5,
+        "Halley", Color.FromArgb("#CFEDE8"), 5.5,
         17.85745, 0.9671858, 162.262, 58.420, 169.753, 236.026, 27_562.54);
 
     // Banelement vid J2000 (NASA/JPL, medelvärden). Tillräckligt noggranna för att
     // planeternas positioner ungefär ska stämma med verkligheten för ett givet datum.
     public static readonly CelestialBody[] Planets =
     [
-        new("Merkurius", Color.FromArgb("#B5A79B"),  2_439.7, 0.38710, 0.20563, 7.005,  48.331,  77.456, 252.251,    87.969) { Axis = MercuryAxis, Surface = SurfaceMap.Mercury },
+        new("Mercury", Color.FromArgb("#B5A79B"),  2_439.7, 0.38710, 0.20563, 7.005,  48.331,  77.456, 252.251,    87.969) { Axis = MercuryAxis, Surface = SurfaceMap.Mercury },
         new("Venus",     Color.FromArgb("#E8CDA0"),  6_051.8, 0.72333, 0.00677, 3.395,  76.680, 131.564, 181.980,   224.701) { Axis = VenusAxis, Surface = SurfaceMap.Venus },
-        new("Jorden",    Color.FromArgb("#4C8CE8"),  6_371.0, 1.00000, 0.01671, 0.000, -11.261, 102.947, 100.464,   365.256) { Moons = [Moon], Mu = EarthMu, Axis = EarthAxis, Surface = SurfaceMap.Earth },
+        new("Earth",     Color.FromArgb("#4C8CE8"),  6_371.0, 1.00000, 0.01671, 0.000, -11.261, 102.947, 100.464,   365.256) { Moons = [Moon], Mu = EarthMu, Axis = EarthAxis, Surface = SurfaceMap.Earth },
         new("Mars",      Color.FromArgb("#D96C4A"),  3_389.5, 1.52371, 0.09339, 1.850,  49.559, 336.041, 355.445,   686.980) { Axis = MarsAxis, Moons = [Phobos, Deimos], Surface = SurfaceMap.Mars },
         new("Jupiter",   Color.FromArgb("#D8B48A"), 69_911.0, 5.20289, 0.04839, 1.304, 100.474,  14.728,  34.397, 4_332.59) { Axis = JupiterAxis, Moons = [Io, Europa, Ganymedes, Callisto], Ring = JupiterRing, Mu = JupiterMu, Surface = SurfaceMap.Jupiter },
-        new("Saturnus",  Color.FromArgb("#E8D5A8"), 58_232.0, 9.53668, 0.05386, 2.486, 113.662,  92.599,  49.954, 10_759.22) { Axis = SaturnAxis, Moons = [Enceladus, Rhea, Titan], Ring = SaturnRing, Mu = SaturnMu, Surface = SurfaceMap.Saturn },
+        new("Saturn",    Color.FromArgb("#E8D5A8"), 58_232.0, 9.53668, 0.05386, 2.486, 113.662,  92.599,  49.954, 10_759.22) { Axis = SaturnAxis, Moons = [Enceladus, Rhea, Titan], Ring = SaturnRing, Mu = SaturnMu, Surface = SurfaceMap.Saturn },
         new("Uranus",    Color.FromArgb("#9BD4E4"), 25_362.0, 19.18916, 0.04726, 0.773, 74.017, 170.954, 313.238, 30_688.5) { Axis = UranusAxis, Moons = [Miranda, Titania, Oberon], Ring = UranusRing, Surface = SurfaceMap.Uranus },
-        new("Neptunus",  Color.FromArgb("#5A78E8"), 24_622.0, 30.06992, 0.00859, 1.770, 131.784,  44.965, 304.880, 60_182.0) { Axis = NeptuneAxis, Moons = [Triton], Ring = NeptuneRing, Surface = SurfaceMap.Neptune },
+        new("Neptune",   Color.FromArgb("#5A78E8"), 24_622.0, 30.06992, 0.00859, 1.770, 131.784,  44.965, 304.880, 60_182.0) { Axis = NeptuneAxis, Moons = [Triton], Ring = NeptuneRing, Surface = SurfaceMap.Neptune },
         // Dvärgplaneten Pluto: kraftigt lutande (17°) och excentrisk bana som
         // tidvis går innanför Neptunus. Ett varv tar nästan 248 år.
         new("Pluto",     Color.FromArgb("#C4AB94"),  1_188.3, 39.48212, 0.24883, 17.140, 110.304, 224.069, 238.929, 90_560.0) { Axis = PlutoAxis, Moons = [Charon], Surface = SurfaceMap.Pluto },

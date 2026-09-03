@@ -10,8 +10,8 @@ namespace Solarsystem.Simulation;
 /// </summary>
 public static class ProbeData
 {
-    static CelestialBody Planet(string name)
-        => SolarSystemData.Planets.First(p => p.Name == name);
+    static CelestialBody Planet(string key)
+        => SolarSystemData.Planets.First(p => p.Key == key);
 
     /// <summary>Dagens datum i modellen, som sondernas kända lägen anges för.</summary>
     static readonly DateTime Today = new(2026, 1, 1);
@@ -28,11 +28,11 @@ public static class ProbeData
     /// </summary>
     public static readonly Probe Voyager1 = Probe.Build(
         "Voyager 1", Color.FromArgb("#F2D9A0"),
-        Waypoint.At(Planet("Jorden"), new DateTime(1977, 9, 5)),
+        Waypoint.At(Planet("Earth"), new DateTime(1977, 9, 5)),
         Waypoint.At(Planet("Jupiter"), new DateTime(1979, 3, 5)),
-        Waypoint.At(Planet("Saturnus"), new DateTime(1980, 11, 12)),
-        Waypoint.InSky("Voyager 1 i dag", Today, 167.0, 17.25, 12.3))
-        .Crossing("Heliopausen", new DateTime(2012, 8, 25));
+        Waypoint.At(Planet("Saturn"), new DateTime(1980, 11, 12)),
+        Waypoint.InSky("probeToday", Today, 167.0, 17.25, 12.3))
+        .Crossing("Heliopause", new DateTime(2012, 8, 25));
 
     /// <summary>
     /// Voyager 2: uppskjuten 20 augusti 1977 – två veckor före Voyager 1, trots
@@ -47,13 +47,13 @@ public static class ProbeData
     /// </summary>
     public static readonly Probe Voyager2 = Probe.Build(
         "Voyager 2", Color.FromArgb("#A8DCEC"),
-        Waypoint.At(Planet("Jorden"), new DateTime(1977, 8, 20)),
+        Waypoint.At(Planet("Earth"), new DateTime(1977, 8, 20)),
         Waypoint.At(Planet("Jupiter"), new DateTime(1979, 7, 9)),
-        Waypoint.At(Planet("Saturnus"), new DateTime(1981, 8, 25)),
+        Waypoint.At(Planet("Saturn"), new DateTime(1981, 8, 25)),
         Waypoint.At(Planet("Uranus"), new DateTime(1986, 1, 24)),
-        Waypoint.At(Planet("Neptunus"), new DateTime(1989, 8, 25)),
-        Waypoint.InSky("Voyager 2 i dag", Today, 140.0, 20.12, -59.5))
-        .Crossing("Heliopausen", new DateTime(2018, 11, 5));
+        Waypoint.At(Planet("Neptune"), new DateTime(1989, 8, 25)),
+        Waypoint.InSky("probeToday", Today, 140.0, 20.12, -59.5))
+        .Crossing("Heliopause", new DateTime(2018, 11, 5));
 
     /// <summary>
     /// Pioneer 10: uppskjuten 3 mars 1972, förbi Jupiter 4 december 1973. Den
@@ -66,9 +66,9 @@ public static class ProbeData
     /// </summary>
     public static readonly Probe Pioneer10 = Probe.Build(
         "Pioneer 10", Color.FromArgb("#E4A98F"),
-        Waypoint.At(Planet("Jorden"), new DateTime(1972, 3, 3)),
+        Waypoint.At(Planet("Earth"), new DateTime(1972, 3, 3)),
         Waypoint.At(Planet("Jupiter"), new DateTime(1973, 12, 4)),
-        Waypoint.InSky("Pioneer 10 i dag", Today, 140.0, 4.60, 16.5));
+        Waypoint.InSky("probeToday", Today, 140.0, 4.60, 16.5));
 
     /// <summary>
     /// Pioneer 11: uppskjuten 6 april 1973, förbi Jupiter 3 december 1974 och
@@ -81,10 +81,10 @@ public static class ProbeData
     /// </summary>
     public static readonly Probe Pioneer11 = Probe.Build(
         "Pioneer 11", Color.FromArgb("#C3CE9E"),
-        Waypoint.At(Planet("Jorden"), new DateTime(1973, 4, 6)),
+        Waypoint.At(Planet("Earth"), new DateTime(1973, 4, 6)),
         Waypoint.At(Planet("Jupiter"), new DateTime(1974, 12, 3)),
-        Waypoint.At(Planet("Saturnus"), new DateTime(1979, 9, 1)),
-        Waypoint.InSky("Pioneer 11 i dag", Today, 118.0, 18.50, -8.9));
+        Waypoint.At(Planet("Saturn"), new DateTime(1979, 9, 1)),
+        Waypoint.InSky("probeToday", Today, 118.0, 18.50, -8.9));
 
     /// <summary>
     /// New Horizons: uppskjuten 19 januari 2006, förbi Jupiter 28 februari 2007
@@ -97,10 +97,10 @@ public static class ProbeData
     /// </summary>
     public static readonly Probe NewHorizons = Probe.Build(
         "New Horizons", Color.FromArgb("#D9AEE6"),
-        Waypoint.At(Planet("Jorden"), new DateTime(2006, 1, 19)),
+        Waypoint.At(Planet("Earth"), new DateTime(2006, 1, 19)),
         Waypoint.At(Planet("Jupiter"), new DateTime(2007, 2, 28)),
         Waypoint.At(Planet("Pluto"), new DateTime(2015, 7, 14)),
-        Waypoint.InSky("New Horizons i dag", Today, 63.0, 19.25, -20.5));
+        Waypoint.InSky("probeToday", Today, 63.0, 19.25, -20.5));
 
     /// <summary>
     /// Alla sonder appen ritar. Fem farkoster är på väg ut ur solsystemet, och
@@ -124,13 +124,13 @@ public static class ProbeData
     /// upp till 75 grader för att se ringarna uppifrån.
     /// </summary>
     public static readonly Orbiter Cassini = Orbiter.Build(
-        "Cassini", Color.FromArgb("#F2C86A"), Planet("Saturnus"),
+        "Cassini", Color.FromArgb("#F2C86A"), Planet("Saturn"),
         periapsisRadii: 2.70, apoapsisRadii: 39.36,
         inclinationToEquatorDeg: 20.0,
         argPeriapsisDeg: 60.0,
         arrival: new DateTime(2004, 7, 1),
         end: new DateTime(2017, 9, 15),
-        ending: "Styrdes ned i Saturnus atmosfär")!;
+        ending: "burnedInSaturn")!;
 
     /// <summary>
     /// Juno vid Jupiter: i omloppsbana 5 juli 2016. Banan är extrem – den dyker
@@ -167,7 +167,7 @@ public static class ProbeData
         argPeriapsisDeg: 0.0,
         arrival: new DateTime(2016, 7, 5),
         end: new DateTime(2026, 5, 1),
-        ending: "Senast bekräftade kontakten")!;
+        ending: "lastContact")!;
 
     /// <summary>De sonder som kretsar kring en planet i stället för att lämna.</summary>
     public static readonly Orbiter[] Orbiters = [Cassini, Juno];

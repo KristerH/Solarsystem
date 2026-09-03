@@ -8,7 +8,26 @@ namespace Solarsystem;
 
 public partial class MainPage : ContentPage
 {
+    /// <summary>
+    /// Språket operativsystemet står på, avläst innan appen hunnit byta något.
+    /// Det är utgångsläget, och det väljaren återgår till med "Följ systemet".
+    /// Står datorn på ett språk appen inte har faller texterna tillbaka på
+    /// engelska av sig själva – så fungerar .NET:s resurshantering – medan
+    /// datum och tal ändå följer datorns egna vanor.
+    /// </summary>
+    static readonly CultureInfo SystemCulture = CultureInfo.CurrentUICulture;
+
     static readonly CultureInfo Swedish = new("sv-SE");
+    static readonly CultureInfo English = new("en-US");
+
+    /// <summary>Språkväljarens rader. Null betyder "följ systemet".</summary>
+    static readonly CultureInfo?[] Languages = [null, Swedish, English];
+
+    /// <summary>
+    /// Sant medan väljarnas innehåll byggs om vid ett språkbyte, så att de
+    /// byten som sker på vägen inte tolkas som något användaren gjort.
+    /// </summary>
+    bool _rebuilding;
 
     readonly SolarSystemDrawable _drawable = new();
     readonly Stopwatch _clock = Stopwatch.StartNew();
@@ -58,15 +77,13 @@ public partial class MainPage : ContentPage
         };
 
         BuildProbeMenu();
-        RebuildFocusPicker(keep: "Solen");
 
-        MeetingPicker.ItemsSource = SkyEvent.Choices.Select(c => c.Label).ToList();
-        MeetingPicker.SelectedIndex = 0;
-
-        StarDensityPicker.ItemsSource = new List<string> { "Inga", "Få", "Normalt", "Många" };
+        // Följ datorns språk tills någon väljer något annat.
+        Strings.Use(SystemCulture);
         StarDensityPicker.SelectedIndex = (int)_drawable.StarDensity;
+        LanguagePicker.SelectedIndex = 0;
+        ApplyLanguage();
 
-        UpdateSpeedFromSlider();
         Loaded += OnPageLoaded;
     }
 
@@ -76,6 +93,10 @@ public partial class MainPage : ContentPage
             return;
 
         HookPlatformInput();
+
+        // Fönstret finns först nu, så titeln kan inte sättas i konstruktorn.
+        if (Window is not null)
+            Window.Title = Strings.WindowTitle;
 
         // 30 bildrutor/sekund räcker gott och halverar CPU-lasten mot 60.
         _timer = Dispatcher.CreateTimer();
@@ -114,7 +135,7 @@ public partial class MainPage : ContentPage
         _drawable.Camera.Target = CameraTarget(daysSinceJ2000);
         _drawable.Camera.MinDistance = FocusMinDistance();
 
-        DateLabel.Text = simDate.ToString("dddd d MMMM yyyy, HH:mm", Swedish);
+        DateLabel.Text = simDate.ToString(Strings.DateFormat, Strings.Culture);
         ElapsedLabel.Text = FormatElapsed(_simDays);
         UpdateLaunchWindow(daysSinceJ2000);
 
@@ -138,16 +159,128 @@ public partial class MainPage : ContentPage
     static string FormatElapsed(double days)
     {
         // Tiden kan numera gå åt båda hållen, så negativa värden räknas som "tillbaka".
-        string label = days < 0 ? "Tillbaka" : "Förflutet";
+        string label = days < 0 ? Strings.Back : Strings.Elapsed;
         double span = Math.Abs(days);
         if (span < 1.0)
-            return $"{label}: {span * 24:0.0} timmar";
+            return Strings.Format("msg.elapsedHours", label, span * 24);
         int years = (int)(span / 365.25);
         int rest = (int)(span - years * 365.25);
         return years > 0
-            ? $"{label}: {years} år, {rest} dagar"
-            : $"{label}: {rest} dagar";
+            ? Strings.Format("msg.elapsedYears", label, years, rest)
+            : Strings.Format("msg.elapsedDays", label, rest);
     }
+
+    // ------------------------------------------------------------------ språk
+
+    /// <summary>
+    /// Byter språk på allt som redan står i fönstret.
+    ///
+    /// Texterna sätts härifrån och inte i XAML, och det är hela skälet till att
+    /// varje etikett har ett namn: en text som skrivs in i XAML går inte att
+    /// byta sedan, och språkbytet ska slå igenom medan appen kör. Det som ritas
+    /// i vyn behöver däremot ingenting här – ritkoden slår upp namnen varje
+    /// bildruta, så planeterna byter språk av sig själva.
+    /// </summary>
+    void ApplyLanguage()
+    {
+        _rebuilding = true;
+
+        if (Window is not null)
+            Window.Title = Strings.WindowTitle;
+
+        HelpLabel.Text = Strings.Help;
+        LanguageTitleLabel.Text = Strings.Language;
+        PanelToggleButton.Text = PanelBody.IsVisible ? Strings.HidePanel : Strings.ShowPanel;
+
+        SpeedTitleLabel.Text = Strings.Speed;
+        OrbitsLabel.Text = Strings.ShowOrbits;
+        MoonsLabel.Text = Strings.ShowMoons;
+        RealScaleLabel.Text = Strings.RealScale;
+
+        AsteroidsLabel.Text = Strings.AsteroidBelt;
+        KuiperLabel.Text = Strings.KuiperBelt;
+        HalleyLabel.Text = Strings.Halley;
+        ConstellationsLabel.Text = Strings.Constellations;
+        StarNamesLabel.Text = Strings.StarNames;
+        StarsTitleLabel.Text = Strings.Stars;
+        FocusTitleLabel.Text = Strings.Focus;
+        ResetButton.Text = Strings.ResetView;
+
+        DateTitleLabel.Text = Strings.Date;
+        DateEntry.Placeholder = Strings.DatePlaceholder;
+        GoToDateButton.Text = Strings.GoToDate;
+        StepYearBackButton.Text = Strings.StepYearBack;
+        StepMonthBackButton.Text = Strings.StepMonthBack;
+        StepDayBackButton.Text = Strings.StepDayBack;
+        TodayButton.Text = Strings.TodayButton;
+        StepDayForwardButton.Text = Strings.StepDayForward;
+        StepMonthForwardButton.Text = Strings.StepMonthForward;
+        StepYearForwardButton.Text = Strings.StepYearForward;
+
+        MissionTitleLabel.Text = Strings.Mission;
+        NextWindowButton.Text = Strings.NextWindow;
+
+        MeetingsTitleLabel.Text = Strings.Meetings;
+        MeetingButton.Text = Strings.GoToNext;
+        MoonOrbitLabel.Text = Strings.MoonOrbit;
+
+        ProbeMenuTitleLabel.Text = Strings.ShowProbes;
+        AllProbesButton.Text = Strings.All;
+        NoProbesButton.Text = Strings.None;
+
+        // Väljarnas innehåll byts ut, men valet ska stå kvar. Att sätta
+        // ItemsSource nollställer SelectedIndex, så det sparas undan först.
+        int language = Math.Max(0, LanguagePicker.SelectedIndex);
+        LanguagePicker.ItemsSource = new List<string>
+            { Strings.FollowSystem, "Svenska", "English" };
+        LanguagePicker.SelectedIndex = language;
+
+        int density = Math.Max(0, StarDensityPicker.SelectedIndex);
+        StarDensityPicker.ItemsSource = new List<string>
+            { Strings.StarsNone, Strings.StarsFew, Strings.StarsNormal, Strings.StarsMany };
+        StarDensityPicker.SelectedIndex = density;
+
+        int meeting = Math.Max(0, MeetingPicker.SelectedIndex);
+        MeetingPicker.ItemsSource = SkyEvent.Choices.Select(ChoiceLabel).ToList();
+        MeetingPicker.SelectedIndex = meeting;
+
+        // De texter som byggs av tillstånd får skrivas om från sina egna ställen.
+        UpdateSpeedFromSlider();
+        UpdateProbeMenuButton();
+        UpdateMissionUi((CurrentDate - SolarSystemData.EpochJ2000).TotalDays);
+        RebuildFocusPicker(CurrentFocus());
+
+        _rebuilding = false;
+        _settingsChanged = true;
+    }
+
+    void OnLanguageChanged(object? sender, EventArgs e)
+    {
+        if (_rebuilding)
+            return;
+
+        int index = Math.Max(0, LanguagePicker.SelectedIndex);
+        Strings.Use(Languages[index] ?? SystemCulture);
+        ApplyLanguage();
+    }
+
+    /// <summary>
+    /// Etiketten för ett val i mötesväljaren. Den byggs här och inte i
+    /// <see cref="SkyEvent"/>, eftersom den beror på språket: "Mars i opposition"
+    /// är sorten och kroppens namn satta samman, och båda delarna byts vid ett
+    /// språkbyte.
+    /// </summary>
+    static string ChoiceLabel(SkyEvent.Choice choice) => choice.Kind switch
+    {
+        SkyEvent.Kind.Opposition =>
+            Strings.Format("msg.choiceOpposition", Strings.Name(choice.A.Key)),
+        SkyEvent.Kind.Conjunction =>
+            Strings.Format("msg.choiceConjunction",
+                Strings.Name(choice.A.Key), Strings.Name(choice.B!.Key)),
+        SkyEvent.Kind.SolarEclipse => Strings.ChoiceSolarEclipse,
+        SkyEvent.Kind.LunarEclipse => Strings.ChoiceLunarEclipse,
+        _ => Strings.ChoicePerihelion,
+    };
 
     // ---------------------------------------------------------------- reglage
 
@@ -156,7 +289,7 @@ public partial class MainPage : ContentPage
     void ToggleRunning()
     {
         _running = !_running;
-        StartStopButton.Text = _running ? "⏸ Pausa" : "▶ Starta";
+        StartStopButton.Text = _running ? Strings.Pause : Strings.Start;
     }
 
     void OnSpeedChanged(object? sender, ValueChangedEventArgs e) => UpdateSpeedFromSlider();
@@ -175,15 +308,15 @@ public partial class MainPage : ContentPage
     static string FormatSpeed(double dps)
     {
         if (dps == 0)
-            return "stillastående";
+            return Strings.SpeedStopped;
 
-        string direction = dps < 0 ? " bakåt" : "";
+        string direction = dps < 0 ? Strings.SpeedBackwards : string.Empty;
         double rate = Math.Abs(dps);
         return rate switch
         {
-            < 1.0 => string.Create(Swedish, $"{rate * 24:0.#} timmar/sek{direction}"),
-            < 365.25 => string.Create(Swedish, $"{rate:0.#} dygn/sek{direction}"),
-            _ => string.Create(Swedish, $"{rate / 365.25:0.##} år/sek{direction}"),
+            < 1.0 => Strings.Format("msg.speedHours", rate * 24, direction),
+            < 365.25 => Strings.Format("msg.speedDays", rate, direction),
+            _ => Strings.Format("msg.speedYears", rate / 365.25, direction),
         };
     }
 
@@ -212,7 +345,11 @@ public partial class MainPage : ContentPage
     void ApplyTypedDate()
     {
         string text = DateEntry.Text?.Trim() ?? string.Empty;
-        if (DateTime.TryParse(text, Swedish, DateTimeStyles.None, out var date))
+        // ÅÅÅÅ-MM-DD först, oavsett språk: det formatet står i fältet och betyder
+        // samma sak överallt. Går det inte, pröva det valda språkets eget sätt att
+        // skriva datum.
+        if (DateTime.TryParse(text, CultureInfo.InvariantCulture, DateTimeStyles.None, out var date)
+            || DateTime.TryParse(text, Strings.Culture, DateTimeStyles.None, out date))
         {
             DateEntry.TextColor = Colors.White;
             GoToDate(date);
@@ -260,24 +397,22 @@ public partial class MainPage : ContentPage
     static readonly Color StepClosed = Color.FromArgb("#1B2028");
 
     static readonly CelestialBody EarthBody =
-        SolarSystemData.Planets.First(p => p.Name == "Jorden");
+        SolarSystemData.Planets.First(p => p.Key == "Earth");
     static readonly CelestialBody MarsBody =
-        SolarSystemData.Planets.First(p => p.Name == "Mars");
+        SolarSystemData.Planets.First(p => p.Key == "Mars");
     static readonly CelestialBody MoonBody = SolarSystemData.Moon;
 
     /// <summary>
-    /// Ställer fokusväljaren på en namngiven kropp. Slår upp namnet i stället för
-    /// att räkna platser: listan innehåller numera både månar och sonder, och
-    /// vilka av dem som visas växlar under körningen.
+    /// Ställer fokusväljaren på en kropp. Kroppen söks upp i listan i stället för
+    /// att platsen räknas fram: listan innehåller både månar och sonder, och
+    /// vilka av dem som visas växlar under körningen. Att söka på kroppen och
+    /// inte på namnet är dessutom det enda som håller när språket byts.
     /// </summary>
-    void FocusOn(string name)
+    void FocusOn(CelestialBody body)
     {
-        if (FocusPicker.ItemsSource is System.Collections.IList items)
-        {
-            int index = items.IndexOf(name);
-            if (index >= 0)
-                FocusPicker.SelectedIndex = index;
-        }
+        int index = _focusBodies.IndexOf(body);
+        if (index >= 0)
+            FocusPicker.SelectedIndex = index + 1;      // plats 0 är solen
     }
 
     /// <summary>
@@ -323,10 +458,10 @@ public partial class MainPage : ContentPage
             // den andra är avstängd så länge.
             bool toMoon = ReferenceEquals(mission.Target, MoonBody);
 
-            LaunchButton.Text = toMoon ? "Skjut upp mot Mars" : "Avbryt färden";
+            LaunchButton.Text = toMoon ? Strings.LaunchMars : Strings.AbortMission;
             LaunchButton.IsEnabled = !toMoon;
             LaunchButton.BackgroundColor = toMoon ? LaunchClosed : LaunchReady;
-            MoonButton.Text = toMoon ? "Avbryt färden" : "Skjut upp mot Månen";
+            MoonButton.Text = toMoon ? Strings.AbortMission : Strings.LaunchMoon;
             MoonButton.IsEnabled = toMoon;
             MoonButton.BackgroundColor = toMoon ? LaunchReady : LaunchClosed;
             NextWindowButton.IsEnabled = false;
@@ -337,13 +472,13 @@ public partial class MainPage : ContentPage
             return;
         }
 
-        LaunchButton.Text = "Skjut upp mot Mars";
+        LaunchButton.Text = Strings.LaunchMars;
         LaunchButton.IsEnabled = _inLaunchWindow;
         LaunchButton.BackgroundColor = _inLaunchWindow ? LaunchReady : LaunchClosed;
 
         // Månen är tillbaka på samma ställe var 27:e dygn, så dit går det att åka
         // i stort sett vilken dag som helst – där behövs inga startfönster.
-        MoonButton.Text = "Skjut upp mot Månen";
+        MoonButton.Text = Strings.LaunchMoon;
         MoonButton.IsEnabled = true;
         MoonButton.BackgroundColor = LaunchReady;
 
@@ -354,18 +489,16 @@ public partial class MainPage : ContentPage
         {
             // Farten i förhållande till jorden är måttet på hur stor raket som
             // behövs, och det är den som avgör om fönstret räknas som öppet.
-            MissionLabel.Text = string.Create(Swedish,
-                $"Startfönstret är öppet – uppskjutningen kräver {_departureSpeedKmS:0.0} km/s");
+            MissionLabel.Text = Strings.Format("msg.windowOpen", _departureSpeedKmS);
         }
         else if (_nextWindowDay is double next)
         {
             var date = SolarSystemData.EpochJ2000.AddDays(next);
-            MissionLabel.Text = string.Create(Swedish,
-                $"Stängt – nästa fönster om {next - day:0} dygn ({date:yyyy-MM-dd})");
+            MissionLabel.Text = Strings.Format("msg.windowClosedNext", next - day, date);
         }
         else
         {
-            MissionLabel.Text = "Stängt";
+            MissionLabel.Text = Strings.WindowClosed;
         }
     }
 
@@ -451,48 +584,50 @@ public partial class MainPage : ContentPage
         if (!probe.Exists(day))
         {
             var launch = SolarSystemData.EpochJ2000.AddDays(probe.LaunchDay);
-            ProbeDistanceLabel.Text = string.Create(Swedish, $"Skjuts upp {launch:yyyy-MM-dd}");
-            ProbeSpeedLabel.Text = "Spola tiden framåt för att följa färden";
+            ProbeDistanceLabel.Text = Strings.Format("msg.probeLaunches", launch);
+            ProbeSpeedLabel.Text = Strings.ProbeWindTime;
             ProbeLastLabel.Text = string.Empty;
             ProbeNextLabel.Text = string.Empty;
             return;
         }
 
         double au = probe.DistanceAu(day);
-        ProbeDistanceLabel.Text = string.Create(Swedish,
-            $"Avstånd från solen: {au:0.0} AU ({au * SolarSystemData.AuKm / 1e9:0.0} miljarder km)");
-        ProbeSpeedLabel.Text = string.Create(Swedish, $"Fart: {probe.SpeedKmPerSecond(day):0.00} km/s");
+        ProbeDistanceLabel.Text = Strings.Format("msg.probeDistance",
+            au, au * SolarSystemData.AuKm / 1e9);
+        ProbeSpeedLabel.Text = Strings.Format("msg.probeSpeed", probe.SpeedKmPerSecond(day));
 
         ProbeLastLabel.Text = probe.LastMilestone(day) is { } last
-            ? MilestoneText(last)
+            ? MilestoneText(probe, last)
             : string.Empty;
 
         if (probe.NextMilestone(day) is { } next)
         {
             var date = SolarSystemData.EpochJ2000.AddDays(next.Day);
-            ProbeNextLabel.Text = string.Create(Swedish,
-                $"Nästa: {next.Name} {date:yyyy-MM-dd}, om {next.Day - day:0} dygn");
+            ProbeNextLabel.Text = Strings.Format("msg.probeNext",
+                SolarSystemDrawable.MilestoneName(probe, next), date, next.Day - day);
         }
         else
         {
-            ProbeNextLabel.Text = "Inga fler passager – på väg ut ur solsystemet";
+            ProbeNextLabel.Text = Strings.ProbeNoMore;
         }
     }
 
     /// <summary>Beskriver en passerad milstolpe, med farten planeten gav eller tog.</summary>
-    static string MilestoneText(Milestone milestone)
+    static string MilestoneText(Probe probe, Milestone milestone)
     {
         var date = SolarSystemData.EpochJ2000.AddDays(milestone.Day);
         if (milestone.IsLaunch)
-            return string.Create(Swedish, $"Uppskjuten {date:yyyy-MM-dd}");
+            return Strings.Format("msg.probeLaunched", date);
+
+        string name = SolarSystemDrawable.MilestoneName(probe, milestone);
 
         // En gräns gav ingen fart och ska inte beskrivas som en förbiflygning.
         if (milestone.IsBoundary)
-            return string.Create(Swedish, $"Passerade {milestone.Name} {date:yyyy-MM-dd}");
+            return Strings.Format("msg.probePassed", name, date);
 
-        string verb = milestone.SpeedGainKmS >= 0 ? "gav" : "tog";
-        return string.Create(Swedish,
-            $"Förbi {milestone.Name} {date:yyyy-MM-dd}: {verb} {Math.Abs(milestone.SpeedGainKmS):0.0} km/s");
+        string verb = milestone.SpeedGainKmS >= 0 ? Strings.Gained : Strings.Cost;
+        return Strings.Format("msg.probePast", name, date, verb,
+            Math.Abs(milestone.SpeedGainKmS));
     }
 
     /// <summary>
@@ -548,22 +683,25 @@ public partial class MainPage : ContentPage
 
         if (arrived)
         {
-            CraftTitleLabel.Text = $"Farkost framme vid {mission.Target.Name}";
-            CraftElapsedLabel.Text = $"Restid: {FormatTravelTime(mission.TravelDays)}";
-            CraftRemainingLabel.Text = string.Create(Swedish, $"Framme {arrival:yyyy-MM-dd}");
-            CraftDistanceLabel.Text = $"Följer nu med {mission.Target.Name}";
-            CraftSpeedLabel.Text = string.Create(Swedish, $"Fart vid ankomsten: {speed:0.00} km/s");
+            string target = Strings.Name(mission.Target.Key);
+            CraftTitleLabel.Text = Strings.Format("msg.craftArrived", target);
+            CraftElapsedLabel.Text = Strings.Format("msg.craftTravelTime",
+                FormatTravelTime(mission.TravelDays));
+            CraftRemainingLabel.Text = Strings.Format("msg.craftArrivedOn", arrival);
+            CraftDistanceLabel.Text = Strings.Format("msg.craftTravellingWith", target);
+            CraftSpeedLabel.Text = Strings.Format("msg.craftArrivalSpeed", speed);
             return;
         }
 
         double elapsed = Math.Max(0.0, day - mission.LaunchDay);
-        CraftTitleLabel.Text = $"Farkost mot {mission.Target.Name}";
-        CraftElapsedLabel.Text = $"Förfluten restid: {FormatTravelTime(elapsed)}";
-        CraftRemainingLabel.Text = string.Create(Swedish,
-            $"Återstår: {FormatTravelTime(mission.TravelDays - elapsed)} (framme {arrival:yyyy-MM-dd})");
-        CraftDistanceLabel.Text =
-            $"Avstånd till {mission.Target.Name}: {FormatDistance(mission.DistanceToTargetKm(day))}";
-        CraftSpeedLabel.Text = string.Create(Swedish, $"Fart: {speed:0.00} km/s");
+        string goal = Strings.Name(mission.Target.Key);
+        CraftTitleLabel.Text = Strings.Format("msg.craftHeadingFor", goal);
+        CraftElapsedLabel.Text = Strings.Format("msg.craftElapsed", FormatTravelTime(elapsed));
+        CraftRemainingLabel.Text = Strings.Format("msg.craftRemaining",
+            FormatTravelTime(mission.TravelDays - elapsed), arrival);
+        CraftDistanceLabel.Text = Strings.Format("msg.craftDistanceTo",
+            goal, FormatDistance(mission.DistanceToTargetKm(day)));
+        CraftSpeedLabel.Text = Strings.Format("msg.craftSpeed", speed);
     }
 
     /// <summary>
@@ -574,15 +712,15 @@ public partial class MainPage : ContentPage
     {
         double span = Math.Max(0.0, days);
         return span < 2.0
-            ? string.Create(Swedish, $"{span * 24:0.0} timmar")
-            : string.Create(Swedish, $"{span:0.0} dygn");
+            ? Strings.Format("msg.hours", span * 24)
+            : Strings.Format("msg.days", span);
     }
 
     /// <summary>Avstånd i kilometer, i miljoner när talen blir för långa att läsa.</summary>
     static string FormatDistance(double km)
         => km >= 1e6
-            ? string.Create(Swedish, $"{km / 1e6:N1} miljoner km")
-            : string.Create(Swedish, $"{km:N0} km");
+            ? Strings.Format("msg.millionKm", km / 1e6)
+            : Strings.Format("msg.km", km);
 
     /// <summary>Hoppar fram till nästa uppskjutningstillfälle.</summary>
     void OnNextWindowClicked(object? sender, EventArgs e)
@@ -601,10 +739,10 @@ public partial class MainPage : ContentPage
         }
 
         double launchDay = (CurrentDate - SolarSystemData.EpochJ2000).TotalDays;
-        var mission = Mission.Plan("Farkost", EarthBody, MarsBody, launchDay);
+        var mission = Mission.Plan("craft", EarthBody, MarsBody, launchDay);
         if (mission is null)
         {
-            MissionLabel.Text = "Ingen bana gick att räkna fram just nu";
+            MissionLabel.Text = Strings.CraftNoPath;
             return;
         }
 
@@ -627,15 +765,15 @@ public partial class MainPage : ContentPage
         }
 
         double launchDay = (CurrentDate - SolarSystemData.EpochJ2000).TotalDays;
-        var mission = Mission.PlanToMoon("Farkost", EarthBody, MoonBody, launchDay);
+        var mission = Mission.PlanToMoon("craft", EarthBody, MoonBody, launchDay);
         if (mission is null)
         {
-            MissionLabel.Text = "Ingen bana gick att räkna fram just nu";
+            MissionLabel.Text = Strings.CraftNoPath;
             return;
         }
 
         _drawable.Mission = mission;
-        FocusOn("Jorden");                             // zoomar in via OnFocusChanged
+        FocusOn(EarthBody);                            // zoomar in via OnFocusChanged
         StartMission(launchDay);
     }
 
@@ -669,7 +807,7 @@ public partial class MainPage : ContentPage
         _drawable.ShowMoons = e.Value;
         // Släcks månarna ska de också ut ur fokusväljaren, och följde kameran en
         // av dem faller fokus tillbaka till solen.
-        RebuildFocusPicker(FocusPicker.SelectedItem as string);
+        RebuildFocusPicker(CurrentFocus());
         _settingsChanged = true;
     }
 
@@ -698,7 +836,7 @@ public partial class MainPage : ContentPage
     void OnHalleyChanged(object? sender, CheckedChangedEventArgs e)
     {
         _drawable.ShowHalley = e.Value;
-        RebuildFocusPicker(FocusPicker.SelectedItem as string);
+        RebuildFocusPicker(CurrentFocus());
         _settingsChanged = true;
     }
 
@@ -797,8 +935,8 @@ public partial class MainPage : ContentPage
         else
             _drawable.VisibleProbes.Remove(name);
 
-        string? keep = FocusPicker.SelectedItem as string;
-        if (FocusedProbe is { } followed && !_drawable.VisibleProbes.Contains(followed.Name))
+        object? keep = CurrentFocus();
+        if (keep is Probe followed && !_drawable.VisibleProbes.Contains(followed.Name))
             keep = null;
 
         RebuildFocusPicker(keep);
@@ -810,8 +948,8 @@ public partial class MainPage : ContentPage
     void UpdateProbeMenuButton()
     {
         int total = ProbeData.All.Length + ProbeData.Orbiters.Length;
-        ProbeMenuButton.Text = string.Create(Swedish,
-            $"Rymdsonder {_drawable.VisibleProbes.Count}/{total} ▾");
+        ProbeMenuButton.Text = Strings.Format("ui.probesButton",
+            _drawable.VisibleProbes.Count, total);
     }
 
     /// <summary>
@@ -821,7 +959,21 @@ public partial class MainPage : ContentPage
     /// ut till översikten; annars hade kameran blivit stående hundra AU ut i
     /// tomma rymden.
     /// </summary>
-    void RebuildFocusPicker(string? keep)
+    /// <summary>
+    /// Det som är valt i fokusväljaren just nu: null för solen, annars kroppen
+    /// eller sonden. Valet följs som en sak och inte som en text – namnen byter
+    /// språk, och en text går då inte att känna igen efteråt.
+    /// </summary>
+    object? CurrentFocus()
+    {
+        if (FocusedProbe is { } probe)
+            return probe;
+
+        int body = _focusIndex - 1;
+        return body >= 0 && body < _focusBodies.Count ? _focusBodies[body] : null;
+    }
+
+    void RebuildFocusPicker(object? keep)
     {
         _focusProbes.Clear();
         _focusProbes.AddRange(ProbeData.All.Where(p => _drawable.VisibleProbes.Contains(p.Name)));
@@ -832,12 +984,12 @@ public partial class MainPage : ContentPage
         // samma regel som för sonderna.
         _focusBodies.Clear();
         _focusParents.Clear();
-        var names = new List<string> { "Solen" };
+        var names = new List<string> { Strings.Name("Sun") };
         foreach (var planet in SolarSystemData.Planets)
         {
             _focusBodies.Add(planet);
             _focusParents.Add(null);
-            names.Add(planet.Name);
+            names.Add(Strings.Name(planet.Key));
 
             if (!_drawable.ShowMoons)
                 continue;
@@ -845,7 +997,7 @@ public partial class MainPage : ContentPage
             {
                 _focusBodies.Add(moon);
                 _focusParents.Add(planet);
-                names.Add(MoonEntry + moon.Name);
+                names.Add(MoonEntry + Strings.Name(moon.Key));
             }
         }
         // Kometen sist bland kropparna, och bara när den ritas. Att kunna följa
@@ -855,14 +1007,25 @@ public partial class MainPage : ContentPage
         {
             _focusBodies.Add(SolarSystemData.Halley);
             _focusParents.Add(null);
-            names.Add(SolarSystemData.Halley.Name);
+            names.Add(Strings.Name(SolarSystemData.Halley.Key));
         }
 
         names.AddRange(_focusProbes.Select(p => p.Name));
 
-        // Tappas valet – för att sonden släckts, eller för att namnet inte finns
-        // kvar av något annat skäl – faller det tillbaka till solen.
-        int found = keep is null ? -1 : names.IndexOf(keep);
+        // Tappas valet – för att sonden släckts, eller för att månarna gömts –
+        // faller det tillbaka till solen.
+        int found = 0;                                  // null betyder solen
+        if (keep is CelestialBody body)
+        {
+            int i = _focusBodies.IndexOf(body);
+            found = i >= 0 ? i + 1 : -1;
+        }
+        else if (keep is Probe probe)
+        {
+            int i = _focusProbes.IndexOf(probe);
+            found = i >= 0 ? _focusBodies.Count + 1 + i : -1;
+        }
+
         bool lostFocus = found < 0;
         int index = lostFocus ? 0 : found;
 
@@ -892,6 +1055,9 @@ public partial class MainPage : ContentPage
 
     void OnStarDensityChanged(object? sender, EventArgs e)
     {
+        if (_rebuilding)
+            return;     // väljaren fylls om vid språkbyte, inget användaren gjort
+
         _drawable.StarDensity = (StarDensity)Math.Max(0, StarDensityPicker.SelectedIndex);
         _settingsChanged = true;
     }
@@ -946,7 +1112,7 @@ public partial class MainPage : ContentPage
 
         if (SkyEvent.Next(choice.Kind, choice.A, choice.B, day) is not { } meeting)
         {
-            MeetingLabel.Text = "Hittade inget sådant möte";
+            MeetingLabel.Text = Strings.NoMeeting;
             return;
         }
 
@@ -957,22 +1123,21 @@ public partial class MainPage : ContentPage
         string detail = choice.Kind switch
         {
             SkyEvent.Kind.Opposition =>
-                string.Create(Swedish, $"{meeting.DistanceAu:0.00} AU från jorden"),
+                Strings.Format("msg.meetingOpposition", meeting.DistanceAu),
             SkyEvent.Kind.SolarEclipse =>
-                string.Create(Swedish,
-                    $"{meeting.SeparationDeg:0.00}° från solen (typ och plats visas inte)"),
+                Strings.Format("msg.meetingSolarEclipse", meeting.SeparationDeg),
             SkyEvent.Kind.LunarEclipse =>
-                string.Create(Swedish, $"{meeting.SeparationDeg:0.00}° från jordens skugga"),
+                Strings.Format("msg.meetingLunarEclipse", meeting.SeparationDeg),
             // Vid periheliet är avståndet till solen alltid detsamma, så det som
             // är värt att veta är hur besöket blir sett härifrån: hur nära jorden
             // kometen kommer, och hur långt från solen den står på himlen. Under
             // ett tiotal grader drunknar den i dagsljuset.
             SkyEvent.Kind.Perihelion =>
-                string.Create(Swedish,
-                    $"{meeting.DistanceAu:0.00} AU från jorden, {meeting.SeparationDeg:0}° från solen på himlen"),
-            _ => string.Create(Swedish, $"{meeting.SeparationDeg:0.0}° isär på himlen"),
+                Strings.Format("msg.meetingPerihelion",
+                    meeting.DistanceAu, meeting.SeparationDeg),
+            _ => Strings.Format("msg.meetingConjunction", meeting.SeparationDeg),
         };
-        MeetingLabel.Text = string.Create(Swedish, $"{choice.Label} {date:d MMMM yyyy} – {detail}");
+        MeetingLabel.Text = Strings.Format("msg.meetingLine", ChoiceLabel(choice), date, detail);
 
         // Vid en förmörkelse är förklaringen mer värd än datumet. Ställ in vyn
         // så att den syns: månbanan fram och kameran vid jorden, där man ser att
@@ -981,7 +1146,7 @@ public partial class MainPage : ContentPage
         {
             MoonOrbitCheck.IsChecked = true;
             MoonsCheck.IsChecked = true;
-            FocusOn("Jorden");
+            FocusOn(EarthBody);
         }
 
         // Att hoppa till Halleys perihelium utan att tända kometen vore att resa
@@ -1008,9 +1173,7 @@ public partial class MainPage : ContentPage
     void TogglePanel()
     {
         PanelBody.IsVisible = !PanelBody.IsVisible;
-        PanelToggleButton.Text = PanelBody.IsVisible
-            ? "\u25be  Dölj kontroller"
-            : "\u25b4  Visa kontroller";
+        PanelToggleButton.Text = PanelBody.IsVisible ? Strings.HidePanel : Strings.ShowPanel;
     }
 
     void OnResetClicked(object? sender, EventArgs e) => ResetView();

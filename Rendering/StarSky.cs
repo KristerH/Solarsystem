@@ -41,8 +41,13 @@ public sealed class StarSky
     /// <summary>Marginal utanför skärmkanten innan något kastas bort.</summary>
     const float Margin = 80f;
 
+    /// <summary>
+    /// En katalogstjärna färdig att rita. <c>NameKey</c> är en nyckel och inte en
+    /// färdig text: namnet slås upp när stjärnan ritas, så att ett språkbyte
+    /// syns direkt utan att hela himlen byggs om.
+    /// </summary>
     readonly record struct CatalogEntry(
-        Vector3 Dir, Color Color, Color GlowColor, float Radius, bool Glow, string? Name);
+        Vector3 Dir, Color Color, Color GlowColor, float Radius, bool Glow, string? NameKey);
     readonly record struct PointEntry(Vector3 Dir, Color Color, float Radius);
     readonly record struct BlobEntry(Vector3 Dir, Color Color, float WorldRadius);
 
@@ -51,7 +56,7 @@ public sealed class StarSky
     readonly PointEntry[] _band;      // svaga stjärnor längs Vintergatan
     readonly BlobEntry[] _blobs;      // Vintergatans mjuka glöd
     readonly (Vector3 A, Vector3 B)[] _lines;
-    readonly (string Name, Vector3 Dir)[] _constellationLabels;
+    readonly (string Key, Vector3 Dir)[] _constellationLabels;
 
     public StarDensity Density { get; set; } = StarDensity.Medium;
 
@@ -94,7 +99,7 @@ public sealed class StarSky
                 .SelectMany<(string A, string B), string>(l => [l.A, l.B])
                 .Distinct()
                 .Aggregate(Vector3.Zero, (acc, id) => acc + byId[id].Direction);
-            return (c.Name, Vector3.Normalize(sum));
+            return (c.Key, Vector3.Normalize(sum));
         })];
 
         _catalogPos = new PointF[_catalog.Length];
@@ -170,7 +175,7 @@ public sealed class StarSky
             for (int i = 0; i < _constellationLabels.Length; i++)
             {
                 if (_labelVis[i])
-                    canvas.DrawString(_constellationLabels[i].Name,
+                    canvas.DrawString(Strings.Name(_constellationLabels[i].Key),
                         _labelPos[i].X, _labelPos[i].Y, HorizontalAlignment.Center);
             }
         }
@@ -197,8 +202,11 @@ public sealed class StarSky
             canvas.FontColor = StarNameColor;
             for (int i = 0; i < _catalog.Length; i++)
             {
-                if (_catalogVis[i] && _catalog[i].Name is string name)
-                    canvas.DrawString(name,
+                // De flesta stjärnnamn är internationella – Betelgeuse heter så
+                // överallt – så uppslagningen faller tillbaka på nyckeln själv.
+                // Bara Plejaderna och Polstjärnan står i resursfilen.
+                if (_catalogVis[i] && _catalog[i].NameKey is string key)
+                    canvas.DrawString(Strings.Name(key),
                         _catalogPos[i].X + 7, _catalogPos[i].Y + 4, HorizontalAlignment.Left);
             }
         }
@@ -311,9 +319,9 @@ public sealed class StarSky
         // Sirius inte blir en skiva medan magnitud 4 fortfarande syns.
         float radius = Math.Clamp((float)(2.6 - s.Magnitude * 0.42), 0.7f, 3.4f);
         var color = ColorFromColorIndex(s.ColorIndex, s.Magnitude);
-        string? name = s.Magnitude <= NameMagnitudeLimit ? s.ProperName : null;
+        string? key = s.Magnitude <= NameMagnitudeLimit ? s.NameKey : null;
         return new CatalogEntry(s.Direction, color, color.WithAlpha(0.16f),
-            radius, Glow: s.Magnitude < 1.6, name);
+            radius, Glow: s.Magnitude < 1.6, key);
     }
 
     /// <summary>

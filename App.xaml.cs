@@ -30,7 +30,8 @@ public partial class App : Application
 	{
 		return new Window(new AppShell())
 		{
-			Title = "Solsystemet i 3D",
+			// Titeln sätts om när sidan laddats, och igen vid varje språkbyte.
+			Title = Strings.WindowTitle,
 			Width = 1400,
 			Height = 900,
 		};

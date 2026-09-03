@@ -42,8 +42,14 @@ public static class SkyEvent
     /// <summary>Ett möte: när det sker, hur nära på himlen, och hur långt bort kroppen är.</summary>
     public sealed record Meeting(double Day, double SeparationDeg, double DistanceAu);
 
-    /// <summary>Ett val i väljaren: vad som ska sökas och mellan vilka kroppar.</summary>
-    public sealed record Choice(string Label, Kind Kind, CelestialBody A, CelestialBody? B);
+    /// <summary>
+    /// Ett val i väljaren: vad som ska sökas och mellan vilka kroppar.
+    ///
+    /// Ingen etikett här. Den beror på språket, och språket hör inte hemma i
+    /// simuleringen – gränssnittet sätter ihop texten ur sorten och kropparnas
+    /// nycklar.
+    /// </summary>
+    public sealed record Choice(Kind Kind, CelestialBody A, CelestialBody? B);
 
     const double CoarseStepDays = 1.0;
 
@@ -91,7 +97,7 @@ public static class SkyEvent
         return kind == Kind.SolarEclipse ? separation : 180.0 - separation;
     }
 
-    static CelestialBody Earth => SolarSystemData.Planets.First(p => p.Name == "Jorden");
+    static CelestialBody Earth => SolarSystemData.Planets.First(p => p.Key == "Earth");
 
     /// <summary>
     /// Vinkeln mellan två riktningar sett från jorden, i grader. Null betyder
@@ -221,29 +227,29 @@ public static class SkyEvent
 
     static Choice[] BuildChoices()
     {
-        CelestialBody B(string n) => SolarSystemData.Planets.First(p => p.Name == n);
+        CelestialBody B(string key) => SolarSystemData.Planets.First(p => p.Key == key);
         var list = new List<Choice>();
 
-        foreach (string name in new[]
-                 { "Mars", "Jupiter", "Saturnus", "Uranus", "Neptunus", "Pluto" })
-            list.Add(new Choice($"{name} i opposition", Kind.Opposition, B(name), null));
+        foreach (string key in new[]
+                 { "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto" })
+            list.Add(new Choice(Kind.Opposition, B(key), null));
 
         (string A, string B)[] pairs =
         [
-            ("Venus", "Jupiter"), ("Venus", "Mars"), ("Venus", "Saturnus"),
-            ("Mars", "Jupiter"), ("Mars", "Saturnus"), ("Jupiter", "Saturnus"),
+            ("Venus", "Jupiter"), ("Venus", "Mars"), ("Venus", "Saturn"),
+            ("Mars", "Jupiter"), ("Mars", "Saturn"), ("Jupiter", "Saturn"),
         ];
         foreach (var (a, b) in pairs)
-            list.Add(new Choice($"{a} möter {b}", Kind.Conjunction, B(a), B(b)));
+            list.Add(new Choice(Kind.Conjunction, B(a), B(b)));
 
-        list.Add(new Choice("Solförmörkelse", Kind.SolarEclipse, SolarSystemData.Moon, null));
-        list.Add(new Choice("Månförmörkelse", Kind.LunarEclipse, SolarSystemData.Moon, null));
+        list.Add(new Choice(Kind.SolarEclipse, SolarSystemData.Moon, null));
+        list.Add(new Choice(Kind.LunarEclipse, SolarSystemData.Moon, null));
 
         // Halleys perihelium. Avståndet till solen är detsamma varje gång –
         // 0,586 AU, det är ju vad ett perihelium är – så det talet säger inget
         // om just den gången. Det som skiljer besöken åt är var jorden råkar
         // vara, och därför är det avståndet och elongationen som rapporteras.
-        list.Add(new Choice("Halley i perihelium", Kind.Perihelion, SolarSystemData.Halley, null));
+        list.Add(new Choice(Kind.Perihelion, SolarSystemData.Halley, null));
 
         return [.. list];
     }

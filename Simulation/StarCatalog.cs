@@ -8,7 +8,7 @@ namespace Solarsystem.Simulation;
 /// </summary>
 public sealed record Star(
     string Id,
-    string? ProperName,
+    string? NameKey,
     double RaHours,
     double DecDeg,
     double Magnitude,
@@ -19,7 +19,12 @@ public sealed record Star(
 }
 
 /// <summary>En stjärnbild: svenskt namn och de linjer som binder ihop figuren.</summary>
-public sealed record Constellation(string Name, (string A, string B)[] Lines);
+/// <param name="Key">
+/// Stjärnbildens språkneutrala nyckel, det latinska namnet (<c>UrsaMajor</c>).
+/// Namnet att visa slås upp ur den – "Karlavagnen - Stora björn" på svenska,
+/// "Big Dipper - Ursa Major" på engelska.
+/// </param>
+public sealed record Constellation(string Key, (string A, string B)[] Lines);
 
 /// <summary>
 /// Ljusstarka stjärnor ur Yale Bright Star-katalogen samt figurlinjer för de
@@ -95,7 +100,7 @@ public static class StarCatalog
         // --- Oxen
         new("Aldebaran", "Aldebaran", 4.5987, 16.509, 0.85, 1.54),
         new("Elnath", "Elnath", 5.4381, 28.608, 1.65, -0.13),
-        new("Alcyone", "Plejaderna", 3.7914, 24.105, 2.87, -0.09),
+        new("Alcyone", "Pleiades", 3.7914, 24.105, 2.87, -0.09),
         new("ZetaTau", null, 5.6274, 21.143, 3.00, -0.15),
         new("GammaTau", null, 4.3299, 15.628, 3.65, 0.99),
         new("DeltaTau", null, 4.3820, 17.542, 3.76, 0.98),
@@ -143,7 +148,7 @@ public static class StarCatalog
         new("Alkaid", "Alkaid", 13.7923, 49.313, 1.86, -0.19),
 
         // --- Lilla björnen
-        new("Polaris", "Polstjärnan", 2.5303, 89.264, 1.98, 0.60),
+        new("Polaris", "Polaris", 2.5303, 89.264, 1.98, 0.60),
         new("Kochab", "Kochab", 14.8451, 74.156, 2.08, 1.47),
         new("Pherkad", null, 15.3455, 71.834, 3.05, 0.05),
         new("Yildun", null, 17.5369, 86.586, 4.35, 0.02),
@@ -354,12 +359,12 @@ public static class StarCatalog
             ("Mintaka", "Alnilam"), ("Alnilam", "Alnitak"), ("Alnitak", "Saiph"),
             ("Mintaka", "Rigel"), ("Meissa", "Betelgeuse"), ("Meissa", "Bellatrix"),
         ]),
-        new("Karlavagnen - Stora björn",
+        new("UrsaMajor",
         [
             ("Dubhe", "Merak"), ("Merak", "Phecda"), ("Phecda", "Megrez"), ("Megrez", "Dubhe"),
             ("Megrez", "Alioth"), ("Alioth", "Mizar"), ("Mizar", "Alkaid"),
         ]),
-        new("Lilla björn",
+        new("UrsaMinor",
         [
             ("Polaris", "Yildun"), ("Yildun", "EpsilonUMi"), ("EpsilonUMi", "ZetaUMi"),
             ("ZetaUMi", "Kochab"), ("Kochab", "Pherkad"), ("Pherkad", "EtaUMi"), ("EtaUMi", "ZetaUMi"),
@@ -368,73 +373,73 @@ public static class StarCatalog
         [
             ("Caph", "Schedar"), ("Schedar", "GammaCas"), ("GammaCas", "Ruchbah"), ("Ruchbah", "Segin"),
         ]),
-        new("Svanen",
+        new("Cygnus",
         [
             ("Deneb", "Sadr"), ("Sadr", "EtaCyg"), ("EtaCyg", "Albireo"),
             ("DeltaCyg", "Sadr"), ("Sadr", "GienahCyg"),
         ]),
-        new("Lyran",
+        new("Lyra",
         [
             ("Vega", "ZetaLyr"), ("ZetaLyr", "Sheliak"), ("Sheliak", "Sulafat"),
             ("Sulafat", "Delta2Lyr"), ("Delta2Lyr", "ZetaLyr"),
         ]),
-        new("Örnen",
+        new("Aquila",
         [
             ("ZetaAql", "Tarazed"), ("Tarazed", "Altair"), ("Altair", "Alshain"),
             ("Tarazed", "DeltaAql"), ("DeltaAql", "LambdaAql"), ("DeltaAql", "EtaAql"),
             ("EtaAql", "ThetaAql"),
         ]),
-        new("Herkules",
+        new("Hercules",
         [
             ("Rasalgethi", "Kornephoros"), ("Kornephoros", "ZetaHer"), ("ZetaHer", "EpsilonHer"),
             ("EpsilonHer", "PiHer"), ("PiHer", "EtaHer"), ("EtaHer", "ZetaHer"),
             ("Rasalgethi", "DeltaHer"), ("DeltaHer", "EpsilonHer"),
         ]),
-        new("Björnvaktaren",
+        new("Bootes",
         [
             ("Arcturus", "Izar"), ("Izar", "DeltaBoo"), ("DeltaBoo", "Nekkar"),
             ("Nekkar", "Seginus"), ("Seginus", "RhoBoo"), ("RhoBoo", "Arcturus"),
             ("Arcturus", "Muphrid"),
         ]),
-        new("Norra kronan",
+        new("CoronaBorealis",
         [
             ("ThetaCrB", "BetaCrB"), ("BetaCrB", "Alphecca"), ("Alphecca", "GammaCrB"),
             ("GammaCrB", "DeltaCrB"), ("DeltaCrB", "EpsilonCrB"), ("EpsilonCrB", "IotaCrB"),
         ]),
-        new("Lejonet",
+        new("Leo",
         [
             ("Algenubi", "Rasalas"), ("Rasalas", "Adhafera"), ("Adhafera", "Algieba"),
             ("Algieba", "EtaLeo"), ("EtaLeo", "Regulus"), ("Regulus", "Chort"),
             ("Chort", "Denebola"), ("Denebola", "Zosma"), ("Zosma", "Algieba"),
         ]),
-        new("Jungfrun",
+        new("Virgo",
         [
             ("Spica", "Heze"), ("Heze", "Porrima"), ("Porrima", "EtaVir"), ("EtaVir", "Zavijava"),
             ("Porrima", "Auva"), ("Auva", "Vindemiatrix"),
         ]),
-        new("Oxen",
+        new("Taurus",
         [
             ("GammaTau", "DeltaTau"), ("DeltaTau", "EpsilonTau"), ("EpsilonTau", "Elnath"),
             ("GammaTau", "Theta2Tau"), ("Theta2Tau", "Aldebaran"), ("Aldebaran", "ZetaTau"),
         ]),
-        new("Tvillingarna",
+        new("Gemini",
         [
             ("Castor", "TauGem"), ("TauGem", "Mebsuta"), ("Mebsuta", "Tejat"), ("Tejat", "Propus"),
             ("Pollux", "UpsilonGem"), ("UpsilonGem", "DeltaGem"), ("DeltaGem", "Mekbuda"),
             ("Mekbuda", "Alhena"), ("DeltaGem", "LambdaGem"),
         ]),
-        new("Kusken",
+        new("Auriga",
         [
             ("Capella", "Menkalinan"), ("Menkalinan", "ThetaAur"), ("ThetaAur", "Elnath"),
             ("Elnath", "IotaAur"), ("IotaAur", "EpsilonAur"), ("EpsilonAur", "Capella"),
         ]),
-        new("Stora hunden",
+        new("CanisMajor",
         [
             ("Mirzam", "Sirius"), ("Sirius", "IotaCMa"), ("IotaCMa", "Wezen"),
             ("Wezen", "Adhara"), ("Wezen", "Aludra"),
         ]),
-        new("Lilla hunden", [("Procyon", "Gomeisa")]),
-        new("Skorpionen",
+        new("CanisMinor", [("Procyon", "Gomeisa")]),
+        new("Scorpius",
         [
             ("Acrab", "Dschubba"), ("Dschubba", "PiSco"), ("PiSco", "SigmaSco"),
             ("SigmaSco", "Antares"), ("Antares", "TauSco"), ("TauSco", "Larawag"),
@@ -442,14 +447,14 @@ public static class StarCatalog
             ("EtaSco", "Sargas"), ("Sargas", "Iota1Sco"), ("Iota1Sco", "Girtab"),
             ("Girtab", "Shaula"), ("Shaula", "Lesath"),
         ]),
-        new("Skytten",
+        new("Sagittarius",
         [
             ("Gamma2Sgr", "KausMedia"), ("KausMedia", "KausAustralis"), ("KausAustralis", "Ascella"),
             ("Ascella", "TauSgr"), ("TauSgr", "Nunki"), ("Nunki", "PhiSgr"),
             ("PhiSgr", "KausMedia"), ("PhiSgr", "KausBorealis"), ("KausBorealis", "KausMedia"),
         ]),
-        new("Södra korset", [("Acrux", "Gacrux"), ("Mimosa", "DeltaCru")]),
-        new("Kentauren",
+        new("Crux", [("Acrux", "Gacrux"), ("Mimosa", "DeltaCru")]),
+        new("Centaurus",
         [
             ("RigilKentaurus", "Hadar"), ("Hadar", "EpsilonCen"), ("EpsilonCen", "ZetaCen"),
             ("ZetaCen", "GammaCen"), ("ZetaCen", "Menkent"),
@@ -474,12 +479,12 @@ public static class StarCatalog
             ("Alderamin", "Alfirk"), ("Alfirk", "GammaCep"), ("GammaCep", "IotaCep"),
             ("IotaCep", "ZetaCep"), ("ZetaCep", "Alderamin"), ("ZetaCep", "DeltaCep"),
         ]),
-        new("Draken",
+        new("Draco",
         [
             ("Eltanin", "Rastaban"), ("Rastaban", "XiDra"), ("XiDra", "DeltaDra"),
             ("DeltaDra", "ZetaDra"), ("ZetaDra", "EtaDra"), ("EtaDra", "IotaDra"),
         ]),
-        new("Väduren",
+        new("Aries",
         [
             ("Mesarthim", "Sheratan"), ("Sheratan", "Hamal"), ("Hamal", "Ari41"),
         ]),

@@ -25,8 +25,10 @@
             <Label x:Name="DateLabel" TextColor="White" FontSize="20" FontAttributes="Bold" />
             <Label x:Name="ElapsedLabel" TextColor="#9EC1E8" FontSize="14" />
             <Label x:Name="MissionLabel" TextColor="#8FD3B6" FontSize="14" Margin="0,4,0,0" />
-            <Label TextColor="#5E6E80" FontSize="12"
-                   Text="Dra med musen = rotera &#8226; Skrollhjul = zooma &#8226; Piltangenter = rotera &#8226; W/S = zooma &#8226; Mellanslag = starta/pausa &#8226; R = återställ vyn &#8226; M = dölj menyn" />
+            <!-- Texterna sätts från koden, se ApplyLanguage i MainPage.xaml.cs.
+                 Därför har varje etikett och knapp ett namn men ingen Text här:
+                 språket kan bytas medan appen kör, och då måste allt gå att nå. -->
+            <Label x:Name="HelpLabel" TextColor="#5E6E80" FontSize="12" />
 
             <!-- Färdpanelen: syns bara medan en farkost är i väg eller framme. -->
             <Border x:Name="MissionPanel"
@@ -84,13 +86,13 @@
                 StrokeShape="RoundRectangle 8">
             <VerticalStackLayout Spacing="5">
                 <HorizontalStackLayout Spacing="6" Margin="0,0,0,4">
-                    <Label Text="Visa sonder" TextColor="#E8F4FF" FontSize="14"
+                    <Label x:Name="ProbeMenuTitleLabel" TextColor="#E8F4FF" FontSize="14"
                            FontAttributes="Bold" VerticalOptions="Center"
                            Margin="0,0,8,0" />
-                    <Button Text="Alla" Clicked="OnAllProbesClicked"
+                    <Button x:Name="AllProbesButton" Clicked="OnAllProbesClicked"
                             BackgroundColor="#26303C" TextColor="White"
                             FontSize="12" Padding="10,2" HeightRequest="30" />
-                    <Button Text="Inga" Clicked="OnNoProbesClicked"
+                    <Button x:Name="NoProbesButton" Clicked="OnNoProbesClicked"
                             BackgroundColor="#26303C" TextColor="White"
                             FontSize="12" Padding="10,2" HeightRequest="30" />
                 </HorizontalStackLayout>
@@ -109,7 +111,6 @@
 
             <Button x:Name="PanelToggleButton"
                     Grid.Row="0"
-                    Text="&#9662;  Dölj kontroller"
                     Clicked="OnPanelToggleClicked"
                     BackgroundColor="#12161C"
                     TextColor="#8C99A8"
@@ -117,6 +118,21 @@
                     Padding="10,0"
                     HeightRequest="24"
                     HorizontalOptions="Start" />
+
+            <!-- Språkväljaren ligger i listen och inte i panelen, så att den går
+                 att nå även när kontrollerna är ihopfällda. Den som öppnar appen
+                 på fel språk ska inte behöva leta. -->
+            <HorizontalStackLayout Grid.Row="0" Spacing="6"
+                                   HorizontalOptions="End" Margin="0,0,12,0">
+                <Label x:Name="LanguageTitleLabel" TextColor="#8C99A8" FontSize="12"
+                       VerticalOptions="Center" />
+                <Picker x:Name="LanguagePicker"
+                        TextColor="#C8D4E0"
+                        BackgroundColor="#12161C"
+                        FontSize="12"
+                        WidthRequest="150"
+                        SelectedIndexChanged="OnLanguageChanged" />
+            </HorizontalStackLayout>
 
             <ScrollView x:Name="PanelBody"
                         Grid.Row="1"
@@ -128,14 +144,13 @@
 
                     <HorizontalStackLayout Spacing="6">
                         <Button x:Name="StartStopButton"
-                                Text="&#9208; Pausa"
                                 Clicked="OnStartStopClicked"
                                 BackgroundColor="#2E4A66"
                                 TextColor="White"
                                 Margin="0,0,10,0"
                                 WidthRequest="120" />
 
-                        <Label Text="Hastighet:" TextColor="#C8D4E0" VerticalOptions="Center" />
+                        <Label x:Name="SpeedTitleLabel" TextColor="#C8D4E0" VerticalOptions="Center" />
                         <!-- Skalan går från -1 till 1: mitten står still, vänster halva
                              spelar tiden baklänges. 0,25 = 1 dygn/sekund framåt. -->
                         <Slider x:Name="SpeedSlider"
@@ -147,38 +162,37 @@
                                VerticalOptions="Center" Margin="0,0,10,0" />
 
                         <CheckBox x:Name="OrbitsCheck" IsChecked="True" CheckedChanged="OnOrbitsChanged" Color="#6FA8DC" />
-                        <Label Text="Visa banor" TextColor="#C8D4E0" VerticalOptions="Center" Margin="0,0,10,0" />
+                        <Label x:Name="OrbitsLabel" TextColor="#C8D4E0" VerticalOptions="Center" Margin="0,0,10,0" />
 
                         <CheckBox x:Name="MoonsCheck" IsChecked="True" CheckedChanged="OnMoonsChanged" Color="#6FA8DC" />
-                        <Label Text="Visa månar" TextColor="#C8D4E0" VerticalOptions="Center" Margin="0,0,10,0" />
+                        <Label x:Name="MoonsLabel" TextColor="#C8D4E0" VerticalOptions="Center" Margin="0,0,10,0" />
 
                         <CheckBox x:Name="RealScaleCheck" IsChecked="False" CheckedChanged="OnRealScaleChanged" Color="#6FA8DC" />
-                        <Label Text="Verklig storlek" TextColor="#C8D4E0" VerticalOptions="Center" />
+                        <Label x:Name="RealScaleLabel" TextColor="#C8D4E0" VerticalOptions="Center" />
                     </HorizontalStackLayout>
 
                     <HorizontalStackLayout Spacing="6">
                         <CheckBox x:Name="AsteroidsCheck" IsChecked="False" CheckedChanged="OnAsteroidsChanged" Color="#6FA8DC" />
-                        <Label Text="Asteroidbälte" TextColor="#C8D4E0" VerticalOptions="Center" Margin="0,0,10,0" />
+                        <Label x:Name="AsteroidsLabel" TextColor="#C8D4E0" VerticalOptions="Center" Margin="0,0,10,0" />
 
                         <CheckBox x:Name="KuiperCheck" IsChecked="False" CheckedChanged="OnKuiperChanged" Color="#6FA8DC" />
-                        <Label Text="Kuiperbälte" TextColor="#C8D4E0" VerticalOptions="Center" Margin="0,0,10,0" />
+                        <Label x:Name="KuiperLabel" TextColor="#C8D4E0" VerticalOptions="Center" Margin="0,0,10,0" />
 
                         <CheckBox x:Name="HalleyCheck" IsChecked="False" CheckedChanged="OnHalleyChanged" Color="#6FA8DC" />
-                        <Label Text="Halleys komet" TextColor="#C8D4E0" VerticalOptions="Center" Margin="0,0,10,0" />
+                        <Label x:Name="HalleyLabel" TextColor="#C8D4E0" VerticalOptions="Center" Margin="0,0,10,0" />
 
                         <Button x:Name="ProbeMenuButton"
-                                Text="Rymdsonder ▾"
                                 Clicked="OnProbeMenuClicked"
                                 BackgroundColor="#26303C" TextColor="White"
                                 Margin="0,0,10,0" />
 
                         <CheckBox x:Name="ConstellationsCheck" IsChecked="True" CheckedChanged="OnConstellationsChanged" Color="#6FA8DC" />
-                        <Label Text="Stjärnbilder" TextColor="#C8D4E0" VerticalOptions="Center" Margin="0,0,10,0" />
+                        <Label x:Name="ConstellationsLabel" TextColor="#C8D4E0" VerticalOptions="Center" Margin="0,0,10,0" />
 
                         <CheckBox x:Name="StarNamesCheck" IsChecked="False" CheckedChanged="OnStarNamesChanged" Color="#6FA8DC" />
-                        <Label Text="Stjärnnamn" TextColor="#C8D4E0" VerticalOptions="Center" Margin="0,0,10,0" />
+                        <Label x:Name="StarNamesLabel" TextColor="#C8D4E0" VerticalOptions="Center" Margin="0,0,10,0" />
 
-                        <Label Text="Stjärnor:" TextColor="#C8D4E0" VerticalOptions="Center" />
+                        <Label x:Name="StarsTitleLabel" TextColor="#C8D4E0" VerticalOptions="Center" />
                         <Picker x:Name="StarDensityPicker"
                                 TextColor="White"
                                 BackgroundColor="#1C2430"
@@ -186,7 +200,7 @@
                                 SelectedIndexChanged="OnStarDensityChanged"
                                 Margin="0,0,10,0" />
 
-                        <Label Text="Fokus:" TextColor="#C8D4E0" VerticalOptions="Center" />
+                        <Label x:Name="FocusTitleLabel" TextColor="#C8D4E0" VerticalOptions="Center" />
                         <Picker x:Name="FocusPicker"
                                 TextColor="White"
                                 BackgroundColor="#1C2430"
@@ -194,62 +208,58 @@
                                 SelectedIndexChanged="OnFocusChanged"
                                 Margin="0,0,10,0" />
 
-                        <Button Text="Återställ vy"
+                        <Button x:Name="ResetButton"
                                 Clicked="OnResetClicked"
                                 BackgroundColor="#26303C"
                                 TextColor="White" />
                     </HorizontalStackLayout>
 
                     <HorizontalStackLayout Spacing="6">
-                        <Label Text="Datum:" TextColor="#C8D4E0" VerticalOptions="Center" />
+                        <Label x:Name="DateTitleLabel" TextColor="#C8D4E0" VerticalOptions="Center" />
                         <Entry x:Name="DateEntry"
-                               Placeholder="ÅÅÅÅ-MM-DD"
                                PlaceholderColor="#5E6E80"
                                TextColor="White"
                                BackgroundColor="#1C2430"
                                WidthRequest="140"
                                VerticalOptions="Center"
                                Completed="OnDateEntryCompleted" />
-                        <Button Text="Gå dit" Clicked="OnGoToDateClicked"
+                        <Button x:Name="GoToDateButton" Clicked="OnGoToDateClicked"
                                 BackgroundColor="#2E4A66" TextColor="White" Margin="0,0,10,0" />
 
-                        <Button Text="‹‹ År" CommandParameter="y-" Clicked="OnStepDateClicked"
-                                BackgroundColor="#26303C" TextColor="White" WidthRequest="70" />
-                        <Button Text="‹ Mån" CommandParameter="m-" Clicked="OnStepDateClicked"
-                                BackgroundColor="#26303C" TextColor="White" WidthRequest="75" />
-                        <Button Text="‹ Dag" CommandParameter="d-" Clicked="OnStepDateClicked"
-                                BackgroundColor="#26303C" TextColor="White" WidthRequest="70" />
-                        <Button Text="Idag" Clicked="OnTodayClicked"
-                                BackgroundColor="#2E4A66" TextColor="White" WidthRequest="70" />
-                        <Button Text="Dag ›" CommandParameter="d+" Clicked="OnStepDateClicked"
-                                BackgroundColor="#26303C" TextColor="White" WidthRequest="70" />
-                        <Button Text="Mån ›" CommandParameter="m+" Clicked="OnStepDateClicked"
-                                BackgroundColor="#26303C" TextColor="White" WidthRequest="75" />
-                        <Button Text="År ››" CommandParameter="y+" Clicked="OnStepDateClicked"
-                                BackgroundColor="#26303C" TextColor="White" WidthRequest="70" />
+                        <Button x:Name="StepYearBackButton" CommandParameter="y-" Clicked="OnStepDateClicked"
+                                BackgroundColor="#26303C" TextColor="White" WidthRequest="80" />
+                        <Button x:Name="StepMonthBackButton" CommandParameter="m-" Clicked="OnStepDateClicked"
+                                BackgroundColor="#26303C" TextColor="White" WidthRequest="85" />
+                        <Button x:Name="StepDayBackButton" CommandParameter="d-" Clicked="OnStepDateClicked"
+                                BackgroundColor="#26303C" TextColor="White" WidthRequest="80" />
+                        <Button x:Name="TodayButton" Clicked="OnTodayClicked"
+                                BackgroundColor="#2E4A66" TextColor="White" WidthRequest="75" />
+                        <Button x:Name="StepDayForwardButton" CommandParameter="d+" Clicked="OnStepDateClicked"
+                                BackgroundColor="#26303C" TextColor="White" WidthRequest="80" />
+                        <Button x:Name="StepMonthForwardButton" CommandParameter="m+" Clicked="OnStepDateClicked"
+                                BackgroundColor="#26303C" TextColor="White" WidthRequest="85" />
+                        <Button x:Name="StepYearForwardButton" CommandParameter="y+" Clicked="OnStepDateClicked"
+                                BackgroundColor="#26303C" TextColor="White" WidthRequest="80" />
 
                     </HorizontalStackLayout>
 
                     <HorizontalStackLayout Spacing="6">
-                        <Label Text="Rymdfärd:" TextColor="#C8D4E0" VerticalOptions="Center"
+                        <Label x:Name="MissionTitleLabel" TextColor="#C8D4E0" VerticalOptions="Center"
                                Margin="0,0,4,0" />
 
                         <Button x:Name="LaunchButton"
-                                Text="Skjut upp mot Mars"
                                 Clicked="OnLaunchClicked"
                                 BackgroundColor="#2E5A4A" TextColor="White" />
                         <Button x:Name="NextWindowButton"
-                                Text="Nästa startfönster"
                                 Clicked="OnNextWindowClicked"
                                 BackgroundColor="#26303C" TextColor="White" Margin="6,0,0,0" />
                         <Button x:Name="MoonButton"
-                                Text="Skjut upp mot Månen"
                                 Clicked="OnMoonLaunchClicked"
                                 BackgroundColor="#2E5A4A" TextColor="White" Margin="6,0,0,0" />
                     </HorizontalStackLayout>
 
                     <HorizontalStackLayout Spacing="6">
-                        <Label Text="Möten:" TextColor="#C8D4E0" VerticalOptions="Center"
+                        <Label x:Name="MeetingsTitleLabel" TextColor="#C8D4E0" VerticalOptions="Center"
                                Margin="0,0,4,0" />
 
                         <Picker x:Name="MeetingPicker"
@@ -257,14 +267,13 @@
                                 BackgroundColor="#1C2430"
                                 WidthRequest="190" />
                         <Button x:Name="MeetingButton"
-                                Text="Gå till nästa"
                                 Clicked="OnNextMeetingClicked"
                                 BackgroundColor="#26303C" TextColor="White" Margin="6,0,0,0" />
                         <CheckBox x:Name="MoonOrbitCheck"
                                   Color="#7FB4E8"
                                   CheckedChanged="OnMoonOrbitChanged"
                                   Margin="10,0,0,0" />
-                        <Label Text="Månbanan" TextColor="#C8D4E0" VerticalOptions="Center" />
+                        <Label x:Name="MoonOrbitLabel" TextColor="#C8D4E0" VerticalOptions="Center" />
 
                         <Label x:Name="MeetingLabel"
                                TextColor="#9FB4C8" VerticalOptions="Center" Margin="8,0,0,0" />

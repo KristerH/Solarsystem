@@ -245,7 +245,7 @@ public sealed class SolarSystemDrawable : IDrawable
             canvas.FillCircle(cx, cy, 2.6f);
             canvas.FontSize = 11f;
             canvas.FontColor = CeresLabelColor;
-            canvas.DrawString("Ceres", cx, cy + 16f, HorizontalAlignment.Center);
+            canvas.DrawString(Strings.Name("Ceres"), cx, cy + 16f, HorizontalAlignment.Center);
         }
     }
 
@@ -339,7 +339,7 @@ public sealed class SolarSystemDrawable : IDrawable
             {
                 r = MathF.Max(r, RealScale ? 1.2f : 2.5f);
                 DrawSun(canvas, sx, sy, r);
-                _labels.Add(("Solen", sx, sy + r + 6));
+                _labels.Add((Strings.Name("Sun"), sx, sy + r + 6));
             }
             else
             {
@@ -361,7 +361,7 @@ public sealed class SolarSystemDrawable : IDrawable
                 }
                 // Månar ritas utan namnetikett – de känns igen på sin plats vid planeten.
                 if (!isMoon)
-                    _labels.Add((body.Name, sx, sy + r + 6));
+                    _labels.Add((Strings.Name(body.Key), sx, sy + r + 6));
             }
         }
     }
@@ -413,7 +413,7 @@ public sealed class SolarSystemDrawable : IDrawable
         canvas.StrokeColor = HeliopauseRim;
         canvas.DrawCircle(sx, sy, screen);
 
-        _labels.Add(("Heliopausen", sx, sy - screen - 4));
+        _labels.Add((Strings.Name("Heliopause"), sx, sy - screen - 4));
     }
 
 
@@ -573,7 +573,7 @@ public sealed class SolarSystemDrawable : IDrawable
         canvas.FillColor = comet.BodyColor;
         canvas.FillCircle(hx, hy, coma);
 
-        _labels.Add((comet.Name, hx, hy + coma * 2.4f + 6f));
+        _labels.Add((Strings.Name(comet.Key), hx, hy + coma * 2.4f + 6f));
     }
 
     /// <summary>
@@ -644,7 +644,7 @@ public sealed class SolarSystemDrawable : IDrawable
     /// </summary>
     void DrawMoonOrbit(ICanvas canvas, double day)
     {
-        var earth = SolarSystemData.Planets.FirstOrDefault(p => p.Name == "Jorden");
+        var earth = SolarSystemData.Planets.FirstOrDefault(p => p.Key == "Earth");
         if (earth is null || earth.Moons.Length == 0)
             return;
 
@@ -688,8 +688,8 @@ public sealed class SolarSystemDrawable : IDrawable
 
             canvas.FontSize = 11f;
             canvas.FontColor = NodeLineColor;
-            canvas.DrawString("Uppstigande nod", ax + 6, ay - 4, HorizontalAlignment.Left);
-            canvas.DrawString("Nedstigande nod", bx + 6, by - 4, HorizontalAlignment.Left);
+            canvas.DrawString(Strings.Name("ascendingNode"), ax + 6, ay - 4, HorizontalAlignment.Left);
+            canvas.DrawString(Strings.Name("descendingNode"), bx + 6, by - 4, HorizontalAlignment.Left);
             canvas.FillColor = NodeLineColor;
             canvas.FillCircle(ax, ay, 3f);
             canvas.FillCircle(bx, by, 3f);
@@ -1201,6 +1201,15 @@ public sealed class SolarSystemDrawable : IDrawable
     /// textpelare tvärs över vyn. I stället hoppas ett årtal över när det skulle
     /// hamna ovanpå ett som redan skrivits.
     /// </summary>
+    /// <summary>
+    /// Vad en milstolpe heter. Nyckeln är oftast en kropps – "Jupiter" – men kan
+    /// också vara en egen, och en av dem behöver sondens namn ifyllt: "Voyager 1
+    /// i dag". Att alltid gå via <c>Format</c> gör att de två fallen ser likadana
+    /// ut på anropsstället; en text utan platshållare bryr sig inte om argumentet.
+    /// </summary>
+    public static string MilestoneName(Probe probe, Milestone milestone)
+        => string.Format(Strings.Culture, Strings.Name(milestone.Key), probe.Name);
+
     void DrawMilestones(ICanvas canvas, Probe probe, double now)
     {
         bool focused = ReferenceEquals(probe, FocusedProbe);
@@ -1223,12 +1232,13 @@ public sealed class SolarSystemDrawable : IDrawable
             if (focused)
             {
                 // Den valda sonden får hela historien utskriven.
+                string name = MilestoneName(probe, milestone);
                 string text = milestone switch
                 {
-                    { IsLaunch: true } => $"Uppskjuten {date:MMM yyyy}",
-                    { IsBoundary: true } => $"{milestone.Name} {date:MMM yyyy}",
-                    _ => string.Create(SwedishText,
-                        $"{milestone.Name} {date:MMM yyyy}  {milestone.SpeedGainKmS:+0.0;-0.0} km/s"),
+                    { IsLaunch: true } => Strings.Format("msg.milestoneLaunched", date),
+                    { IsBoundary: true } => Strings.Format("msg.milestonePass", name, date),
+                    _ => Strings.Format("msg.milestoneBoost", name, date,
+                        milestone.SpeedGainKmS),
                 };
                 DrawMilestoneText(canvas, text, x, y, probe.Color, minSeparation: 0f);
             }
@@ -1314,8 +1324,6 @@ public sealed class SolarSystemDrawable : IDrawable
 
     /// <summary>Var milstolpstexterna hamnade den här bildrutan.</summary>
     readonly List<(float X, float Y)> _milestoneText = new(16);
-
-    static readonly CultureInfo SwedishText = new("sv-SE");
 
     void DrawMilestoneText(ICanvas canvas, string text, float x, float y, Color color,
         float minSeparation)
@@ -1404,8 +1412,8 @@ public sealed class SolarSystemDrawable : IDrawable
         canvas.FillColor = CraftColor;
         canvas.FillCircle(sx, sy, 3f);
         _labels.Add((mission.HasArrived(DaysSinceJ2000)
-            ? $"{mission.Name} framme"
-            : mission.Name, sx, sy + 9f));
+            ? Strings.Format("msg.craftLabelArrived", Strings.Name(mission.Key))
+            : Strings.Name(mission.Key), sx, sy + 9f));
     }
 
     /// <summary>

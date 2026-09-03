@@ -8,8 +8,12 @@ namespace Solarsystem.Simulation;
 /// </summary>
 public sealed class Waypoint
 {
-    /// <summary>Vad punkten heter, för milstolpar och felsökning.</summary>
-    public string Name { get; }
+    /// <summary>
+    /// Punktens språkneutrala nyckel – en kropps nyckel för en planetpassage,
+    /// annars en egen (<c>probeToday</c>, <c>lastContact</c>). Namnet att visa
+    /// slås upp ur den, se resursfilerna.
+    /// </summary>
+    public string Key { get; }
 
     /// <summary>Datumet sonden var där.</summary>
     public DateTime Date { get; }
@@ -20,9 +24,9 @@ public sealed class Waypoint
     readonly CelestialBody? _body;
     readonly Vec3 _fixedAu;
 
-    Waypoint(string name, DateTime date, CelestialBody? body, Vec3 fixedAu)
+    Waypoint(string key, DateTime date, CelestialBody? body, Vec3 fixedAu)
     {
-        Name = name;
+        Key = key;
         Date = date;
         _body = body;
         _fixedAu = fixedAu;
@@ -30,7 +34,7 @@ public sealed class Waypoint
 
     /// <summary>Sonden var vid en planet det här datumet.</summary>
     public static Waypoint At(CelestialBody body, DateTime date)
-        => new(body.Name, date, body, default);
+        => new(body.Key, date, body, default);
 
     /// <summary>
     /// Sonden var på ett känt avstånd i en känd riktning på himlen. Så anges
@@ -38,9 +42,9 @@ public sealed class Waypoint
     /// den sista sträckan ut ur solsystemet lutar: banan dit räknas fram ur
     /// avståndet och riktningen, i stället för att lutningen matas in.
     /// </summary>
-    public static Waypoint InSky(string name, DateTime date, double distanceAu,
+    public static Waypoint InSky(string key, DateTime date, double distanceAu,
         double raHours, double decDeg)
-        => new(name, date, null,
+        => new(key, date, null,
             StarCatalog.EquatorialToWorldAu(raHours, decDeg) * distanceAu);
 
     /// <summary>Punktens läge i AU, solcentriskt och i dubbel precision.</summary>
@@ -68,7 +72,7 @@ public sealed record ProbeLeg(string From, string To, double StartDay, double En
 /// inget ben före, och farten före är då noll.
 /// </summary>
 public sealed record Milestone(
-    string Name, double Day, Vector3 PositionAu, double SpeedBeforeKmS, double SpeedAfterKmS)
+    string Key, double Day, Vector3 PositionAu, double SpeedBeforeKmS, double SpeedAfterKmS)
 {
     /// <summary>Sant för uppskjutningen, som inte är någon passage.</summary>
     public bool IsLaunch => SpeedBeforeKmS <= 0;
@@ -156,14 +160,14 @@ public sealed class Probe
     /// Skrivs efter Build, eftersom Build tar sina punkter som params och inte
     /// har någon plats kvar för fler sorters uppgifter.
     /// </summary>
-    public Probe Crossing(string name, DateTime date)
+    public Probe Crossing(string key, DateTime date)
     {
         double day = (date - SolarSystemData.EpochJ2000).TotalDays;
         if (LegAt(day) is not { } leg)
             return this;
 
         double speed = leg.Path.SpeedKmPerSecond(day);
-        var crossing = new Milestone(name, day, leg.Path.PositionAt(day, 1f), speed, speed)
+        var crossing = new Milestone(key, day, leg.Path.PositionAt(day, 1f), speed, speed)
         {
             IsBoundary = true,
         };
@@ -238,7 +242,7 @@ public sealed class Probe
             }
 
             if (Conic.FromState(r1, v1, from.Day, SolarSystemData.SunMu) is { } path)
-                legs.Add(new ProbeLeg(from.Name, to.Name, from.Day, to.Day, path));
+                legs.Add(new ProbeLeg(from.Key, to.Key, from.Day, to.Day, path));
             else
                 Skip(name, from, to, "banan gick inte att bygga ur läge och hastighet");
         }
@@ -250,7 +254,7 @@ public sealed class Probe
     {
         double days = to.Day - from.Day;
         string message = string.Create(System.Globalization.CultureInfo.InvariantCulture,
-            $"{probe}: benet {from.Name} -> {to.Name} hoppades over ({days:0.#} dygn) - {why}.");
+            $"{probe}: benet {from.Key} -> {to.Key} hoppades over ({days:0.#} dygn) - {why}.");
         Skipped.Add(message);
         Diagnostics.Log(message);
     }
