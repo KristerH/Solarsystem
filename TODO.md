@@ -1475,8 +1475,8 @@ mot NASA:s förutsägelse 0,48 AU den 29 juli. Ingenting av det är inmatat.
 Appen är tunnast just vid solen – den är en skuggad skiva. Rotationen är det
 som ger mest tillbaka.
 
-- [ ] Solen får en `BodyAxis` och en enkel ytkarta med några solfläckar.
-- [ ] Rotationstid 25 dygn vid ekvatorn.
+- [x] Solen får en `BodyAxis` och en enkel ytkarta med några solfläckar.
+- [x] Rotationstid 25 dygn vid ekvatorn.
 
 **Förbehåll som måste stå i koden:** solen roterar olika fort på olika
 breddgrader – 25 dygn vid ekvatorn, 34 vid polerna. Det är i sig en av de bästa
@@ -1487,6 +1487,78 @@ latituden.
 
 **Verifiera:** En fläck vid ekvatorn ska komma tillbaka till samma läge efter
 25 dygn.
+
+**Utfall:** 10 av 10 kontroller. Av de två vägarna i förbehållet valdes den
+andra: ytan fick en egen mekanism.
+
+| kontroll | modell | facit |
+|---|---|---|
+| ekvatorns lutning | 7,252° | 7,25 |
+| varv vid ekvatorn | 25,03 dygn | ~25 |
+| varv vid 30° bredd | 26,39 dygn | 26,4 |
+| synodiskt varv, sett från jorden | 26,87 dygn | ~26,9 |
+| nordpolen mest mot oss | 8 september, B₀ = +7,25° | 7–8 september |
+| sydpolen mest mot oss | 6 mars, B₀ = −7,25° | 5–6 mars |
+
+De två sista raderna är de som betyder något. Lutningen 7,25 grader prövas mot
+sig själv, men **noden 75,77 prövas av ingenting annat** – och det är den som
+avgör vilken månad solens nordpol lutar mot oss. Att modellen lägger den i
+början av september och sydpolen i början av mars är alltså en kontroll av ett
+tal som inte gick att kontrollera på något annat sätt.
+
+**Differentiell rotation, på riktigt.** Solen roterar inte som ett stycke, och
+det är den enda kroppen i appen som inte gör det. Takten följer Newton och Nunns
+mätning på solfläckar från 1951:
+
+    ω(φ) = 14,38 − 2,96 · sin²φ  grader per dygn
+
+Vad det ger, mätt i modellen:
+
+| bredd | varv | följd |
+|---|---|---|
+| 0° | 25,03 dygn | |
+| 30° | 26,39 dygn | 0,74°/dygn långsammare än ekvatorn |
+| 35° | 26,85 dygn | |
+
+Två grupper som ligger på 8 och 22 graders bredd glider isär med 0,36 grader om
+dygnet. På ett år har den nedre dragit ifrån den övre med 131 grader, alltså en
+tredjedels varv. Det går att se i appen genom att zooma in på solen och stega
+fram månad för månad, och det är hela poängen med etappen: **en fast kropp kan
+inte göra så.** Att solen roterar olika fort på olika breddgrader är beviset för
+att den är gas rakt igenom.
+
+**Val och förbehåll:**
+
+- **Rotationstiden är solfläckarnas, inte plasmans.** De två skiljer sig: mätt
+  med dopplerskift går ekvatorn på 24,5 dygn, mätt på solfläckar 25,0. Eftersom
+  det är fläckar som ritas är det fläckarnas takt som gäller. Det är också den
+  som ger de 25 dygn punkten ovan efterfrågar; Carringtons klassiska 25,38 är ett
+  tredje tal och gäller vid 26 graders bredd.
+- **Lagen gäller bara där fläckar finns**, alltså inom ±35 graders bredd.
+  Sträckt till polen ger den 31,5 dygn mot uppmätta 34. Det spelar ingen roll
+  här eftersom det bara är fläckar som ritas, men det vore fel att dölja.
+- **Vridningen tas per yta och inte per hörn.** En solfläcksgrupp följer med som
+  en klump, vilket är vad verkliga grupper gör. Läts varje hörn gå i sin egen
+  takt skulle en grupp som spänner över några breddgrader dras ut till en smet
+  på ett par år – och verkliga grupper hinner aldrig dit, de dör inom veckor.
+- **Fläckarna ligger stilla och finns för alltid.** I verkligheten lever en grupp
+  några veckor, antalet följer elvaårscykeln, och deras breddgrader vandrar mot
+  ekvatorn under cykelns gång – ritat i ett diagram blir mönstret det berömda
+  fjärilsparet. Kartan visar alltså hur solen ser ut ett år nära maximum.
+- **De är ritade något större än verkliga.** Sammanlagt täcker de synliga
+  fläckarna knappt en procent av skivan, mot ungefär en halv procent vid ett
+  starkt maximum. Mindre än så syns de inte: vid tröskeln på 30 bildpunkter är
+  den största gruppen knappt två pixlar bred.
+- **Fackelfälten är utelämnade.** De ljusa slöjorna kring fläckarna syns nästan
+  bara nära randen, där man ser snett genom gasen. En platt färgyta kan inte
+  uttrycka det.
+- **Nollmeridianen är en ren överenskommelse.** Solen har inga bestående drag att
+  räkna från – ingen krater, ingen kust, bara gas som byts ut. Carringtons
+  nollmeridian är inlagd för formens skull.
+- **Randmörkningen fanns redan.** Solskivan har alltid ritats med en gradient
+  från vitt i mitten till orange vid kanten, och det visar sig vara fysik och
+  inte utsmyckning: vid randen ser man snett in i gasen och når bara de övre,
+  svalare lagren.
 
 ---
 
@@ -1818,6 +1890,13 @@ Etapp 11:
       Prova också att stega några år framåt: svansen ska försvinna helt när
       kometen kommit ut förbi asteroidbältet. Banans form, färg och svansarnas
       bredd är gissade och sedda bara i kod.
+- [ ] Solfläckarna i bild. Zooma in på solen tills skivan är några centimeter
+      bred – fläckarna dyker upp vid 30 bildpunkters radie. De ska ligga i två
+      bälten på ömse sidor om ekvatorn, ha en mörk kärna i en ljusare gård, och
+      vandra över skivan när tiden går. Stega sedan fram ett år i taget: de
+      nedre grupperna ska dra ifrån de övre. Färgerna på kärna och gård är
+      gissade, liksom fläckarnas storlek, och sedda bara i en kontrollritning
+      utanför appen.
 - [ ] "Halley i perihelium" i mötesväljaren. Med kometen släckt: välj den och
       tryck "Gå till nästa". Datumet ska bli 2061-07-28, kryssrutan ska tändas av
       sig själv, kameran ska stå kvar där den stod, och texten ska säga 0,48 AU

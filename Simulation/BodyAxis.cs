@@ -44,6 +44,19 @@ public sealed record BodyAxis(
     double RotationDays,
     double PrimeMeridianDeg)
 {
+    /// <summary>
+    /// Hur mycket långsammare ytan vrider sig ju längre från ekvatorn man
+    /// kommer, i grader per dygn. Noll – standard – betyder att kroppen roterar
+    /// som ett stycke, vilket allt fast gör.
+    ///
+    /// Solen är den enda kropp i appen där talet inte är noll, och det är i sig
+    /// en upptäckt värd något: en kropp som roterar olika fort på olika
+    /// breddgrader kan omöjligt vara fast. Takten följer <c>ω(φ) = A + B·sin²φ</c>,
+    /// där A är ekvatorns takt (360 grader delat med <see cref="RotationDays"/>)
+    /// och B är talet här.
+    /// </summary>
+    public double DifferentialDegPerDay { get; init; }
+
     readonly double _sinI = Math.Sin(InclinationDeg * Math.PI / 180.0);
     readonly double _cosI = Math.Cos(InclinationDeg * Math.PI / 180.0);
     readonly double _sinNode = Math.Sin(NodeDeg * Math.PI / 180.0);
@@ -72,6 +85,19 @@ public sealed record BodyAxis(
     /// </summary>
     public double SpinRadians(double daysSinceJ2000)
         => (PrimeMeridianDeg + 360.0 * daysSinceJ2000 / RotationDays) * Math.PI / 180.0;
+
+    /// <summary>
+    /// Vridningen på en viss breddgrad. Samma sak som varianten ovan för allt
+    /// som roterar som ett stycke; för solen är det den här som gäller.
+    /// </summary>
+    public double SpinRadians(double daysSinceJ2000, double sinLat)
+    {
+        if (DifferentialDegPerDay == 0.0)
+            return SpinRadians(daysSinceJ2000);
+
+        double rate = 360.0 / RotationDays + DifferentialDegPerDay * sinLat * sinLat;
+        return (PrimeMeridianDeg + rate * daysSinceJ2000) * Math.PI / 180.0;
+    }
 
     /// <summary>
     /// Riktningen från kroppens medelpunkt ut till en punkt på ytan, uttryckt i

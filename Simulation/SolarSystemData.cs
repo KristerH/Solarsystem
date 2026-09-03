@@ -245,6 +245,43 @@ public static class SolarSystemData
     // tidsekvationen inräknad) och deklination -23,0 grader, alltså mitt i vintern.
 
     /// <summary>
+    /// Solens egen rotation. Att den har en är inte självklart – Galilei visade
+    /// det 1613 genom att följa solfläckar över skivan, och det var samma
+    /// observation som avslöjade att fläckarna sitter på solen och inte är små
+    /// kroppar som passerar framför.
+    ///
+    /// Ekvatorn lutar 7,25 grader mot ekliptikan. Följden går att se i appen:
+    /// vi ser mer av solens nordpol i september och mer av sydpolen i mars.
+    ///
+    /// Rotationstiden 25,03 dygn gäller <b>vid ekvatorn</b> och är mätt på
+    /// solfläckar, alltså på just det som ritas. Talet är sideriskt – ett varv
+    /// mot stjärnorna. Sett från jorden, som själv hinner en bit i sin bana
+    /// under tiden, tar samma varv knappt 27 dygn, och det är den siffran
+    /// solfläcksobservatörer alltid citerat.
+    ///
+    /// Nollmeridianen är Carringtons, och det är en ren överenskommelse: solen
+    /// har inga bestående drag att räkna från. Det finns ingen krater och ingen
+    /// kust – bara gas som byts ut.
+    /// </summary>
+    public static readonly BodyAxis SunAxis = new(7.252, 75.77, 25.03, 23.075)
+    {
+        // Solen roterar långsammare ju längre från ekvatorn man kommer. Det är
+        // det enda stället i appen där talet inte är noll, och det som gör det
+        // intressant är vad det bevisar: en fast kropp kan inte göra så. Solen
+        // är gas rakt igenom.
+        //
+        // Talet är Newton och Nunns mätning på solfläckar från 1951,
+        // ω(φ) = 14,38 − 2,96·sin²φ grader per dygn. Vid ekvatorn ger den 25,0
+        // dygn, vid 30 graders bredd 26,4.
+        //
+        // **Förbehåll:** lagen är mätt på fläckar och gäller därför bara där
+        // fläckar finns, alltså inom ±35 grader. Sträcker man ut den till polen
+        // ger den 31,5 dygn mot uppmätta 34. Skillnaden spelar ingen roll här,
+        // eftersom det bara är fläckar som ritas – men den vore fel att dölja.
+        DifferentialDegPerDay = -2.96,
+    };
+
+    /// <summary>
     /// Merkurius: 58,6 dygn, exakt två tredjedelar av dess år – en 3:2-resonans
     /// med solen. Lutningen mot den egna banan är bara 0,03 grader, den minsta i
     /// solsystemet; att talet nedan ändå är 7,0 beror på att banan själv lutar 7,0.

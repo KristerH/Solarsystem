@@ -304,6 +304,25 @@ undervisning, så att elever kan se hur planeterna rör sig runt solen.
   blir det i absoluta mått femton gånger tjockare: kropparna når 18 AU upp
   och ner mot asteroidbältets 1,2. Luta kameran och zooma ut så syns
   skillnaden tydligt.
+- **Solens rotation och solfläckar**: zooma in på solen så dyker fläckarna upp.
+  De ligger i två bälten på ömse sidor om ekvatorn, mellan fem och trettio
+  graders bredd, var och en med en mörk kärna i en ljusare gård. En stor grupp
+  mäter över hundratusen kilometer, mer än tio jordklot i bredd, och är 1 500
+  grader kallare än ytan omkring – den ser svart ut bara i jämförelse.
+
+  Det som är värt att stanna vid är att **solen inte roterar som ett stycke**.
+  Ekvatorn går ett varv på 25 dygn, trettionde breddgraden på 26,4. Två grupper
+  som ligger fjorton breddgrader isär glider därför ifrån varandra med en tredjedels
+  varv om året, vilket syns om man stegar fram månad för månad. En fast kropp kan
+  inte göra så: det är beviset för att solen är gas rakt igenom. Rotationen är
+  hämtad från Newton och Nunns mätningar på solfläckar från 1951.
+
+  Solens ekvator lutar 7,25 grader mot ekliptikan, och det syns över året – vi
+  ser mest av solens nordpol den 8 september och mest av sydpolen den 6 mars.
+  Att modellen träffar de datumen är en kontroll av axelns riktning som inget
+  annat i appen prövar. Randmörkningen, att skivan är ljusare i mitten än vid
+  kanten, är också verklig: vid randen ser man snett in i gasen och når bara de
+  övre, svalare lagren.
 - **Halleys komet**: en kryssruta tänder kometen med sin bana och sina två
   svansar. Banan är allt som planeternas inte är – excentriciteten 0,967 tar den
   från 0,586 AU i perihelium, innanför Venus bana, ut till 35,1 AU i aphelium,
@@ -395,7 +414,8 @@ asteroid-/Kuiperbälten, tänkt att byggas och verifieras en etapp i taget.
   beskrivs som ett banplan (lutning och nod), vilket är med flit: ekvatorsplanet
   är samma plan som de regelbundna månarna och ringarna ligger i, så en måne kan
   läsa sin planets axel rakt av. Nordpolen räknas efter högerhandsregeln, så
-  retrograd rotation syns som en lutning över 90°.
+  retrograd rotation syns som en lutning över 90°. Klassen kan också beskriva en
+  kropp som roterar olika fort på olika breddgrader – solen är den enda.
 - `Simulation/SurfaceMap.cs` – ytor som (latitud, longitud)-polygoner, ritade
   direkt på klotet utan texturbilder. Jordens världsdelar är den första kartan.
 - `Simulation/SmallBodyBelt.cs` – asteroid- och Kuiperbältets slumpade banor,

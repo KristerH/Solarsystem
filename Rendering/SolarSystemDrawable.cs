@@ -858,7 +858,16 @@ public sealed class SolarSystemDrawable : IDrawable
         return real * (isSun ? SunBoost : PlanetBoost);
     }
 
-    static void DrawSun(ICanvas canvas, float x, float y, float r)
+    /// <summary>
+    /// Solen: glöd, skiva och – när man zoomat in nog – solfläckar.
+    ///
+    /// Skivan målas med en gradient i stället för en jämn färg, och det är
+    /// ingen utsmyckning utan randmörkning. Solen är verkligen mörkare och
+    /// rödare vid kanten än i mitten, eftersom man där ser snett in i gasen och
+    /// bara når de övre, svalare lagren. Effekten syns i vilken solteleskopbild
+    /// som helst.
+    /// </summary>
+    void DrawSun(ICanvas canvas, float x, float y, float r)
     {
         // Yttre glöd.
         float glow = MathF.Max(r * 3.2f, r + 12f);
@@ -884,6 +893,14 @@ public sealed class SolarSystemDrawable : IDrawable
         { Center = new Point(0.5, 0.5), Radius = 0.5 };
         canvas.SetFillPaint(corePaint, coreRect);
         canvas.FillCircle(x, y, r);
+
+        // Fläckarna först när skivan är stor nog. Tröskeln är högre än
+        // planeternas, och det följer av hur stora fläckarna är: den största
+        // gruppen mäter sju grader tvärs över, vilket på en skiva med radien r
+        // blir 0,12·r. Vid planeternas fjorton pixlar vore den under en pixel.
+        if (r >= SunSpotMinRadius)
+            DrawSurfaceRegions(canvas, SurfaceMap.Sun, SolarSystemData.SunAxis,
+                Vector3.Zero, x, y, r);
     }
 
     static void DrawPlanet(ICanvas canvas, CelestialBody body, float x, float y, float r, float sunX, float sunY)
@@ -927,6 +944,9 @@ public sealed class SolarSystemDrawable : IDrawable
     /// </summary>
     const float GlobeMinRadius = 14f;
 
+    /// <summary>Solskivans minsta radie för att fläckarna ska ritas. Se DrawSun.</summary>
+    const float SunSpotMinRadius = 30f;
+
     readonly List<Vector3> _globeDirs = new(256);
     readonly List<Vector3> _globeClipped = new(256);
 
@@ -955,18 +975,59 @@ public sealed class SolarSystemDrawable : IDrawable
         canvas.FillColor = surface.BaseColor;
         canvas.FillCircle(sx, sy, r);
 
-        double spin = axis.SpinRadians(DaysSinceJ2000);
+        DrawSurfaceRegions(canvas, surface, axis, center, sx, sy, r);
 
-        // Ytpunkterna ritas med ortografisk projektion inom den ritade cirkeln:
-        // skärmläget ges av riktningens komposanter längs kamerans höger- och
-        // uppaxlar gånger cirkelns radie. Då kan land aldrig hamna utanför
-        // globen (perspektivprojektion av randpunkter gjorde precis det när
-        // kameran var nära). Synligt är det halvklot som vetter mot kameran.
+        // Dag/natt: ljus ton mot solsidan, mörk skugga på nattsidan.
+        float dx = sunX - sx, dy = sunY - sy;
+        float len = MathF.Sqrt(dx * dx + dy * dy);
+        if (len > 1e-3f) { dx /= len; dy /= len; }
+        var rectF = new RectF(sx - r, sy - r, r * 2, r * 2);
+        var shade = new RadialGradientPaint(
+        [
+            new PaintGradientStop(0f, Color.FromRgba(1f, 1f, 0.95f, 0.16f)),
+            new PaintGradientStop(0.55f, Colors.Transparent),
+            new PaintGradientStop(1f, Color.FromRgba(0f, 0f, 0.02f, 0.62f)),
+        ])
+        {
+            Center = new Point(0.5 + dx * 0.30, 0.5 + dy * 0.30),
+            Radius = 0.75,
+        };
+        canvas.SetFillPaint(shade, rectF);
+        canvas.FillCircle(sx, sy, r);
+    }
+
+    /// <summary>
+    /// Ytkartans polygoner målade på en klotskiva som redan ligger på plats.
+    /// Bruten ur globritningen därför att solen behöver samma sak men ingenting
+    /// annat: den har ingen dag- och nattsida att skugga, och dess skiva är en
+    /// gradient och inte en jämn färg.
+    ///
+    /// Ytpunkterna ritas med ortografisk projektion inom den ritade cirkeln:
+    /// skärmläget ges av riktningens komposanter längs kamerans höger- och
+    /// uppaxlar gånger cirkelns radie. Då kan land aldrig hamna utanför globen
+    /// (perspektivprojektion av randpunkter gjorde precis det när kameran var
+    /// nära). Synligt är det halvklot som vetter mot kameran.
+    ///
+    /// Vridningen tas per yta och inte per hörn. För allt fast spelar det ingen
+    /// roll – hela kroppen vrider sig lika – men solen vrider sig olika fort på
+    /// olika breddgrader, och då är ytan rätt nivå: en solfläcksgrupp följer med
+    /// som en klump. Se <see cref="SurfaceMap.Region.MeanSinLat"/>.
+    /// </summary>
+    void DrawSurfaceRegions(ICanvas canvas, SurfaceMap surface, BodyAxis axis,
+        Vector3 center, float sx, float sy, float r)
+    {
+        double rigidSpin = axis.SpinRadians(DaysSinceJ2000);
+        bool differential = axis.DifferentialDegPerDay != 0.0;
+
         var toCam = Vector3.Normalize(Camera.Position - center);
         const float cosLimb = 0.02f;
 
         foreach (var region in surface.Regions)
         {
+            double spin = differential
+                ? axis.SpinRadians(DaysSinceJ2000, region.MeanSinLat)
+                : rigidSpin;
+
             _globeDirs.Clear();
             for (int i = 0; i < region.LonRad.Length; i++)
                 _globeDirs.Add(axis.Direction(
@@ -992,24 +1053,6 @@ public sealed class SolarSystemDrawable : IDrawable
             canvas.FillColor = region.Fill;
             canvas.FillPath(path);
         }
-
-        // Dag/natt: ljus ton mot solsidan, mörk skugga på nattsidan.
-        float dx = sunX - sx, dy = sunY - sy;
-        float len = MathF.Sqrt(dx * dx + dy * dy);
-        if (len > 1e-3f) { dx /= len; dy /= len; }
-        var rectF = new RectF(sx - r, sy - r, r * 2, r * 2);
-        var shade = new RadialGradientPaint(
-        [
-            new PaintGradientStop(0f, Color.FromRgba(1f, 1f, 0.95f, 0.16f)),
-            new PaintGradientStop(0.55f, Colors.Transparent),
-            new PaintGradientStop(1f, Color.FromRgba(0f, 0f, 0.02f, 0.62f)),
-        ])
-        {
-            Center = new Point(0.5 + dx * 0.30, 0.5 + dy * 0.30),
-            Radius = 0.75,
-        };
-        canvas.SetFillPaint(shade, rectF);
-        canvas.FillCircle(sx, sy, r);
     }
 
     /// <summary>

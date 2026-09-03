@@ -10,7 +10,15 @@ namespace Solarsystem.Simulation;
 /// </summary>
 public sealed class SurfaceMap
 {
-    public sealed record Region(Color Fill, float[] SinLat, float[] CosLat, float[] LonRad);
+    /// <param name="MeanSinLat">
+    /// Sinus för ytans mittbreddgrad. Behövs bara för solen, vars ytor vrider
+    /// sig olika fort beroende på var de ligger. Att takten tas per yta och inte
+    /// per hörn är med flit: en solfläcksgrupp vrider sig som en klump, och läts
+    /// varje hörn gå i sin egen takt skulle gruppen dras ut till en smet på
+    /// några år. Verkliga grupper hinner aldrig dit – de dör inom veckor.
+    /// </param>
+    public sealed record Region(Color Fill, float[] SinLat, float[] CosLat, float[] LonRad,
+        float MeanSinLat);
 
     /// <summary>Grundfärgen under polygonerna – jordens hav, Mars öken.</summary>
     public Color BaseColor { get; }
@@ -948,6 +956,96 @@ public sealed class SurfaceMap
         return [.. lat.Select((v, i) => (v, lon[i]))];
     }
 
+    // ------------------------------------------------------------------ solen
+
+    /// <summary>Fotosfären, den yta vi ser. Ritas i appen med en gradient, se nedan.</summary>
+    static readonly Color Photosphere = Color.FromArgb("#FFE08A");
+
+    /// <summary>Fläckens halvskugga, ungefär 1 000 grader kallare än ytan omkring.</summary>
+    static readonly Color Penumbra = Color.FromArgb("#C98A3A");
+
+    /// <summary>Kärnskuggan, 1 500 grader kallare. Fortfarande glödande – bara mörkare än allt annat.</summary>
+    static readonly Color Umbra = Color.FromArgb("#6B4116");
+
+    /// <summary>
+    /// En solfläck: en mörk kärna i en ljusare gård. Storleken är gårdens
+    /// halvbredd i grader – en stor grupp mäter tio grader tvärs över, alltså
+    /// mer än hundratusen kilometer, mer än tio jordklot i bredd.
+    ///
+    /// Longitudhalvaxeln delas med cosinus för breddgraden. En rund fläck täcker
+    /// fler longitudgrader ju längre från ekvatorn den ligger, precis som en
+    /// stad på höga breddgrader ligger mellan tätare meridianer.
+    /// </summary>
+    static void Spot(List<(Color Fill, (float Lat, float Lon)[] Pts)> raw,
+        float lat, float lon, float size)
+    {
+        float wide = size / MathF.Cos(lat * MathF.PI / 180f);
+        Oval(raw, Penumbra, lat, lon, size, wide);
+        Oval(raw, Umbra, lat, lon, size * 0.42f, wide * 0.42f);
+    }
+
+    /// <summary>
+    /// Solens yta: en handfull solfläcksgrupper.
+    ///
+    /// Fläckarna ligger inte var som helst. De håller sig till två bälten på
+    /// ömse sidor om ekvatorn, mellan fem och trettio graders bredd, och det är
+    /// inte en slump utan en följd av att solen roterar olika fort på olika
+    /// breddgrader: rotationen drar ut magnetfältet till buntar som till slut
+    /// bryter igenom ytan i par. Där de bryter igenom hindras värmen underifrån,
+    /// och fläcken blir 1 500 grader kallare än ytan omkring. Den ser svart ut,
+    /// men bara i jämförelse – lyfte man ut en fläck ur solen skulle den lysa
+    /// starkare än fullmånen.
+    ///
+    /// Grupperna kommer i par, en ledande och en följande fläck. Det är
+    /// magnetfältets två ändar, och de har motsatt polaritet – ett faktum som
+    /// inte syns i bild men som förklarar varför de alltid uppträder två och två.
+    ///
+    /// <b>Förbehåll:</b> fläckarna ligger stilla här och finns för alltid. I
+    /// verkligheten lever en grupp några veckor och antalet följer elvaårscykeln:
+    /// vid minimum är solen helt slät, vid maximum full av fläckar. Deras
+    /// breddgrader vandrar dessutom mot ekvatorn under cykelns gång – ritar man
+    /// det i ett diagram blir mönstret ett fjärilspar, och den bilden har inget
+    /// utrymme i en karta som är sig lik i alla tider. Kartan visar alltså hur
+    /// solen ser ut ett år nära maximum.
+    ///
+    /// Fackelfälten, de ljusa slöjorna kring fläckarna, är utelämnade med flit:
+    /// de syns nästan bara nära randen, där man ser snett genom gasen, och det
+    /// är en effekt en platt färgyta inte kan uttrycka.
+    /// </summary>
+    public static readonly SurfaceMap Sun = BuildSun();
+
+    static SurfaceMap BuildSun()
+    {
+        var raw = new List<(Color Fill, (float Lat, float Lon)[] Pts)>();
+
+        // Norra bältet. Varje rad är en grupp: ledande fläck, sedan följande.
+        Spot(raw, 14f, 40f, 3.2f);
+        Spot(raw, 12f, 51f, 1.9f);
+
+        Spot(raw, 22f, 152f, 2.4f);
+        Spot(raw, 21f, 161f, 1.3f);
+
+        Spot(raw, 8f, 248f, 3.6f);
+        Spot(raw, 10f, 259f, 2.1f);
+
+        // Södra bältet.
+        Spot(raw, -12f, 95f, 2.9f);
+        Spot(raw, -13f, 105f, 1.7f);
+
+        Spot(raw, -19f, 198f, 2.2f);
+        Spot(raw, -18f, 207f, 1.2f);
+
+        Spot(raw, -7f, 318f, 1.6f);
+
+        // Enstaka porer: små fläckar utan halvskugga, de som kommer och går på
+        // ett dygn. Ritade som bara kärnskugga.
+        Oval(raw, Umbra, 17f, 88f, 0.7f, 0.75f);
+        Oval(raw, Umbra, -25f, 271f, 0.6f, 0.66f);
+        Oval(raw, Umbra, 6f, 175f, 0.5f, 0.5f);
+
+        return new SurfaceMap(Photosphere, [.. raw]);
+    }
+
     /// <summary>
     /// Delar upp långa kanter i steg om högst 5 grader så att kustlinjerna
     /// följer klotets buktning och klipps snyggt mot dess rand. Sinus/cosinus
@@ -977,6 +1075,7 @@ public sealed class SurfaceMap
         return new Region(fill,
             [.. lat.Select(v => MathF.Sin(v * d2r))],
             [.. lat.Select(v => MathF.Cos(v * d2r))],
-            [.. lon.Select(v => v * d2r)]);
+            [.. lon.Select(v => v * d2r)],
+            MathF.Sin(lat.Average() * d2r));
     }
 }
