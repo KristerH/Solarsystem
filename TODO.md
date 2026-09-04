@@ -1,2277 +1,2430 @@
-# Att göra: månar, ringar och bälten
+# To do: moons, rings and belts
 
-Planen är att lägga till en eller några punkter i taget, så att varje steg
-hinner verifieras innan nästa påbörjas. Bocka av med `[x]` när en etapp är
-klar och godkänd.
+The plan is to add one or a few items at a time, so that each step can be
+verified before the next one begins. Tick off with `[x]` when a stage is
+finished and approved.
 
-**Klart hittills:** Etapp 1–8 är genomförda och verifierade – månar, ringar
-och båda småkroppsbältena finns på plats.
+**Done so far:** Stages 1–8 are complete and verified – moons, rings and both
+small-body belts are in place.
 
-**Ordningen på de kvarvarande** är vald med flit: rymdfärden (9) börjar med
-att man ska kunna ställa om datumet, vilket Voyager-etappen (10) behöver för
-att kunna spola tillbaka till 1977. Ytor och rotation (11) är fristående och
-kan flyttas fram om man hellre vill ha något visuellt däremellan. Språkstödet
-(12) ligger sist, så att alla texter finns på plats och bara behöver flyttas
-ut en enda gång.
-
----
-
-## Etapp 1 – Infrastruktur: generellt månsystem
-
-- [x] Bygg om månkoden så att varje planet kan ha en lista av månar i
-      `SolarSystemData` (i dag är jordens måne ett specialfall i renderaren).
-      Samma regler som för Månen: geocentriska/planetcentriska banelement,
-      Kepler-beräkning kring moderplaneten, synlig först vid inzoomning,
-      ingen namnetikett (eller liten etikett vid hög inzoomning – beslut tas här).
-- [x] I förstorat läge visas månarna på komprimerat avstånd (som Månens
-      3 x jordradien) men med inbördes korrekta avståndsproportioner
-      mellan månarna i samma system.
-
-**Verifiera:** Jordens måne ser ut och beter sig exakt som före ombyggnaden.
+**The order of what remains** is deliberate: the space flight (9) starts with
+being able to change the date, which the Voyager stage (10) needs in order to
+rewind to 1977. Surfaces and rotation (11) stands on its own and can be moved
+forward if you would rather have something visual in between. Language support
+(12) comes last, so that all the texts are in place and only need to be moved
+out once.
 
 ---
 
-## Etapp 2 – Mars månar
+## Stage 1 – Infrastructure: a general moon system
 
-- [x] Phobos (radie 11 km, omloppstid 7,7 timmar – snabbare än Mars rotation!)
-- [x] Deimos (radie 6 km, omloppstid 30,3 timmar)
+- [x] Rebuild the moon code so that every planet can have a list of moons in
+      `SolarSystemData` (today Earth's Moon is a special case in the renderer).
+      Same rules as for the Moon: geocentric/planetocentric orbital elements,
+      Kepler computation around the parent planet, only visible when zoomed in,
+      no name label (or a small label at high zoom – the decision is made here).
+- [x] In magnified mode the moons are shown at a compressed distance (like the
+      Moon's 3 × Earth radii) but with correct relative distance proportions
+      between the moons within the same system.
 
-**Verifiera:** Fokusera Mars, sänk hastigheten till några timmar/sek.
-Phobos ska hinna flera varv per Mars-dygn. Båda är oregelbundna småstenar –
-i appen blir de prickar.
-
----
-
-## Etapp 3 – Jupiters galileiska månar (störst pedagogiskt värde!)
-
-- [x] Io (omloppstid 1,77 dygn)
-- [x] Europa (3,55 dygn)
-- [x] Ganymedes (7,15 dygn – större än Merkurius)
-- [x] Callisto (16,69 dygn)
-
-Omloppstiderna bildar nästan exakt 1:2:4-resonans (Io:Europa:Ganymedes) –
-värt att kunna visa. Det var dessa fyra Galilei såg 1610.
-
-**Verifiera:** Fokusera Jupiter vid ~1 dygn/sek: Io snurrar tydligt snabbast,
-Callisto långsammast. Kolla resonansen: två Io-varv per Europa-varv.
+**Verify:** Earth's Moon looks and behaves exactly as it did before the rebuild.
 
 ---
 
-## Etapp 4 – Pluto och Charon (dubbelplaneten)
+## Stage 2 – The moons of Mars
 
-- [x] Charon (omloppstid 6,39 dygn, radie 606 km – halva Plutos!)
-- [x] Eventuellt: gemensam tyngdpunkt utanför Pluto, så att även Pluto
-      "vaggar" – det är det som gör paret nästan till en dubbelplanet.
-- [x] Småmånarna Styx, Nix, Kerberos, Hydra (prickar, kan hoppas över)
+- [x] Phobos (radius 11 km, orbital period 7.7 hours – faster than Mars rotates!)
+- [x] Deimos (radius 6 km, orbital period 30.3 hours)
 
-**Verifiera:** Fokusera Pluto. Charon ska vara påfallande stor i förhållande
-till Pluto jämfört med andra månar.
-
----
-
-## Etapp 5 – Saturnus och isjättarnas största månar
-
-- [x] Saturnus: Titan (15,9 dygn; ev. även Rhea, Enceladus)
-- [x] Uranus: Titania, Oberon, ev. Miranda
-- [x] Neptunus: Triton (5,88 dygn, **retrograd** – kretsar baklänges!)
-
-**Verifiera:** Triton ska gå åt motsatt håll mot allt annat i appen –
-tydligast beviset på att den är infångad från Kuiperbältet.
+**Verify:** Focus Mars, lower the speed to a few hours/sec. Phobos should manage
+several laps per Martian day. Both are irregular little rocks – in the app they
+become dots.
 
 ---
 
-## Etapp 6 – Ringar runt de andra jätteplaneterna
+## Stage 3 – Jupiter's Galilean moons (the greatest teaching value!)
 
-Samma teknik som Saturnus befintliga ringar, men tunnare och svagare:
+- [x] Io (orbital period 1.77 days)
+- [x] Europa (3.55 days)
+- [x] Ganymede (7.15 days – larger than Mercury)
+- [x] Callisto (16.69 days)
 
-- [x] Jupiter: mycket tunn, mörk dammring
-- [x] Uranus: smala mörka ringar – och Uranus extrema axellutning (98°!)
-      bör läggas in samtidigt så att ringarna står "på högkant"
-- [x] Neptunus: svag ring (bågarna/klumparna kan förenklas bort)
+The orbital periods form an almost exact 1:2:4 resonance (Io:Europa:Ganymede) –
+worth being able to show. These were the four Galileo saw in 1610.
 
-**Verifiera:** Ringarna syns bara vid inzoomning och skymmer inte planeterna
-i översiktsvyn. Uranus ringar ska stå nästan vinkelrätt mot banplanet.
-
----
-
-## Etapp 7 – Asteroidbältet (runt solen)
-
-- [x] Ett diskret band av små prickar mellan Mars (1,52 AU) och Jupiter
-      (5,20 AU), tätast kring 2,2–3,3 AU. Slumpade banor med spridning i
-      lutning (± ett par grader) och excentricitet, som roterar med
-      keplerska hastigheter (inre varvet snabbare än yttre).
-- [x] Kryssruta "Visa asteroidbältet" (av som standard, så att vyn inte blir
-      plottrig).
-- [x] Eventuellt: dvärgplaneten Ceres som namngiven prick i bältet.
-
-**Verifiera:** Bältet ska se glest ut även i appen – en pedagogisk poäng är
-att asteroidbältet i verkligheten mest är tomrum (rymdsonder flyger igenom
-utan problem). Prestanda: ingen märkbar försämring vid rotation/zoom
-(punkterna cachas som stjärnhimlen).
+**Verify:** Focus Jupiter at ~1 day/sec: Io clearly spins around fastest,
+Callisto slowest. Check the resonance: two Io laps per Europa lap.
 
 ---
 
-## Etapp 8 – Kuiperbältet (runt solen, bortom Neptunus)
+## Stage 4 – Pluto and Charon (the double planet)
 
-- [x] Glest band av isprickar ca 30–50 AU, med större spridning i lutning
-      än asteroidbältet. Pluto ligger mitt i det – bra att kunna visa.
-- [x] Samma kryssruta som asteroidbältet eller en egen.
+- [x] Charon (orbital period 6.39 days, radius 606 km – half of Pluto's!)
+- [x] Possibly: a shared centre of mass outside Pluto, so that Pluto "wobbles"
+      too – that is what makes the pair almost a double planet.
+- [x] The small moons Styx, Nix, Kerberos, Hydra (dots, can be skipped)
 
-**Verifiera:** Zooma ut och luta kameran: Kuiperbältet ska vara tjockare/
-"luddigare" i höjdled än asteroidbältet, och Plutos lutande bana ska ligga
-inom dess svärm.
-
----
-
-## Etapp 9 – Rymdfärd till Mars eller månen
-
-En egen liten rymdfärd: eleverna väljer mål, skjuter upp en farkost och följer
-den hela vägen fram. Här möts allt appen redan kan – banor, tid och skala –
-i något eleverna själva styr. Etappen är uppdelad i fem delar som var och en
-går att bygga och verifiera för sig.
-
-### 9.1 – Ställ om vilket datum man befinner sig på
-
-Behövs först, och är användbart även utan rymdfärder: man ska kunna hoppa till
-vilket datum som helst, både bakåt och framåt, i stället för att som i dag
-alltid starta på dagens datum och bara kunna gå framåt.
-
-- [x] Ett datumfält där man skriver in år, månad och dag, och vyn hoppar dit.
-- [x] Knappar för att stega ± dag, ± månad och ± år, så att man kan bläddra
-      sig fram utan att skriva.
-- [x] Knappen "Idag" som återställer till nuet.
-- [x] Låt hastighetsreglaget kunna gå bakåt, så att tiden kan spelas baklänges.
-
-Kepler-matematiken klarar redan negativ tid, så arbetet ligger i gränssnittet
-och i klockan (`_startDate` plus `_simDays` i `MainPage`). Detta är också
-grunden för startfönstren i 9.3, och behövs i etapp 10 för att spola tillbaka
-till Voyagers uppskjutning 1977.
-
-**Verifiera:** Hoppa till ett känt datum och kontrollera att planeterna står
-rimligt. Stega bakåt över ett årsskifte och en skottdag. Kör tiden baklänges
-och se att planeterna går motsols. Rolig bieffekt: slå upp din egen
-födelsedag och se var planeterna stod då.
+**Verify:** Focus Pluto. Charon should be strikingly large relative to Pluto
+compared with other moons.
 
 ---
 
-### 9.2 – Farkosten och överföringsbanan till Mars
+## Stage 5 – The largest moons of Saturn and the ice giants
 
-- [x] **Farkosten som himlakropp**: en liten prick med namn och ett spår efter
-      sig (de senaste par hundra positionerna), som följer en Kepler-bana precis
-      som planeterna.
-- [x] **Hohmann-bana**: den energisnålaste vägen är en halv ellips med
-      perihelium vid jordens bana (1,00 AU) och aphelium vid Mars (1,52 AU).
-      Halva storaxeln blir då 1,26 AU, vilket ger en restid på ungefär
-      259 dygn – hälften av den banans omloppstid.
-- [x] Banplanet ska luta så att farkosten möter Mars även i höjdled; Mars
-      ligger upp till 1,85° ur ekliptikan.
+- [x] Saturn: Titan (15.9 days; possibly Rhea and Enceladus as well)
+- [x] Uranus: Titania, Oberon, possibly Miranda
+- [x] Neptune: Triton (5.88 days, **retrograde** – it orbits backwards!)
 
-**Verifiera:** Restiden ska bli ungefär 259 dygn, och farkostens läge vid
-ankomst ska sammanfalla med Mars – inte bara ligga på rätt avstånd från solen.
+**Verify:** Triton should travel in the opposite direction to everything else in
+the app – the clearest evidence that it was captured from the Kuiper belt.
 
 ---
 
-### 9.3 – Startfönster
+## Stage 6 – Rings around the other giant planets
 
-- [x] Farkosten måste skjutas upp när Mars ligger 44,3° framför jorden. Under
-      de 259 dygnen hinner Mars nämligen bara 135,7° av sitt varv, medan
-      farkosten går 180° – och 44,3 + 135,7 = 180.
-- [x] Läget upprepas var 780:e dygn (25,6 månader). Knappen "Skjut upp" bör
-      vara inaktiv däremellan, med "Hoppa till nästa startfönster" bredvid.
-- [x] Visa hur långt det är kvar till nästa fönster.
+The same technique as Saturn's existing rings, but thinner and fainter:
 
-Det är därför verkliga Mars-uppdrag alltid skjuts upp i klungor: sommaren 2020
-skickade USA, Kina och Förenade arabemiraten var sin sond inom två veckor, och
-sedan hände ingenting på två år.
+- [x] Jupiter: a very thin, dark dust ring
+- [x] Uranus: narrow dark rings – and Uranus's extreme axial tilt (98°!) should
+      be added at the same time so that the rings stand "on edge"
+- [x] Neptune: a faint ring (the arcs/clumps can be simplified away)
 
-**Verifiera:** Ligger Mars fel vid uppskjutningen ska farkosten anlända till
-tom rymd – 20° fel motsvarar 80 miljoner km. Det är hela poängen med
-startfönster och något eleverna kan prova själva.
-
-**Rättat i efterhand (upptäckt i 10.1):** både banan och fönsterkriteriet
-byggde på antagandet att färden sveper den kortaste vägen mellan jorden och
-Mars. I samtliga åtta prövade fönster var den kortaste vägen baklänges runt
-solen, så farkosten flög åt fel håll och skulle ha krävt 63 km/s i förhållande
-till jorden i stället för verklighetens 3–4. Ankomsten till Mars stämde ändå,
-vilket är skälet att det inte syntes i verifieringen. Banan löses nu med
-Lambert-lösaren från 10.1, och restiden väljs så att uppskjutningen blir så
-billig som möjligt. Fönsterkriteriet är samtidigt bytt från sveptvinkeln – som
-pekade rakt in i den punkt där banplanet blir obestämt – till kostnaden:
-fönstret är öppet när uppskjutningen kostar högst 0,1 km/s mer än fönstrets
-bästa dag.
+**Verify:** The rings are only visible when zoomed in and do not obscure the
+planets in the overview. Uranus's rings should stand almost perpendicular to the
+orbital plane.
 
 ---
 
-### 9.4 – Färd till månen
+## Stage 7 – The asteroid belt (around the Sun)
 
-- [x] Samma sak fast kring jorden: en ellips från låg omloppsbana ut till
-      månens avstånd, restid ca 3 dygn. Kräver att farkosten kan kretsa kring
-      en planet i stället för kring solen, ungefär som månarna gör i dag.
+- [x] A discreet band of small dots between Mars (1.52 AU) and Jupiter
+      (5.20 AU), densest around 2.2–3.3 AU. Randomised orbits with a spread in
+      inclination (± a couple of degrees) and eccentricity, rotating at
+      Keplerian speeds (the inner lap faster than the outer).
+- [x] A "Show the asteroid belt" checkbox (off by default, so that the view does
+      not get cluttered).
+- [x] Possibly: the dwarf planet Ceres as a named dot in the belt.
 
-Knappen "Skjut upp mot Månen" går att trycka på vilken dag som helst, och vyn
-hoppar samtidigt till jorden – hela månfärden ryms inom 0,003 AU och vore
-annars mindre än en pixel. Farkosten kretsar kring jorden i stället för kring
-solen: banan räknas med jordens gravitationsparameter och läggs i månens eget
-banplan. Uppskjutningen sker från en låg omloppsbana på 400 km höjd, som blir
-banans perigeum.
-
-En ren Hohmann-bana ut till månen skulle ta 4,95 dygn. För att hinna på tre
-måste farkosten skjutas upp med mer fart, så att banans bortre ände hamnar
-440 000–630 000 km bort, alltså en bra bit bortom månen, och månen hinns ikapp
-på vägen ut – före vändpunkten. Det var precis så Apollo flög.
-
-**Verifiera:** Månfärden ska ta ca 3 dygn. Bra kontrast till Mars: månen är
-tillbaka på samma ställe var 27:e dygn, så dit kan man åka i stort sett när
-som helst.
-
-Kontrollerat: restiden blir 3,00 dygn och farkosten möter månen på metern när
-för 40 startdatum spridda över ett år. Startfarten blir 10,84 km/s, vilket är
-den verkliga farten vid en uppskjutning mot månen (Apollos raketsteg gav
-10,8 km/s), och farten faller till 0,6–0,9 km/s vid framkomsten. Banplanet
-sammanfaller med månens inom 0,02°.
+**Verify:** The belt should look sparse even in the app – one teaching point is
+that the asteroid belt is mostly empty space in reality (space probes fly
+straight through without trouble). Performance: no noticeable degradation when
+rotating/zooming (the points are cached like the star sky).
 
 ---
 
-### 9.5 – Panel under färden och ankomst
+## Stage 8 – The Kuiper belt (around the Sun, beyond Neptune)
 
-- [x] **Panel**: förfluten restid, återstående tid, avstånd kvar till målet
-      och farkostens fart.
-- [x] **Ankomst**: farkosten möter målet och färden markeras som avslutad.
-      Gjordes redan i 9.2: farkosten följer med planeten efter framkomsten i
-      stället för att bli stående kvar där planeten råkade vara, och etiketten
-      byts till "Farkost framme".
-- [x] **Kameran** följer med ner till planeten vid ankomsten.
+- [x] A sparse band of icy dots at about 30–50 AU, with a wider spread in
+      inclination than the asteroid belt. Pluto sits in the middle of it – good
+      to be able to show.
+- [x] The same checkbox as the asteroid belt, or one of its own.
 
-Panelen dyker upp uppe till vänster så snart en farkost är i väg och försvinner
-när färden avbryts. Vid ankomsten byter den till restid, ankomstdatum och farten
-vid framkomsten. Kameran hakar samtidigt på farkosten och zoomar in till målet –
-en gång, i själva ankomstögonblicket, så att användaren sedan får styra fritt
-igen. Ett nytt val i fokusväljaren eller "Återställ vy" släpper greppet.
-
-**Verifiera:** Farten ska variera längs banan – snabbast vid uppskjutningen
-nära solen och långsammast vid ankomsten, precis som Keplers andra lag säger.
-
-Kontrollerat: farten faller monotont hela vägen, mot Mars från 33,14 till
-20,51 km/s och mot månen från 10,83 till 0,62 km/s. Avståndet till månen
-minskar hela vägen, men avståndet till Mars växer först från 246 till
-409 miljoner km innan det faller – farkosten går ju runt solen, inte rakt mot
-planeten, och Mars står på andra sidan solen vid uppskjutningen.
+**Verify:** Zoom out and tilt the camera: the Kuiper belt should be thicker and
+"fuzzier" vertically than the asteroid belt, and Pluto's inclined orbit should
+lie within its swarm.
 
 ---
 
-## Etapp 10 – Voyager och de andra rymdsonderna
+## Stage 9 – A space flight to Mars or the Moon
 
-De farkoster mänskligheten faktiskt har skickat ut. Etapp 9 handlar om en
-påhittad resa som eleven själv styr; den här handlar om de verkliga färderna,
-med riktiga datum. Voyager 1 är det avlägsnaste föremål människan har byggt.
+A little space flight of your own: the pupils pick a destination, launch a
+spacecraft and follow it all the way there. This is where everything the app can
+already do – orbits, time and scale – comes together in something the pupils
+steer themselves. The stage is split into five parts, each of which can be built
+and verified on its own.
 
-Etappen är den största hittills och är därför uppdelad i fem delar, som var och
-en går att bygga och verifiera för sig – samma upplägg som etapp 9.
+### 9.1 – Change which date you are on
 
-Grundtanken för hela etappen: sondernas banor byggs inte ur inmatade banelement
-utan ur de verkliga datumen. Varje ben av färden är banan som går från en planet
-till nästa på exakt den tid passagerna faktiskt tog, och den räknas fram ur
-appens egna planetpositioner. Då hamnar sonderna vid rätt planet rätt dag av sig
-själva, och gravitationsslungan syns som ett språng i farten mellan två ben –
-vilket är precis vad den är.
+Needed first, and useful even without space flights: you should be able to jump
+to any date at all, both backwards and forwards, instead of always starting on
+today's date and only being able to go forwards, as at present.
 
-### 10.1 – Hyperboliska banor i Kepler-koden
+- [x] A date field where you type a year, a month and a day, and the view jumps
+      there.
+- [x] Buttons for stepping ± a day, ± a month and ± a year, so that you can leaf
+      your way forward without typing.
+- [x] A "Today" button that resets to the present.
+- [x] Let the speed slider go backwards, so that time can be played in reverse.
 
-- [x] **Hyperbolisk Kepler-ekvation**. Sonderna har fått så hög fart att de
-      aldrig kommer tillbaka: deras banor har excentricitet större än 1 och är
-      alltså hyperbler, inte ellipser. `SolveKepler` löser i dag bara
-      `E - e*sin E = M`, som gäller för ellipser. För hyperbler behövs
-      `e*sinh H - H = M` och en egen positionsformel. Detta är etappens enda
-      riktiga matematikarbete och bör göras först.
-- [x] **Kägelsnitt ur ett tillstånd**. En sond byter bana vid varje
-      planetpassage, så banan måste gå att bygga ur läge och hastighet i stället
-      för ur fasta banelement som planeternas. Samma klass ska klara både
-      ellipser och hyperbler; halva storaxeln blir negativ för de senare.
-- [x] **Lambert-lösaren**: banan som går från ett läge till ett annat på en
-      given tid. Det är den som gör att sonderna kan byggas ur verkliga datum.
+The Kepler maths already handles negative time, so the work lies in the user
+interface and in the clock (`_startDate` plus `_simDays` in `MainPage`). This is
+also the foundation for the launch windows in 9.3, and is needed in stage 10 in
+order to rewind to Voyager's launch in 1977.
 
-Ligger i `Simulation/Kepler.cs`, `Simulation/Conic.cs` och
-`Simulation/Lambert.cs`. Ingenting av det syns ännu i appen – det är kärnan som
-10.2 och framåt bygger på. Lambert använder universella variabler, där en enda
-variabel z beskriver alla kägelsnitt: positiv för ellipser, negativ för
-hyperbler och noll för parabeln mitt emellan. Restiden växer monotont med z, så
-rätt bana kläms in med intervallhalvering.
-
-Två fällor visade sig på vägen. Startgissningen till den hyperboliska Kepler-
-ekvationen måste vara arsinh(M/e) och inte det närmare till hands liggande
-M/(e-1): för banor strax över parabeln blir den senare enorm, och sinh av ett
-stort tal spränger flyttalen direkt. Och under en viss gräns för z finns ingen
-bana alls – kägelsnittet når helt enkelt inte fram – vilket sökningen måste
-räkna som "snabbare än allt annat" för att inte fastna där.
-
-**Verifiera:** Går att göra helt utan gränssnitt. En bana som byggs ur ett
-tillstånd ska ge tillbaka samma läge och fart som den byggdes ur. Lambert ska
-reproducera Mars-banan från 9.2, och en hyperbolisk bana ska gå att räkna både
-framåt och bakåt i tiden.
-
-Kontrollerat: den hyperboliska Kepler-ekvationen löses med ett relativt fel
-under 1e-12 i 66 fall, med excentricitet från 1,0001 till 12 och medelanomali
-upp till 4000, åt båda tidshållen. En bana byggd ur ett tillstånd ger tillbaka
-samma läge på ett par kilometer när och samma fart på en hundradels meter per
-sekund. Alla sju verkliga sondben som 10.2 och 10.3 behöver går att lösa, och
-sonden hamnar vid rätt planet på passagedagen: sämst är Voyager 2 vid Jupiter
-med 21 000 km, alltså en tredjedels Jupiterradie, och de övriga ligger under
-1 000 km. Fem av de sju benen är hyperbler.
-
-**Not:** Lambert avslöjade samtidigt ett fel i etapp 9.2. Mars-farkosten där
-antar att färden sveper den kortaste vägen mellan start och mål, men i alla
-åtta startfönster som testats är den kortaste vägen baklänges runt solen. Banan
-går alltså åt fel håll, och skulle kräva 63 km/s i förhållande till jorden i
-stället för verklighetens 3–4. Ankomsten till Mars stämmer ändå, vilket är
-skälet att det inte upptäcktes tidigare. Rätt lösning är samma sveptvinkel fast
-åt andra hållet – 190° i stället för 170° – och den får man gratis genom att
-låta `Mission` använda Lambert-lösaren. Månfärden i 9.4 är inte drabbad; den
-bygger sin riktning ur månens egen bana.
-
-Fixen är gjord: se noten under 9.3. Efteråt går alla fem närmaste fönster åt
-rätt håll, kostar 2,90–3,20 km/s och infaller i samma rytm som de verkliga
-Mars-fönstren.
+**Verify:** Jump to a known date and check that the planets are plausibly
+placed. Step backwards across a New Year and a leap day. Run time in reverse and
+watch the planets go anticlockwise. A fun side effect: look up your own birthday
+and see where the planets stood then.
 
 ---
 
-### 10.2 – Voyager 1 och 2
+### 9.2 – The spacecraft and the transfer orbit to Mars
 
-- [x] **Voyager 1 och Voyager 2** (uppskjutna 1977) med verkliga riktningar och
-      farter. Voyager 2 är den enda farkost som besökt alla fyra
-      jätteplaneterna – möjligt tack vare en planetuppställning som bara
-      återkommer vart 176:e år.
-- [x] **Ut ur ekliptikan**: efter Saturnus böjde Voyager 1 av brant uppåt
-      (ca 35°) och Voyager 2 nedåt (ca 48°). Bra tillfälle att visa att
-      solsystemet är en skiva som sonderna nu lämnat.
-- [x] Sonderna ritas i vyn med sitt spår efter sig.
+- [x] **The spacecraft as a celestial body**: a small dot with a name and a
+      trail behind it (the last couple of hundred positions), following a Kepler
+      orbit exactly as the planets do.
+- [x] **Hohmann orbit**: the most energy-efficient route is half an ellipse with
+      perihelion at Earth's orbit (1.00 AU) and aphelion at Mars (1.52 AU). The
+      semi-major axis then becomes 1.26 AU, which gives a travel time of roughly
+      259 days – half that orbit's period.
+- [x] The orbital plane must be tilted so that the spacecraft meets Mars
+      vertically too; Mars lies up to 1.85° out of the ecliptic.
 
-Ligger i `Simulation/Probe.cs` och `Simulation/ProbeData.cs`, med kryssrutan
-"Rymdsonder" i panelen. Inga banelement matas in: varje ben är banan som går
-från en planet till nästa på exakt den tid passagerna tog, och sista benet går
-ut till sondens kända läge i dag (avstånd och riktning på himlen). Lutningen ut
-ur ekliptikan blir därför ett resultat och inte en inmatning.
-
-**Verifiera:** Spola tiden till mars 1979 – Voyager 1 ska då vara vid Jupiter,
-inte någon annanstans. Samma sak för Voyager 2 vid Neptunus i augusti 1989.
-Kontrollera dagens avstånd mot NASA:s siffror (Voyager 1 ligger kring 167 AU
-och Voyager 2 kring 140 AU år 2026). Luta kameran och se att de två Voyager-
-sonderna lämnat ekliptikan åt var sitt håll.
-
-Kontrollerat: alla sex planetpassager träffar rätt planet rätt dag, sämst
-602 km fel vid Neptunus, alltså två hundradels planetradie. I dag (augusti
-2026) ligger Voyager 1 på 169 AU och Voyager 2 på 142 AU, med farterna 16,7
-och 15,0 km/s – NASA:s siffror är 167 och 140 AU samt 17,0 och 15,4 km/s.
-Sonderna lutar +35,6° respektive −47,9° mot ekliptikan, mot de vedertagna 35°
-och 48°; eftersom lutningen inte matas in är det en kontroll av att hela
-kedjan stämmer. Två av de åtta benen är ellipser – just de två från jorden
-till Jupiter, för det var Jupiter som gav sonderna fart nog att aldrig komma
-tillbaka. Resten är hyperbler.
-
-Farthoppen syns redan nu i banorna, även om panelen som visar dem hör till
-10.4: Jupiter gav Voyager 1 +10,8 km/s och Voyager 2 +10,0. Vid Neptunus
-*bromsades* Voyager 2 med 2,3 km/s – priset för att svänga ner mot månen
-Triton, och skälet till att den lämnade ekliptikan brantare än sin tvilling.
+**Verify:** The travel time should come out at roughly 259 days, and the
+spacecraft's position on arrival should coincide with Mars – not merely be at
+the right distance from the Sun.
 
 ---
 
-### 10.3 – Pioneer 10 och 11 samt New Horizons
+### 9.3 – Launch windows
 
-- [x] **Pioneer 10 och 11 samt New Horizons** (Pluto 2015). Fem farkoster är
-      på väg ut ur solsystemet.
+- [x] The spacecraft has to be launched when Mars is 44.3° ahead of Earth.
+      During those 259 days Mars only manages 135.7° of its lap, while the
+      spacecraft covers 180° – and 44.3 + 135.7 = 180.
+- [x] The alignment repeats every 780 days (25.6 months). The "Launch" button
+      should be disabled in between, with "Jump to the next launch window" next
+      to it.
+- [x] Show how long is left until the next window.
 
-Byggda på samma sätt som Voyagerna i 10.2, med sina verkliga passagedatum:
-Pioneer 10 förbi Jupiter 4 december 1973, Pioneer 11 förbi Jupiter 3 december
-1974 och Saturnus 1 september 1979, New Horizons förbi Jupiter 28 februari 2007
-och Pluto 14 juli 2015.
+This is why real Mars missions are always launched in clusters: in the summer of
+2020 the USA, China and the United Arab Emirates each sent a probe within two
+weeks, and then nothing happened for two years.
 
-**Verifiera:** New Horizons ska passera Pluto i juli 2015 – och Pluto ligger då
-långt utanför ekliptikans plan, så det är också ett prov på att banorna
-verkligen räknas i tre dimensioner.
+**Verify:** If Mars is in the wrong place at launch, the spacecraft should
+arrive at empty space – being 20° off corresponds to 80 million km. That is the
+whole point of launch windows, and something the pupils can try for themselves.
 
-Kontrollerat: alla elva planetpassager träffar rätt planet rätt dag. Sämst är
-Voyager 2 vid Neptunus med 602 km; New Horizons möter Pluto på 319 km, vilket
-är en fjärdedels Plutoradie. Lägena i dag stämmer med de kända: Pioneer 10 på
-142 AU med 11,8 km/s (facit ~140 AU och 11,9), Pioneer 11 på 120 AU med
-11,3 km/s (~118 och 11,2), New Horizons på 65 AU med 13,3 km/s (~63 och 13,9).
-Samtliga tretton ben går prograd.
-
-**Rättelse till verifieringen ovan:** Pluto låg i juli 2015 inte under utan
-strax *över* ekliptikan, och inte "långt" räknat i vinkel – bara 1,91°. Räknat
-i sträcka är det ändå 1,10 AU utanför planet, alltså mer än hela jordens
-banradie, så provet på tre dimensioner håller. Pluto var på väg ned och korsade
-planet några år senare. Att sonden möter Pluto där, och inte i planet, är just
-vad som skulle visas.
-
-Pioneer 11 blev etappens intressanta fall. Jupiter slungade den inte utåt utan
-inåt och tvärs över solsystemet: banan faller från 4,97 AU in till 3,79 AU,
-går ett halvt varv runt solen – från longitud 351° till 167° – och klättrar
-sedan ut till Saturnus på 9,38 AU, som mest 11,6° över ekliptikan. Benet sveper
-alltså 176°, farligt nära den punkt där banplanet blir obestämt, men lösningen
-träffar Saturnus på 144 km. Det benet är dessutom en ellips: efter Jupiter hade
-Pioneer 11 inte fart nog att lämna solsystemet, utan hade kommit tillbaka om
-inte Saturnus slungat ut den. Samma sak gäller Pioneer 10 och de båda
-Voyagersonderna vid Jupiter – deras första ben är ellipser, resten hyperbler.
-New Horizons är undantaget: den var på en hyperbel redan från uppskjutningen,
-den snabbaste som gjorts.
+**Corrected afterwards (discovered in 10.1):** both the orbit and the window
+criterion rested on the assumption that the journey sweeps the shortest way
+between Earth and Mars. In all eight windows tested the shortest way was
+backwards around the Sun, so the spacecraft flew in the wrong direction and
+would have required 63 km/s relative to Earth instead of the real world's 3–4.
+The arrival at Mars was correct all the same, which is why it did not show up in
+verification. The orbit is now solved with the Lambert solver from 10.1, and the
+travel time is chosen so that the launch is as cheap as possible. At the same
+time the window criterion has been changed from the sweep angle – which pointed
+straight into the point where the orbital plane becomes undefined – to the cost:
+the window is open when the launch costs at most 0.1 km/s more than the window's
+best day.
 
 ---
 
-### 10.4 – Milstolpar, panel och skala
+### 9.4 – A journey to the Moon
 
-- [x] **Planetpassagerna som milstolpar** med datum, t.ex. Voyager 1 vid
-      Jupiter i mars 1979 och vid Saturnus i november 1980, Voyager 2 vid
-      Neptunus i augusti 1989. Kan visas som markerade punkter längs banan.
-- [x] **Gravitationsslunga**: sonderna fick fart genom att svänga förbi
-      planeterna. Visa farten i en panel så att hoppen vid varje passage syns –
-      det är själva förklaringen till hur de kunde nå så långt.
-- [x] **Skalan**: sonderna är i dag över 100 AU bort, tre gånger längre än
-      Neptunus. Kameran måste kunna zooma ut så långt, och då krymper hela
-      planetsystemet till en prick – vilket i sig är poängen. Sonderna bör också
-      gå att välja i fokusväljaren, annars är de svåra att hitta där ute.
+- [x] The same thing but around Earth: an ellipse from low Earth orbit out to
+      the Moon's distance, travel time about 3 days. Requires that the
+      spacecraft can orbit a planet instead of the Sun, much as the moons do
+      today.
 
-Milstolparna faller ut ur benen i stället för att matas in: varje ben börjar i
-en, och farthoppet är skillnaden mellan det avslutande och det påbörjade benets
-fart i samma punkt. De ritas som ringar längs spåret, med årtal – och för den
-sond som är vald i fokusväljaren med planetnamn, datum och farthopp. Årtalen
-går inte via etikettstaplingen som himlakropparna använder; elva passager som
-staplas nedåt hade blivit en textpelare tvärs över vyn, så ett årtal hoppas
-i stället över när det skulle hamna ovanpå ett som redan skrivits.
+The "Launch towards the Moon" button can be pressed on any day at all, and the
+view jumps to Earth at the same time – the whole lunar journey fits within
+0.003 AU and would otherwise be less than a pixel. The spacecraft orbits Earth
+instead of the Sun: the orbit is computed with Earth's gravitational parameter
+and placed in the Moon's own orbital plane. The launch takes place from a low
+orbit at 400 km altitude, which becomes the orbit's perigee.
 
-Väljer man en sond i fokusväljaren följer kameran den och zoomar ut till drygt
-två gånger sondens avstånd, så att solen precis ryms i bild och hela
-planetsystemet krymper till en prick. Kamerans tak höjdes från 25 000 till
-40 000 enheter (666 AU) för att det ska gå.
+A pure Hohmann orbit out to the Moon would take 4.95 days. To manage it in
+three, the spacecraft has to be launched with more speed, so that the far end of
+the orbit ends up 440,000–630,000 km away, that is, a good way beyond the Moon,
+and the Moon is caught up on the way out – before the turning point. That is
+exactly how Apollo flew.
 
-**Verifiera:** Farten ska hoppa uppåt vid varje passage och sedan sjunka långsamt
-medan sonden klättrar ur solens gravitation.
+**Verify:** The lunar journey should take about 3 days. A good contrast to Mars:
+the Moon is back in the same place every 27 days, so you can travel there more
+or less whenever you like.
 
-Kontrollerat: farten faller monotont på sista benet för alla fem sonderna.
-Voyager 1 går från 27,4 km/s strax efter uppskjutningen till 20,4 vid Saturnus
-1982, 17,7 år 1990 och 16,67 i dag – kurvan planar ut, precis som den ska när
-solens grepp avtar med avståndet. Hoppen vid passagerna: Pioneer 10 fick
-+12,1 km/s av Jupiter, Voyager 1 +10,8, Voyager 2 +10,0 och Pioneer 11 +7,1
-följt av +5,6 vid Saturnus. Två passager gav ingen fart alls: Neptunus tog
-2,3 km/s från Voyager 2, och Pluto tog 0,3 från New Horizons – dvärgplaneten är
-helt enkelt för lätt för att slunga något. Kameran klarar alla fem sonderna
-inom takhöjden, med solen kvar i bild.
+Checked: the travel time comes out at 3.00 days and the spacecraft meets the
+Moon to the metre for 40 launch dates spread over a year. The launch speed comes
+out at 10.84 km/s, which is the real speed at a launch towards the Moon (Apollo's
+rocket stage gave 10.8 km/s), and the speed falls to 0.6–0.9 km/s on arrival.
+The orbital plane coincides with the Moon's to within 0.02°.
 
 ---
 
-### 10.5 – Kretsande sonder
+### 9.5 – A panel during the journey, and arrival
 
-- [x] **Kretsande sonder** som Cassini vid Saturnus (1997–2017) och Juno vid
-      Jupiter – enklare fall, vanliga ellipser kring en planet.
+- [x] **Panel**: elapsed travel time, remaining time, distance left to the
+      destination and the spacecraft's speed.
+- [x] **Arrival**: the spacecraft meets its target and the journey is marked as
+      finished. Already done in 9.2: the spacecraft follows the planet after
+      arrival instead of being left standing where the planet happened to be,
+      and the label changes to "Spacecraft arrived".
+- [x] **The camera** follows it down to the planet on arrival.
 
-Not: Cassinis resa ut till Saturnus (1997–2004) gick via Venus, Venus, jorden
-och Jupiter, och de benen svarvar mer än ett helt varv kring solen. Sådana banor
-klarar inte Lambert-lösaren i 10.1, som bara hanterar mindre än ett varv. Därför
-visas Cassini från ankomsten 2004, och Juno från ankomsten 2016.
+The panel appears at the top left as soon as a spacecraft is on its way, and
+disappears when the journey is cancelled. On arrival it switches to travel time,
+arrival date and the speed on arrival. At the same moment the camera latches on
+to the spacecraft and zooms in to the destination – once, at the very instant of
+arrival, so that the user is then free to steer again. A new choice in the focus
+picker, or "Reset view", releases the grip.
 
-En viktig skillnad mot resten av etappen: de här två banorna är **inte**
-återskapade ur verkliga datum. Cassini flög nästan trehundra olika varv under
-tretton år, med omloppstider från en vecka till fyra månader och lutningar från
-ringplanet upp till 75 grader, så det finns ingen enda bana att visa. Det som
-ritas är ett representativt varv – storlek, form, omloppstid och banplan är
-verkliga, men var sonden befinner sig i banan ett givet datum är det inte.
-Banorna anges därför i planetradier och lutning mot planetens ekvator, vilket
-är måtten sådana här banor brukar beskrivas med, i stället för i banelement.
+**Verify:** The speed should vary along the orbit – fastest at launch near the
+Sun and slowest on arrival, exactly as Kepler's second law says.
 
-Lutningen räknas mot planetens ekvator och inte mot ekliptikan: en polär bana
-är 90 grader mot ekvatorn oavsett hur planeten själv lutar. Det ordnas genom att
-lägga lutningen till planetens egen med samma uppstigande nod – att vrida
-ekvatorsplanet ett kvarts varv kring nodlinjen ger just ett plan genom båda
-polerna.
-
-Banorna trycks ihop med samma faktor som planetens månar, annars skulle de
-försvinna inne i det förstorade klotet. Det blir riktigt även proportionellt:
-Cassinis varv är nästan exakt lika stort som Titans bana, och Junos sträcker sig
-drygt fyra gånger längre ut än Callisto.
-
-**Verifiera:** Cassinis varv kring Saturnus ska ta ett par tiotal dygn och Junos
-kring Jupiter ungefär 53 – och Junos bana ska gå över polerna, inte längs
-ekvatorn som månarnas.
-
-Kontrollerat: Cassini 16,00 dygn och Juno 53,42. Banplanen mätta mot planetens
-ekvator ger Cassini 20,0° och Juno 90,0°, alltså exakt polär, medan kontrollen
-Io ger 0,0° – månen ligger i ekvatorsplanet, precis som den ska. Junos fart vid
-perijovium blir 57,7 km/s, vilket stämmer med de omkring 58 km/s som gör Juno
-till det snabbaste föremål människan skickat i förhållande till en planet; vid
-apojovium är den nere i 0,54 km/s. Ett helt varv för tillbaka sonden till samma
-punkt på mindre än en meter.
-
-**Att tänka på:** ingen av de två syns vid appens startdatum. Cassini avslutades
-15 september 2017 genom att styras ned i Saturnus atmosfär, för att en sond med
-jordbakterier inte skulle riskera att en dag krascha på Enceladus med sitt hav
-under isen. För Juno är slutdatumet satt till det förlängda uppdragets planerade
-slut 30 september 2025; fortsatte det efter det är slutdatumet en rad att ändra
-i `ProbeData`. Vill man se dem får man alltså ställa datumet tillbaka – Cassini
-mellan 2004 och 2017, Juno mellan 2016 och 2025 – och välja Saturnus respektive
-Jupiter i fokusväljaren. Junos bana är så vid att man behöver zooma ut ett par
-steg för att se hela ellipsen.
+Checked: the speed falls monotonically the whole way, towards Mars from 33.14 to
+20.51 km/s and towards the Moon from 10.83 to 0.62 km/s. The distance to the
+Moon shrinks the whole way, but the distance to Mars first grows from 246 to
+409 million km before it falls – the spacecraft goes around the Sun after all,
+not straight towards the planet, and Mars is on the far side of the Sun at
+launch.
 
 ---
 
-### 10.6 – Välj vilka sonder som visas
+## Stage 10 – Voyager and the other space probes
 
-- [x] En väljare där varje sond kan bockas i för sig, i stället för dagens
-      kryssruta "Rymdsonder" som tänder och släcker allihop. Man ska kunna visa
-      bara Voyager 1, eller Voyager 1 och 2, eller vilken annan kombination som
-      helst.
-- [x] Valet ska gälla sondens allt: pricken, spåret och milstolparna.
-- [x] Släcks den sond som är vald i fokusväljaren faller fokus tillbaka till
-      solen. Kameran ska aldrig bli stående och följa något som inte ritas.
+The craft humanity has actually sent out. Stage 9 is about an imagined journey
+that the pupil steers; this one is about the real journeys, with real dates.
+Voyager 1 is the most distant object humans have built.
 
-Behovet kommer av 10.2–10.4. Fem sonder med spår och elva passageringar gör
-översikten rörig, och det mesta man vill titta på handlar om en eller två i
-taget: de båda Voyagersondernas motsatta lutningar ut ur ekliptikan, eller
-Pioneer 11:s omväg tvärs över solsystemet jämförd med Voyagernas raka väg. I dag
-är enda valet alla fem eller inga.
+The stage is the largest so far and is therefore split into five parts, each of
+which can be built and verified on its own – the same arrangement as stage 9.
 
-MAUI:s `Picker` kan bara välja ett alternativ, så en flervalslista finns inte
-färdig. Tre vägar, i tur och ordning från enklast till trevligast:
+The guiding idea for the whole stage: the probes' orbits are not built from
+entered orbital elements but from the real dates. Each leg of the journey is the
+orbit that goes from one planet to the next in exactly the time the flybys
+actually took, and it is computed from the app's own planetary positions. That
+way the probes end up at the right planet on the right day by themselves, and
+the gravity assist shows up as a jump in speed between two legs – which is
+precisely what it is.
 
-1. Fem kryssrutor rakt i kontrollpanelen. Enklast, men panelen är redan trång –
-   det var just därför rymdfärdsknapparna behövde en egen rad i 10.4.
-2. En knapp som fäller ut en ruta med kryssrutorna i, alltså en egenbyggd
-   rullgardin: en `Border` med en `VerticalStackLayout` som visas och döljs.
-   Håller nere bredden och är närmast det som efterfrågas.
-3. `CollectionView` med `SelectionMode="Multiple"` i samma utfällda ruta, om
-   markeringsläget känns bättre än kryssrutor.
+### 10.1 – Hyperbolic orbits in the Kepler code
 
-I koden räcker det inte längre med `ShowProbes` i `SolarSystemDrawable`, som är
-en enda av/på-flagga. Ritningen går i dag igenom `ProbeData.All`, så den behöver
-i stället fråga vilka sonder som är valda – förslagsvis en mängd med namnen,
-eller en `HashSet<Probe>`.
+- [x] **The hyperbolic Kepler equation**. The probes have been given so much
+      speed that they will never come back: their orbits have an eccentricity
+      greater than 1 and are therefore hyperbolas, not ellipses. Today
+      `SolveKepler` only solves `E - e*sin E = M`, which holds for ellipses. For
+      hyperbolas `e*sinh H - H = M` is needed, along with a position formula of
+      its own. This is the stage's only real piece of mathematics and should be
+      done first.
+- [x] **A conic from a state**. A probe changes orbit at every planetary flyby,
+      so the orbit has to be constructible from a position and a velocity
+      instead of from fixed orbital elements like the planets'. The same class
+      must handle both ellipses and hyperbolas; the semi-major axis becomes
+      negative for the latter.
+- [x] **The Lambert solver**: the orbit that goes from one position to another
+      in a given time. It is what makes it possible to build the probes from
+      real dates.
 
-Fokusväljaren bör därför bara lista de sonder som visas, så att man inte kan
-välja en sond som inte finns i bild. Det för med sig en sak att se upp med:
-väljarens innehåll blir föränderligt, medan `MainPage` i dag räknar ut vilken
-sond som är vald ur ett fast index – solen, planeterna och sedan `ProbeData.All`
-i tur och ordning. Den kopplingen måste byggas om så att den utgår från de
-synliga sonderna och görs om varje gång valet ändras, annars pekar indexet på
-fel sond så fort någon släcks.
+This lives in `Simulation/Kepler.cs`, `Simulation/Conic.cs` and
+`Simulation/Lambert.cs`. None of it is visible in the app yet – it is the core
+that 10.2 onwards builds on. Lambert uses universal variables, where a single
+variable z describes every conic: positive for ellipses, negative for hyperbolas
+and zero for the parabola in between. The travel time grows monotonically with
+z, so the right orbit is squeezed in by bisection.
 
-Byggt som väg 2 i listan ovan: knappen "Rymdsonder 7/7" fäller ut en ruta med en
-kryssruta per sond, namnen i sondens egen färg, plus "Alla" och "Inga" för att
-slippa sju klick. Rutan ligger som en egen ruta ovanpå vyn och inte i
-kontrollpanelen, dels för att panelen är trång, dels för att textstapeln där
-panelerna ligger är genomsläpplig för klick och kryssrutorna då inte hade gått
-att träffa. Raderna byggs ur sonddata, så en ny sond dyker upp i väljaren av sig
-själv.
+Two traps showed up along the way. The initial guess for the hyperbolic Kepler
+equation has to be arsinh(M/e) and not the more obvious M/(e-1): for orbits just
+above the parabola the latter becomes enormous, and sinh of a large number blows
+the floating-point range immediately. And below a certain limit for z there is
+no orbit at all – the conic simply does not reach – which the search has to
+count as "faster than everything else" so as not to get stuck there.
 
-De två kretsande sonderna från 10.5 kom med i samma väljare – de är också
-sonder, och den gamla kryssrutan styrde dem också. De står däremot inte i
-fokusväljaren, eftersom man tittar på dem genom att välja deras planet.
+**Verify:** Can be done entirely without a user interface. An orbit built from a
+state must give back the same position and speed it was built from. Lambert must
+reproduce the Mars orbit from 9.2, and a hyperbolic orbit must be computable
+both forwards and backwards in time.
 
-`ShowProbes` i `SolarSystemDrawable` är ersatt av `VisibleProbes`, en mängd med
-namnen på de sonder som ska ritas. Tom mängd släcker allihop, precis som den
-gamla kryssrutan gjorde.
+Checked: the hyperbolic Kepler equation is solved with a relative error below
+1e-12 in 66 cases, with eccentricities from 1.0001 to 12 and mean anomalies up
+to 4000, in both time directions. An orbit built from a state gives back the
+same position to within a couple of kilometres and the same speed to within a
+hundredth of a metre per second. All seven real probe legs that 10.2 and 10.3
+need can be solved, and the probe ends up at the right planet on the flyby day:
+the worst is Voyager 2 at Jupiter with 21,000 km, that is a third of a Jupiter
+radius, and the others are below 1,000 km. Five of the seven legs are hyperbolas.
 
-**Verifiera:** Bocka i bara Voyager 1 och kontrollera att spår, prick och
-milstolpar för de andra fyra försvinner, medan Voyager 1 ser ut precis som förut.
-Bocka i båda Voyagersonderna och luta kameran: nu ska de två motsatta vägarna ut
-ur ekliptikan gå att jämföra utan att Pioneersonderna och New Horizons ligger i
-vägen. Bocka ur allihop och jämför med hur vyn ser ut när dagens kryssruta
-"Rymdsonder" släcks – det ska vara samma bild.
+**Note:** Lambert simultaneously exposed a bug in stage 9.2. The Mars spacecraft
+there assumes that the journey sweeps the shortest way between origin and
+destination, but in all eight launch windows tested the shortest way is
+backwards around the Sun. The orbit therefore goes in the wrong direction, and
+would require 63 km/s relative to Earth instead of the real world's 3–4. The
+arrival at Mars is correct all the same, which is why it was not discovered
+earlier. The right solution is the same sweep angle but the other way round –
+190° instead of 170° – and you get it for free by letting `Mission` use the
+Lambert solver. The lunar journey in 9.4 is not affected; it builds its
+direction from the Moon's own orbit.
 
-Kontrollerat: fokusväljarens indexlogik provad i 22 fall mot riktig sonddata.
-Fällan som förutsågs i planen är den viktigaste: följer man Voyager 2 och
-släcker Voyager 1 flyttar Voyager 2 från plats 11 till plats 10 i väljaren, och
-eftersom valet bevaras på namn i stället för index följs rätt sond även efteråt.
-Släcker man den sond man följer faller fokus till solen och vyn zoomar ut till
-översikten; följer man en planet påverkas ingenting; "Inga" följt av "Alla" ger
-tillbaka utgångsläget.
+The fix is done: see the note under 9.3. Afterwards all five nearest windows go
+in the right direction, cost 2.90–3.20 km/s and fall in the same rhythm as the
+real Mars windows.
 
 ---
 
-## Etapp 11 – Ytor och rotation på övriga kroppar
+### 10.2 – Voyager 1 and 2
 
-Jorden har redan världsdelar, polarisar och verklig rotation. Samma teknik kan
-ge övriga kroppar sina kännetecken – de behöver inte vara lika detaljerade,
-men tillräckligt för att man ska känna igen dem och se att de snurrar.
+- [x] **Voyager 1 and Voyager 2** (launched in 1977) with real directions and
+      speeds. Voyager 2 is the only craft to have visited all four giant planets
+      – made possible by a planetary alignment that only comes round every 176
+      years.
+- [x] **Out of the ecliptic**: after Saturn, Voyager 1 bent off steeply upwards
+      (about 35°) and Voyager 2 downwards (about 48°). A good opportunity to
+      show that the solar system is a disc which the probes have now left.
+- [x] The probes are drawn in the view with their trails behind them.
 
-Ingen bildtextur behövs: jordgloben ritar långa/breda-polygoner direkt på
-klotytan, och gasjättarnas band blir faktiskt enklare än kontinenter eftersom
-de bara är latitudbälten. Etappen är uppdelad så att en eller två kroppar tas
-i taget.
+This lives in `Simulation/Probe.cs` and `Simulation/ProbeData.cs`, with the
+"Space probes" checkbox in the panel. No orbital elements are entered: each leg
+is the orbit that goes from one planet to the next in exactly the time the
+flybys took, and the last leg goes out to the probe's known position today
+(distance and direction on the sky). The inclination out of the ecliptic is
+therefore a result and not an input.
 
-Alla åtta planeter roterar – men flera gör det så egendomligt att det är värt
-en egen lektion: Venus snurrar baklänges och så långsamt att dess dygn (243
-jorddygn) är längre än dess år (225), Merkurius hinner exakt tre varv på två
-år, och månen roterar ett varv per omloppsbana och vänder därför alltid samma
-sida mot oss.
+**Verify:** Wind time to March 1979 – Voyager 1 should then be at Jupiter, not
+somewhere else. The same for Voyager 2 at Neptune in August 1989. Check today's
+distances against NASA's figures (Voyager 1 is around 167 AU and Voyager 2
+around 140 AU in 2026). Tilt the camera and see that the two Voyager probes have
+left the ecliptic in opposite directions.
 
-### 11.1 – Infrastruktur: generell globrendering
+Checked: all six planetary flybys hit the right planet on the right day, the
+worst being 602 km off at Neptune, that is two hundredths of a planetary radius.
+Today (August 2026) Voyager 1 is at 169 AU and Voyager 2 at 142 AU, with speeds
+of 16.7 and 15.0 km/s – NASA's figures are 167 and 140 AU together with 17.0 and
+15.4 km/s. The probes are inclined +35.6° and −47.9° respectively to the
+ecliptic, against the accepted 35° and 48°; since the inclination is not an
+input, that is a check that the whole chain holds together. Two of the eight legs
+are ellipses – precisely the two from Earth to Jupiter, because it was Jupiter
+that gave the probes enough speed never to come back. The rest are hyperbolas.
 
-- [x] Bryt ut `DrawEarthGlobe` till något alla kroppar kan använda, och
-      `EarthMap` till en ytkarta per kropp. Det rör sig om 73 respektive 98
-      rader, så själva utbrytningen är överkomlig. Det som kostar är att jorden
-      i dag är specialfall rakt igenom: axellutningen är en konstant i ritkoden
-      (`ObliquityRad`) och rotationen räknas ur stjärntid. Båda måste in i den
-      generella mekanismen utan att jorden ändrar utseende.
-- [x] Lägg rotationsdata på `CelestialBody`: rotationsperiod (negativ för
-      retrograd) och nollmeridianens läge vid epoken.
-- [x] **Axeldata för de kroppar som saknar den.** Planen utgick från att
-      polriktningarna redan fanns sedan månetapperna, och det stämmer för Mars,
-      Jupiter, Saturnus, Uranus och Neptunus – samt Pluto, vars plan ligger i
-      Charons banelement. Men Merkurius, Venus och månen har varken månar eller
-      ringar och därför ingen ekvatorsdata alls. Den måste läggas in innan 11.5
-      och 11.6 går att göra:
-      - Merkurius lutar 0,03°, alltså praktiskt taget upprätt.
-      - Venus lutar 177,4°, nästan upp och ner. Det är hela förklaringen till
-        att den snurrar baklänges, så den siffran är etappens viktigaste.
-      - Månen lutar 1,5° mot ekliptikan, 6,7° mot sin egen bana. (Planen hade
-        de två talen omkastade; rättat när axeln räknades fram.)
-      Observera att lutningen ensam inte bestämmer axeln – nodens läge behövs
-      också, precis som för de ekvatorsplan som redan finns.
-- [x] Passa på att flytta de befintliga ekvatorskonstanterna från
-      `SolarSystemData` till kropparna själva. I dag ligger de som lösa `const`
-      som månar, ringar och de kretsande sonderna hämtar var för sig – Cassini
-      och Juno sträcker sig ända in i `SolarSystemData.SaturnEquator...` för att
-      få tag i dem.
-- [x] Samma tröskel som i dag: ytan ritas först när klotet är stort nog.
+The speed jumps are already visible in the orbits, even though the panel that
+displays them belongs to 10.4: Jupiter gave Voyager 1 +10.8 km/s and Voyager 2
++10.0. At Neptune, Voyager 2 was *braked* by 2.3 km/s – the price of turning
+down towards the moon Triton, and the reason it left the ecliptic more steeply
+than its twin.
 
-Så här blev det: `BodyAxis` beskriver en kropps axel med samma fyra tal för alla
-– ekvatorns lutning mot ekliptikan, nodens longitud, rotationstiden och
-nollmeridianens läge vid epoken – och räknar fram de tre basvektorer som både
-ytritningen och ringarna behöver. `SurfaceMap` (före detta `EarthMap`) är en
-ytkarta bland flera, med jorden som första instans. `DrawGlobe` tar kartan och
-axeln i stället för att veta något om jorden, och `DrawBody` väljer mellan glob
-och skiva, numera även för ringplaneterna – de var tidigare utestängda från
-globgrenen och kunde alltså aldrig ha fått en yta.
+---
 
-**En konvention ändrades mot planen.** Här stod att rotationstiden skulle vara
-negativ för retrograda kroppar. Det gick inte ihop med resten: en negativ tid
-förutsätter att polen alltid pekar norrut om ekliptikan, men månarnas banplan är
-redan skrivna kring rotationsaxeln (Uranus månar lutar 97,7° just därför). Två
-konventioner i samma data hade krävt en omvändning varje gång en måne läser sin
-planets axel. Nu pekar polen alltid åt det håll högerhandsregeln ger, tiden är
-alltid positiv, och retrograd rotation syns som lutning över 90°: Venus 178,8°,
-Uranus 97,7°, Pluto 112,8°. Miranda kan läsa `UranusAxis` rakt av.
+### 10.3 – Pioneer 10 and 11, and New Horizons
 
-**Rättat i efterhand: alla ekvatorsnoder låg 180° fel.** Talen kom in under
-månetapperna, räknade som polens longitud *minus* 90° där det ska vara *plus*.
-Följden blev att varje planets ekvatorsplan lutade åt rakt motsatt håll: rätt
-lutning, rätt tidpunkter för dagjämningar och ringpassager, men fel halvklot
-vänt mot solen. Måne för måne, ring för ring, och även Charon och Triton.
-Felet var osynligt så länge ingenting ritades på ytorna – det är först nu, när
-axeln avgör vad man ser, som det hade märkts. Alla noder har flyttats 180°
-(Mars lutning rättades samtidigt från 26,74° till 25,40°).
+- [x] **Pioneer 10 and 11, and New Horizons** (Pluto 2015). Five craft are on
+      their way out of the solar system.
 
-**Verifiera:** Jorden ska se ut och rotera exakt som före ombyggnaden. Det är
-etappens viktigaste kontroll, eftersom allt annat bygger vidare på den koden.
-Månarnas och ringarnas plan ska också ligga kvar oförändrade när konstanterna
-flyttas – Uranus månar på högkant och Tritons retrograda bana är känsliga prov.
+Built the same way as the Voyagers in 10.2, with their real flyby dates:
+Pioneer 10 past Jupiter on 4 December 1973, Pioneer 11 past Jupiter on
+3 December 1974 and Saturn on 1 September 1979, New Horizons past Jupiter on
+28 February 2007 and Pluto on 14 July 2015.
 
-Kontrollerat utanför appen, mot den gamla koden och mot verkligheten:
+**Verify:** New Horizons should pass Pluto in July 2015 – and Pluto is then far
+outside the plane of the ecliptic, so it is also a test that the orbits really
+are computed in three dimensions.
 
-- **Jorden är oförändrad in på biten.** Nya axelkoden mot den gamla
-  stjärntidskoden, 10 punkter på jordytan × 9 datum mellan 1950 och 2054:
-  största avvikelse exakt 0. Inte "under en pixel" utan samma flyttal.
-- **Axlarna stämmer mot IAU:s polriktningar** för alla nio planeterna, avvikelse
-  0,000° – en oberoende väg fram till samma tal.
-- **Månarna ligger i sin planets ekvatorsplan**: Phobos, Deimos, de fyra
-  galileiska, Enceladus, Rhea, Titan, Uranus tre och Charon alla 0,00°.
-  Triton hamnar på 156,91° mot Neptunus ekvator, mot uppmätta 156,9 – och det
-  talet faller bara ut om både Neptunus nod och Tritons rättas.
-- **Årstiderna hamnar rätt**, vilket är provet som skiljer rätt nod från fel:
-  Uranus står 7,9° från solen i januari 1986 (Voyager 2 kom fram mitt i
-  sydsommaren) och 90,0° i december 2007 (dagjämningen, på månaden). Saturnus
-  63,3° i maj 2017 (nordsommarsolstånd under Cassinis sista varv, och 63,3 är
-  just 90 − 26,7) och 90,0° i maj 2025, då solen verkligen passerade ringplanet.
-  Jorden 66,6° vid midsommar 2026. Med de gamla noderna: Uranus 172,2° och
-  Saturnus 119,2°, alltså fel halvklot i sol båda gångerna.
-- **Månens bundna rotation** ger sub-jord-longitud −6,5° till +6,1° över 110 år,
-  mot den verkliga optiska librationen på ±6,3°. Ingen drift.
-- **Cassini och Juno är oförändrade** i förhållande till sin planet: 16,00 dygn
-  och 20,0° mot Saturnus ekvator, 53,42 dygn och 90,0° mot Jupiters, samma
-  excentriciteter som i 10.5. Deras banplan följde med när noderna rättades.
+Checked: all eleven planetary flybys hit the right planet on the right day. The
+worst is Voyager 2 at Neptune with 602 km; New Horizons meets Pluto at 319 km,
+which is a quarter of a Pluto radius. Today's positions agree with the known
+ones: Pioneer 10 at 142 AU with 11.8 km/s (the answer being ~140 AU and 11.9),
+Pioneer 11 at 120 AU with 11.3 km/s (~118 and 11.2), New Horizons at 65 AU with
+13.3 km/s (~63 and 13.9). All thirteen legs are prograde.
 
-Kvar att se med ögat: att jordgloben ritas som förut i appen. Siffrorna säger
-att den måste, men den står ändå i provlistan under R1.
+**A correction to the verification above:** in July 2015 Pluto was not below but
+just *above* the ecliptic, and not "far" measured as an angle – only 1.91°.
+Measured as a distance it is nevertheless 1.10 AU outside the plane, that is,
+more than Earth's entire orbital radius, so the three-dimensional test holds.
+Pluto was on its way down and crossed the plane a few years later. That the
+probe meets Pluto there, and not in the plane, is exactly what was to be shown.
+
+Pioneer 11 turned out to be the stage's interesting case. Jupiter did not fling
+it outwards but inwards and clean across the solar system: the orbit falls from
+4.97 AU in to 3.79 AU, goes half a lap around the Sun – from longitude 351° to
+167° – and then climbs out to Saturn at 9.38 AU, at most 11.6° above the
+ecliptic. The leg therefore sweeps 176°, dangerously close to the point where
+the orbital plane becomes undefined, but the solution hits Saturn to within
+144 km. That leg is an ellipse into the bargain: after Jupiter, Pioneer 11 did
+not have enough speed to leave the solar system, and would have come back had
+Saturn not flung it out. The same holds for Pioneer 10 and both Voyager probes
+at Jupiter – their first legs are ellipses, the rest hyperbolas. New Horizons is
+the exception: it was on a hyperbola right from launch, the fastest ever made.
+
+---
+
+### 10.4 – Milestones, panel and scale
+
+- [x] **The planetary flybys as milestones** with dates, e.g. Voyager 1 at
+      Jupiter in March 1979 and at Saturn in November 1980, Voyager 2 at Neptune
+      in August 1989. Can be shown as marked points along the orbit.
+- [x] **Gravity assist**: the probes gained speed by swinging past the planets.
+      Show the speed in a panel so that the jumps at each flyby are visible –
+      that is the very explanation of how they could reach so far.
+- [x] **The scale**: the probes are today more than 100 AU away, three times
+      farther than Neptune. The camera has to be able to zoom out that far, and
+      then the whole planetary system shrinks to a dot – which is itself the
+      point. The probes should also be selectable in the focus picker, otherwise
+      they are hard to find out there.
+
+The milestones fall out of the legs instead of being entered: each leg begins at
+one, and the speed jump is the difference between the ending and the beginning
+leg's speed at the same point. They are drawn as rings along the trail, with
+years – and, for the probe selected in the focus picker, with the planet's name,
+the date and the speed jump. The years do not go through the label stacking that
+the celestial bodies use; eleven flybys stacked downwards would have become a
+pillar of text right across the view, so a year is instead skipped when it would
+land on top of one already written.
+
+If you select a probe in the focus picker, the camera follows it and zooms out
+to a little over twice the probe's distance, so that the Sun just fits in the
+frame and the whole planetary system shrinks to a dot. The camera's ceiling was
+raised from 25,000 to 40,000 units (666 AU) to make that possible.
+
+**Verify:** The speed should jump upwards at every flyby and then slowly fall
+while the probe climbs out of the Sun's gravity.
+
+Checked: the speed falls monotonically on the last leg for all five probes.
+Voyager 1 goes from 27.4 km/s shortly after launch to 20.4 at Saturn in 1982,
+17.7 in 1990 and 16.67 today – the curve flattens out, exactly as it should when
+the Sun's grip weakens with distance. The jumps at the flybys: Pioneer 10 got
++12.1 km/s from Jupiter, Voyager 1 +10.8, Voyager 2 +10.0 and Pioneer 11 +7.1
+followed by +5.6 at Saturn. Two flybys gave no speed at all: Neptune took
+2.3 km/s from Voyager 2, and Pluto took 0.3 from New Horizons – the dwarf planet
+is simply too light to fling anything. The camera handles all five probes within
+the ceiling, with the Sun still in frame.
+
+---
+
+### 10.5 – Orbiting probes
+
+- [x] **Orbiting probes** such as Cassini at Saturn (1997–2017) and Juno at
+      Jupiter – simpler cases, ordinary ellipses around a planet.
+
+Note: Cassini's journey out to Saturn (1997–2004) went via Venus, Venus, Earth
+and Jupiter, and those legs wind more than a full lap around the Sun. The
+Lambert solver in 10.1 cannot handle such orbits, as it only deals with less
+than one lap. Cassini is therefore shown from its arrival in 2004, and Juno from
+its arrival in 2016.
+
+An important difference from the rest of the stage: these two orbits are **not**
+reconstructed from real dates. Cassini flew nearly three hundred different laps
+over thirteen years, with orbital periods from a week to four months and
+inclinations from the ring plane up to 75 degrees, so there is no single orbit
+to show. What is drawn is a representative lap – size, shape, orbital period and
+orbital plane are real, but where the probe is in the orbit on a given date is
+not. The orbits are therefore given in planetary radii and inclination to the
+planet's equator, which are the measures such orbits are usually described with,
+instead of in orbital elements.
+
+The inclination is measured against the planet's equator and not against the
+ecliptic: a polar orbit is 90 degrees to the equator regardless of how the
+planet itself is tilted. That is arranged by adding the inclination to the
+planet's own with the same ascending node – turning the equatorial plane a
+quarter turn about the node line gives precisely a plane through both poles.
+
+The orbits are compressed by the same factor as the planet's moons; otherwise
+they would disappear inside the magnified globe. It comes out right
+proportionally too: Cassini's lap is almost exactly the same size as Titan's
+orbit, and Juno's reaches a good four times farther out than Callisto.
+
+**Verify:** Cassini's lap around Saturn should take a couple of tens of days and
+Juno's around Jupiter about 53 – and Juno's orbit should go over the poles, not
+along the equator like the moons'.
+
+Checked: Cassini 16.00 days and Juno 53.42. The orbital planes measured against
+the planet's equator give Cassini 20.0° and Juno 90.0°, that is exactly polar,
+while the control case Io gives 0.0° – the moon lies in the equatorial plane,
+exactly as it should. Juno's speed at perijove comes out at 57.7 km/s, which
+agrees with the roughly 58 km/s that make Juno the fastest object humans have
+sent relative to a planet; at apojove it is down to 0.54 km/s. A full lap brings
+the probe back to the same point to within less than a metre.
+
+**Things to bear in mind:** neither of the two is visible at the app's start
+date. Cassini was ended on 15 September 2017 by being steered down into Saturn's
+atmosphere, so that a probe carrying terrestrial bacteria would not risk one day
+crashing on Enceladus with its ocean beneath the ice. For Juno the end date is
+set to the extended mission's planned end on 30 September 2025; if it continued
+after that, the end date is one line to change in `ProbeData`. To see them you
+therefore have to set the date back – Cassini between 2004 and 2017, Juno
+between 2016 and 2025 – and select Saturn or Jupiter respectively in the focus
+picker. Juno's orbit is so wide that you need to zoom out a couple of steps to
+see the whole ellipse.
+
+---
+
+### 10.6 – Choose which probes are shown
+
+- [x] A picker where each probe can be ticked individually, instead of today's
+      "Space probes" checkbox that turns them all on and off. It should be
+      possible to show only Voyager 1, or Voyager 1 and 2, or any other
+      combination at all.
+- [x] The choice should apply to everything about the probe: the dot, the trail
+      and the milestones.
+- [x] If the probe selected in the focus picker is turned off, focus falls back
+      to the Sun. The camera must never be left following something that is not
+      drawn.
+
+The need comes out of 10.2–10.4. Five probes with trails and eleven flybys make
+the overview cluttered, and most of what you want to look at concerns one or two
+at a time: the two Voyager probes' opposite inclinations out of the ecliptic, or
+Pioneer 11's detour across the solar system compared with the Voyagers' straight
+route. Today the only choice is all five or none.
+
+MAUI's `Picker` can only select one option, so a multiple-choice list does not
+come ready-made. Three routes, in order from simplest to nicest:
+
+1. Five checkboxes straight in the control panel. Simplest, but the panel is
+   already cramped – that was precisely why the space-flight buttons needed a
+   row of their own in 10.4.
+2. A button that unfolds a box with the checkboxes in it, that is, a home-made
+   drop-down: a `Border` with a `VerticalStackLayout` that is shown and hidden.
+   Keeps the width down and is closest to what is asked for.
+3. `CollectionView` with `SelectionMode="Multiple"` in the same unfolded box, if
+   the selection style feels better than checkboxes.
+
+In the code, `ShowProbes` in `SolarSystemDrawable` is no longer enough, being a
+single on/off flag. The drawing today goes through `ProbeData.All`, so it needs
+to ask instead which probes are selected – a set of the names, say, or a
+`HashSet<Probe>`.
+
+The focus picker should therefore only list the probes that are shown, so that
+you cannot select a probe that is not on screen. That brings one thing to watch
+out for: the picker's contents become variable, whereas `MainPage` today works
+out which probe is selected from a fixed index – the Sun, the planets and then
+`ProbeData.All` in order. That coupling has to be rebuilt so that it starts from
+the visible probes and is redone every time the selection changes; otherwise the
+index points at the wrong probe as soon as one is turned off.
+
+Built as route 2 in the list above: the button "Space probes 7/7" unfolds a box
+with one checkbox per probe, the names in the probe's own colour, plus "All" and
+"None" to save seven clicks. The box sits as a box of its own on top of the view
+and not in the control panel, partly because the panel is cramped, partly
+because the text stack where the panels sit lets clicks through and the
+checkboxes would then have been impossible to hit. The rows are built from probe
+data, so a new probe turns up in the picker by itself.
+
+The two orbiting probes from 10.5 came along into the same picker – they are
+probes too, and the old checkbox controlled them as well. They are not in the
+focus picker, however, since you look at them by selecting their planet.
+
+`ShowProbes` in `SolarSystemDrawable` has been replaced by `VisibleProbes`, a set
+of the names of the probes to be drawn. An empty set turns them all off, exactly
+as the old checkbox did.
+
+**Verify:** Tick only Voyager 1 and check that the trail, dot and milestones for
+the other four disappear, while Voyager 1 looks exactly as before. Tick both
+Voyager probes and tilt the camera: now the two opposite routes out of the
+ecliptic should be comparable without the Pioneer probes and New Horizons
+getting in the way. Untick them all and compare with how the view looks when
+today's "Space probes" checkbox is turned off – it should be the same picture.
+
+Checked: the focus picker's index logic tested in 22 cases against real probe
+data. The trap foreseen in the plan is the most important one: if you are
+following Voyager 2 and turn off Voyager 1, Voyager 2 moves from position 11 to
+position 10 in the picker, and since the selection is preserved by name instead
+of by index the right probe is still followed afterwards. If you turn off the
+probe you are following, focus falls to the Sun and the view zooms out to the
+overview; if you are following a planet, nothing is affected; "None" followed by
+"All" gives back the starting state.
+
+---
+
+## Stage 11 – Surfaces and rotation on the other bodies
+
+Earth already has continents, polar caps and real rotation. The same technique
+can give the other bodies their distinguishing marks – they do not have to be as
+detailed, but enough for you to recognise them and see that they spin.
+
+No image texture is needed: the Earth globe draws longitude/latitude polygons
+directly onto the sphere's surface, and the gas giants' bands are in fact
+simpler than continents since they are only latitude belts. The stage is divided
+up so that one or two bodies are taken at a time.
+
+All eight planets rotate – but several do it so oddly that it is worth a lesson
+of its own: Venus spins backwards and so slowly that its day (243 Earth days) is
+longer than its year (225), Mercury manages exactly three turns in two years,
+and the Moon rotates once per orbit and therefore always turns the same side
+towards us.
+
+### 11.1 – Infrastructure: general globe rendering
+
+- [x] Extract `DrawEarthGlobe` into something all bodies can use, and `EarthMap`
+      into one surface map per body. That amounts to 73 and 98 lines
+      respectively, so the extraction itself is manageable. What costs is that
+      Earth is today a special case all the way through: the axial tilt is a
+      constant in the drawing code (`ObliquityRad`) and the rotation is computed
+      from sidereal time. Both have to go into the general mechanism without
+      Earth changing appearance.
+- [x] Put rotation data on `CelestialBody`: rotation period (negative for
+      retrograde) and the position of the prime meridian at the epoch.
+- [x] **Axis data for the bodies that lack it.** The plan assumed that the pole
+      directions were already there from the moon stages, and that holds for
+      Mars, Jupiter, Saturn, Uranus and Neptune – as well as Pluto, whose plane
+      lies in Charon's orbital elements. But Mercury, Venus and the Moon have
+      neither moons nor rings and therefore no equatorial data at all. It has to
+      be entered before 11.5 and 11.6 can be done:
+      - Mercury is tilted 0.03°, that is, practically upright.
+      - Venus is tilted 177.4°, almost upside down. That is the whole
+        explanation for why it spins backwards, so that figure is the stage's
+        most important one.
+      - The Moon is tilted 1.5° to the ecliptic, 6.7° to its own orbit. (The
+        plan had the two numbers swapped; corrected when the axis was computed.)
+      Note that the tilt alone does not determine the axis – the node's position
+      is needed too, exactly as for the equatorial planes that already exist.
+- [x] Take the opportunity to move the existing equatorial constants from
+      `SolarSystemData` to the bodies themselves. Today they sit as loose
+      `const`s that the moons, the rings and the orbiting probes each fetch
+      separately – Cassini and Juno reach all the way into
+      `SolarSystemData.SaturnEquator...` to get hold of them.
+- [x] The same threshold as today: the surface is only drawn once the globe is
+      large enough.
+
+This is how it turned out: `BodyAxis` describes a body's axis with the same four
+numbers for all of them – the equator's tilt to the ecliptic, the node's
+longitude, the rotation period and the prime meridian's position at the epoch –
+and computes the three basis vectors that both the surface drawing and the rings
+need. `SurfaceMap` (formerly `EarthMap`) is one surface map among several, with
+Earth as the first instance. `DrawGlobe` takes the map and the axis instead of
+knowing anything about Earth, and `DrawBody` chooses between globe and disc, now
+for the ringed planets too – they were previously shut out of the globe branch
+and could therefore never have been given a surface.
+
+**One convention was changed relative to the plan.** It said here that the
+rotation period should be negative for retrograde bodies. That did not fit with
+the rest: a negative period presupposes that the pole always points north of the
+ecliptic, but the moons' orbital planes are already written around the rotation
+axis (Uranus's moons are inclined 97.7° for precisely that reason). Two
+conventions in the same data would have required an inversion every time a moon
+reads its planet's axis. Now the pole always points the way the right-hand rule
+gives, the period is always positive, and retrograde rotation shows up as a tilt
+over 90°: Venus 178.8°, Uranus 97.7°, Pluto 112.8°. Miranda can read `UranusAxis`
+directly.
+
+**Corrected afterwards: all the equatorial nodes were 180° wrong.** The numbers
+came in during the moon stages, computed as the pole's longitude *minus* 90°
+where it should be *plus*. The consequence was that every planet's equatorial
+plane was tilted in exactly the opposite direction: the right tilt, the right
+times for equinoxes and ring plane crossings, but the wrong hemisphere turned
+towards the Sun. Moon by moon, ring by ring, and Charon and Triton as well. The
+error was invisible as long as nothing was drawn on the surfaces – it is only
+now, when the axis determines what you see, that it would have been noticed. All
+the nodes have been moved 180° (Mars's tilt was corrected at the same time from
+26.74° to 25.40°).
+
+**Verify:** Earth must look and rotate exactly as before the rebuild. That is
+the stage's most important check, since everything else builds on that code. The
+moons' and rings' planes must also remain unchanged when the constants are
+moved – Uranus's moons on edge and Triton's retrograde orbit are sensitive tests.
+
+Checked outside the app, against the old code and against reality:
+
+- **Earth is unchanged to the letter.** The new axis code against the old
+  sidereal-time code, 10 points on Earth's surface × 9 dates between 1950 and
+  2054: largest deviation exactly 0. Not "below a pixel" but the same
+  floating-point numbers.
+- **The axes agree with the IAU's pole directions** for all nine planets,
+  deviation 0.000° – an independent route to the same numbers.
+- **The moons lie in their planet's equatorial plane**: Phobos, Deimos, the four
+  Galileans, Enceladus, Rhea, Titan, Uranus's three and Charon all 0.00°.
+  Triton comes out at 156.91° to Neptune's equator, against a measured 156.9 –
+  and that number only falls out if both Neptune's node and Triton's are
+  corrected.
+- **The seasons come out right**, which is the test that separates the right
+  node from the wrong one: Uranus stands 7.9° from the Sun in January 1986
+  (Voyager 2 arrived in the middle of the southern summer) and 90.0° in December
+  2007 (the equinox, to the month). Saturn 63.3° in May 2017 (northern summer
+  solstice during Cassini's last laps, and 63.3 is precisely 90 − 26.7) and 90.0°
+  in May 2025, when the Sun really did cross the ring plane. Earth 66.6° at
+  midsummer 2026. With the old nodes: Uranus 172.2° and Saturn 119.2°, that is,
+  the wrong hemisphere in sunlight both times.
+- **The Moon's tidally locked rotation** gives a sub-Earth longitude of −6.5° to
+  +6.1° over 110 years, against the real optical libration of ±6.3°. No drift.
+- **Cassini and Juno are unchanged** relative to their planet: 16.00 days and
+  20.0° to Saturn's equator, 53.42 days and 90.0° to Jupiter's, the same
+  eccentricities as in 10.5. Their orbital planes came along when the nodes were
+  corrected.
+
+Left to see with the eye: that the Earth globe is drawn as before in the app.
+The numbers say it must be, but it is in the test list under R1 all the same.
 
 ### 11.2 – Mars
 
-- [x] Rödbrun yta med de mörka områdena (Syrtis Major är det tydligaste),
-      vita polarisar och gärna Valles Marineris som ett streck.
-- [x] Rotation 24 h 37 min, nästan som jordens.
+- [x] A red-brown surface with the dark regions (Syrtis Major is the clearest),
+      white polar caps and preferably Valles Marineris as a line.
+- [x] Rotation 24 h 37 min, almost like Earth's.
 
-Kartan har tolv drag: Syrtis Major som den mörka triangeln kring 70° öst, Mare
-Acidalium, Sinus Sabaeus och Sinus Meridiani längs ekvatorn, Mare Erythraeum,
-Tyrrhenum, Cimmerium och Sirenum, Solis Lacus ("Mars öga"), Boreosyrtis vid
-Utopia, de ljusa högslätterna Hellas och Tharsis, samt Valles Marineris som ett
-streck. De mörka fälten är inte hav utan berggrund som vinden sopat ren från
-ljust damm – därför byter de långsamt form mellan stormsäsongerna.
+The map has twelve features: Syrtis Major as the dark triangle around 70° east,
+Mare Acidalium, Sinus Sabaeus and Sinus Meridiani along the equator, Mare
+Erythraeum, Tyrrhenum, Cimmerium and Sirenum, Solis Lacus ("the eye of Mars"),
+Boreosyrtis at Utopia, the bright highlands Hellas and Tharsis, and Valles
+Marineris as a line. The dark fields are not seas but bedrock that the wind has
+swept clean of bright dust – which is why they slowly change shape between storm
+seasons.
 
-Polarisarna ritas med samma utsträckning året om. I verkligheten andas de med
-årstiderna, men appen har ingen modell för frost, och det står i kodkommentaren.
+The polar caps are drawn with the same extent all year round. In reality they
+breathe with the seasons, but the app has no model for frost, and that is stated
+in the code comment.
 
-**Verifiera:** Polarisarna ska ligga still medan ytan snurrar under dem.
+**Verify:** The polar caps should stay still while the surface spins beneath
+them.
 
-Kontrollerat utanför appen:
+Checked outside the app:
 
-- **Polarisarna står stilla.** Över två marsdygn håller sig norra kalotten på
-  exakt 76,00° nord och den södra på 74,00° syd, medan Syrtis Major under samma
-  tid sveper 720,0°. Ytan snurrar alltså under kalotter som inte rör sig.
-- **Sex marslandningar hamnar på rätt tid av dygnet**, vilket provar både
-  nollmeridianen och åt vilket håll longituden räknas: Viking 1 15:43 (känt
+- **The polar caps stand still.** Over two Martian days the northern cap keeps
+  to exactly 76.00° north and the southern to 74.00° south, while Syrtis Major
+  sweeps 720.0° in the same time. The surface therefore spins beneath caps that
+  do not move.
+- **Six Mars landings come out at the right time of day**, which tests both the
+  prime meridian and which way longitude is counted: Viking 1 15:43 (known
   16:13), Viking 2 09:52 (09:49), Pathfinder 02:54 (03:07), Opportunity 13:18
-  (13:15), Curiosity 15:32 (14:53) och Perseverance 15:21 (15:53). Störst fel
-  40 minuter. De kända klockslagen är medelsoltid medan modellen räknar sann
-  soltid, och Mars tidsekvation når ±50 minuter – banan är så excentrisk
-  (e = 0,093) att solen ligger rejält före eller efter sin medelposition. Vore
-  longitudens tecken fel skulle de hamna 6–19 timmar bort; att Pathfinder faller
-  före gryningen och Viking 2 på morgonen medan de andra fyra faller på
-  eftermiddagen är det som binder tecknet.
-- **Marsdygnet stämmer i båda formerna**: stjärndygnet 24:37:22 mot kända
-  24:37:22, och soldygnet, mätt ur modellen som tiden mellan två middagar,
-  24:39:47 mot kända 24:39:35. Tolv sekunders fel, och skillnaden på drygt två
-  minuter mellan de två dygnen faller ut av sig själv – Mars hinner en bit i sin
-  bana medan den snurrar.
-- **Dragen ligger rätt på klotet**: polygonernas tyngdpunkter hamnar högst 3°
-  från de lägen de ska ha, alltså inom 200 km på Mars yta.
+  (13:15), Curiosity 15:32 (14:53) and Perseverance 15:21 (15:53). Largest error
+  40 minutes. The known times are mean solar time while the model computes true
+  solar time, and Mars's equation of time reaches ±50 minutes – the orbit is so
+  eccentric (e = 0.093) that the Sun is well ahead of or behind its mean
+  position. If the sign of the longitude were wrong they would land 6–19 hours
+  away; that Pathfinder falls before dawn and Viking 2 in the morning while the
+  other four fall in the afternoon is what pins the sign down.
+- **The Martian day is right in both forms**: the sidereal day 24:37:22 against
+  a known 24:37:22, and the solar day, measured from the model as the time
+  between two noons, 24:39:47 against a known 24:39:35. Twelve seconds of error,
+  and the difference of a good two minutes between the two days falls out by
+  itself – Mars covers a stretch of its orbit while it spins.
+- **The features lie correctly on the globe**: the polygons' centroids come out
+  at most 3° from the positions they should have, that is, within 200 km on the
+  Martian surface.
 
-**Utjämnade konturer i efterhand.** Ritade blev fälten synligt kantiga –
-femhörningar och sexhörningar snarare än fläckar. Mars albedogränser är diffusa
-dammgränser, så de rundas nu med Chaikins hörnkapning i två varv. Det är ett val
-per karta och inte en generell ändring: jordens kustlinjer ska förbli kantiga,
-och Jupiters band måste ha raka kanter för att fyrhörningarna inte ska glipa.
+**Smoothed outlines afterwards.** Once drawn, the fields were visibly angular –
+pentagons and hexagons rather than patches. Mars's albedo boundaries are diffuse
+dust boundaries, so they are now rounded with two rounds of Chaikin's corner
+cutting. It is a choice per map and not a general change: Earth's coastlines
+should remain angular, and Jupiter's bands must have straight edges so that the
+quadrilaterals do not gape.
 
-Longituderna vecklas ut till en sammanhängande följd innan hörnen kapas.
-Utan det skulle medelvärdet av 358° och 8° bli 183°, alltså rakt över på andra
-sidan klotet, och Sinus Meridiani ligger just över nollmeridianen.
+The longitudes are unwrapped into a continuous sequence before the corners are
+cut. Without that, the mean of 358° and 8° would become 183°, that is, straight
+across on the other side of the globe, and Sinus Meridiani lies exactly over the
+prime meridian.
 
-Kontrollerat efteråt: jordens karta oförändrad på 11 ytor och 507 punkter, Mars
-växer från 391 till 529 punkter, polarisarna ligger kvar på exakt 76,00° nord och
-74,00° syd utan hål i longitud, och dragens tyngdpunkter flyttar sig högst en
-grad (största avvikelse från uppmätt läge 4° mot 3° förut). Valles Marineris är
-fortfarande ett streck och inte en klump, vilket var den verkliga risken med att
-runda en smal figur.
+Checked afterwards: Earth's map unchanged across 11 surfaces and 507 points,
+Mars grows from 391 to 529 points, the polar caps remain at exactly 76.00° north
+and 74.00° south without gaps in longitude, and the features' centroids move at
+most one degree (largest deviation from the measured position 4° against 3°
+before). Valles Marineris is still a line and not a blob, which was the real
+risk in rounding a narrow figure.
 
 ### 11.3 – Jupiter
 
-- [x] Molnband i latitud, ljusa zoner och mörka bälten.
-- [x] Stora röda fläcken som en oval på södra halvklotet.
-- [x] Rotation på bara 9 h 55 min – snabbast i solsystemet trots att den är
-      störst. Går utmärkt att se i appen på låg hastighet.
+- [x] Cloud bands in latitude, bright zones and dark belts.
+- [x] The Great Red Spot as an oval in the southern hemisphere.
+- [x] A rotation of only 9 h 55 min – the fastest in the solar system despite
+      being the largest. Perfectly visible in the app at low speed.
 
-Sju band på sina vedertagna breddgrader, två polarområden, Stora röda fläcken
-och tre av de vita ovalerna på 41° syd. Ett band går inte att rita som en enda
-polygon – det är en ring med hål i – så varje band byggs av åtta fyrhörningar
-som överlappar en aning i kanterna, samma knep som ringarna redan använder.
-Polarområdena är däremot vanliga kalotter, precis som jordens isar.
+Seven bands at their accepted latitudes, two polar regions, the Great Red Spot
+and three of the white ovals at 41° south. A band cannot be drawn as a single
+polygon – it is a ring with a hole in it – so each band is built from eight
+quadrilaterals that overlap slightly at the edges, the same trick the rings
+already use. The polar regions, on the other hand, are ordinary caps, exactly
+like Earth's ice.
 
-**Röda fläckens longitud är vald på fri hand**, och det är en medveten
-förenkling som står i kodkommentaren. Fläcken driver västerut i förhållande till
-planetens inre rotation, ett helt varv på 3,7 år, och appen följer inte driften.
-Att fläcken finns, hur stor den är och hur den vandrar runt kanten stämmer; var
-den står ett givet datum gör det inte. Något annat vore svårt att göra rätt –
-driften har varit oregelbunden i över hundra år.
+**The Red Spot's longitude is picked freehand**, and that is a deliberate
+simplification stated in the code comment. The spot drifts westwards relative to
+the planet's interior rotation, a full lap in 3.7 years, and the app does not
+follow the drift. That the spot exists, how large it is and how it travels round
+the limb is right; where it stands on a given date is not. Anything else would
+be hard to get right – the drift has been irregular for over a hundred years.
 
-**Verifiera:** Röda fläcken ska försvinna runt kanten och komma tillbaka på
-andra sidan efter ungefär fem timmar simulerad tid.
+**Verify:** The Red Spot should disappear round the limb and come back on the
+other side after roughly five hours of simulated time.
 
-Kontrollerat utanför appen:
+Checked outside the app:
 
-- **Fläcken är borta 4 timmar 59 minuter** och synlig 4 timmar 56, sett från
-  jordens verkliga läge under tre dygn i mars 2026. Tillsammans 9 h 55 min 34 s,
-  alltså exakt ett varv. Att de två halvorna inte är riktigt lika långa är rätt:
-  Jupiter lutar 2,2° och jorden står inte i ekvatorsplanet.
-- **Rotationstiden** blir 09:55:29 mot System III:s 09:55:30, och Jupiter är
-  snabbast av alla kroppar i datan – 2,42 varv per jorddygn. Ekvatorn far fram i
-  12,3 km/s, tjugosju gånger jordens 0,46.
-- **Bandgränserna stämmer på tiondelen** mot de vedertagna: ekvatorialzonen
-  ±7°, norra ekvatorialbältet 7–17°, södra 20–7° syd, och de tempererade i par
-  ut mot polerna.
-- **Röda fläcken mäter 16 517 × 11 958 km**, mot uppmätta ungefär
-  16 000 × 12 000. Den är alltså bredare än jorden, vars diameter är 12 742 km –
-  vilket är hela poängen med att visa den.
-- **Kostnaden**: 62 ytor och 1 584 punkter, mot jordens 11 och 507. Tre gånger
-  så mycket, men bara medan man är inzoomad på Jupiter.
+- **The spot is gone for 4 hours 59 minutes** and visible for 4 hours 56, seen
+  from Earth's real position over three days in March 2026. Together 9 h 55 min
+  34 s, that is exactly one lap. That the two halves are not quite equally long
+  is correct: Jupiter is tilted 2.2° and Earth is not in the equatorial plane.
+- **The rotation period** comes out at 09:55:29 against System III's 09:55:30,
+  and Jupiter is the fastest of all the bodies in the data – 2.42 laps per Earth
+  day. The equator races along at 12.3 km/s, twenty-seven times Earth's 0.46.
+- **The band boundaries agree to the tenth** with the accepted ones: the
+  equatorial zone ±7°, the north equatorial belt 7–17°, the southern 20–7°
+  south, and the temperate ones in pairs out towards the poles.
+- **The Red Spot measures 16,517 × 11,958 km**, against a measured roughly
+  16,000 × 12,000. It is therefore wider than Earth, whose diameter is
+  12,742 km – which is the whole point of showing it.
+- **The cost**: 62 surfaces and 1,584 points, against Earth's 11 and 507. Three
+  times as much, but only while you are zoomed in on Jupiter.
 
-**Rättat efter att kartan setts ritad, två gånger.** Först var paletten för hård. Mörkbruna bälten mot
-gräddvitt gav en randig boll snarare än en planet – på fotografier är skillnaden
-mellan bälte och zon förvånansvärt liten, och det är mönstret som bär, inte
-kontrasten. Tonerna ligger nu nära varandra, röda fläcken är orange i stället för
-tegelröd, och polarområdet ritas i två steg (55° och 70°) eftersom en enda kalott
-blev en hård grå kupol på toppen.
+**Corrected after seeing the map drawn, twice.** First the palette was too hard.
+Dark brown belts against cream white gave a striped ball rather than a planet –
+in photographs the difference between belt and zone is surprisingly small, and
+it is the pattern that carries it, not the contrast. The tones now lie close
+together, the Red Spot is orange instead of brick red, and the polar region is
+drawn in two steps (55° and 70°) since a single cap became a hard grey dome on
+top.
 
-Andra gången var problemet ett annat: alla bälten var lika starka, vilket gav en
-strandboll. På ett foto dominerar de två ekvatorsbältena medan de tempererade
-knappt syns. Nu finns fem toner i stället för två, och bältena tonar bort mot
-polerna. Det är den versionen som är sedd i bild.
+The second time the problem was a different one: all the belts were equally
+strong, which gave a beach ball. In a photograph the two equatorial belts
+dominate while the temperate ones are barely visible. Now there are five tones
+instead of two, and the belts fade away towards the poles. That is the version
+seen in the picture.
 
-Kontrollerna gjordes genom att rita kartorna utanför appen med samma matematik –
-`BodyAxis.Direction`, samma kalottklippning, samma ortografiska projektion – med
-jordgloben som referens: känns Afrika igen är portningen trogen. Det bekräftade
-samtidigt två saker som siffror inte kunde avgöra: fyrhörningarnas fogar syns
-inte, och kalotterna fyller åt rätt håll.
+The checks were made by drawing the maps outside the app with the same
+mathematics – `BodyAxis.Direction`, the same cap clipping, the same orthographic
+projection – with the Earth globe as a reference: if Africa is recognisable, the
+port is faithful. That confirmed two things at once that numbers could not
+settle: the quadrilaterals' seams are invisible, and the caps fill in the right
+direction.
 
-### 11.4 – Saturnus, Uranus och Neptunus
+### 11.4 – Saturn, Uranus and Neptune
 
-- [x] Saturnus: svagare band än Jupiters, i gulbeige. Rotation 10 h 39 min.
-- [x] Uranus: nästan enfärgat blågrönt – poängen är att den är så slät.
-      Rotation 17 h 14 min, retrograd och på sidan.
-- [x] Neptunus: blå med Stora mörka fläcken. Rotation 16 h 06 min.
+- [x] Saturn: fainter bands than Jupiter's, in a yellowish beige. Rotation
+      10 h 39 min.
+- [x] Uranus: almost a single blue-green colour – the point is that it is so
+      smooth. Rotation 17 h 14 min, retrograde and on its side.
+- [x] Neptune: blue with the Great Dark Spot. Rotation 16 h 06 min.
 
-Bandbyggarna från 11.3 är utlyfta ur Jupiter-koden och delas nu av alla fyra
-jättarna: `Band`, `Cap` och `Oval`. Till dem kom `PolarPolygon`, som behövdes för
-en enda sak.
+The band builders from 11.3 have been lifted out of the Jupiter code and are now
+shared by all four giants: `Band`, `Cap` and `Oval`. To them was added
+`PolarPolygon`, which was needed for one single thing.
 
-**Saturnus sexhörning.** Kring nordpolen ligger en jetström som håller sex raka
-sidor, nästan 30 000 km tvärs över – upptäckt av Voyager 1980, fotograferad på
-nytt av Cassini, och den enda kända formen av sitt slag i solsystemet. Den står
-inte i planen, men den är för märklig för att utelämna när klotet ändå ritas.
-Kanterna måste räknas i planet sett rakt ovanifrån polen: två hörn på samma
-breddgrad förbundna med en latitudlinje ger en cirkelbåge som buktar åt fel håll,
-och figuren blir en cirkel.
+**Saturn's hexagon.** Around the north pole lies a jet stream that holds six
+straight sides, almost 30,000 km across – discovered by Voyager in 1980,
+photographed anew by Cassini, and the only known shape of its kind in the solar
+system. It is not in the plan, but it is too remarkable to leave out when the
+globe is being drawn anyway. The edges have to be computed in the plane seen
+straight down from the pole: two corners at the same latitude joined by a
+latitude line give a circular arc bulging the wrong way, and the figure becomes
+a circle.
 
-**Uranus fick två svaga band och en ljusare polkalott** trots att poängen är att
-den är slät. Skälet är praktiskt: utan minsta drag på ytan går det inte att se
-att planeten rullar, och det är hela behållningen med Uranus.
+**Uranus was given two faint bands and a lighter polar cap** even though the
+point is that it is smooth. The reason is practical: without the slightest
+feature on the surface it is impossible to see that the planet rolls, and that
+is the whole reward of Uranus.
 
-**Neptunus mörka fläck är ett tillstånd, inte ett drag.** Den är ritad som
-Voyager 2 såg den 1989, med sitt vita följeslagarmoln. När Hubble tittade efter
-1994 var den borta. Till skillnad från Jupiters röda fläck, som hållit i sig i
-århundraden, kommer och går Neptunus fläckar – det står i kodkommentaren.
+**Neptune's dark spot is a state, not a feature.** It is drawn as Voyager 2 saw
+it in 1989, with its white companion cloud. When Hubble looked in 1994 it was
+gone. Unlike Jupiter's Red Spot, which has persisted for centuries, Neptune's
+spots come and go – that is stated in the code comment.
 
-**Verifiera:** Uranus ska snurra kring en axel som ligger nästan i banplanet,
-så att ytan rullar i stället för att snurra.
+**Verify:** Uranus should spin about an axis that lies almost in the orbital
+plane, so that the surface rolls instead of spinning.
 
-Kontrollerat utanför appen:
+Checked outside the app:
 
-- **Uranus rullar.** Axeln ligger 97,8° från banplanets lodlinje, alltså bara 8°
-  från själva banplanet. Under ett varv kring solen vandrar solen mellan 82,2°
-  syd och 82,2° nord på planeten – den står nästan rakt över polerna vid
-  solstånden. Jämför jorden och Saturnus, där solen aldrig kommer längre än
-  23,4° respektive 26,7° från ekvatorn. Det är skillnaden mellan att rulla och
-  att snurra, i siffror.
-- **Rotationstiderna**: Saturnus 10:39:22 mot kända 10:39:22, Uranus 17:14:23 mot
-  17:14:24, Neptunus 16:06:36 mot 16:06:36.
-- **Sexhörningen är mätbart sexkantig.** Hörnen hamnar på 75,7° nord och
-  kantmitterna på 77,6° – en skillnad på 1,9°, vilket är precis vad en
-  regelbunden sexhörning ger. En cirkel hade gett 0,0°. Bredden hörn till hörn
-  blir 29 067 km mot uppmätta ungefär 29 000.
-- **Neptunus mörka fläck** mäter 12 989 × 6 618 km mot Voyagers ungefär
-  13 000 × 6 600, alltså jordstor (jordens diameter 12 742 km).
-- **Kostnaden**: Saturnus 61 ytor och 1 780 punkter, Neptunus 28 och 824, Uranus
-  17 och 488 – den släta planeten är också den billigaste att rita.
+- **Uranus rolls.** The axis lies 97.8° from the orbital plane's normal, that is,
+  only 8° from the orbital plane itself. Over one lap around the Sun, the Sun
+  travels between 82.2° south and 82.2° north on the planet – it stands almost
+  straight over the poles at the solstices. Compare Earth and Saturn, where the
+  Sun never gets farther than 23.4° and 26.7° respectively from the equator. That
+  is the difference between rolling and spinning, in numbers.
+- **The rotation periods**: Saturn 10:39:22 against a known 10:39:22, Uranus
+  17:14:23 against 17:14:24, Neptune 16:06:36 against 16:06:36.
+- **The hexagon is measurably hexagonal.** The corners come out at 75.7° north
+  and the edge midpoints at 77.6° – a difference of 1.9°, which is precisely what
+  a regular hexagon gives. A circle would have given 0.0°. The width corner to
+  corner comes out at 29,067 km against a measured roughly 29,000.
+- **Neptune's dark spot** measures 12,989 × 6,618 km against Voyager's roughly
+  13,000 × 6,600, that is, Earth-sized (Earth's diameter being 12,742 km).
+- **The cost**: Saturn 61 surfaces and 1,780 points, Neptune 28 and 824, Uranus
+  17 and 488 – the smooth planet is also the cheapest to draw.
 
-Sett i bild med samma kontroll som förut: Saturnus är tydligt mjukare än Jupiter,
-sexhörningen syns uppifrån, Uranus är nästan enfärgad men rullar synligt, och
-Neptunus fläck med följemoln sitter där den ska.
+Seen in the picture with the same check as before: Saturn is distinctly softer
+than Jupiter, the hexagon is visible from above, Uranus is almost a single colour
+but rolls visibly, and Neptune's spot with its companion cloud sits where it
+should.
 
-### 11.5 – Merkurius och Venus
+### 11.5 – Mercury and Venus
 
-- [x] Merkurius: grå och kraterrik, mycket lik månen. Rotation 58,6 dygn –
-      exakt tre varv på två av sina år, en 3:2-resonans med solen.
-- [x] Venus: inget av ytan syns, bara ett jämnt gulvitt moltack. Rotation
-      243 dygn **baklänges**, alltså längre än dess år på 225 dygn.
+- [x] Mercury: grey and cratered, very like the Moon. Rotation 58.6 days –
+      exactly three turns in two of its years, a 3:2 resonance with the Sun.
+- [x] Venus: none of the surface is visible, only an even yellowish-white cloud
+      deck. Rotation 243 days **backwards**, that is, longer than its year of
+      225 days.
 
-Merkurius har de fyra namngivna bassängerna på sina uppmätta lägen – Caloris,
-Beethoven, Rembrandt och Tolstoj – plus Kuiper och Debussy med sina ljusa
-strålsystem. De övriga fyrtiosex kratrarna är slumpade ur ett fast frö, så bilden
-blir densamma varje gång utan att någon behöver rita in dem för hand. Latituden
-dras ur arcsin så att de fördelar sig jämnt över klotet i stället för att klumpa
-ihop sig vid polerna.
+Mercury has the four named basins at their measured positions – Caloris,
+Beethoven, Rembrandt and Tolstoj – plus Kuiper and Debussy with their bright ray
+systems. The other forty-six craters are randomised from a fixed seed, so the
+picture comes out the same every time without anyone having to draw them in by
+hand. The latitude is drawn from arcsine so that they spread evenly over the
+globe instead of clumping together at the poles.
 
-**Venus fick strimmor trots att poängen är att den är slät**, och det är värt att
-vara tydlig med varför. Molntäcket är helt ogenomskinligt; i vanligt ljus är
-Venus en jämn skiva utan drag, och det tog radar från omloppsbana att kartlägga
-marken. Men utan något att följa med blicken går det inte att se att planeten
-roterar, och att den roterar baklänges är hela behållningen. Strimmorna är det
-Y-mönster som syns i ultraviolett ljus, återgivet så blekt att det knappt märks.
+**Venus was given streaks even though the point is that it is smooth**, and it
+is worth being clear about why. The cloud cover is completely opaque; in
+ordinary light Venus is an even disc without features, and it took radar from
+orbit to map the ground. But without something to follow with the eye it is
+impossible to see that the planet rotates, and that it rotates backwards is the
+whole reward. The streaks are the Y pattern visible in ultraviolet light,
+rendered so palely that it is barely noticeable.
 
-Med det följer en förenkling: **molnen far i verkligheten runt planeten på fyra
-dygn medan marken under tar 243.** Appen låter strimmorna följa marken, så det
-som visas är planetens rotation och inte molnens. Det är planetens rotation
-etappen handlar om, men den som tittar noga ser alltså moln som rör sig sextio
-gånger för långsamt. Står i kodkommentaren.
+With that comes a simplification: **in reality the clouds race around the planet
+in four days while the ground beneath takes 243.** The app lets the streaks
+follow the ground, so what is shown is the planet's rotation and not the clouds'.
+It is the planet's rotation the stage is about, but anyone looking closely will
+see clouds moving sixty times too slowly. Stated in the code comment.
 
-Utjämningen från 11.2 är avstängd för båda. Kratrarna är redan runda från `Oval`,
-och Venus Y-mönster innehåller ett band av fyrhörningar som måste behålla raka
-kanter – rundade hörn hade fått fogarna att glipa. Det upptäcktes när Merkurius
-karta först kostade 3 424 punkter; utan utjämning blev det 920.
+The smoothing from 11.2 is switched off for both. The craters are already round
+from `Oval`, and Venus's Y pattern contains a band of quadrilaterals that must
+keep straight edges – rounded corners would have made the seams gape. This was
+discovered when Mercury's map first cost 3,424 points; without smoothing it came
+to 920.
 
-**Verifiera:** Venus ska snurra åt motsatt håll mot alla andra planeter, och
-så långsamt att man behöver skruva upp hastigheten för att se det.
+**Verify:** Venus should spin the opposite way to all the other planets, and so
+slowly that you need to turn up the speed to see it.
 
-Kontrollerat utanför appen:
+Checked outside the app:
 
-- **Venus soldygn faller ut till 116,75 dygn**, exakt det kända värdet. Det är
-  provet som binder rotationsriktningen: för en planet som roterar rättvänt blir
-  soldygnet längre än stjärndygnet, men för Venus blir det *kortare* – 116,75 mot
-  243,02 – eftersom ytan går solen till mötes. Räknat för hand ger
-  1/243,02 + 1/224,70 samma 116,75, och det är en summa just för att de två
-  rörelserna är motriktade.
-- **Dygnet är längre än året**: 243,02 mot 224,70 dygn. En punkt på Venus ekvator
-  vrider sig 1,5 grader per timme mot jordens 15, alltså tio gånger långsammare –
-  därav att man måste skruva upp hastigheten.
-- **Merkurius 3:2-resonans stämmer exakt**: år delat med rotation blir 1,5000.
-  Soldygnet ur modellen blir 175,94 dygn = 2,000 merkuriusår. På Merkurius går
-  det alltså två år på ett dygn.
-- **Mariner 10 såg samma halva tre gånger.** Sondens bana var 176 dygn, alltså
-  precis ett merkuriusdygn, så samma sida låg i solljus vid varje förbiflygning –
-  därför är knappt halva planeten okänd från de bilderna. Modellen ger solen över
-  263,5°, 263,3° och 263,1° öst vid de tre passagerna i mars 1974, september 1974
-  och mars 1975. Under ett år vandrar den alltså 0,4 grader.
-- **Hela tabellen soldygn mot stjärndygn** pekar ut de tre retrograda: Venus
-  −126,3 dygn, Pluto −43 s, Uranus negativt. Jorden +237 s (väntat 236), Mars
-  +126 s, Merkurius +117,3 dygn. För Uranus och Neptunus rör det sig om ett par
-  sekunder, och mätfönstret täcker bara en procent av deras varv kring solen –
-  där är tecknet meningsfullt men storleken brus.
+- **Venus's solar day comes out at 116.75 days**, exactly the known value. That
+  is the test that pins down the rotation direction: for a planet that rotates
+  the right way round, the solar day is longer than the sidereal day, but for
+  Venus it is *shorter* – 116.75 against 243.02 – because the surface moves to
+  meet the Sun. Computed by hand, 1/243.02 + 1/224.70 gives the same 116.75, and
+  it is a sum precisely because the two motions are in opposite directions.
+- **The day is longer than the year**: 243.02 against 224.70 days. A point on
+  Venus's equator turns 1.5 degrees per hour against Earth's 15, that is, ten
+  times more slowly – hence having to turn up the speed.
+- **Mercury's 3:2 resonance is exact**: the year divided by the rotation comes
+  out at 1.5000. The solar day from the model comes out at 175.94 days = 2.000
+  Mercurian years. On Mercury, then, two years pass in one day.
+- **Mariner 10 saw the same half three times.** The probe's orbit was 176 days,
+  that is, precisely one Mercurian day, so the same side was in sunlight at every
+  flyby – which is why barely half the planet is unknown from those images. The
+  model puts the Sun over 263.5°, 263.3° and 263.1° east at the three flybys in
+  March 1974, September 1974 and March 1975. Over a year, then, it travels
+  0.4 degrees.
+- **The whole table of solar day against sidereal day** picks out the three
+  retrograde ones: Venus −126.3 days, Pluto −43 s, Uranus negative. Earth +237 s
+  (expected 236), Mars +126 s, Mercury +117.3 days. For Uranus and Neptune it is
+  a matter of a couple of seconds, and the measurement window covers only one per
+  cent of their lap around the Sun – there the sign is meaningful but the
+  magnitude is noise.
 
-### 11.6 – Månen och Pluto
+### 11.6 – The Moon and Pluto
 
-- [x] Månen: grå med de mörka haven (Mare Imbrium, Mare Tranquillitatis där
-      Apollo 11 landade) och ljusa kraterstrålar kring Tycho.
-- [x] **Bunden rotation**: månen roterar exakt ett varv per omloppsbana och
-      vänder därför alltid samma sida mot jorden. Det är en av de bästa
-      poängerna i hela appen att kunna visa.
-- [x] Pluto: Tombaugh Regio, det ljusa hjärtformade området som New Horizons
-      fotograferade 2015. Rotation 6,4 dygn, bunden till Charon.
+- [x] The Moon: grey with the dark seas (Mare Imbrium, Mare Tranquillitatis where
+      Apollo 11 landed) and bright crater rays around Tycho.
+- [x] **Tidal locking**: the Moon rotates exactly once per orbit and therefore
+      always turns the same side towards Earth. Being able to show that is one of
+      the best points in the whole app.
+- [x] Pluto: Tombaugh Regio, the bright heart-shaped region that New Horizons
+      photographed in 2015. Rotation 6.4 days, locked to Charon.
 
-Elva hav på månen med sina uppmätta lägen och storlekar, Tychos och Copernicus
-strålsystem, och Pluto med Tombaugh Regio, Cthulhu Macula och sin ljusa
-nordpolskalott. Den bundna rotationen kom redan med axeldatan i 11.1.
+Eleven seas on the Moon at their measured positions and sizes, Tycho's and
+Copernicus's ray systems, and Pluto with Tombaugh Regio, Cthulhu Macula and its
+bright north polar cap. The tidal locking already came with the axis data in 11.1.
 
-Till detta en ny hjälpare, `Streak`, som lägger ut ett smalt streck längs en
-**storcirkel** i en given kompassriktning. Det spelar roll: en stråle som går
-rakt norrut från Tycho på 43° syd och 1 400 km bort hamnar på helt olika ställen
-beroende på om man räknar i gradnätet eller på klotet. Samma hjälpare kommer att
-behövas för Europas sprickor i 11.7.
+To this a new helper, `Streak`, which lays out a narrow line along a **great
+circle** in a given compass direction. It matters: a ray going due north from
+Tycho at 43° south and 1,400 km away ends up in completely different places
+depending on whether you compute in the coordinate grid or on the sphere. The
+same helper will be needed for Europa's cracks in 11.7.
 
-**Rättad data: Charons fasläge.** Modellen visade Charon över longitud 171° på
-Pluto, alltså nästan rakt bort från nollmeridianen – trots att paret är
-tidvattenlåst och IAU definierar Plutos nollmeridian som den som pekar mot
-Charon. Felet låg inte i axeln utan i Charons medellongitud, som stod på 0,0 som
-platshållare sedan mångdatan skrevs (kommentaren där sade redan att faslägena var
-approximativa). Den är nu satt så att Charon hamnar över nollmeridianen. Följden
-är att Sputnik Planitia, kring 175° öst, vänder sig **bort** från Charon – och så
-ser det verkligen ut. Det är förmodligen ingen slump: slätten är tung nog att ha
-vridit hela Pluto på plats.
+**Corrected data: Charon's phase.** The model showed Charon over longitude 171°
+on Pluto, that is, almost straight away from the prime meridian – despite the
+pair being tidally locked and the IAU defining Pluto's prime meridian as the one
+pointing towards Charon. The error was not in the axis but in Charon's mean
+longitude, which had stood at 0.0 as a placeholder ever since the moon data was
+written (the comment there already said that the phases were approximate). It is
+now set so that Charon ends up over the prime meridian. The consequence is that
+Sputnik Planitia, around 175° east, turns **away** from Charon – and that really
+is how it looks. It is probably no coincidence: the plain is heavy enough to have
+turned the whole of Pluto into place.
 
-**Verifiera:** Zooma in på jorden och följ månen ett helt varv – samma sida
-ska vara vänd mot jorden hela tiden.
+**Verify:** Zoom in on Earth and follow the Moon for a full lap – the same side
+should be turned towards Earth the whole time.
 
-Kontrollerat utanför appen:
+Checked outside the app:
 
-- **Apollo 11-platsen försvinner aldrig runt kanten.** Mare Tranquillitatis på
-  8,5° nord och 31,4° öst står som mest 37,9° från jordriktningen, mätt varje
-  dygn i 110 år. Under 90° betyder synlig, och 38° betyder god marginal.
-- **Punkten mitt emot jorden håller sig mellan −6,5° och +6,1° longitud** över
-  samma 110 år, utan drift. Det är den optiska librationen, verkligt ±6,3°, som
-  är skälet till att vi ser 59 procent av månen i stället för halva.
-- **Baksidan saknar hav, och det faller ut av datan**: elva hav på kartan, noll
-  på baksidan. De ligger där för att det är där de finns.
-- **Charon står över longitud −1,3° till +1,3° på Pluto** under 110 år. Den lilla
-  vandringen är inte libration utan drift: Plutos rotation enligt IAU och Charons
-  omloppstid i vår data skiljer 0,60 sekunder per varv, vilket ger 2,3° per sekel.
-  Osynligt, men värt att veta att det är där.
-- **Storlekarna stämmer**: Oceanus Procellarum 2 571 km mot kända ungefär 2 500,
-  Mare Imbrium 1 146 mot 1 150, Sputnik Planitia 895 mot ungefär 1 000.
+- **The Apollo 11 site never disappears round the limb.** Mare Tranquillitatis at
+  8.5° north and 31.4° east stands at most 37.9° from the direction to Earth,
+  measured every day for 110 years. Below 90° means visible, and 38° means a good
+  margin.
+- **The point opposite Earth keeps between −6.5° and +6.1° longitude** over the
+  same 110 years, without drift. That is the optical libration, really ±6.3°,
+  which is the reason we see 59 per cent of the Moon instead of half.
+- **The far side has no seas, and that falls out of the data**: eleven seas on
+  the map, zero on the far side. They are there because that is where they are.
+- **Charon stands over longitude −1.3° to +1.3° on Pluto** over 110 years. That
+  small wandering is not libration but drift: Pluto's rotation according to the
+  IAU and Charon's orbital period in our data differ by 0.60 seconds per lap,
+  which gives 2.3° per century. Invisible, but worth knowing it is there.
+- **The sizes are right**: Oceanus Procellarum 2,571 km against a known roughly
+  2,500, Mare Imbrium 1,146 against 1,150, Sputnik Planitia 895 against roughly
+  1,000.
 
-Två saker fick göras om efter att kartorna setts ritade. **Tychos strålar** var
-åtta feta spikar med jämna mellanrum, 210 km breda, vilket gav en tecknad stjärna
-i stället för en krater; nu tolv smala med oregelbundna riktningar och längder.
-**Plutos grundton** var för ljus för att hjärtat skulle avteckna sig.
+Two things had to be redone after the maps were seen drawn. **Tycho's rays** were
+eight fat evenly spaced spikes, 210 km wide, which gave a cartoon star instead of
+a crater; now twelve narrow ones with irregular directions and lengths. **Pluto's
+base tone** was too bright for the heart to stand out.
 
-En tredje sak var mitt eget fel och rörde inte appen: kontrollsidan siktade
-kameran med en fast höjdvinkel och räknade bara ut kompassriktningen, vilket inte
-fungerar för en kropp vars axel lutar 113°. Hjärtat hamnade på baksidan och såg
-ut att saknas. Sidan siktar nu rakt på den punkt som ska stå mitt i bild.
-
----
-
-### 11.7 – De stora månarna
-
-De fyra galileiska månarna och Titan ritas redan som skivor när man zoomar in på
-sin planet, så de är stora nog att bära en yta. De har dessutom några av
-solsystemets mest särpräglade utseenden.
-
-- [x] Io: svavelgul och orangefläckig, den vulkaniskt mest aktiva kroppen i
-      solsystemet. Inga kratrar alls – ytan görs om hela tiden.
-- [x] Europa: nästan vit is, korsad av rödbruna sprickor. Slätast av allt vi
-      känner till.
-- [x] Ganymedes: gråbrun, med ljusa yngre områden mot mörka äldre. Solsystemets
-      största måne, större än Merkurius.
-- [x] Callisto: mörk och tätt kraterrik – den äldsta ytan av de fyra, som aldrig
-      förnyats.
-- [x] Titan: jämnt orange dis. Här ska ingen yta synas alls, precis som hos
-      Venus, eftersom atmosfären är ogenomskinlig.
-- [x] **Bunden rotation** för alla fem: de vänder samma sida mot sin planet,
-      precis som månen mot jorden. Mekanismen kommer från 11.6 och behöver bara
-      rotationsdata per måne.
-
-Alla fem ligger i sin planets ekvatorsplan, så axeldatan finns redan efter 11.1.
-
-**Titan fick medvetet ingen ytkarta.** Det är svaret på uppgiften, inte en lucka:
-dimman är ogenomskinlig och månen ritas som en jämnt orange skiva med ljus och
-skugga, precis som Venus. Axeln finns ändå med, eftersom bundenheten är sann
-oavsett om den syns.
-
-Longituden räknas från den punkt som pekar mot planeten. Nollan ligger mot
-planeten, 180° rakt bort, **270° mitt på den ledande halvan** och 90° på den
-eftersläpande. Det är inte bokföring utan fysik: Jupiters magnetfält roterar
-fortare än månarna hinner runt, sveper alltså förbi dem bakifrån, och bakar in
-svavel från Ios vulkaner i just den eftersläpande sidan. Därför är Europas
-eftersläpande halva mörkare och rödare, och Callistos ledande halva ljusare.
-
-Ny hjälpare `Annulus` ritar en ring kring en punkt på ytan, av samma skäl som
-molnbanden byggs av fyrhörningar: en ring har hål i sig och går inte att fylla.
-Den behövdes för Valhalla, märket efter Callistos största nedslag.
-
-**Verifiera:** Följ Io ett varv kring Jupiter – samma sida ska vara vänd mot
-planeten hela tiden, som månen mot jorden. Titan ska sakna synliga drag hur
-mycket man än zoomar, till skillnad från de andra fyra.
-
-Kontrollerat utanför appen:
-
-- **Io håller nollmeridianen mot Jupiter genom hela varvet.** Mätt var 45° i
-  banan avviker den som mest 0,5°, och den avvikelsen är inte ett fel utan
-  librationen: banan är elliptisk, så farten varierar medan rotationen är jämn.
-- **Librationen blir exakt 2e för alla fem**, vilket är vad teorin säger: Io
-  ±0,5°, Europa ±1,1°, Ganymedes ±0,1°, Callisto ±0,8°, Titan ±3,3°. Mätt varje
-  dygn i 110 år, utan någon drift.
-- **Färdriktningen pekar mot longitud 270°** för alla fem, alltså ligger den
-  ledande halvan där den ska. Europas mörkare fält har sin mitt på exakt 90° och
-  Callistos ljusare på 270° – rätt halva var.
-- **Valhallas ytterring** når 45° från mitten, vilket ger 3 786 km tvärs över mot
-  uppmätta ungefär 3 800.
-- **Ganymedes radie 2 634 km mot Merkurius 2 440**, alltså större än planeten,
-  vilket är själva poängen med den.
-
-Två saker fick göras om efter att kartorna setts ritade: Valhallas ringar var en
-skarp måltavla i stället för de svaga vågkammar man anar, och Callisto var för
-gles för att kallas mättat kraterrik (60 kratrar blev 110). Ganymedes fårknippen
-gick från tio till arton, eftersom ungefär halva månen är sådan terräng.
-
-### 11.8 – Månarna i fokusväljaren
-
-Kom till efter att 11.7 var klar, eftersom kartorna annars inte gick att granska:
-kameran kunde bara centreras på planeter, så en måne hann aldrig bli stor nog för
-en glob innan den lämnade bilden.
-
-- [x] Fokusväljaren listar varje planets månar under planeten, med en punkt
-      framför så att grupperingen syns i en lista som inte kan dra in rader.
-- [x] Månarna listas bara när de ritas. Släcker man kryssrutan "Månar" försvinner
-      de ur väljaren, och följde kameran en av dem faller fokus till solen –
-      samma regel som redan gällde för sonderna.
-- [x] Kameran siktar på det **ritade** läget, inte det verkliga. Månarna dras in
-      mot sin planet för att inte hamna utanför bild, och siktar man på den
-      verkliga positionen pekar kameran långt bredvid. Ritkoden fick därför en
-      `MoonPosition` som fokusväljaren delar med den.
-- [x] En vald måne får samma bildvinkel som en planet, alltså tolv gånger sin
-      egen radie. Utan det hamnar man antingen inuti månen eller så långt bort
-      att den bara blir en prick.
-- [x] `EarthFocusIndex`, som räknade platser i listan, är ersatt av en
-      namnuppslagning. Med månar och sonder som kommer och går i listan går det
-      inte längre att räkna sig fram till en rad.
-
-**Verifiera:** Välj en måne i fokusväljaren och se att kameran hamnar vid den,
-inte bredvid. Släck månarna medan en av dem följs och se att vyn faller tillbaka.
-
-Kontrollerat utanför appen, 38 kontroller utan fel:
-
-- **Listan byggs rätt**: 24 kroppar och 30 rader med allt påslaget, månen direkt
-  under jorden, Io under Jupiter, Charon under Pluto.
-- **Sondernas index håller trots femton nya rader emellan.** Det var den fällan
-  som fanns i 10.6, nu med en större förskjutning: alla fem sonder pekar rätt.
-- **Släcker man månarna** faller fokus från Ganymedes till solen, medan Jupiter
-  och Voyager 1 behålls – valet bevaras på namn, inte på plats.
-- **Alla månar med ytkarta blir 80 pixlars radie** vid det föreslagna avståndet,
-  mot tröskeln 14. Kartorna kommer alltså att synas, med god marginal.
-- **Månen ligger 2,9 planetradier ut och Ganymedes 6,3** vid det avstånd kameran
-  väljer, alltså utanför planeten och inne i bild.
-
-Phobos är undantaget: den är så liten att tolv gånger radien hamnar under
-kamerans minsta avstånd, så den blir en prick på tre pixlar. Det är samma sak som
-restpunkt R4 beskriver, och den har ingen ytkarta att visa ändå.
+A third thing was my own fault and did not concern the app: the check page aimed
+the camera with a fixed elevation angle and only computed the compass direction,
+which does not work for a body whose axis is tilted 113°. The heart ended up on
+the far side and looked to be missing. The page now aims straight at the point
+that should be in the middle of the frame.
 
 ---
 
-## Etapp 12 – Vad solsystemet mer har att visa
+### 11.7 – The large moons
 
-Fem tillskott och ett beslut, ordnade efter vad de ger delat med vad de kostar.
-De tre första vilar på sådant modellen redan klarar – det är kontrollerat, och
-siffrorna står under varje punkt. Den fjärde är inte en punkt att bygga utan ett
-arkitekturval att ta ställning till, och det är värt att läsa innan någon börjar
-med förmörkelser.
+The four Galilean moons and Titan are already drawn as discs when you zoom in on
+their planet, so they are large enough to carry a surface. They also have some of
+the most distinctive appearances in the solar system.
 
-### 12.1 – Planetkonstellationer: gå till nästa möte
+- [x] Io: sulphur yellow and orange-blotched, the most volcanically active body
+      in the solar system. No craters at all – the surface is remade all the time.
+- [x] Europa: almost white ice, criss-crossed by red-brown cracks. The smoothest
+      thing we know of.
+- [x] Ganymede: grey-brown, with bright younger regions against dark older ones.
+      The solar system's largest moon, larger than Mercury.
+- [x] Callisto: dark and densely cratered – the oldest surface of the four, never
+      renewed.
+- [x] Titan: an even orange haze. Here no surface should be visible at all,
+      exactly as with Venus, since the atmosphere is opaque.
+- [x] **Tidal locking** for all five: they turn the same side towards their
+      planet, exactly as the Moon does towards Earth. The mechanism comes from
+      11.6 and only needs rotation data per moon.
 
-En väljare i stil med startfönstren för Mars: "nästa opposition för Mars",
-"nästa gång Jupiter och Saturnus möts", "nästa gång alla planeter ligger på
-samma sida om solen". Man väljer, appen hoppar till datumet, och man ser
-ställningen uppifrån.
+All five lie in their planet's equatorial plane, so the axis data is already
+there after 11.1.
 
-- [x] Sökfunktion för konjunktion och opposition mellan två valda kroppar.
-      Samma form som `Mission.NextLaunchWindow`: stega dagvis, hitta minimum,
-      förfina. Den koden finns och är redan snabb nog för knapptryck.
-- [x] Knapp eller lista i kontrollpanelen som hoppar till nästa sådant datum.
-- [x] Visa avståndet vid tillfället – Mars är dubbelt så nära vid en gynnsam
-      opposition som vid en ogynnsam, och det är hela förklaringen till varför
-      somliga oppositioner blir stora nyheter.
+**Titan was deliberately given no surface map.** That is the answer to the task,
+not a gap: the haze is opaque and the moon is drawn as an evenly orange disc with
+light and shadow, exactly like Venus. The axis is included all the same, since
+the locking is true whether or not it is visible.
 
-**Kontrollerat i förväg:** alla fyra Mars-oppositioner 2025–2031 faller på rätt
-dygn ur modellen – 16 jan 2025 (0,644 AU), 19 feb 2027 (0,678), 25 mars 2029
-(0,649) och 4 maj 2031 (0,559) – mot verklighetens 16 jan, 19 feb, 25 mars och
-4 maj. Excentriciteten syns direkt i avstånden.
+Longitude is counted from the point that faces the planet. Zero lies towards the
+planet, 180° straight away, **270° in the middle of the leading half** and 90° on
+the trailing one. That is not bookkeeping but physics: Jupiter's magnetic field
+rotates faster than the moons get round, so it sweeps past them from behind, and
+bakes sulphur from Io's volcanoes into precisely the trailing side. That is why
+Europa's trailing half is darker and redder, and Callisto's leading half
+brighter.
 
-**Rättat i planen ovan: varningen om yttre konjunktioner behövdes inte.** Här
-stod att den stora konjunktionen Jupiter–Saturnus hamnar sju veckor fel och att
-datum för yttre konjunktioner därför borde visas med brasklapp. Det var mitt
-mätfel: jag jämförde planeternas *heliocentriska* longituder. En konjunktion är
-något man ser från jorden, och räknat därifrån hamnar den på rätt dag – 21
-december 2020, på 0,11 grader. Det är jordens eget läge som avgör när två
-planeter ser ut att mötas, och jordens läge är det modellen kan bäst.
+A new helper, `Annulus`, draws a ring around a point on the surface, for the same
+reason that the cloud bands are built from quadrilaterals: a ring has a hole in
+it and cannot be filled. It was needed for Valhalla, the mark left by Callisto's
+largest impact.
 
-Byggt som `Simulation/SkyEvent.cs`. Två sorters möte, en enda sökning: vid
-konjunktion minimeras vinkeln mellan de två kropparna sett från jorden, vid
-opposition minimeras hur långt planeten är från att stå rakt mitt emot solen.
-Grovsökning dagvis, sedan gyllene snittet ned till en minut. Väljaren har sex
-oppositioner (kropparna utanför jordens bana – Merkurius och Venus kan inte ha
-någon) och sex konjunktioner mellan de ljusa planeterna. En konjunktion räknas
-bara om kropparna kommer inom fem grader, alltså ungefär ett kikarfält.
+**Verify:** Follow Io for one lap around Jupiter – the same side should be turned
+towards the planet the whole time, like the Moon towards Earth. Titan should lack
+visible features however much you zoom, unlike the other four.
 
-Sökningen använder `PositionAuAt` i dubbel precision, som kom med R3.
+Checked outside the app:
 
-**Verifiera:** De fyra Mars-oppositionerna ovan ska hittas på rätt dygn av
-appens egen sökfunktion, inte bara av provprogrammet.
+- **Io keeps its prime meridian towards Jupiter through the whole lap.** Measured
+  every 45° in the orbit it deviates at most 0.5°, and that deviation is not an
+  error but the libration: the orbit is elliptical, so the speed varies while the
+  rotation is even.
+- **The libration comes out at exactly 2e for all five**, which is what the
+  theory says: Io ±0.5°, Europa ±1.1°, Ganymede ±0.1°, Callisto ±0.8°, Titan
+  ±3.3°. Measured every day for 110 years, without any drift.
+- **The direction of travel points towards longitude 270°** for all five, so the
+  leading half lies where it should. Europa's darker fields have their centre at
+  exactly 90° and Callisto's brighter one at 270° – the right half each.
+- **Valhalla's outer ring** reaches 45° from the centre, which gives 3,786 km
+  across against a measured roughly 3,800.
+- **Ganymede's radius 2,634 km against Mercury's 2,440**, that is, larger than
+  the planet, which is the very point of it.
 
-Kontrollerat utanför appen, 17 kontroller utan fel, allt genom `SkyEvent.Next`:
+Two things had to be redone after the maps were seen drawn: Valhalla's rings were
+a sharp target instead of the faint wave crests one can just make out, and
+Callisto was too sparse to be called saturated with craters (60 craters became
+110). Ganymede's groove bundles went from ten to eighteen, since about half the
+moon is that kind of terrain.
 
-- **De fyra Mars-oppositionerna på rätt dygn**: 2025-01-16 (0,644 AU),
-  2027-02-19 (0,678), 2029-03-25 (0,649) och 2031-05-04 (0,559).
-- **Tre väldokumenterade konjunktioner på rätt dygn**: stora konjunktionen
-  21 december 2020 på 0,11 grader (känt 0,10), Venus möter Jupiter 2 mars 2023
-  på 0,49 (känt 0,52) och Mars möter Jupiter 14 augusti 2024 på 0,30 (känt 0,31).
-- **Synodperioderna stämmer**, vilket är den kontroll som inte vilar på något
-  minne: tiden mellan två oppositioner ska vara planetens synodperiod. Över
-  tjugo mellanrum ger modellen Mars 781,2 dygn (känt 779,9), Jupiter 398,8
-  (398,9), Saturnus 378,3 (378,1), Uranus 369,7 (369,7), Neptunus 367,5 (367,5)
-  och Pluto 366,8 (366,7).
-- **Spridningen i de mellanrummen är i sig värd att se**: Mars varierar mellan
-  764 och 811 dygn medan Neptunus håller sig mellan 367 och 368. Ju rundare och
-  avlägsnare bana, desto jämnare takt. Det var också därför ett första prov över
-  bara fem mellanrum såg ut att missa Mars med fem dygn – för få stickprov.
-- **Trycker man igen kommer man vidare**: fem tryckningar ger 2027-02, 2029-03,
-  2031-05, 2033-06 och 2035-09, aldrig samma datum två gånger.
-- **Alla tolv valen ger svar**, och snabbt: längst tar Jupiter möter Saturnus på
-  10 ms, alla tolv tillsammans 14 ms. Den söker då fjorton år framåt.
-- **Mars oppositioner varierar mellan 0,382 och 0,678 AU** över sexton år, alltså
-  nästan dubbelt så långt bort vid en ogynnsam gång. Det är hela poängen med att
-  visa avståndet.
+### 11.8 – The moons in the focus picker
 
-### 12.2 – Heliopausen och solsystemets kant
+Came about after 11.7 was finished, since the maps could not otherwise be
+inspected: the camera could only be centred on planets, so a moon never had time
+to become large enough for a globe before it left the frame.
 
-Sonderna far redan ut ur solsystemet, men det syns inte var kanten går.
+- [x] The focus picker lists each planet's moons under the planet, with a bullet
+      in front so that the grouping is visible in a list that cannot indent rows.
+- [x] The moons are only listed when they are drawn. If you clear the "Moons"
+      checkbox they disappear from the picker, and if the camera was following one
+      of them, focus falls to the Sun – the same rule that already applied to the
+      probes.
+- [x] The camera aims at the **drawn** position, not the real one. The moons are
+      pulled in towards their planet so as not to end up outside the frame, and if
+      you aim at the real position the camera points far to one side. The drawing
+      code therefore got a `MoonPosition` that the focus picker shares with it.
+- [x] A selected moon gets the same field of view as a planet, that is, twelve
+      times its own radius. Without that you end up either inside the moon or so
+      far away that it is just a dot.
+- [x] `EarthFocusIndex`, which counted places in the list, has been replaced by a
+      name lookup. With moons and probes coming and going in the list it is no
+      longer possible to count your way to a row.
 
-- [x] En genomskinlig sfär vid 120 AU, ritad först när man zoomat ut nog för
-      att den ska rymmas. Det är där solvinden möter det interstellära mediet
-      och solens välde tar slut.
-- [x] Voyagernas genomgångar som milstolpar: 25 augusti 2012 och 5 november
-      2018. De är de enda två tillfällen någon farkost från jorden passerat den
-      gränsen.
-- [x] Gärna en notering om att kanten inte är en kula utan buktar – solsystemet
-      far genom det interstellära mediet och får en stötvåg framför sig.
+**Verify:** Select a moon in the focus picker and see that the camera ends up at
+it, not beside it. Turn off the moons while one of them is being followed and see
+that the view falls back.
 
-**Kontrollerat i förväg:** modellen sätter Voyager 1 på 120,1 AU vid sitt
-genomgångsdatum mot uppmätta 121,6, och Voyager 2 på 117,7 mot uppmätta 119,0.
-Inom en och en halv AU utan att någonting behöver läggas till – uppgifterna
-ligger redan i sonddatan.
+Checked outside the app, 38 checks without a single failure:
 
-Sfären ritas som en cirkel, men bara när kameran står **utanför** den. En kula
-sedd utifrån projiceras till en cirkel med vinkelradien arcsin(R/d), alltså
-R·f/√(d²−R²) på skärmen – det är inte samma sak som att projicera kanten rakt av.
-Innanför skulle den fylla hela bilden och bara bli en blå slöja, så den ritas
-först när den ryms i bild. Praktiskt betyder det bortom ungefär 290 AU, vilket
-man kommer till genom att välja en av de fyra yttersta sonderna i fokusväljaren.
+- **The list is built correctly**: 24 bodies and 30 rows with everything turned
+  on, the Moon directly under Earth, Io under Jupiter, Charon under Pluto.
+- **The probes' indices hold despite fifteen new rows in between.** That was the
+  trap present in 10.6, now with a larger shift: all five probes point correctly.
+- **If you turn off the moons**, focus falls from Ganymede to the Sun, while
+  Jupiter and Voyager 1 are kept – the selection is preserved by name, not by
+  position.
+- **All moons with a surface map get an 80-pixel radius** at the proposed
+  distance, against a threshold of 14. The maps will therefore be visible, with a
+  good margin.
+- **The Moon lies 2.9 planetary radii out and Ganymede 6.3** at the distance the
+  camera picks, that is, outside the planet and inside the frame.
 
-Milstolpen är en ny sort. Den har inget farthopp, för sonden passerade bara en
-gräns, och den beskrivs därför som "Passerade Heliopausen" i stället för
-"Förbi ... gav 10,8 km/s". Läget hämtas ur den bana sonden följde just den dagen,
-så gränsen hamnar där sonden verkligen var och inte där någon skrivit in att den
-var. Metoden `Probe.Crossing` läggs till efter `Build`, eftersom `Build` tar sina
-punkter som `params` och inte har plats kvar för fler sorters uppgifter.
+Phobos is the exception: it is so small that twelve times the radius falls below
+the camera's minimum distance, so it becomes a dot three pixels across. That is
+the same thing remaining item R4 describes, and it has no surface map to show
+anyway.
 
-**Verifiera:** Ställ datumet till 25 augusti 2012 med Voyager 1 vald. Sonden ska
-stå på sfären, inte innanför eller utanför den.
+---
 
-Kontrollerat utanför appen, 13 kontroller utan fel:
+## Stage 12 – What else the solar system has to show
 
-- **Sonderna står på sfären vid sina genomgångsdatum**: Voyager 1 på 120,1 AU
-  den 25 augusti 2012, Voyager 2 på 117,7 AU den 5 november 2018, mot sfärens
-  120. Ingenting har lagts till för att få det att stämma – uppgifterna låg
-  redan i sonddatan sedan etapp 10.
-- **De uppmätta genomgångarna var 121,6 och 119,0 AU**, alltså inte på samma
-  avstånd. Det är i sig poängen med noten om att kanten buktar: den ligger olika
-  långt ut åt olika håll, och 120 är ett runt tal mitt emellan.
-- **Milstolpen sitter rätt**: rätt datum, i tidsordning bland de andra
-  (Jorden → Jupiter → Saturnus → Heliopausen för Voyager 1, med Uranus och
-  Neptunus emellan för Voyager 2), noll farthopp, och läget stämmer på
-  kilometern med sondens egen position samma dag.
-- **De tre andra sonderna har ingen gränsmilstolpe**, vilket de inte ska ha –
-  Pioneer 11 och New Horizons är fortfarande innanför.
-- **Var sonderna står i dag**: Voyager 1 på 169,3 AU, Voyager 2 på 142,1 och
-  Pioneer 10 på 141,7 är utanför; Pioneer 11 på 119,6 och New Horizons på 64,9
-  är innanför. Att Pioneer 11 ligger så nära kanten är värt att titta på.
+Five additions and one decision, ordered by what they give divided by what they
+cost. The first three rest on things the model already handles – that has been
+checked, and the numbers are under each item. The fourth is not an item to build
+but an architectural choice to take a position on, and it is worth reading before
+anyone starts on eclipses.
 
-Kvar att se med ögat: hur den genomskinliga sfären tar sig ut. Geometrin är
-räknad men färgvalen är gissade, och gränsen för när den ritas – att cirkeln ska
-rymmas inom 55 procent av bildens kortaste sida – är satt på känsla.
+### 12.1 – Planetary alignments: go to the next meeting
 
-### 12.3 – Månbanans plan och nodernas vandring
+A picker along the lines of the launch windows for Mars: "the next opposition for
+Mars", "the next time Jupiter and Saturn meet", "the next time all the planets
+are on the same side of the Sun". You choose, the app jumps to the date, and you
+see the arrangement from above.
 
-Den ärliga versionen av förmörkelseidén – se 12.4 för varför den raka vägen inte
-går. Frågan som ska besvaras är inte *när* det blir förmörkelse utan *varför det
-inte blir det varje månad*.
+- [x] A search function for conjunctions and oppositions between two chosen
+      bodies. The same shape as `Mission.NextLaunchWindow`: step day by day, find
+      the minimum, refine. That code exists and is already fast enough for a
+      button press.
+- [x] A button or list in the control panel that jumps to the next such date.
+- [x] Show the distance at the moment – Mars is twice as close at a favourable
+      opposition as at an unfavourable one, and that is the whole explanation for
+      why some oppositions make big news.
 
-- [x] Lägg `AscNodeRateDegPerDay` på `CelestialBody`, så att ett banplan kan
-      vrida sig med tiden. Månens nod vandrar baklänges ett varv på 18,6 år,
-      alltså 19,4 grader per år.
-- [x] Samma fält kommer Triton till del. Kodkommentaren där säger redan att
-      dess banplan precesserar med ungefär 640 års period och att orienteringen
-      i datan är läget vid epoken snarare än en bestående egenskap.
-- [x] Ett läge som ritar ut månbanans plan mot ekliptikan och markerar de två
-      noderna, så att man ser att månen för det mesta passerar ovanför eller
-      under solen i stället för framför den.
+**Checked in advance:** all four Mars oppositions in 2025–2031 fall on the right
+day out of the model – 16 Jan 2025 (0.644 AU), 19 Feb 2027 (0.678), 25 Mar 2029
+(0.649) and 4 May 2031 (0.559) – against reality's 16 Jan, 19 Feb, 25 Mar and
+4 May. The eccentricity is visible directly in the distances.
 
-**Det blev två fält, inte ett.** `PerihelionRateDegPerDay` måste till samtidigt,
-och skälet är att medelanomalin räknas som medellongitud minus perihelielongitud.
-Låter man periheliet stå stilla medan noden rör sig får banan rätt plan men fel
-läge i planet. Med båda blir det dessutom rätt av sig själv: månens medellongitud
-går kvar sitt sideriska varv på 27,32 dygn medan medelanomalin går det
-anomalistiska på 27,55, och skillnaden mellan de två är precis perigeums rörelse.
+**Corrected in the plan above: the warning about outer conjunctions was not
+needed.** It said here that the great Jupiter–Saturn conjunction comes out seven
+weeks wrong and that dates for outer conjunctions should therefore be shown with
+a caveat. That was my own measurement error: I compared the planets'
+*heliocentric* longitudes. A conjunction is something you see from Earth, and
+computed from there it comes out on the right day – 21 December 2020, to within
+0.11 degrees. It is Earth's own position that determines when two planets appear
+to meet, and Earth's position is what the model knows best.
 
-Månen: noden −0,0529539 grader per dygn, perigeum +0,1114041. Triton: +0,00154,
-alltså framåt. Riktningen där följer av att banan är retrograd – Neptunus
-tillplattning vrider noden med en hastighet som går som cosinus för banlutningen,
-och lutningen är över 90 grader. Där de flesta månar får noden dragen baklänges
-vandrar Tritons framåt.
+Built as `Simulation/SkyEvent.cs`. Two kinds of meeting, a single search: for a
+conjunction the angle between the two bodies as seen from Earth is minimised, for
+an opposition how far the planet is from standing directly opposite the Sun is
+minimised. A coarse day-by-day search, then golden-section down to a minute. The
+picker has six oppositions (bodies outside Earth's orbit – Mercury and Venus
+cannot have one) and six conjunctions between the bright planets. A conjunction
+only counts if the bodies come within five degrees, that is, roughly a field of
+view in binoculars.
 
-Läget heter "Månbanan" och sitter i mötesraden. Det ritar månbanan, ekliptikans
-plan som en gul ring att jämföra mot, nodlinjen där de två skär varandra, och de
-två noderna utmärkta med namn.
+The search uses `PositionAuAt` in double precision, which came with R3.
 
-**Verifiera:** Följ noden över tjugo år – den ska gå ett helt varv baklänges på
-18,6 år. Månens banlutning mot ekliptikan ska ligga kvar på 5,1 grader hela
-tiden; det är bara nodens longitud som ändras.
+**Verify:** The four Mars oppositions above should be found on the right day by
+the app's own search function, not just by the test program.
 
-Kontrollerat utanför appen, 10 kontroller utan fel:
+Checked outside the app, 17 checks without a single failure, all through
+`SkyEvent.Next`:
 
-- **Ett varv baklänges på 18,61 år**: banpolen sveper −359,5 grader på 6798
-  dygn, mätt ur lägena och inte avläst ur datan. Noden står i dag på 329,3
-  grader mot 125,0 vid epoken.
-- **Bara noden rör sig**: banlutningen håller sig mellan 5,142 och 5,167 grader
-  över hela varvet.
-- **Perigeum ett varv på 8,85 år**, och den anomalistiska månaden faller ut till
-  27,5532 dygn mot kända 27,5546 – utan att någon skrivit in den.
-- **Ingenting annat påverkades**: Mars-fönstret ligger kvar på 21 oktober 2026
-  till 3,12 km/s och träffar Mars på noll kilometer, Voyager 1 går i 16,66 km/s
-  och passerar heliopausen på 120,1 AU. Den bundna rotationen och Apollo
-  11-platsens synlighet står också kvar.
+- **The four Mars oppositions on the right day**: 2025-01-16 (0.644 AU),
+  2027-02-19 (0.678), 2029-03-25 (0.649) and 2031-05-04 (0.559).
+- **Three well-documented conjunctions on the right day**: the great conjunction
+  on 21 December 2020 at 0.11 degrees (known 0.10), Venus meets Jupiter on
+  2 March 2023 at 0.49 (known 0.52) and Mars meets Jupiter on 14 August 2024 at
+  0.30 (known 0.31).
+- **The synodic periods are right**, which is the check that does not rest on any
+  memory: the time between two oppositions should be the planet's synodic period.
+  Over twenty intervals the model gives Mars 781.2 days (known 779.9), Jupiter
+  398.8 (398.9), Saturn 378.3 (378.1), Uranus 369.7 (369.7), Neptune 367.5
+  (367.5) and Pluto 366.8 (366.7).
+- **The spread in those intervals is itself worth seeing**: Mars varies between
+  764 and 811 days while Neptune keeps between 367 and 368. The rounder and more
+  distant the orbit, the steadier the beat. That was also why a first test over
+  only five intervals looked to miss Mars by five days – too few samples.
+- **Pressing again takes you further**: five presses give 2027-02, 2029-03,
+  2031-05, 2033-06 and 2035-09, never the same date twice.
+- **All twelve choices give an answer**, and quickly: the longest is Jupiter meets
+  Saturn at 10 ms, all twelve together 14 ms. It then searches fourteen years
+  ahead.
+- **Mars's oppositions vary between 0.382 and 0.678 AU** over sixteen years, that
+  is, almost twice as far away at an unfavourable one. That is the whole point of
+  showing the distance.
 
-**Kvar som förenkling: månens spinnaxel följer inte med noden.** Cassinis lag
-säger att axeln ska hålla konstant 6,7 grader mot banplanet; mätt varierar den
-mellan 3,6 och 6,7 över nodcykeln, alltså som mest 3,1 graders fel i axelns
-riktning. Att rätta det kräver att `BodyAxis` också får en nodhastighet, och att
-dagen trädas igenom hela ytritningen. Den bundna rotationen påverkas inte – den
-är kontrollerad och håller.
+### 12.2 – The heliopause and the edge of the solar system
 
-**Varför det är värt det:** med noden i rörelse glider förmörkelsesäsongerna
-nitton dygn bakåt varje år, och det är hela förklaringen till 18,6-årscykeln och
-till att saros finns. Den rörelsen blir riktig även om enskilda datum inte blir
-det.
+The probes already travel out of the solar system, but where the edge lies is not
+visible.
 
-**Verifiera:** Följ noden över tjugo år – den ska gå ett helt varv baklänges på
-18,6 år. Månens banlutning mot ekliptikan ska ligga kvar på 5,1 grader hela
-tiden; det är bara nodens longitud som ändras.
+- [x] A transparent sphere at 120 AU, drawn only once you have zoomed out enough
+      for it to fit. That is where the solar wind meets the interstellar medium
+      and the Sun's dominion ends.
+- [x] The Voyagers' crossings as milestones: 25 August 2012 and 5 November 2018.
+      They are the only two occasions on which any craft from Earth has passed
+      that boundary.
+- [x] Preferably a note that the edge is not a ball but bulges – the solar system
+      travels through the interstellar medium and gets a bow shock in front of it.
 
-### 12.4 – Förmörkelser (och varför de är svåra)
+**Checked in advance:** the model puts Voyager 1 at 120.1 AU at its crossing date
+against a measured 121.6, and Voyager 2 at 117.7 against a measured 119.0. Within
+one and a half AU without anything having to be added – the figures already lie
+in the probe data.
 
-**Skrivet om efter 12.3. Den utredning som stod här var för pessimistisk.**
+The sphere is drawn as a circle, but only when the camera is **outside** it. A
+ball seen from outside projects to a circle with the angular radius arcsin(R/d),
+that is, R·f/√(d²−R²) on the screen – which is not the same as projecting the
+limb straight off. From inside it would fill the whole frame and become nothing
+but a blue veil, so it is only drawn when it fits in the frame. In practice that
+means beyond about 290 AU, which you reach by selecting one of the four outermost
+probes in the focus picker.
 
-Här stod att två saker behövdes för förmörkelser: nodens vandring, och periodiska
-termer i månens läge. Nodrörelsen är gjord i 12.3, och sedan mättes vad den
-ensam räckte till. Svaret var mer än väntat.
+The milestone is a new kind. It has no speed jump, because the probe merely
+passed a boundary, and it is therefore described as "Crossed the heliopause"
+instead of "Past ... gave 10.8 km/s". The position is taken from the orbit the
+probe was following on that very day, so the boundary ends up where the probe
+really was and not where someone has written in that it was. The method
+`Probe.Crossing` is added after `Build`, since `Build` takes its points as
+`params` and has no room left for more kinds of data.
 
-**Av arton verkliga solförmörkelser mellan 1999 och 2030 hittar modellen alla,
-och sjutton av dem på rätt kalenderdag.** Den enda avvikelsen är 20/21 maj 2012,
-som korsade datumlinjen och dateras olika beroende på var man stod. Detta med
-enbart medelbanelement plus nodens och perigeums rörelse.
+**Verify:** Set the date to 25 August 2012 with Voyager 1 selected. The probe
+should stand on the sphere, not inside or outside it.
 
-Före 12.3 låg samma modell 9 till 18 grader fel vid dessa datum och hittade en
-enda "förmörkelse" under 2026, på fel dag. Slutsatsen att periodiska termer
-behövdes för att få *datum* rätt var alltså felaktig. Vad de behövs till är något
-annat, se nedan.
+Checked outside the app, 13 checks without a single failure:
 
-- [x] Beslut: ska månen få periodiska termer, eller ska appen nöja sig med
-      att förklara mekanismen (12.3) utan att förutsäga datum?
+- **The probes stand on the sphere at their crossing dates**: Voyager 1 at
+  120.1 AU on 25 August 2012, Voyager 2 at 117.7 AU on 5 November 2018, against
+  the sphere's 120. Nothing has been added to make it fit – the figures already
+  lay in the probe data from stage 10.
+- **The measured crossings were at 121.6 and 119.0 AU**, that is, not at the same
+  distance. That is itself the point of the note about the edge bulging: it lies
+  at different distances in different directions, and 120 is a round number in
+  between.
+- **The milestone sits correctly**: the right date, in chronological order among
+  the others (Earth → Jupiter → Saturn → the heliopause for Voyager 1, with
+  Uranus and Neptune in between for Voyager 2), zero speed jump, and the position
+  agrees to the kilometre with the probe's own position on the same day.
+- **The three other probes have no boundary milestone**, which they should not
+  have – Pioneer 11 and New Horizons are still inside.
+- **Where the probes stand today**: Voyager 1 at 169.3 AU, Voyager 2 at 142.1 and
+  Pioneer 10 at 141.7 are outside; Pioneer 11 at 119.6 and New Horizons at 64.9
+  are inside. That Pioneer 11 lies so close to the edge is worth a look.
 
-**Beslutet blev: inga periodiska termer.** De behövs inte för det appen kan
-använda dem till. Datumen är redan rätt, och nästa steg i noggrannhet – om
-förmörkelsen blir total, ringformig eller partiell, och var på jorden den syns –
-går ändå inte att nå med dem. Det avgörs av parallaxen från den plats betraktaren
-står på, alltså av var på jordklotet man befinner sig, och det är en helt annan
-sorts räkning än en bättre månbana. Appen visar solsystemet utifrån och har ingen
-betraktare på markytan.
+Left to see with the eye: how the transparent sphere comes across. The geometry
+is computed but the colour choices are guesses, and the limit for when it is
+drawn – that the circle should fit within 55 per cent of the frame's shortest
+side – is set by feel.
 
-Det som återstår är alltså inte matematik utan gränssnitt:
+### 12.3 – The plane of the Moon's orbit and the wandering of the nodes
 
-- [x] En lista med förmörkelsedatum att hoppa till, i stil med mötesväljaren i
-      12.1. Datumen kan sökas fram ur modellen på samma sätt som proven gjorde:
-      nymåne eller fullmåne med månen inom ett par grader från ekliptikan.
-- [x] Vid hoppet: slå på "Månbanan" automatiskt och zooma till jorden, så att man
-      ser att solen står vid nodlinjen just då. Det är förklaringen, och den är
-      värd mer än datumet i sig.
-- [x] Var tydlig med vad som inte visas: om förmörkelsen är total eller partiell,
-      och var på jorden. Det kräver en betraktare på markytan, vilket appen inte
-      har.
+The honest version of the eclipse idea – see 12.4 for why the direct route does
+not work. The question to be answered is not *when* there will be an eclipse but
+*why there is not one every month*.
 
-Ingen lista behövdes: förmörkelserna blev två poster till i mötesväljaren från
-12.1, och datumen räknas fram i stället för att skrivas in. Det är samma sökning
-som för konjunktioner och oppositioner, med två skillnader. Tröskeln är hårdare –
-1,55 grader för sol, vilket är solens och månens bredd plus den grad parallaxen
-kan flytta månen mellan olika platser på jorden, och 1,0 grader för måne, vilket
-är jordens kärnskugga minus månens egen radie. Och månens läge får inte behandlas
-som en planets: dess banelement är geocentriska, så dess läge **är** redan
-riktningen från jorden. Att dra bort jordens läge en gång till hade lagt jordbanan
-ovanpå månbanan.
+- [x] Add `AscNodeRateDegPerDay` to `CelestialBody`, so that an orbital plane can
+      turn with time. The Moon's node travels backwards, a full lap in 18.6 years,
+      that is, 19.4 degrees per year.
+- [x] The same field benefits Triton. The code comment there already says that its
+      orbital plane precesses with a period of roughly 640 years and that the
+      orientation in the data is the position at the epoch rather than a permanent
+      property.
+- [x] A mode that draws the plane of the Moon's orbit against the ecliptic and
+      marks the two nodes, so that you can see that the Moon mostly passes above
+      or below the Sun instead of in front of it.
 
-Klickar man fram en förmörkelse slås "Månbanan" och "Visa månar" på och kameran
-ställer sig vid jorden, så att man ser solen stå vid nodlinjen just den dagen.
-Etiketten säger rakt ut vad som inte visas: "typ och plats visas inte".
+**It became two fields, not one.** `PerihelionRateDegPerDay` had to come at the
+same time, and the reason is that the mean anomaly is computed as the mean
+longitude minus the longitude of perihelion. If you let the perihelion stand
+still while the node moves, the orbit gets the right plane but the wrong position
+in that plane. With both, it also comes out right by itself: the Moon's mean
+longitude still runs its sidereal lap of 27.32 days while the mean anomaly runs
+the anomalistic one of 27.55, and the difference between the two is precisely the
+motion of perigee.
 
-**Verifiera:** Modellens serie av förmörkelser ska stämma med verkligheten, inte
-bara enstaka datum.
+The Moon: node −0.0529539 degrees per day, perigee +0.1114041. Triton: +0.00154,
+that is, forwards. The direction there follows from the orbit being retrograde –
+Neptune's oblateness turns the node at a rate that goes as the cosine of the
+orbital inclination, and the inclination is over 90 degrees. Where most moons have
+their node dragged backwards, Triton's travels forwards.
 
-Kontrollerat utanför appen genom `SkyEvent.Next`, 5 kontroller utan fel:
+The mode is called "Lunar orbit" and sits in the meetings row. It draws the
+Moon's orbit, the plane of the ecliptic as a yellow ring to compare against, the
+node line where the two intersect, and the two nodes marked with names.
 
-- **Alla tio solförmörkelser 2024–2028 i exakt ordning**, ingen extra och ingen
-  missad: 8 apr 2024, 2 okt 2024, 29 mar 2025, 21 sep 2025, 17 feb 2026,
-  12 aug 2026, 6 feb 2027, 2 aug 2027, 26 jan 2028 och 22 jul 2028. Det är hela
-  serien, inte ett urval – även de partiella som knappt märks.
-- **Månförmörkelserna: sju funna, alla verkliga, inga falska larm.** En missas,
-  den 12 januari 2028, och det är en grund partiell som ligger precis vid
-  tröskeln. Det är gränsdragningen som avgör den, inte modellen.
-- **Mellanrummen är hela synodmånader**: 6, 6, 6, 5, 6, 6, 6, 6, 6 varv. Att ett
-  av dem är fem och inte sex är riktigt – förmörkelsesäsongerna kommer med 173
-  dygns mellanrum, vilket inte går jämnt upp i månvarv.
-- **Sarosperioden faller ut av sig själv.** Den totala solförmörkelsen över USA
-  den 21 augusti 2017 återkommer i modellen den 1 september 2035, alltså 6585
-  dygn senare mot sarosperiodens kända 6585,3. Babylonierna kände till den
-  perioden och kunde förutsäga förmörkelser med den; här kommer den ut ur
-  nodens och perigeums vandring utan att någon skrivit in den.
+**Verify:** Follow the node over twenty years – it should go a full lap backwards
+in 18.6 years. The Moon's orbital inclination to the ecliptic should stay at
+5.1 degrees the whole time; it is only the node's longitude that changes.
 
-### 12.5 – Halleys komet
+Checked outside the app, 10 checks without a single failure:
 
-Ett enda objekt med mycket att visa: excentricitet 0,967, retrograd bana och ett
-varv på 76 år som tar den från innanför Venus till utanför Neptunus.
+- **A full lap backwards in 18.61 years**: the orbital pole sweeps −359.5 degrees
+  in 6798 days, measured from the positions and not read off from the data. The
+  node stands today at 329.3 degrees against 125.0 at the epoch.
+- **Only the node moves**: the orbital inclination keeps between 5.142 and
+  5.167 degrees over the whole lap.
+- **Perigee a full lap in 8.85 years**, and the anomalistic month comes out at
+  27.5532 days against a known 27.5546 – without anyone having entered it.
+- **Nothing else was affected**: the Mars window is still on 21 October 2026 at
+  3.12 km/s and hits Mars at zero kilometres, Voyager 1 travels at 16.66 km/s and
+  crosses the heliopause at 120.1 AU. The tidal locking and the visibility of the
+  Apollo 11 site also still hold.
 
-- [x] Halley som en kropp med sina banelement. `Conic` klarar redan vilken
-      excentricitet som helst, så det mesta finns.
-- [x] Gärna en svans som pekar bort från solen och växer nära periheliet –
-      svansen ligger inte bakom komet i färdriktningen utan bort från solen,
-      vilket är en av de saker som är lättast att ha fel för sig om.
-- [x] Nästa perihelium är 2061. Med datumväljaren går det att resa dit.
+**Remaining as a simplification: the Moon's spin axis does not follow the node.**
+Cassini's law says the axis should hold a constant 6.7 degrees to the orbital
+plane; measured, it varies between 3.6 and 6.7 over the node cycle, that is, at
+most 3.1 degrees of error in the axis's direction. Correcting that requires
+`BodyAxis` to be given a node rate too, and the date to be threaded through the
+whole of the surface drawing. The tidal locking is not affected – it is checked
+and holds.
 
-**Verifiera:** Perihelium 9 februari 1986 på 0,586 AU och aphelium 1948 på
-35,1 AU, alltså utanför Neptunus bana.
+**Why it is worth it:** with the node in motion the eclipse seasons slide nineteen
+days backwards every year, and that is the whole explanation of the 18.6-year
+cycle and of why saros exists. That motion comes out right even if individual
+dates do not.
 
-**Utfall:** 15 av 15 kontroller.
+**Verify:** Follow the node over twenty years – it should go a full lap backwards
+in 18.6 years. The Moon's orbital inclination to the ecliptic should stay at
+5.1 degrees the whole time; it is only the node's longitude that changes.
 
-| kontroll | modell | facit |
+### 12.4 – Eclipses (and why they are hard)
+
+**Rewritten after 12.3. The investigation that stood here was too pessimistic.**
+
+It said here that two things were needed for eclipses: the wandering of the node,
+and periodic terms in the Moon's position. The node motion was done in 12.3, and
+then it was measured what that alone was enough for. The answer was more than
+expected.
+
+**Of eighteen real solar eclipses between 1999 and 2030 the model finds them all,
+and seventeen of them on the right calendar day.** The only deviation is
+20/21 May 2012, which crossed the date line and is dated differently depending on
+where you stood. This with nothing but mean orbital elements plus the motion of
+the node and of perigee.
+
+Before 12.3 the same model was 9 to 18 degrees off at these dates and found a
+single "eclipse" during 2026, on the wrong day. The conclusion that periodic
+terms were needed to get the *dates* right was therefore mistaken. What they are
+needed for is something else, see below.
+
+- [x] Decision: should the Moon be given periodic terms, or should the app settle
+      for explaining the mechanism (12.3) without predicting dates?
+
+**The decision was: no periodic terms.** They are not needed for what the app can
+use them for. The dates are already right, and the next step in accuracy –
+whether the eclipse will be total, annular or partial, and where on Earth it is
+visible – cannot be reached with them anyway. That is determined by the parallax
+from the place the observer is standing, that is, by where on the globe you are,
+and that is an entirely different sort of computation from a better lunar orbit.
+The app shows the solar system from outside and has no observer on the ground.
+
+What remains, then, is not mathematics but user interface:
+
+- [x] A list of eclipse dates to jump to, along the lines of the meetings picker
+      in 12.1. The dates can be searched out of the model the same way the tests
+      did: a new or full moon with the Moon within a couple of degrees of the
+      ecliptic.
+- [x] On the jump: switch on "Lunar orbit" automatically and zoom to Earth, so
+      that you see the Sun standing at the node line at that moment. That is the
+      explanation, and it is worth more than the date itself.
+- [x] Be clear about what is not shown: whether the eclipse is total or partial,
+      and where on Earth. That requires an observer on the ground, which the app
+      does not have.
+
+No list was needed: the eclipses became two more entries in the meetings picker
+from 12.1, and the dates are computed instead of written in. It is the same
+search as for conjunctions and oppositions, with two differences. The threshold
+is stricter – 1.55 degrees for the Sun, which is the width of the Sun and Moon
+plus the degree that parallax can shift the Moon between different places on
+Earth, and 1.0 degrees for the Moon, which is Earth's umbra minus the Moon's own
+radius. And the Moon's position must not be treated like a planet's: its orbital
+elements are geocentric, so its position **is** already the direction from Earth.
+Subtracting Earth's position once more would have laid Earth's orbit on top of
+the Moon's.
+
+If you click your way to an eclipse, "Lunar orbit" and "Show moons" are switched
+on and the camera positions itself at Earth, so that you see the Sun standing at
+the node line on that very day. The label says outright what is not shown: "type
+and location are not shown".
+
+**Verify:** The model's series of eclipses should agree with reality, not just
+individual dates.
+
+Checked outside the app through `SkyEvent.Next`, 5 checks without a single
+failure:
+
+- **All ten solar eclipses in 2024–2028 in exact order**, none extra and none
+  missed: 8 Apr 2024, 2 Oct 2024, 29 Mar 2025, 21 Sep 2025, 17 Feb 2026,
+  12 Aug 2026, 6 Feb 2027, 2 Aug 2027, 26 Jan 2028 and 22 Jul 2028. That is the
+  whole series, not a selection – including the partial ones that are barely
+  noticeable.
+- **The lunar eclipses: seven found, all real, no false alarms.** One is missed,
+  12 January 2028, and it is a shallow partial one lying right at the threshold.
+  It is the cut-off that decides it, not the model.
+- **The intervals are whole synodic months**: 6, 6, 6, 5, 6, 6, 6, 6, 6 laps. That
+  one of them is five and not six is correct – eclipse seasons come 173 days
+  apart, which does not divide evenly into lunar laps.
+- **The saros period falls out by itself.** The total solar eclipse across the USA
+  on 21 August 2017 recurs in the model on 1 September 2035, that is, 6585 days
+  later against the saros period's known 6585.3. The Babylonians knew that period
+  and could predict eclipses with it; here it comes out of the wandering of the
+  node and of perigee without anyone having entered it.
+
+### 12.5 – Halley's Comet
+
+A single object with much to show: eccentricity 0.967, a retrograde orbit and a
+lap of 76 years that takes it from inside Venus to outside Neptune.
+
+- [x] Halley as a body with its orbital elements. `Conic` already handles any
+      eccentricity at all, so most of it is there.
+- [x] Preferably a tail that points away from the Sun and grows near perihelion –
+      the tail does not lie behind the comet in the direction of travel but away
+      from the Sun, which is one of the things it is easiest to be wrong about.
+- [x] The next perihelion is in 2061. With the date picker you can travel there.
+
+**Verify:** Perihelion on 9 February 1986 at 0.586 AU and aphelion in 1948 at
+35.1 AU, that is, outside Neptune's orbit.
+
+**Outcome:** 15 of 15 checks.
+
+| check | model | reference |
 |---|---|---|
-| perihelium | 1986-02-09, 0,586 AU | 1986-02-09, 0,586 |
-| aphelium | 1948-05-18, 35,13 AU | 1948, 35,1 |
-| nästa perihelium | 2061-07-28 | 2061-07-28 |
-| fart i perihelium | 54,6 km/s | ~54 |
-| fart i aphelium | 0,91 km/s | ~0,9 |
-| närmast jorden 1986 | 10 april, 0,416 AU | 11 april, 0,42 |
+| perihelion | 1986-02-09, 0.586 AU | 1986-02-09, 0.586 |
+| aphelion | 1948-05-18, 35.13 AU | 1948, 35.1 |
+| next perihelion | 2061-07-28 | 2061-07-28 |
+| speed at perihelion | 54.6 km/s | ~54 |
+| speed at aphelion | 0.91 km/s | ~0.9 |
+| closest to Earth in 1986 | 10 April, 0.416 AU | 11 April, 0.42 |
 
-Den sista raden är den som betyder något. De fem första följer av de element som
-matats in, men mötet med jorden gör inte det – det beror på var jorden råkar
-vara, och att modellen träffar dagen och avståndet är en kontroll mot något den
-inte fått veta.
+The last row is the one that means something. The first five follow from the
+elements that were entered, but the meeting with Earth does not – it depends on
+where Earth happens to be, and that the model hits the day and the distance is a
+check against something it was not told.
 
-Två saker föll ut ur modellen snarare än in i den:
+Two things fell out of the model rather than into it:
 
-- **Svansen pekar bort från solen, inte bakåt.** Mätt som vinkeln mellan
-  riktningen bort från solen och färdriktningen: 138 grader sextio dygn före
-  periheliet, 42 grader sextio dygn efter. På vägen ut går kometen alltså med
-  svansen före, vilket är det som är lättast att ha fel för sig om.
-- **Halley är osynlig 74 år av 75.** Isen ångar först innanför 3 AU, och där
-  ligger kometen 368 dygn av sina 27 563 – 1,3 procent av varvet. Innanför 1 AU
-  är den 78 dygn. Talet är inte inskrivet någonstans utan mätt på banan.
+- **The tail points away from the Sun, not backwards.** Measured as the angle
+  between the direction away from the Sun and the direction of travel: 138 degrees
+  sixty days before perihelion, 42 degrees sixty days after. On the way out the
+  comet therefore travels tail first, which is the thing it is easiest to be wrong
+  about.
+- **Halley is invisible for 74 years out of 75.** The ice only vaporises inside
+  3 AU, and the comet is there for 368 days out of its 27,563 – 1.3 per cent of
+  the lap. Inside 1 AU it is there for 78 days. The number is not written in
+  anywhere but measured on the orbit.
 
-**Tillägg: "Halley i perihelium" i mötesväljaren.** Punkten ovan sade att man
-reser dit med datumväljaren, och det går – men mötesväljaren fanns redan och
-gör samma sak utan att man behöver kunna datumet utantill. Sex kontroller till:
+**Addition: "Halley at perihelion" in the meetings picker.** The item above said
+that you travel there with the date picker, and you can – but the meetings picker
+already existed and does the same thing without your having to know the date by
+heart. Six more checks:
 
-| kontroll | utfall |
+| check | outcome |
 |---|---|
-| hittar periheliet 1986 | samma minut som en direkt minimering |
-| nästa från dagens datum | 2061-07-28 |
-| fyra klick i rad | 1910-08-24, 1986-02-09, 2061-07-28, 2137-01-13 |
-| mellanrummen | 27 563, 27 563, 27 562 dygn |
+| finds the 1986 perihelion | the same minute as a direct minimisation |
+| the next one from today's date | 2061-07-28 |
+| four clicks in a row | 1910-08-24, 1986-02-09, 2061-07-28, 2137-01-13 |
+| the intervals | 27,563, 27,563, 27,562 days |
 
-Sökningen minimerar avståndet till solen i stället för en vinkel på himlen.
-Storheten har en annan enhet än de andra, men det spelar ingen roll – maskineriet
-letar dalläge, och ett avstånd har ett lika tydligt dalläge som en vinkel. Det är
-till och med lättare: en bana har exakt ett perihelium per varv, så det kan
-varken missas eller dubbelräknas.
+The search minimises the distance to the Sun instead of an angle on the sky. The
+quantity has a different unit from the others, but that makes no difference – the
+machinery looks for a minimum, and a distance has just as clear a minimum as an
+angle. It is even easier: an orbit has exactly one perihelion per lap, so it can
+neither be missed nor counted twice.
 
-Det som rapporteras är däremot medvetet inte solavståndet. Det är 0,586 AU varje
-gång – det är ju vad ett perihelium är – och säger därför ingenting om just den
-gången. Vad som skiljer besöken åt är var jorden råkar vara, och där ger modellen
-ett svar den inte fått veta:
+What is reported, on the other hand, is deliberately not the distance to the Sun.
+That is 0.586 AU every time – that is what a perihelion is, after all – and
+therefore says nothing about that particular occasion. What distinguishes the
+visits is where Earth happens to be, and there the model gives an answer it was
+not told:
 
-| | avstånd till jorden | elongation från solen |
+| | distance to Earth | elongation from the Sun |
 |---|---|---|
-| 9 februari 1986 | 1,55 AU | 8° |
-| 28 juli 2061 | 0,48 AU | 20° |
+| 9 February 1986 | 1.55 AU | 8° |
+| 28 July 2061 | 0.48 AU | 20° |
 
-**Det där är historien, uträknad.** 1986 års besök var det sämsta på tvåtusen år:
-vid periheliet stod Halley på andra sidan solen, åtta grader från den på himlen,
-alltså mitt i dagsljuset. Kometen blev inte något att se förrän två månader
-senare, den 10 april, och då på 0,42 AU. 2061 blir tvärtom: kometen står på
-samma sida som jorden och kommer som närmast 0,482 AU redan på perihelidagen,
-mot NASA:s förutsägelse 0,48 AU den 29 juli. Ingenting av det är inmatat.
+**That is the history, computed.** The 1986 visit was the worst in two thousand
+years: at perihelion Halley stood on the other side of the Sun, eight degrees from
+it on the sky, that is, in the middle of daylight. The comet did not become
+anything to look at until two months later, on 10 April, and then at 0.42 AU.
+2061 will be the opposite: the comet stands on the same side as Earth and comes as
+close as 0.482 AU on the perihelion day itself, against NASA's prediction of
+0.48 AU on 29 July. None of that is entered.
 
-**Val och förbehåll:**
+**Choices and caveats:**
 
-- **Elementen är förankrade i två perihelier**, 1986 och 2061, i stället för
-  hämtade ur en efemerid. Skälet är att en fast keplerbana inte kan träffa alla:
-  Halleys verkliga omloppstid varierar mellan 74 och 79 år, eftersom Jupiter och
-  Saturnus drar i kometen vid varje varv och gasstrålarna från den upphettade
-  kärnan knuffar den som en svag raket. Priset syns direkt – modellen lägger 1910
-  års perihelium i slutet av augusti i stället för den 20 april. Det står i
-  koden.
-- **Två svansar, inte en.** Jonsvansen är gas som solvinden river med sig rakt
-  bort från solen; dammsvansen är korn som är för tunga att ryckas med, behåller
-  kometens fart och släpar efter i banan. Skillnaden mellan dem är just den sak
-  punkten ovan handlar om, och den syns bara om båda ritas.
-- **Kaman ritas efter aktiviteten och inte efter kroppen.** Kärnan är 5 km bred
-  och skulle aldrig gå att se; det man ser i verkligheten är gasmolnet omkring,
-  som nära solen blir bredare än solen själv.
-- **Svansen har en minsta längd på skärmen.** 0,3 AU är stort mot jordens bana
-  men litet mot Halleys egen, så utzoomat vore svansen några pixlar. Riktningen
-  är den uträknade, bara längden är tilltagen – samma sorts eftergift som
-  planeternas förstoring.
-- **Av som standard.** Kometen är borta 74 år av 75, och dess bana är så
-  utdragen att den skymmer planeternas om den ligger kvar i bilden.
-- Kometen går att välja i fokusväljaren, vilket den behöver: utan kamera på
-  plats försvinner den ur bild i årtionden. Avståndet ramar in svansen och inte
-  kroppen.
-- **Hoppet till periheliet tänder kometen men rör inte kameran.** Att resa till
-  ett datum där kometen är släckt vore att resa till ingenting. Kameran lämnas
-  däremot i översikten, för det är där man ser vad som händer: att kometen dyker
-  in genom hela planetsystemet och ut igen. Vill man gå nära finns den i
-  fokusväljaren.
+- **The elements are anchored in two perihelia**, 1986 and 2061, instead of taken
+  from an ephemeris. The reason is that a fixed Kepler orbit cannot hit them all:
+  Halley's real orbital period varies between 74 and 79 years, because Jupiter and
+  Saturn tug at the comet on every lap and the gas jets from the heated nucleus
+  nudge it like a weak rocket. The price is visible immediately – the model puts
+  the 1910 perihelion at the end of August instead of on 20 April. That is stated
+  in the code.
+- **Two tails, not one.** The ion tail is gas that the solar wind tears away
+  straight from the Sun; the dust tail is grains that are too heavy to be carried
+  along, keep the comet's speed and trail behind along the orbit. The difference
+  between them is precisely what the item above is about, and it is only visible
+  if both are drawn.
+- **The coma is drawn after the activity and not after the body.** The nucleus is
+  5 km across and would never be visible; what you see in reality is the gas cloud
+  around it, which near the Sun becomes wider than the Sun itself.
+- **The tail has a minimum length on screen.** 0.3 AU is large against Earth's
+  orbit but small against Halley's own, so zoomed out the tail would be a few
+  pixels. The direction is the computed one, only the length is generous – the
+  same sort of concession as the planets' magnification.
+- **Off by default.** The comet is away for 74 years out of 75, and its orbit is
+  so drawn out that it obscures the planets' if it is left in the picture.
+- The comet can be selected in the focus picker, which it needs to be: without a
+  camera in place it disappears from the frame for decades. The distance frames
+  the tail and not the body.
+- **The jump to perihelion lights the comet up but does not move the camera.**
+  Travelling to a date where the comet is dark would be travelling to nothing. The
+  camera is left in the overview, however, because that is where you see what
+  happens: that the comet dives in through the whole planetary system and out
+  again. If you want to go close, it is there in the focus picker.
 
-### 12.6 – Solens rotation
+### 12.6 – The Sun's rotation
 
-Appen är tunnast just vid solen – den är en skuggad skiva. Rotationen är det
-som ger mest tillbaka.
+The app is thinnest right at the Sun – it is a shaded disc. The rotation is what
+gives the most back.
 
-- [x] Solen får en `BodyAxis` och en enkel ytkarta med några solfläckar.
-- [x] Rotationstid 25 dygn vid ekvatorn.
+- [x] The Sun gets a `BodyAxis` and a simple surface map with a few sunspots.
+- [x] A rotation period of 25 days at the equator.
 
-**Förbehåll som måste stå i koden:** solen roterar olika fort på olika
-breddgrader – 25 dygn vid ekvatorn, 34 vid polerna. Det är i sig en av de bästa
-sakerna att visa, men en enda rotationstid kan inte uttrycka det, så solfläckar
-på höga breddgrader kommer att driva fel. Antingen får det stå som en uttalad
-förenkling, eller så behöver ytan en egen mekanism där rotationen beror på
-latituden.
+**A caveat that has to be stated in the code:** the Sun rotates at different
+speeds at different latitudes – 25 days at the equator, 34 at the poles. That is
+itself one of the best things to show, but a single rotation period cannot express
+it, so sunspots at high latitudes will drift wrongly. Either it has to stand as a
+stated simplification, or the surface needs a mechanism of its own where the
+rotation depends on the latitude.
 
-**Verifiera:** En fläck vid ekvatorn ska komma tillbaka till samma läge efter
-25 dygn.
+**Verify:** A spot at the equator should come back to the same position after
+25 days.
 
-**Utfall:** 10 av 10 kontroller. Av de två vägarna i förbehållet valdes den
-andra: ytan fick en egen mekanism.
+**Outcome:** 10 of 10 checks. Of the two routes in the caveat, the second was
+chosen: the surface got a mechanism of its own.
 
-| kontroll | modell | facit |
+| check | model | reference |
 |---|---|---|
-| ekvatorns lutning | 7,252° | 7,25 |
-| varv vid ekvatorn | 25,03 dygn | ~25 |
-| varv vid 30° bredd | 26,39 dygn | 26,4 |
-| synodiskt varv, sett från jorden | 26,87 dygn | ~26,9 |
-| nordpolen mest mot oss | 8 september, B₀ = +7,25° | 7–8 september |
-| sydpolen mest mot oss | 6 mars, B₀ = −7,25° | 5–6 mars |
+| the equator's tilt | 7.252° | 7.25 |
+| a lap at the equator | 25.03 days | ~25 |
+| a lap at 30° latitude | 26.39 days | 26.4 |
+| a synodic lap, seen from Earth | 26.87 days | ~26.9 |
+| north pole most towards us | 8 September, B₀ = +7.25° | 7–8 September |
+| south pole most towards us | 6 March, B₀ = −7.25° | 5–6 March |
 
-De två sista raderna är de som betyder något. Lutningen 7,25 grader prövas mot
-sig själv, men **noden 75,77 prövas av ingenting annat** – och det är den som
-avgör vilken månad solens nordpol lutar mot oss. Att modellen lägger den i
-början av september och sydpolen i början av mars är alltså en kontroll av ett
-tal som inte gick att kontrollera på något annat sätt.
+The last two rows are the ones that mean something. The tilt of 7.25 degrees is
+tested against itself, but **the node of 75.77 is tested by nothing else** – and
+it is what determines which month the Sun's north pole leans towards us. That the
+model puts it at the beginning of September and the south pole at the beginning of
+March is therefore a check on a number that could not be checked any other way.
 
-**Differentiell rotation, på riktigt.** Solen roterar inte som ett stycke, och
-det är den enda kroppen i appen som inte gör det. Takten följer Newton och Nunns
-mätning på solfläckar från 1951:
+**Differential rotation, for real.** The Sun does not rotate as one piece, and it
+is the only body in the app that does not. The rate follows Newton and Nunn's
+measurement on sunspots from 1951:
 
-    ω(φ) = 14,38 − 2,96 · sin²φ  grader per dygn
+    ω(φ) = 14.38 − 2.96 · sin²φ  degrees per day
 
-Vad det ger, mätt i modellen:
+What that gives, measured in the model:
 
-| bredd | varv | följd |
+| latitude | lap | consequence |
 |---|---|---|
-| 0° | 25,03 dygn | |
-| 30° | 26,39 dygn | 0,74°/dygn långsammare än ekvatorn |
-| 35° | 26,85 dygn | |
+| 0° | 25.03 days | |
+| 30° | 26.39 days | 0.74°/day slower than the equator |
+| 35° | 26.85 days | |
 
-Två grupper som ligger på 8 och 22 graders bredd glider isär med 0,36 grader om
-dygnet. På ett år har den nedre dragit ifrån den övre med 131 grader, alltså en
-tredjedels varv. Det går att se i appen genom att zooma in på solen och stega
-fram månad för månad, och det är hela poängen med etappen: **en fast kropp kan
-inte göra så.** Att solen roterar olika fort på olika breddgrader är beviset för
-att den är gas rakt igenom.
+Two groups lying at 8 and 22 degrees of latitude drift apart by 0.36 degrees a
+day. Over a year the lower one has pulled ahead of the upper by 131 degrees, that
+is, a third of a lap. It can be seen in the app by zooming in on the Sun and
+stepping forward month by month, and it is the whole point of the stage: **a solid
+body cannot do that.** That the Sun rotates at different speeds at different
+latitudes is the proof that it is gas all the way through.
 
-**Val och förbehåll:**
+**Choices and caveats:**
 
-- **Rotationstiden är solfläckarnas, inte plasmans.** De två skiljer sig: mätt
-  med dopplerskift går ekvatorn på 24,5 dygn, mätt på solfläckar 25,0. Eftersom
-  det är fläckar som ritas är det fläckarnas takt som gäller. Det är också den
-  som ger de 25 dygn punkten ovan efterfrågar; Carringtons klassiska 25,38 är ett
-  tredje tal och gäller vid 26 graders bredd.
-- **Lagen gäller bara där fläckar finns**, alltså inom ±35 graders bredd.
-  Sträckt till polen ger den 31,5 dygn mot uppmätta 34. Det spelar ingen roll
-  här eftersom det bara är fläckar som ritas, men det vore fel att dölja.
-- **Vridningen tas per yta och inte per hörn.** En solfläcksgrupp följer med som
-  en klump, vilket är vad verkliga grupper gör. Läts varje hörn gå i sin egen
-  takt skulle en grupp som spänner över några breddgrader dras ut till en smet
-  på ett par år – och verkliga grupper hinner aldrig dit, de dör inom veckor.
-- **Fläckarna ligger stilla och finns för alltid.** I verkligheten lever en grupp
-  några veckor, antalet följer elvaårscykeln, och deras breddgrader vandrar mot
-  ekvatorn under cykelns gång – ritat i ett diagram blir mönstret det berömda
-  fjärilsparet. Kartan visar alltså hur solen ser ut ett år nära maximum.
-- **De är ritade något större än verkliga.** Sammanlagt täcker de synliga
-  fläckarna knappt en procent av skivan, mot ungefär en halv procent vid ett
-  starkt maximum. Mindre än så syns de inte: vid tröskeln på 30 bildpunkter är
-  den största gruppen knappt två pixlar bred.
-- **Fackelfälten är utelämnade.** De ljusa slöjorna kring fläckarna syns nästan
-  bara nära randen, där man ser snett genom gasen. En platt färgyta kan inte
-  uttrycka det.
-- **Nollmeridianen är en ren överenskommelse.** Solen har inga bestående drag att
-  räkna från – ingen krater, ingen kust, bara gas som byts ut. Carringtons
-  nollmeridian är inlagd för formens skull.
-- **Randmörkningen fanns redan.** Solskivan har alltid ritats med en gradient
-  från vitt i mitten till orange vid kanten, och det visar sig vara fysik och
-  inte utsmyckning: vid randen ser man snett in i gasen och når bara de övre,
-  svalare lagren.
+- **The rotation period is the sunspots', not the plasma's.** The two differ:
+  measured with Doppler shift the equator goes in 24.5 days, measured on sunspots
+  25.0. Since it is spots that are drawn, it is the spots' rate that applies. It
+  is also the one that gives the 25 days the item above asks for; Carrington's
+  classic 25.38 is a third number and applies at 26 degrees of latitude.
+- **The law only holds where there are spots**, that is, within ±35 degrees of
+  latitude. Stretched to the pole it gives 31.5 days against a measured 34. That
+  makes no difference here since only spots are drawn, but it would be wrong to
+  conceal.
+- **The turning is taken per surface and not per corner.** A sunspot group comes
+  along as a lump, which is what real groups do. If every corner were allowed to
+  go at its own rate, a group spanning a few degrees of latitude would be drawn
+  out into a smear over a couple of years – and real groups never get that far,
+  they die within weeks.
+- **The spots stand still and last forever.** In reality a group lives a few
+  weeks, the number follows the eleven-year cycle, and their latitudes travel
+  towards the equator over the course of the cycle – drawn in a diagram the
+  pattern becomes the famous butterfly pair. The map therefore shows how the Sun
+  looks in a year near maximum.
+- **They are drawn somewhat larger than the real ones.** Altogether the visible
+  spots cover barely one per cent of the disc, against roughly half a per cent at
+  a strong maximum. Any smaller and they are invisible: at the threshold of
+  30 pixels the largest group is barely two pixels wide.
+- **The faculae are left out.** The bright veils around the spots are visible
+  almost only near the limb, where you look obliquely through the gas. A flat
+  colour surface cannot express that.
+- **The prime meridian is a pure convention.** The Sun has no permanent features
+  to count from – no crater, no coastline, only gas that is replaced. Carrington's
+  prime meridian is put in for form's sake.
+- **The limb darkening was already there.** The solar disc has always been drawn
+  with a gradient from white in the middle to orange at the edge, and that turns
+  out to be physics and not decoration: at the limb you look obliquely into the
+  gas and only reach the upper, cooler layers.
 
 ---
 
-## Etapp 13 – Publik release
+## Stage 13 – Public release
 
-Två delar som hör ihop utan att bero på varandra: att appen går att visa på fler
-språk än svenska, och att koden går att lägga ut öppet. De kan tas i vilken
-ordning som helst.
+Two parts that belong together without depending on each other: that the app can
+be shown in more languages than Swedish, and that the code can be published
+openly. They can be taken in any order.
 
-### 13.1 – Språkstöd
+### 13.1 – Language support
 
-Appen ska kunna visas på svenska och engelska, med språken i egna filer så
-att fler språk (t.ex. tyska) bara blir en fil till – ingen kodändring.
+The app should be viewable in Swedish and English, with the languages in files of
+their own so that further languages (German, say) are only one more file – no
+code change.
 
-- [x] Lägg alla texter i .resx-resursfiler (standardmekanismen i .NET):
-      `Resources/Strings/AppStrings.resx` (engelska som grundspråk) och
-      `AppStrings.sv.resx` (svenska). Ett nytt språk = en ny
-      `AppStrings.xx.resx`.
-- [x] Flytta ut och översätt:
-      - [x] Menyer och reglage (Pausa/Starta, Hastighet, Visa banor,
-            Verklig storlek, Stjärnbilder, Stjärnnamn, Stjärnor, Fokus,
-            Återställ vy, Få/Normalt/Många)
-      - [x] Klock- och infotexter (Förflutet, dygn/sek, hjälpraden, fönstertitel)
-      - [x] Himlakroppsnamn (Solen/The Sun, Jorden/Earth, Månen/The Moon ...) –
-            datat i `SolarSystemData` får språkneutrala nycklar, namnen slås
-            upp i resurserna
-      - [x] Stjärnbildsnamn (Karlavagnen - Stora björn / Big Dipper - Ursa
-            Major, Lilla björn / Little Bear ...). Stjärnornas egennamn
-            (Betelgeuse, Sirius, Polaris/Polstjärnan) är internationella och
-            behöver bara översättas i undantagsfall.
-- [x] Språkval: följ operativsystemets språk som standard, plus en väljare i
-      kontrollpanelen så att läraren kan byta språk direkt på lektionen.
-- [x] Datum- och talformat följer valt språk (i dag hårdkodat sv-SE).
-- [x] README på engelska. Först prövades ett par parallella filer,
-      `README.md` och `README.en.md` med korslänkar, men det höll inte för
-      en enkel fråga: vad vinner en svensk README när appen själv redan har
-      en språkväljare? Ingenting läsaren inte redan får i appen, mot att
-      hålla två dokument i synk för alltid. `README.md` är nu engelska rakt
-      av, vilket också är GitHub-konventionen för vad som visas som
-      förstasida.
+- [x] Put all the texts in .resx resource files (the standard mechanism in .NET):
+      `Resources/Strings/AppStrings.resx` (English as the base language) and
+      `AppStrings.sv.resx` (Swedish). A new language = a new `AppStrings.xx.resx`.
+- [x] Move out and translate:
+      - [x] Menus and controls (Pause/Start, Speed, Show orbits, Real size,
+            Constellations, Star names, Stars, Focus, Reset view,
+            Few/Normal/Many)
+      - [x] Clock and info texts (Elapsed, days/sec, the help line, the window
+            title)
+      - [x] Names of celestial bodies (Solen/The Sun, Jorden/Earth, Månen/The
+            Moon ...) – the data in `SolarSystemData` gets language-neutral keys,
+            the names are looked up in the resources
+      - [x] Constellation names (Karlavagnen - Stora björn / Big Dipper - Ursa
+            Major, Lilla björn / Little Bear ...). The stars' proper names
+            (Betelgeuse, Sirius, Polaris) are international and only need
+            translating in exceptional cases.
+- [x] Language selection: follow the operating system's language by default, plus
+      a picker in the control panel so that the teacher can switch language right
+      there in the lesson.
+- [x] Date and number formats follow the chosen language (today hard-coded to
+      sv-SE).
+- [x] A README in English. A couple of parallel files were tried first,
+      `README.md` and `README.en.md` with cross links, but that did not survive a
+      simple question: what does a Swedish README win when the app itself already
+      has a language picker? Nothing the reader does not already get in the app,
+      against keeping two documents in sync forever. `README.md` is now English
+      outright, which is also the GitHub convention for what is shown as the front
+      page.
 
-**Verifiera:** Byt språk i väljaren: alla texter, planetnamn och
-stjärnbildsnamn byter språk direkt, datumet formateras rätt ("fredag 5
-september" / "Friday, September 5") och inga texter blir avklippta i
-kontrollpanelen. Svenska ska se exakt ut som i dag.
+**Verify:** Switch language in the picker: all the texts, planet names and
+constellation names change language immediately, the date is formatted correctly
+("fredag 5 september" / "Friday, September 5") and no texts are cut off in the
+control panel. Swedish should look exactly as it does today.
 
-**Utfall:** 16 av 16 kontroller, i ett fristående testprogram som länkar
-in de riktiga resursfilerna (samma sorts oberoende kontroll som
-provprogrammet i `scratchpad/moontest` använt sedan etapp 9 – se
-Anteckningar).
+**Outcome:** 16 of 16 checks, in a standalone test program that links in the real
+resource files (the same sort of independent check that the test program in
+`scratchpad/moontest` has used since stage 9 – see Notes).
 
-| kontroll | svenska | engelska |
+| check | Swedish | English |
 |---|---|---|
-| datumformat | "fredag 5 september 2025, 14:30" | "Friday, September 5, 2025 14:30" |
-| paus-knapp | "⏸ Pausa" | "⏸ Pause" |
-| jordens namn | "Jorden" | "Earth" |
-| stjärnbild | "Karlavagnen - Stora björn" | "Big Dipper - Ursa Major" |
-| decimaltal i meddelande | "Fart: 16,67 km/s" | "Speed: 16.67 km/s" |
+| date format | "fredag 5 september 2025, 14:30" | "Friday, September 5, 2025 14:30" |
+| pause button | "⏸ Pausa" | "⏸ Pause" |
+| Earth's name | "Jorden" | "Earth" |
+| constellation | "Karlavagnen - Stora björn" | "Big Dipper - Ursa Major" |
+| a decimal number in a message | "Fart: 16,67 km/s" | "Speed: 16.67 km/s" |
 
-De två datumraderna är precis de exempel punkten själv efterfrågade, och de
-visar varför en enda formatsträng inte hade räckt: dag-för-månad-ordningen är
-själva skillnaden mellan språken, inte bara ordens översättning. Först
-byggdes engelskan med samma mönster som svenskan ("Friday 5 September"), vilket
-testet slog ner på direkt – facit var skrivet i TODO:n men formatsträngen hade
-kopierats rakt av. Rättelsen var att ge `msg.dateFormat` ett eget värde per
-språk i stället för ett gemensamt: `dddd d MMMM yyyy, HH:mm` för svenska (ordagrant
-det som stod i koden innan etappen började – verifierat mot commit 5493e48),
-`dddd, MMMM d, yyyy HH:mm` för engelska.
+The two date rows are precisely the examples the item itself asked for, and they
+show why a single format string would not have been enough: the day-before-month
+order is the very difference between the languages, not just the translation of
+the words. English was first built with the same pattern as Swedish ("Friday
+5 September"), which the test came down on immediately – the reference answer was
+written in the TODO but the format string had been copied straight across. The
+correction was to give `msg.dateFormat` a value of its own per language instead of
+a shared one: `dddd d MMMM yyyy, HH:mm` for Swedish (word for word what was in the
+code before the stage began – verified against commit 5493e48),
+`dddd, MMMM d, yyyy HH:mm` for English.
 
-**Hur det är byggt:**
+**How it is built:**
 
-- 165 nycklar, indelade `name.*` (himlakroppar, stjärnbilder, de två stjärnorna
-  vars namn skiljer sig mellan språken), `ui.*` (statisk gränssnittstext) och
-  `msg.*` (meddelanden med insatta värden, formaterade med `Strings.Format`).
-- `CelestialBody.Name`, `Probe`/`Milestone.Name`, `Mission.Name` och
-  `Constellation.Name` blev `...Key` – en språkneutral identitet
-  (`"Earth"`, `"UrsaMajor"`) som `Strings.Name(key)` slår upp vid ritning.
-  Det är det som gör att 3D-vyn själv byter språk utan att ritkoden vet om det:
-  den frågar `Strings` varje bildruta i stället för att komma ihåg en text.
-- `MainPage.xaml` fick `x:Name` på varje textbärande kontroll i stället för
-  `Text="..."`; `ApplyLanguage()` i koden sätter dem alla och anropas både vid
-  start och vid varje byte i språkväljaren.
-- Sonders och farkosters egna namn (Voyager 1, Cassini, "Farkost"/"craft")
-  översätts inte – de är egennamn, precis som stjärnornas.
+- 165 keys, divided into `name.*` (celestial bodies, constellations, the two stars
+  whose names differ between the languages), `ui.*` (static interface text) and
+  `msg.*` (messages with inserted values, formatted with `Strings.Format`).
+- `CelestialBody.Name`, `Probe`/`Milestone.Name`, `Mission.Name` and
+  `Constellation.Name` became `...Key` – a language-neutral identity (`"Earth"`,
+  `"UrsaMajor"`) that `Strings.Name(key)` looks up when drawing. That is what
+  makes the 3D view change language by itself without the drawing code knowing
+  about it: it asks `Strings` every frame instead of remembering a text.
+- `MainPage.xaml` got an `x:Name` on every text-bearing control instead of
+  `Text="..."`; `ApplyLanguage()` in the code sets them all and is called both at
+  start-up and on every change in the language picker.
+- The probes' and spacecraft's own names (Voyager 1, Cassini, "Farkost"/"craft")
+  are not translated – they are proper names, exactly like the stars'.
 
-**Provat men inte synat i appen.** Testet ovan länkar den kompilerade
-`Solarsystem.dll` och satellitresursen `sv/Solarsystem.resources.dll` – exakt
-de filer appen faktiskt använder – men körs som ett fristående konsolprogram.
-Att panelens knappar inte klipps av på engelska (kortare svensk text, längre
-engelsk) är kontrollerat genom att sju datumknappar fått bredare
-`WidthRequest` i XAML; övriga textbärande knappar saknar fast bredd och ligger
-i en horisontellt skrollande panel, så ett längre ord skjuter bara panelen
-längre snarare än att klippas. Ingen människa har sett väljaren växla i
-fönstret.
+**Tested but not inspected in the app.** The test above links the compiled
+`Solarsystem.dll` and the satellite resource `sv/Solarsystem.resources.dll` –
+exactly the files the app actually uses – but runs as a standalone console
+program. That the panel's buttons are not cut off in English (shorter Swedish
+text, longer English) has been checked by giving seven date buttons a wider
+`WidthRequest` in XAML; the other text-bearing buttons have no fixed width and sit
+in a horizontally scrolling panel, so a longer word only pushes the panel further
+rather than being cut off. No human has seen the picker switch in the window.
 
-**Efterhandsbeslut om README:** en första version hade `README.md` (svenska)
-och `README.en.md` (engelska) sida vid sida med korslänkar. Det byttes till en
-enda engelsk `README.md` – appens egen språkväljare gör en översatt README
-till dubbelarbete utan mottagare, och GitHub visar ändå bara en fil som
-förstasida.
-
----
-
-### 13.2 – Öppen källkod på GitHub
-
-Genomgången nedan är gjord mot det här repot och inte skriven ur en allmän
-checklista. Sju saker hittades, och den andra bör avgöras innan något alls
-publiceras – den går inte att ta tillbaka.
-
-- [x] **Det finns ingen licensfil.** Utan en sådan gäller full upphovsrätt som
-      standard: koden går att läsa på GitHub men ingen får lagligt använda,
-      ändra eller sprida den, vilket knappast är avsikten med att lägga upp den.
-      För en undervisningsapp ligger MIT eller Apache 2.0 nära till hands; MIT är
-      kortare, Apache 2.0 ger uttryckligt patentskydd.
-
-      **Utfall:** MIT vald. `LICENSE` tillagd, upphovsrättsinnehavare
-      "Krister Hellsing" (personen, inte arbetsgivaren – se nästa punkt).
-
-- [x] **Arbetsmejlen ligger i varje commit.** Hela historiken är signerad
-      `krister.hellsing@swedavia.se`, alltså en arbetsgivaradress, och den följer
-      med när repot publiceras. Det är ett val att göra medvetet och inte att
-      upptäcka efteråt: går det att byta i efterhand krävs en omskrivning av hela
-      historien, vilket ändrar alla commit-id. Enklast är att bestämma sig först.
-      Värt att fundera på i samma veva är om något i arbetsgivarens regler rör
-      kod skriven på fritiden.
-
-      **Utfall:** Historiken skrevs om. Alla 56 commits fick author/committer
-      bytt från `krister.hellsing <krister.hellsing@swedavia.se>` till
-      `Christer.hellsing <krister.hellsing@gmail.com>` – träd, meddelanden och
-      tidsstämplar oförändrade och verifierade identiska, bara identiteten
-      ändrad. Gjort med `git fast-export`/`fast-import` i stället för
-      `filter-branch`, som visade sig orimligt långsamt i den här miljön
-      (avbröts efter två minuter utan att bli klar med 56 commits).
-      `filter-branch` med `--env-filter` checkar ut varje commit i sin helhet
-      för att köra om den, medan `fast-export` bara strömmar textformatet och
-      låter en enkel textersättning byta ut identitetsraderna – millisekunder
-      i stället för minuter. En fallgrop på vägen: att köra bytet genom `sed`
-      i Git Bash på Windows korrumperade strömmen (radslutstranslering rörde
-      byteexakta binärblobbar, som ikonens SVG-filer), vilket kraschade
-      importen. Löst med en Python-ersättare som håller allt i binärt läge.
-      En säkerhetsgren (`backup-before-email-rewrite`) pekar fortfarande på
-      den ursprungliga historiken lokalt. **Kvar:** force-push till `origin`
-      (repot är redan pushat privat dit, med den gamla historiken) – görs i
-      slutet av etappen, inte förrän resten är klart, så att bara en
-      force-push behövs.
-
-- [x] **Mallrester från projektmallen.** `ApplicationId` står kvar på
-      `com.companyname.solarsystem`. `Resources/Images/dotnet_bot.png` ligger
-      kvar men används ingenstans i koden – det är Microsofts maskot och behöver
-      inte följa med. Detsamma gäller `Resources/Raw/AboutAssets.txt`, som bara
-      är mallens egen instruktionstext. Appikonen och startskärmen är fortfarande
-      .NET-mallens lila.
-
-      **Utfall:** `ApplicationId` bytt till `com.kristerhellsing.solarsystem`.
-      `dotnet_bot.png` och `AboutAssets.txt` borttagna, liksom raden i
-      `.csproj` som pekade ut den förra. Ikon och startskärm ersatta: en mörk
-      rymdblå bakgrund (`#0B1220`) med en sol, en tippad omloppsbana och en
-      blå planet – samma färger som redan används i appen (`#FFA226`/`#FFE08A`
-      för solen, `#4C8CE8` för jorden). Godkänd.
-
-- [x] **Attribution för det som lånats.** Open Sans används på riktigt, genom
-      `Styles.xaml`, och dess Apache 2.0-licens kräver att licenstexten följer
-      med. Datan bör också få sina källor utskrivna: banelementen kommer från
-      NASA/JPL, polriktningarna från IAU:s arbetsgrupp för kartografiska
-      koordinater, och stjärnkatalogens ursprung bör redas ut och anges.
-
-      **Utfall:** `THIRD-PARTY-NOTICES.md` med Apache 2.0-licenstexten för
-      Open Sans. Stjärnkatalogens ursprung stod redan i en kommentar i
-      `StarCatalog.cs` – Yale Bright Star-katalogen. Alla fyra källor
-      (NASA/JPL, IAU, Yale, Open Sans) står nu i README under "Credits".
-
-- [x] **README behöver bli ett repo-README.** Den nuvarande är en utmärkt
-      funktionsbeskrivning men saknar det en besökare först vill ha: en mening om
-      vad det är, en skärmbild, hur man bygger det (.NET 10 SDK, MAUI-
-      arbetsbelastningen, Windows) och vilken licens som gäller.
-
-      **Utfall:** Byggavsnittet fick kravlistan (.NET 10 SDK, MAUI-
-      arbetsbelastningen, Windows), README fick avsnitt för Platform, Credits
-      och License. Skärmbilden kunde inte tas i sessionen (skärmåtkomst
-      nekad), men användaren lade in en själv i `Resources/Images/screenshot.png`
-      och README pekar nu dit.
-
-- [x] **Plattformsmapparna lovar mer än appen håller.** `Platforms/Android`,
-      `iOS` och `MacCatalyst` finns kvar från mallen medan `TargetFrameworks`
-      bara innehåller Windows. Antingen bort, eller en rad i README om att bara
-      Windows är byggbart i dag.
-
-      **Utfall:** Borttagna. De byggdes aldrig ändå – MSBuild inkluderar bara
-      den plattformsmapp som matchar `TargetFrameworks`, så de tre mapparna var
-      redan dött innehåll. `Platforms/Windows` är kvar, den är den enda som
-      någonsin kompilerats. README fick ett Platform-avsnitt som förklarar
-      läget och vad som krävs för att lägga till en plattform igen.
-
-- [x] **Översätt alla kodkommentarer till engelska.** De är svenska rakt igenom
-      i dag, vilket stänger ute alla som inte läser svenska – och det är de flesta
-      som hittar ett repo på GitHub.
-
-      Det är den största enskilda posten i hela etappen. Räknat i koden: 1 562
-      rader XML-dokumentation och 494 vanliga kommentarrader, tillsammans 2 056
-      av 7 329 rader, alltså 28 procent. Tyngst ligger `SurfaceMap.cs` med 339
-      rader, `SolarSystemDrawable.cs` med 279, `SolarSystemData.cs` med 263 och
-      `Mission.cs` med 202.
-
-      Det är heller ingen mekanisk översättning. Kommentarerna bär projektets
-      egentliga dokumentation – varför noderna låg 180 grader fel, varför
-      konjunktioner räknas från jorden och inte från solen, varför Venus har
-      strimmor trots att den är slät. Den sortens resonemang måste bära lika bra
-      på engelska, annars är det bättre att låta bli.
-
-      Skriv enkel engelska, inte elegant. Den som forkar har sannolikt varken
-      svenska eller engelska som modersmål utan engelska som andraspråk, och då
-      bär korta meningar och vanliga ord längre än idiom och ordvitsar. Flera av
-      de svenska kommentarerna leker med språket – det får gärna gå förlorat.
-
-      README.md är redan engelska sedan 13.1. Beslutet om TODO.md står i
-      punkten nedan. Att appen i övrigt är gjord för svenska elever är
-      däremot avgjort och kräver ingenting – se beslutet under Anteckningar.
-
-      **Utfall:** Alla `.cs`- och `.xaml`-filer genomsökta tecken för tecken
-      efter å/ä/ö/Å/Ä/Ö efteråt – två träffar kvar, båda korrekta: ett citat av
-      den svenska resurssträngen "Karlavagnen - Stora björn" i en engelsk
-      kommentar som förklarar hur den skiljer sig från "Big Dipper - Ursa
-      Major", och stjärnbildsnamnet "Boötes" (latin, inte svenska). Filerna
-      gjordes en och en, största först: `SolarSystemDrawable.cs` (1554 rader),
-      `MainPage.xaml.cs` (1278), `SurfaceMap.cs` (1081, 116 separata
-      textersättningar eftersom filen mest är koordinatdata som inte fick
-      röras), `SolarSystemData.cs` (619), `StarCatalog.cs` (492, plus alla
-      stjärnbildernas engelska sektionsrubriker), `Mission.cs` (506),
-      `Probe.cs`, `StarSky.cs`, `SkyEvent.cs`, `Conic.cs`, `SmallBodyBelt.cs`,
-      `ProbeData.cs`, `Lambert.cs`, `BodyAxis.cs`, `OrbitCamera.cs`, `Vec3.cs`,
-      `Kepler.cs`, `Diagnostics.cs`, samt kvarvarande XAML-kommentarer i
-      `MainPage.xaml`. Byggd och verifierad felfri efter varje fil.
-
-- [x] **Beslut: ska TODO.md följa med?** Den innehåller interna anteckningar och
-      provlistor, men också den enda samlade förklaringen till varför saker ser
-      ut som de gör – vilka fel som hittats, vilka förenklingar som gjorts och
-      varför. För någon som vill förstå koden är den förmodligen mer värd än
-      README.
-
-      **Beslut: ja.** Ett konsekvent engelskt repo väger tyngre än
-      besparingen av att låta den vara kvar på svenska, trots att den nästan
-      dubblerar översättningsarbetet (TODO.md är i sig över 2 000 rader,
-      jämförbart med kommentarernas 2 056).
-
-**Verifiera:** Klona repot till en tom katalog på en annan maskin och bygg det
-med enbart instruktionerna i README. Går det inte, är README inte färdig.
+**A decision made afterwards about the README:** a first version had `README.md`
+(Swedish) and `README.en.md` (English) side by side with cross links. That was
+changed to a single English `README.md` – the app's own language picker makes a
+translated README duplicated work without an audience, and GitHub only shows one
+file as the front page anyway.
 
 ---
 
-### 13.3 – Översätt TODO.md till engelska
+### 13.2 – Open source on GitHub
 
-Beslutet togs i 13.2: ett konsekvent engelskt repo väger tyngre än att spara
-översättningsarbetet. Bruten ut till en egen punkt eftersom den är en lika
-stor uppgift för sig själv som resten av 13.2 tillsammans – TODO.md är över
-2 200 rader, jämförbart med kodkommentarernas 2 056.
+The review below was made against this repository and not written from a general
+checklist. Seven things were found, and the second should be settled before
+anything at all is published – it cannot be taken back.
 
-- [ ] Översätt hela TODO.md till engelska: varje etapps beskrivning,
-      provlistor, "Utfall"-avsnitt, Anteckningar och Restpunkter.
+- [x] **There is no licence file.** Without one, full copyright applies by
+      default: the code can be read on GitHub but nobody may legally use, modify
+      or distribute it, which is hardly the intention of putting it up. For a
+      teaching app, MIT or Apache 2.0 are the obvious candidates; MIT is shorter,
+      Apache 2.0 gives explicit patent protection.
 
-      Ingen mekanisk översättning – dokumentet bär hela projektets historik
-      och resonemang (varför noderna låg fel, varför Halleys bana förankrades
-      i två perihelier i stället för hämtades ur en efemerid, varför
-      force-push valdes framför filter-branch). Det resonemanget måste hålla
-      lika bra på engelska.
+      **Outcome:** MIT chosen. `LICENSE` added, copyright holder "Krister
+      Hellsing" (the person, not the employer – see the next item).
 
-      Kvar att bestämma när det blir dags: om filen ska heta `TODO.md`
-      fortsatt eller döpas om (`ROADMAP.md`?), och om en svensk kopia ska
-      sparas någonstans för historiken, eller om git-historiken räcker som
-      arkiv.
+- [x] **The work email is in every commit.** The whole history is signed
+      `krister.hellsing@swedavia.se`, that is, an employer address, and it comes
+      along when the repository is published. That is a choice to make
+      deliberately and not to discover afterwards: changing it after the fact
+      requires a rewrite of the entire history, which changes every commit id. The
+      simplest thing is to decide first. Worth considering at the same time is
+      whether anything in the employer's rules concerns code written in one's own
+      time.
 
-**Verifiera:** Ingen svensk text kvar i filen utanför citat av UI-strängar
-(samma sorts kontroll som gjordes efter 13.2:s kommentaröversättning).
+      **Outcome:** The history was rewritten. All 56 commits had their
+      author/committer changed from `krister.hellsing
+      <krister.hellsing@swedavia.se>` to `Christer.hellsing
+      <krister.hellsing@gmail.com>` – trees, messages and timestamps unchanged and
+      verified identical, only the identity changed. Done with `git
+      fast-export`/`fast-import` instead of `filter-branch`, which turned out to be
+      unreasonably slow in this environment (aborted after two minutes without
+      finishing 56 commits).
+
+      `filter-branch` with `--env-filter` checks out every commit in its
+      entirety in order to replay it, whereas `fast-export` merely streams the
+      text format and lets a simple text substitution replace the identity lines
+      – milliseconds instead of minutes. One pitfall along the way: running the
+      substitution through `sed` in Git Bash on Windows corrupted the stream
+      (line-ending translation touched byte-exact binary blobs, such as the
+      icon's SVG files), which crashed the import. Solved with a Python
+      replacement that keeps everything in binary mode. A safety branch
+      (`backup-before-email-rewrite`) still points at the original history
+      locally. The force-push to `origin` (the repository had already been pushed
+      there privately, with the old history) was saved until the end of the
+      stage, so that only one force-push was needed; it has since been done and
+      verified – `origin/main` now carries the rewritten history.
+
+- [x] **Leftovers from the project template.** `ApplicationId` is still
+      `com.companyname.solarsystem`. `Resources/Images/dotnet_bot.png` is still
+      there but is not used anywhere in the code – it is Microsoft's mascot and
+      does not need to come along. The same goes for `Resources/Raw/AboutAssets.txt`,
+      which is only the template's own instruction text. The app icon and splash
+      screen are still the .NET template's purple.
+
+      **Outcome:** `ApplicationId` changed to `com.kristerhellsing.solarsystem`.
+      `dotnet_bot.png` and `AboutAssets.txt` removed, as was the line in
+      `.csproj` that pointed at the former. Icon and splash screen replaced: a
+      dark space-blue background (`#0B1220`) with a sun, a tipped orbit and a
+      blue planet – the same colours already used in the app (`#FFA226`/`#FFE08A`
+      for the Sun, `#4C8CE8` for Earth). Approved.
+
+- [x] **Attribution for what has been borrowed.** Open Sans is genuinely used,
+      through `Styles.xaml`, and its Apache 2.0 licence requires the licence text
+      to come along. The data should also have its sources written out: the
+      orbital elements come from NASA/JPL, the pole directions from the IAU's
+      working group on cartographic coordinates, and the star catalogue's origin
+      should be established and stated.
+
+      **Outcome:** `THIRD-PARTY-NOTICES.md` with the Apache 2.0 licence text for
+      Open Sans. The star catalogue's origin was already stated in a comment in
+      `StarCatalog.cs` – the Yale Bright Star Catalogue. All four sources
+      (NASA/JPL, IAU, Yale, Open Sans) are now in the README under "Credits".
+
+- [x] **The README needs to become a repository README.** The present one is an
+      excellent feature description but lacks what a visitor wants first: a
+      sentence about what it is, a screenshot, how to build it (.NET 10 SDK, the
+      MAUI workload, Windows) and which licence applies.
+
+      **Outcome:** The build section got the requirements list (.NET 10 SDK, the
+      MAUI workload, Windows), and the README got sections for Platform, Credits
+      and License. The screenshot could not be taken during the session (screen
+      access denied), but the user added one themselves at
+      `Resources/Images/screenshot.png` and the README now points there.
+
+- [x] **The platform folders promise more than the app delivers.**
+      `Platforms/Android`, `iOS` and `MacCatalyst` are left over from the
+      template while `TargetFrameworks` only contains Windows. Either remove
+      them, or add a line in the README saying that only Windows is buildable
+      today.
+
+      **Outcome:** Removed. They were never built anyway – MSBuild only includes
+      the platform folder that matches `TargetFrameworks`, so the three folders
+      were already dead content. `Platforms/Windows` remains, being the only one
+      ever compiled. The README got a Platform section explaining the situation
+      and what is required to add a platform back.
+
+- [x] **Translate all the code comments into English.** They are Swedish all the
+      way through today, which shuts out everyone who does not read Swedish – and
+      that is most of the people who find a repository on GitHub.
+
+      It is the single largest item in the whole stage. Counted in the code: 1,562
+      lines of XML documentation and 494 ordinary comment lines, together 2,056 of
+      7,329 lines, that is, 28 per cent. The heaviest are `SurfaceMap.cs` with 339
+      lines, `SolarSystemDrawable.cs` with 279, `SolarSystemData.cs` with 263 and
+      `Mission.cs` with 202.
+
+      Nor is it a mechanical translation. The comments carry the project's real
+      documentation – why the nodes were 180 degrees wrong, why conjunctions are
+      computed from Earth and not from the Sun, why Venus has streaks despite
+      being smooth. That kind of reasoning has to hold up just as well in English,
+      otherwise it is better left alone.
+
+      Write simple English, not elegant English. Whoever forks it probably has
+      neither Swedish nor English as a first language but English as a second, and
+      then short sentences and common words carry further than idioms and puns.
+      Several of the Swedish comments play with the language – that may happily be
+      lost.
+
+      README.md has been English since 13.1. The decision about TODO.md is in the
+      item below. That the app is otherwise made for Swedish pupils is settled and
+      requires nothing – see the decision under Notes.
+
+      **Outcome:** All `.cs` and `.xaml` files searched character by character for
+      å/ä/ö/Å/Ä/Ö afterwards – two hits left, both correct: a quotation of the
+      Swedish resource string "Karlavagnen - Stora björn" in an English comment
+      explaining how it differs from "Big Dipper - Ursa Major", and the
+      constellation name "Boötes" (Latin, not Swedish). The files were done one at
+      a time, largest first: `SolarSystemDrawable.cs` (1554 lines),
+      `MainPage.xaml.cs` (1278), `SurfaceMap.cs` (1081, 116 separate text
+      substitutions since the file is mostly coordinate data that had to be left
+      untouched), `SolarSystemData.cs` (619), `StarCatalog.cs` (492, plus all the
+      constellations' English section headings), `Mission.cs` (506), `Probe.cs`,
+      `StarSky.cs`, `SkyEvent.cs`, `Conic.cs`, `SmallBodyBelt.cs`, `ProbeData.cs`,
+      `Lambert.cs`, `BodyAxis.cs`, `OrbitCamera.cs`, `Vec3.cs`, `Kepler.cs`,
+      `Diagnostics.cs`, as well as the remaining XAML comments in `MainPage.xaml`.
+      Built and verified error-free after every file.
+
+- [x] **Decision: should TODO.md come along?** It contains internal notes and
+      test lists, but also the only collected explanation of why things look the
+      way they do – which errors were found, which simplifications were made and
+      why. For someone who wants to understand the code it is probably worth more
+      than the README.
+
+      **Decision: yes.** A consistently English repository weighs more heavily
+      than the saving of leaving it in Swedish, even though it nearly doubles the
+      translation work (TODO.md is itself over 2,000 lines, comparable to the
+      comments' 2,056).
+
+**Verify:** Clone the repository into an empty directory on another machine and
+build it using only the instructions in the README. If that does not work, the
+README is not finished.
 
 ---
 
+### 13.3 – Translate TODO.md into English
 
-## Etapp 14 – Dela logik och gränssnitt
+The decision was taken in 13.2: a consistently English repository weighs more
+heavily than saving the translation work. Broken out into an item of its own
+because it is as large a task by itself as the rest of 13.2 put together –
+TODO.md is over 2,200 lines, comparable to the code comments' 2,056.
 
-Målet är att samma solsystem ska kunna drivas av mer än ett gränssnitt, så att
-appen på sikt kan köras i en webbläsare vid sidan av skrivbordsappen.
+- [x] Translate the whole of TODO.md into English: every stage's description,
+      test lists, "Outcome" sections, Notes and Remaining items.
 
-**Utgångsläget är bättre än det ser ut.** En mätning av kodens beroenden:
+      No mechanical translation – the document carries the whole project's
+      history and reasoning (why the nodes were wrong, why Halley's orbit was
+      anchored in two perihelia instead of taken from an ephemeris, why the
+      force-push was chosen over filter-branch). That reasoning has to hold up
+      just as well in English.
 
-| mapp | rader | beroenden till gränssnittet |
+      Two decisions were left open until it was time. Both are now settled:
+
+      **The file keeps the name `TODO.md`.** `ROADMAP.md` would describe the
+      contents better, but the name is understood by everyone, nothing links to it
+      that would have to be updated, and the git history follows the file without
+      a detour.
+
+      **No Swedish copy is kept in the repository.** The Swedish text remains in
+      every commit up to the translation, which is a better archive than a frozen
+      file in the working directory that would never be updated and would diverge
+      from the first edit onwards.
+
+**Verify:** No Swedish text left in the file outside quotations of UI strings
+(the same sort of check as was made after 13.2's comment translation).
+
+**Outcome:** The file was translated section by section, in twelve passes, and
+then searched character by character for å/ä/ö/Å/Ä/Ö. What remains are the
+quoted UI strings that must stay Swedish to make their point: the date format
+"fredag 5 september 2025, 14:30", the pause button "⏸ Pausa", the body name
+"Jorden", the constellation "Karlavagnen - Stora björn" and the message "Fart:
+16,67 km/s" in 13.1's comparison table, along with the same constellation name
+where 13.2 explains the two remaining hits in the code. The Swedish stage titles
+became English ones ("Etapp" → "Stage"), and the headings' section numbers are
+unchanged, so every cross-reference in the document still points where it did.
+
+---
+
+## Stage 14 – Separating logic from user interface
+
+The goal is for the same solar system to be drivable by more than one user
+interface, so that the app can in time run in a browser alongside the desktop app.
+
+**The starting position is better than it looks.** A measurement of the code's
+dependencies:
+
+| folder | lines | dependencies on the user interface |
 |---|---|---|
-| `Simulation/` | 3 100 | enbart `Color`, 209 användningar |
-| `Rendering/` | 1 500 | `Microsoft.Maui.Graphics`: ICanvas, PathF, RectF, PointF |
-| `MainPage.xaml(.cs)` | 1 350 | hela MAUI Controls, 41 kontroller, 30 händelsemetoder |
+| `Simulation/` | 3,100 | only `Color`, 209 uses |
+| `Rendering/` | 1,500 | `Microsoft.Maui.Graphics`: ICanvas, PathF, RectF, PointF |
+| `MainPage.xaml(.cs)` | 1,350 | the whole of MAUI Controls, 41 controls, 30 event methods |
 
-Simulationen importerar inte MAUI någonstans – enda `using` i hela mappen är
-`System.Numerics`. Det är inte en gissning: provprogrammet som verifierat varje
-etapp sedan etapp 9 kompilerar hela `Simulation/` med en tolv rader lång
-ersättning för `Color` och ingenting annat. Logiken är alltså redan fri, den bara
-bor i samma projekt som gränssnittet.
+The simulation does not import MAUI anywhere – the only `using` in the whole
+folder is `System.Numerics`. That is not a guess: the test program that has
+verified every stage since stage 9 compiles the whole of `Simulation/` with a
+twelve-line replacement for `Color` and nothing else. The logic is therefore
+already free, it merely lives in the same project as the user interface.
 
-### 14.1 – Bryt ut kärnan till ett eget projekt
+### 14.1 – Extract the core into a project of its own
 
-- [ ] Flytta `Simulation/` till `Solarsystem.Core`, ett bibliotek utan beroende
-      till MAUI.
-- [ ] Bestäm vad som ska hända med `Color`. Två vägar: en egen liten typ, eller
-      ett beroende till paketet `Microsoft.Maui.Graphics`. Det senare låter
-      mindre oskyldigt än det är – paketet är fristående från MAUI Controls och
-      innehåller bara rit- och färgprimitiver. Men en egen typ gör kärnan helt
-      beroendefri, och 209 användningar är ingen stor omskrivning.
-- [ ] Låt provprogrammet referera projektet i stället för att kopiera filerna
-      och shimma `Color`. Det har fungerat länge men är en kopia som kan hamna ur
-      fas med originalet.
+- [ ] Move `Simulation/` to `Solarsystem.Core`, a library without a dependency on
+      MAUI.
+- [ ] Decide what should happen to `Color`. Two routes: a small type of our own,
+      or a dependency on the `Microsoft.Maui.Graphics` package. The latter sounds
+      less innocent than it is – the package is independent of MAUI Controls and
+      contains only drawing and colour primitives. But a type of our own makes the
+      core entirely dependency-free, and 209 uses is not a large rewrite.
+- [ ] Let the test program reference the project instead of copying the files and
+      shimming `Color`. That has worked for a long time but is a copy that can
+      drift out of step with the original.
 
-**Verifiera:** `Solarsystem.Core` ska bygga utan en enda referens till MAUI, och
-provprogrammets alla kontroller från etapp 9 till 12 ska gå igenom mot det
-byggda biblioteket i stället för mot kopierade filer.
+**Verify:** `Solarsystem.Core` should build without a single reference to MAUI,
+and all the test program's checks from stage 9 to 12 should pass against the built
+library instead of against copied files.
 
-### 14.2 – Ritlagret som ett eget projekt
+### 14.2 – The drawing layer as a project of its own
 
-- [ ] Flytta `Rendering/` till `Solarsystem.Rendering`, som får bero på
-      `Microsoft.Maui.Graphics` men inte på MAUI Controls.
-- [ ] Utred den fråga som avgör hela etapp 14:s värde – **går `ICanvas` att
-      genomföra på webben?** `SolarSystemDrawable` är 1 282 rader och ritar allt
-      genom det gränssnittet. Finns det en canvas-implementation för webben går
-      hela ritlagret att återanvända oförändrat. Finns det inte måste det skrivas
-      om, och då är det den största posten i hela projektet.
+- [ ] Move `Rendering/` to `Solarsystem.Rendering`, which may depend on
+      `Microsoft.Maui.Graphics` but not on MAUI Controls.
+- [ ] Investigate the question that determines the whole value of stage 14 – **can
+      `ICanvas` be implemented on the web?** `SolarSystemDrawable` is 1,282 lines
+      and draws everything through that interface. If there is a canvas
+      implementation for the web, the whole drawing layer can be reused unchanged.
+      If there is not, it has to be rewritten, and then it is the largest item in
+      the entire project.
 
-**Verifiera:** Skrivbordsappen ska se likadan ut efter flytten. Ritkoden rörs
-inte, bara var den bor.
+**Verify:** The desktop app should look the same after the move. The drawing code
+is not touched, only where it lives.
 
-### 14.3 – Tillståndet ur MainPage
+### 14.3 – The state out of MainPage
 
-Det här är den egentliga svårigheten. `MainPage.xaml.cs` är 1 080 rader och
-innehåller två sorters kod blandat: det som pratar med MAUI:s kontroller, och det
-som vet vad appen gör. Det senare måste ett andra gränssnitt kunna använda.
+This is the real difficulty. `MainPage.xaml.cs` is 1,080 lines and contains two
+kinds of code mixed together: what talks to MAUI's controls, and what knows what
+the app does. A second user interface has to be able to use the latter.
 
-- [ ] Bryt ut tillståndet till en klass utan gränssnittsberoende: klockan och
-      hastigheten, vald kropp i fokusväljaren, pågående rymdfärd, vilka sonder
-      som visas, kameran.
-- [ ] Låt `MainPage` bli tunn – ta emot klick, skicka vidare, visa det som
-      kommer tillbaka.
+- [ ] Extract the state into a class with no user-interface dependency: the clock
+      and the speed, the selected body in the focus picker, an ongoing space
+      flight, which probes are shown, the camera.
+- [ ] Let `MainPage` become thin – receive clicks, pass them on, display what
+      comes back.
 
-**Verifiera:** Räkna raderna i `MainPage.xaml.cs` efteråt. Blir den inte
-väsentligt kortare har tillståndet inte flyttat, bara fått sällskap.
+**Verify:** Count the lines in `MainPage.xaml.cs` afterwards. If it does not
+become substantially shorter, the state has not moved, only gained company.
 
-### 14.4 – Välj webbteknik
+### 14.4 – Choose a web technology
 
-Utredning, inte bygge. Frågan är inte avgjord och bör inte avgöras förrän 14.1
-till 14.3 visat hur mycket som faktiskt går att återanvända.
+An investigation, not a build. The question is not settled and should not be
+settled until 14.1 to 14.3 have shown how much can actually be reused.
 
-- [ ] Jämför alternativen. Blazor WebAssembly ligger nära till hands eftersom
-      allt redan är C# och kärnan då kan följa med oförändrad. Men det finns
-      andra vägar: Blazor Server, kärnan kompilerad till WebAssembly med ett
-      gränssnitt i något annat, eller ett gränssnitt skrivet direkt mot en
-      webbcanvas.
-- [ ] Avgör ritfrågan från 14.2 först. Den väger tyngre än valet av ramverk:
-      går ritlagret att återanvända är resten mest arbete med knappar, medan ett
-      omskrivet ritlager är ett halvt nytt projekt.
-- [ ] Väg in att appen är beräkningstung på klienten – banor, ytor och
-      stjärnhimmel räknas om varje bildruta. Det talar för att räkningen ska ske
-      i webbläsaren och inte på en server.
+- [ ] Compare the alternatives. Blazor WebAssembly is the obvious candidate since
+      everything is already C# and the core can then come along unchanged. But
+      there are other routes: Blazor Server, the core compiled to WebAssembly with
+      a user interface in something else, or a user interface written directly
+      against a web canvas.
+- [ ] Settle the drawing question from 14.2 first. It weighs more heavily than the
+      choice of framework: if the drawing layer can be reused, the rest is mostly
+      work on buttons, whereas a rewritten drawing layer is half a new project.
+- [ ] Take into account that the app is computationally heavy on the client –
+      orbits, surfaces and the star sky are recomputed every frame. That argues for
+      the computation happening in the browser and not on a server.
 
-**Verifiera:** Ett beslut med skäl nedskrivna, inte ett ramverk valt på känsla.
-
----
-
-## Anteckningar och beslut
-
-- **Skala:** månar följer Månens princip – i förstorat läge komprimerat
-  avstånd till moderplaneten (annars hamnar de orimligt långt bort), i läget
-  "Verklig storlek" äkta geometri.
-- **Synlighet:** månar och ringar ritas först vid inzoomning (samma tröskel
-  som jordens måne) så att översiktsvyn hålls ren.
-- **Prestanda:** bälten görs med samma positions-cache som stjärnhimlen;
-  inga gradienter i stora mängder (läxan från Vintergatan).
-- **Månantal:** vi ritar bara de stora/pedagogiska månarna. Att Jupiter har
-  ~95 och Saturnus ~274 kända månar kan i stället nämnas i en infotext.
-- **Nya texter fram till språkstödet:** skrivs tills vidare på svenska som i
-  dag, men samlas gärna på få ställen i koden så att etapp 13.1 (språkstöd)
-  blir enkel att genomföra.
-- **Appen får förbli gjord för svenska elever.** Den frågan kom upp inför
-  etapp 13.2: ska det svenska anslaget tonas ned när koden läggs ut öppet?
-  Nej. Öppen källkod löser det på sitt eget sätt – den som vill ha en variant
-  för sitt land forkar och vrider till den. Det gäller ändå bara ett par saker,
-  eftersom solsystemet ser likadant ut överallt: gränssnittsspråket, som 13.1
-  gör valbart, och stjärnbildernas svenska namn som Karlavagnen. Kodkommentarerna
-  är en egen fråga och översätts till engelska i 13.2, så att en fork alls ska
-  vara möjlig att göra.
+**Verify:** A decision with the reasons written down, not a framework chosen by
+feel.
 
 ---
 
-## Restpunkter
+## Notes and decisions
 
-Sådant som är känt, medvetet lämnat och inte brådskande, men som någon gång bör
-tas om hand. Alla projekt har lite teknisk skuld – poängen med listan är att den
-är skriven i stället för bortglömd.
+- **Scale:** moons follow the Moon's principle – in magnified mode a compressed
+  distance to the parent planet (otherwise they end up unreasonably far away), in
+  "Real size" mode true geometry.
+- **Visibility:** moons and rings are only drawn when zoomed in (the same
+  threshold as Earth's Moon) so that the overview stays clean.
+- **Performance:** the belts are made with the same position cache as the star
+  sky; no gradients in large quantities (the lesson from the Milky Way).
+- **Number of moons:** we only draw the large/pedagogically useful moons. That
+  Jupiter has ~95 and Saturn ~274 known moons can instead be mentioned in an info
+  text.
+- **New texts up until the language support:** written in Swedish as today for the
+  time being, but preferably collected in a few places in the code so that stage
+  13.1 (language support) is simple to carry out.
+- **The app may remain made for Swedish pupils.** That question came up ahead of
+  stage 13.2: should the Swedish slant be toned down when the code is published
+  openly? No. Open source solves that in its own way – whoever wants a variant for
+  their own country forks it and adjusts it. It only concerns a couple of things
+  anyway, since the solar system looks the same everywhere: the interface
+  language, which 13.1 makes selectable, and the constellations' Swedish names
+  such as Karlavagnen. The code comments are a separate question and are
+  translated into English in 13.2, so that a fork is possible to make at all.
 
-### R1 – Prova gränssnittet på riktigt
+---
 
-Etapp 9 och 10 är verifierade med siffror: banor, farter, restider, milstolpar,
-träffar på planeterna och indexlogiken i sondväljaren är alla kontrollerade i
-ett separat program utanför appen. Ritningen och gränssnittet är däremot bara
-provkörda så långt att de inte kraschar – ingen har sett efter hur det faktiskt
-ser ut. Det som står här är alltså inte känt fel, bara oprövat.
+## Remaining items
 
-Rymdfärderna (9.4 och 9.5):
+Things that are known, deliberately left and not urgent, but that should be dealt
+with at some point. Every project has a little technical debt – the point of the
+list is that it is written down instead of forgotten.
 
-- [x] Månfärdens bana syns när man skjutit upp och zoomat till jorden, och
-      farkosten möter månen vid ankomsten.
-- [x] Färdpanelen uppe till vänster dyker upp vid uppskjutningen, försvinner när
-      färden avbryts och byter text vid framkomsten.
-- [x] Kameran hakar på farkosten vid ankomsten och zoomar in till målet, en gång.
+### R1 – Try the user interface for real
 
-Sonderna (10.2 till 10.4):
+Stages 9 and 10 are verified with numbers: orbits, speeds, travel times,
+milestones, hits on the planets and the index logic in the probe picker have all
+been checked in a separate program outside the app. The drawing and the user
+interface, on the other hand, have only been run far enough not to crash – nobody
+has looked at how it actually appears. What is written here is therefore not a
+known fault, only untested.
 
-- [x] Sondernas prickar och spår ser rimliga ut, och färgerna går att skilja åt.
-- [x] Milstolpsringarna hamnar rätt längs spåren.
-- [x] Årtalen vid ringarna blir läsbara och inte en enda gröt när flera passager
-      trängs ihop – överhoppningen vid krock är den mekanism som ska hindra det,
-      och den är helt oprövad i praktiken.
-- [x] Den valda sondens milstolpar får fullständig text (planet, månad, farthopp)
-      utan att skriva över annat.
-- [x] Sondpanelen visar rätt när sonden ännu inte skjutits upp, under färden och
-      efter sista passagen.
-- [x] **Att välja en sond i fokusväljaren.** Bocka först fram en sond i rutan
-      "Rymdsonder" – annars står den inte i fokusväljaren. Välj den sedan där.
-      Kameran ska hoppa ut och lägga sonden mitt i bild, och solen ska synas som
-      en prick i bilden med hela planetsystemet hopkrympt omkring sig. Poängen
-      är avståndet: Voyager 1 ligger 169 AU ut, så kameran ställer sig 406 AU
-      från solen. Vrid kameran runt och luta den – solen ska stanna i bild hela
-      varvet.
+The space flights (9.4 and 9.5):
 
-De kretsande sonderna (10.5):
+- [x] The lunar journey's orbit is visible once you have launched and zoomed to
+      Earth, and the spacecraft meets the Moon on arrival.
+- [x] The journey panel at the top left appears at launch, disappears when the
+      journey is cancelled and changes its text on arrival.
+- [x] The camera latches on to the spacecraft on arrival and zooms in to the
+      destination, once.
 
-- [x] Cassinis ellips syns när man ställer datumet mellan 2004 och 2017 och
-      väljer Saturnus, och ligger i samma storleksordning som Titans bana.
-- [x] Junos ellips syns vid Jupiter mellan 2016 och 2025, och det går att zooma
-      ut tillräckligt för att se hela det vida varvet.
-- [x] Ingen av dem ritas utanför sin uppdragstid.
+The probes (10.2 to 10.4):
 
-Sondväljaren (10.6):
+- [x] The probes' dots and trails look plausible, and the colours can be told
+      apart.
+- [x] The milestone rings end up correctly along the trails.
+- [x] The years by the rings are legible and not a single porridge when several
+      flybys are crowded together – the skipping on collision is the mechanism
+      meant to prevent that, and it is completely untested in practice.
+- [x] The selected probe's milestones get their full text (planet, month, speed
+      jump) without writing over anything else.
+- [x] The probe panel shows the right thing when the probe has not yet been
+      launched, during the journey and after the last flyby.
+- [x] **Selecting a probe in the focus picker.** First tick a probe in the "Space
+      probes" box – otherwise it is not in the focus picker. Then select it there.
+      The camera should jump out and put the probe in the middle of the frame, and
+      the Sun should be visible as a dot in the frame with the whole planetary
+      system shrunk around it. The point is the distance: Voyager 1 is 169 AU out,
+      so the camera positions itself 406 AU from the Sun. Turn the camera round
+      and tilt it – the Sun should stay in frame the whole way round.
 
-- [x] Rutan fälls ut och går att klicka i. Den ligger ovanpå vyn och inte i
-      kontrollpanelen, så det här är värt att prova först av allt i listan.
-- [x] "Alla" och "Inga" gör vad de ska, och räknaren i knapptexten följer med.
-- [x] **Att släcka den sond man följer.** Följ en sond enligt punkten ovan, och
-      släck den sedan i rutan "Rymdsonder" medan kameran följer den. Fokus ska
-      falla tillbaka till Solen, och kameran ska hoppa **in** till översiktsvyns
-      15 AU. Utan det sista skulle den bli stående 300–400 AU ute och titta mot
-      en prick, eftersom det bara är målpunkten som byts och inte avståndet.
-      (Provlistan sade tidigare att vyn "zoomar ut" här. Det var fel skrivet: det
-      är en inzoomning, från hundratals AU till femton.)
+The orbiting probes (10.5):
 
-Etapp 11:
+- [x] Cassini's ellipse is visible when you set the date between 2004 and 2017 and
+      select Saturn, and is of the same order of size as Titan's orbit.
+- [x] Juno's ellipse is visible at Jupiter between 2016 and 2025, and it is
+      possible to zoom out far enough to see the whole wide lap.
+- [x] Neither of them is drawn outside its mission time.
 
-- [x] Jordgloben ser ut och snurrar precis som före ombyggnaden i 11.1.
-- [x] Mars ytkarta ser ut som Mars: rätt rostton, dragen känns igen och
-      polarisen ligger som en vit kalott. Se dock resten av noten nedan.
-- [x] Jupiters band ser ut som band och inte som randiga skarvar. Överlappet på
-      2 % räckte – inga fogar syns i bild.
-- [x] Jupiters polarkalotter fyller åt rätt håll, trots att de ligger mycket
-      längre från polen än jordens isar.
-- [x] Jupiters dämpade palett, sedd i bild och gjord om två gånger (se 11.3).
-- [x] **De stora månarna gick i praktiken inte att se.** Kameran kunde bara
-      centreras på planeter, och en måne ritas som glob först vid 14 pixlars
-      radie: Ganymedes är 3,8 procent av Jupiters radie, så Jupiter måste vara
-      372 pixlar – och då ligger Io 1 100 pixlar från bildmitten, utanför rutan.
-      Åtgärdat genom att lägga månarna i fokusväljaren, se noten efter 11.7.
-- [x] Månen och Pluto i appen. Månen ritas som glob först när den blir stor nog
-      i bild, och den tröskeln är inte prövad för en måne – bara för planeter.
-- [ ] Kontrollpanelen går att fälla ihop. Knappen "Dölj kontroller" i panelens
-      överkant, eller tangenten M, ska lämna kvar bara en 24 pixlar hög list och
-      låta vyn växa. Knapptexten ska växla till "Visa kontroller".
-- [ ] Månbanan och noderna i bild. Kryssa i "Månbanan", välj jorden och zooma in:
-      månbanan ska luta mot den gula ekliptikaringen och nodlinjen gå genom
-      jorden med båda noderna namngivna. Färger och storlekar är gissade.
-- [ ] Förmörkelsevyn. Välj "Solförmörkelse" och tryck "Gå till nästa": månbanan
-      och månarna ska slås på av sig själva, kameran ställa sig vid jorden, och
-      solen stå längs nodlinjen just den dagen.
-- [ ] Heliopausen i bild. Välj Voyager 1 i fokusväljaren så kameran hamnar på
-      406 AU; sfären ska då synas som en svag cirkel med solsystemet inuti, och
-      Voyager 1 ska ligga utanför den medan New Horizons ligger innanför.
-- [ ] Halleys komet i bild. Kryssa i "Halleys komet", skriv 1986-02-09 i
-      datumrutan och välj kometen i fokusväljaren. Svansarna ska peka bort från
-      solen – den blå raka och den gula kortare och böjd – och när tiden går
-      framåt ska de svänga runt så att kometen på väg ut går med svansen före.
-      Prova också att stega några år framåt: svansen ska försvinna helt när
-      kometen kommit ut förbi asteroidbältet. Banans form, färg och svansarnas
-      bredd är gissade och sedda bara i kod.
-- [ ] Solfläckarna i bild. Zooma in på solen tills skivan är några centimeter
-      bred – fläckarna dyker upp vid 30 bildpunkters radie. De ska ligga i två
-      bälten på ömse sidor om ekvatorn, ha en mörk kärna i en ljusare gård, och
-      vandra över skivan när tiden går. Stega sedan fram ett år i taget: de
-      nedre grupperna ska dra ifrån de övre. Färgerna på kärna och gård är
-      gissade, liksom fläckarnas storlek, och sedda bara i en kontrollritning
-      utanför appen.
-- [ ] "Halley i perihelium" i mötesväljaren. Med kometen släckt: välj den och
-      tryck "Gå till nästa". Datumet ska bli 2061-07-28, kryssrutan ska tändas av
-      sig själv, kameran ska stå kvar där den stod, och texten ska säga 0,48 AU
-      från jorden och 20 grader från solen.
-- [x] Merkurius kratrar i appen. I den externa kontrollen ser de ut som
-      kratrar, men de ligger tätt och kan bli prickiga vid stark inzoomning.
-- [x] Saturnus, Uranus och Neptunus i appen. De är sedda i den externa
-      kontrollen men inte med ringarna på plats – särskilt Saturnus ska ses
-      tillsammans med sina ringar, och Uranus sydpolskalott ligger nära den kant
-      där ringarna korsar.
-- [x] **Mars mörka fält hade synligt raka kanter.** De är ritade med fem till
-      nio hörn, och `Densify` delar upp långa kanter utan att runda dem – den
-      lägger bara ut fler punkter längs samma räta linje. Åtgärdat med Chaikins
-      hörnkapning, två varv, som ett val per karta: Mars rundas, jorden inte.
-      Kustlinjer ÄR kantiga, och Jupiters band måste dessutom behålla raka kanter
-      för att inte glipa. Se noten i 11.2.
-- [x] Saturnus och Uranus lutar åt rätt håll efter nodrättningen – enklast att se
-      på ringarna vid ett par årtal långt isär.
+The probe picker (10.6):
 
-Kontrollpanelen:
+- [x] The box unfolds and can be clicked in. It sits on top of the view and not in
+      the control panel, so this is worth trying first of all in the list.
+- [x] "All" and "None" do what they should, and the counter in the button text
+      follows along.
+- [x] **Turning off the probe you are following.** Follow a probe as in the item
+      above, and then turn it off in the "Space probes" box while the camera is
+      following it. Focus should fall back to the Sun, and the camera should jump
+      **in** to the overview's 15 AU. Without that last part it would be left
+      standing 300–400 AU out looking towards a dot, since it is only the target
+      point that changes and not the distance. (The test list previously said that
+      the view "zooms out" here. That was written wrongly: it is a zoom in, from
+      hundreds of AU to fifteen.)
 
-- [x] Raden "Rymdfärd:" med de tre knapparna får plats även i ett smalt fönster.
-      Det var just den raden som svämmade över kanten innan knapparna flyttades
-      till en egen rad i 10.4.
+Stage 11:
 
-### R2 – Bekräfta Junos slutdatum ✔
+- [x] The Earth globe looks and spins exactly as before the rebuild in 11.1.
+- [x] Mars's surface map looks like Mars: the right rust tone, the features are
+      recognisable and the polar cap sits as a white cap. But see the rest of the
+      note below.
+- [x] Jupiter's bands look like bands and not like striped joins. The 2 % overlap
+      was enough – no seams are visible in the picture.
+- [x] Jupiter's polar caps fill in the right direction, despite lying much farther
+      from the pole than Earth's ice.
+- [x] Jupiter's muted palette, seen in the picture and redone twice (see 11.3).
+- [x] **The large moons were in practice impossible to see.** The camera could
+      only be centred on planets, and a moon is only drawn as a globe at a
+      14-pixel radius: Ganymede is 3.8 per cent of Jupiter's radius, so Jupiter
+      would have to be 372 pixels – and then Io is 1,100 pixels from the centre of
+      the frame, outside the window. Fixed by putting the moons in the focus
+      picker, see the note after 11.7.
+- [x] The Moon and Pluto in the app. The Moon is only drawn as a globe once it
+      becomes large enough in the frame, and that threshold has not been tested for
+      a moon – only for planets.
+- [ ] The control panel can be folded away. The "Hide controls" button at the top
+      of the panel, or the M key, should leave only a 24-pixel-high strip and let
+      the view grow. The button text should switch to "Show controls".
+- [ ] The lunar orbit and the nodes in the picture. Tick "Lunar orbit", select
+      Earth and zoom in: the lunar orbit should be inclined to the yellow ecliptic
+      ring and the node line should pass through Earth with both nodes named. The
+      colours and sizes are guesses.
+- [ ] The eclipse view. Select "Solar eclipse" and press "Go to next": the lunar
+      orbit and the moons should switch on by themselves, the camera position
+      itself at Earth, and the Sun stand along the node line on that very day.
+- [ ] The heliopause in the picture. Select Voyager 1 in the focus picker so that
+      the camera ends up at 406 AU; the sphere should then be visible as a faint
+      circle with the solar system inside it, and Voyager 1 should lie outside it
+      while New Horizons lies inside.
+- [ ] Halley's Comet in the picture. Tick "Halley's Comet", type 1986-02-09 in the
+      date box and select the comet in the focus picker. The tails should point
+      away from the Sun – the blue one straight and the yellow one shorter and
+      curved – and as time moves forward they should swing round so that the comet
+      travels tail first on the way out. Also try stepping a few years forward: the
+      tail should disappear completely once the comet has come out past the
+      asteroid belt. The orbit's shape and colour and the tails' width are guesses
+      and have only been seen in code.
+- [ ] The sunspots in the picture. Zoom in on the Sun until the disc is a few
+      centimetres wide – the spots appear at a 30-pixel radius. They should lie in
+      two belts on either side of the equator, have a dark core in a lighter
+      penumbra, and travel across the disc as time passes. Then step forward a year
+      at a time: the lower groups should pull ahead of the upper ones. The colours
+      of the core and penumbra are guesses, as is the size of the spots, and they
+      have only been seen in a check drawing outside the app.
+- [ ] "Halley at perihelion" in the meetings picker. With the comet turned off:
+      select it and press "Go to next". The date should become 2061-07-28, the
+      checkbox should light up by itself, the camera should stay where it stood,
+      and the text should say 0.48 AU from Earth and 20 degrees from the Sun.
+- [x] Mercury's craters in the app. In the external check they look like craters,
+      but they lie close together and can become speckled at high zoom.
+- [x] Saturn, Uranus and Neptune in the app. They have been seen in the external
+      check but not with the rings in place – Saturn in particular should be seen
+      together with its rings, and Uranus's south polar cap lies near the edge
+      where the rings cross.
+- [x] **Mars's dark fields had visibly straight edges.** They are drawn with five
+      to nine corners, and `Densify` subdivides long edges without rounding them –
+      it only lays out more points along the same straight line. Fixed with
+      Chaikin's corner cutting, two rounds, as a choice per map: Mars is rounded,
+      Earth is not. Coastlines ARE angular, and Jupiter's bands must also keep
+      straight edges so as not to gape. See the note in 11.2.
+- [x] Saturn and Uranus are tilted in the right direction after the node
+      correction – easiest to see on the rings at a couple of years far apart.
 
-Juno ritades fram till 30 september 2025, vilket var det förlängda uppdragets
-planerade slut. Om det förlängdes ytterligare visade appen inte en sond som
-faktiskt kretsar kring Jupiter. Valet var medvetet – hellre missa en sond som
-flyger än visa en som inte finns – men det byggde på en uppgift som inte gick
-att kontrollera när koden skrevs.
+The control panel:
 
-- [x] Ta reda på om Juno fortsatte efter september 2025 och rätta slutdatumet i
-      `ProbeData`. Det är en rad.
+- [x] The "Space flight:" row with its three buttons fits even in a narrow window.
+      It was precisely that row that overflowed the edge before the buttons were
+      moved to a row of their own in 10.4.
 
-**Den flög vidare.** Juno passerade det planerade slutet och skickade data hela
-våren 2026; den 1 maj 2026 tog den närbilder av den lilla månen Thebe med sin
-stjärnkamera. Därefter finns inget bekräftat. Att uppgifterna var svåra att få
-fram hösten 2025 hade en tråkig förklaring: den amerikanska statsapparaten var
-avstängd just när uppdraget skulle ha avslutats, så ingen kunde säga något om
-sondens öde.
+### R2 – Confirm Juno's end date ✔
 
-Slutdatumet är nu 1 maj 2026, och texten säger "Senast bekräftade kontakten" i
-stället för att påstå ett uppdragsslut. Risken framåt är budgetär snarare än
-teknisk: sonden fungerar, men fanns med bland de uppdrag som föreslogs strykas i
-budgetförslaget för 2026. Ett förslag är inte en lag, men läget är oavgjort.
+Juno was drawn until 30 September 2025, which was the extended mission's planned
+end. If it was extended further, the app was not showing a probe that is actually
+orbiting Jupiter. The choice was deliberate – better to miss a probe that is
+flying than show one that does not exist – but it rested on a figure that could
+not be checked when the code was written.
 
-Två saker till kom fram och står nu i kodkommentaren, eftersom de rättar en
-rimlig men felaktig gissning:
+- [x] Find out whether Juno continued after September 2025 and correct the end
+      date in `ProbeData`. It is one line.
 
-- **Juno kommer inte att styras ned i Jupiter**, till skillnad från Cassini vid
-  Saturnus. Det var planen från början, av samma skäl – en sond som slår ned på
-  Europa skulle kunna föra med sig jordbakterier till havet under isen – men
-  under åren i omloppsbana böjde månarnas dragningskraft banan så mycket att Juno
-  till slut inte passerade i närheten av Europa alls. Då fanns inget kvar att
-  skydda mot, och den styrda nedstörtningen ströks.
-- **Modellens varvräkning stämmer inte med verklighetens.** Appen ritar ett
-  representativt varv på 53 dygn, medan riktiga Juno kortade sin omloppstid flera
-  gånger efter passagerna av Ganymedes och Io. De 213 extra dygn sonden nu syns
-  motsvarar fyra varv i modellens takt, men fler i verkligheten.
+**It flew on.** Juno passed the planned end and sent data throughout the spring of
+2026; on 1 May 2026 it took close-up images of the little moon Thebe with its star
+camera. After that there is nothing confirmed. That the information was hard to
+come by in the autumn of 2025 had a dreary explanation: the American government
+was shut down just when the mission was to have ended, so nobody could say
+anything about the probe's fate.
 
-**Verifiera:** Juno ska ritas den 1 oktober 2025, som den inte gjorde förut, och
-inte längre efter 1 maj 2026.
+The end date is now 1 May 2026, and the text says "Last confirmed contact" instead
+of asserting a mission end. The risk ahead is budgetary rather than technical: the
+probe works, but it was among the missions proposed for cancellation in the 2026
+budget proposal. A proposal is not a law, but the situation is undecided.
 
-Kontrollerat utanför appen, 12 kontroller utan fel: Juno ritas från ankomsten
-5 juli 2016 till och med 1 maj 2026 och inte dagen efter, banan är oförändrad
-(53,42 dygn, e = 0,9815, 57,7 km/s vid perijovium) och Cassini är orörd.
+Two further things came to light and are now in the code comment, since they
+correct a reasonable but mistaken guess:
 
-### R3 – Precisionen i den ritade banan ✔
+- **Juno will not be steered down into Jupiter**, unlike Cassini at Saturn. That
+  was the plan from the start, for the same reason – a probe crashing on Europa
+  could carry terrestrial bacteria into the ocean beneath the ice – but over the
+  years in orbit the moons' gravity bent the orbit so much that Juno finally did
+  not pass anywhere near Europa at all. Then there was nothing left to protect
+  against, and the controlled crash was dropped.
+- **The model's lap count does not agree with reality's.** The app draws a
+  representative lap of 53 days, while the real Juno shortened its orbital period
+  several times after the flybys of Ganymede and Io. The 213 extra days the probe
+  is now visible correspond to four laps at the model's rate, but more in reality.
 
-Farkostens bana byggdes Lambert → `Vector3` i enkel precision → `Conic.FromState`,
-där energin blir en liten skillnad mellan två stora tal och precisionen tunnas ut.
-Månfärden går i stället via `Conic.FromPeriapsis`, som räknar analytiskt i dubbel
-precision och slutar några centimeter från månen.
+**Verify:** Juno should be drawn on 1 October 2025, which it was not before, and
+no longer after 1 May 2026.
 
-- [x] Lämna över tillståndet från Lambert i dubbel precision, eller låt lösaren
-      returnera kägelsnittet direkt.
+Checked outside the app, 12 checks without a single failure: Juno is drawn from
+its arrival on 5 July 2016 up to and including 1 May 2026 and not the day after,
+the orbit is unchanged (53.42 days, e = 0.9815, 57.7 km/s at perijove) and Cassini
+is untouched.
 
-**Rättat i punkten ovan: det var inte Mars-banan.** Här stod att den slutar
-omkring 850 km från Mars. Mätt slutar den *exakt* på Mars – ingen av fyrtio
-provade banor avviker mer än flyttalen kan skilja på. Var siffran kom ifrån vet
-jag inte; troligen mättes den före den Lambert-baserade omskrivningen av
-`Mission.Plan` i etapp 10.
+### R3 – The precision of the drawn orbit ✔
 
-Felet fanns däremot, och på ett annat ställe: **rymdsondernas ben**. Skarven där
-två ben möts är samma punkt i rymden sedd från två håll och borde vara noll. Den
-var upp till 40 000 km. Skälet är att Mars-banor är beskedliga ellipser medan
-sondbenen är nästan paraboliska, och då blir 2/r − v²/µ en skillnad mellan två
-nästan lika stora tal. Varje siffra som saknas i indata förstoras hundrafalt i
-svaret. Dessutom returnerade `Vector3.LengthSquared()` sitt värde i enkel
-precision, så farten tappade siffror redan innan subtraktionen.
+The spacecraft's orbit was built Lambert → `Vector3` in single precision →
+`Conic.FromState`, where the energy becomes a small difference between two large
+numbers and the precision is thinned out. The lunar journey instead goes via
+`Conic.FromPeriapsis`, which computes analytically in double precision and ends a
+few centimetres from the Moon.
 
-Åtgärdat med en `Vec3` i dubbel precision, som bara banmatematiken använder:
-`PositionAuAt` på kropparna, Lambert in och ut, `Conic.FromState`, `Waypoint` och
-`StarCatalog.EquatorialToWorldAu`. Ritningen är oförändrad – där räcker enkel
-precision gott, en pixel är många tusen kilometer.
+- [x] Hand over the state from Lambert in double precision, or let the solver
+      return the conic directly.
 
-**Verifiera:** Sondbenens skarvar ska ligga nere vid flyttalens upplösning, och
-allt som verifierades i etapp 10 ska stå kvar.
+**Corrected in the item above: it was not the Mars orbit.** It said here that it
+ends about 850 km from Mars. Measured, it ends *exactly* at Mars – none of forty
+orbits tested deviates more than the floating-point numbers can distinguish.
+Where the figure came from I do not know; it was probably measured before the
+Lambert-based rewrite of `Mission.Plan` in stage 10.
 
-Kontrollerat utanför appen, 8 kontroller utan fel, med koden före ändringen
-utcheckad ur git och körd genom samma mätning:
+The error did exist, however, and in another place: **the space probes' legs**.
+The join where two legs meet is the same point in space seen from two directions
+and ought to be zero. It was up to 40,000 km. The reason is that Mars orbits are
+well-behaved ellipses while the probe legs are almost parabolic, and then
+2/r − v²/µ becomes a difference between two nearly equal numbers. Every digit
+missing from the input is magnified a hundredfold in the answer. On top of that,
+`Vector3.LengthSquared()` returned its value in single precision, so the speed
+lost digits even before the subtraction.
 
-| passage | före | efter |
+Fixed with a `Vec3` in double precision, used only by the orbital mathematics:
+`PositionAuAt` on the bodies, Lambert in and out, `Conic.FromState`, `Waypoint`
+and `StarCatalog.EquatorialToWorldAu`. The drawing is unchanged – single precision
+is quite enough there, one pixel being many thousands of kilometres.
+
+**Verify:** The probe legs' joins should be down at the resolution of the
+floating-point numbers, and everything verified in stage 10 should still hold.
+
+Checked outside the app, 8 checks without a single failure, with the code from
+before the change checked out of git and run through the same measurement:
+
+| flyby | before | after |
 |---|---|---|
-| Voyager 1 vid Jupiter | 610 km | 36 km |
-| Voyager 2 vid Jupiter | **20 589 km** | 51 km |
-| Voyager 2 vid Saturnus | 802 km | 18 km |
-| Pioneer 10 vid Jupiter | 1 084 km | 71 km |
-| Pioneer 11 vid Saturnus | **39 984 km** | 37 km |
-| New Horizons vid Jupiter | 1 042 km | 71 km |
+| Voyager 1 at Jupiter | 610 km | 36 km |
+| Voyager 2 at Jupiter | **20,589 km** | 51 km |
+| Voyager 2 at Saturn | 802 km | 18 km |
+| Pioneer 10 at Jupiter | 1,084 km | 71 km |
+| Pioneer 11 at Saturn | **39,984 km** | 37 km |
+| New Horizons at Jupiter | 1,042 km | 71 km |
 
-Sämsta avvikelsen går från 39 984 km till 404 km, och de två grova utstickarna är
-borta. Det som är kvar är inte längre modellens fel utan mätningens: skarvarna
-ligger på en halv till knappt fyra flyttalssteg, och ett flyttalssteg är 36 km
-vid Jupiter och 285 km ute vid Pluto. Under den gränsen finns ingen skillnad att
-mäta, och det är också den upplösning appen ritar med.
+The worst deviation goes from 39,984 km to 404 km, and the two gross outliers are
+gone. What remains is no longer the model's error but the measurement's: the joins
+lie at half to barely four floating-point steps, and one floating-point step is
+36 km at Jupiter and 285 km out at Pluto. Below that limit there is no difference
+to measure, and it is also the resolution the app draws with.
 
-Allt annat är oförändrat: Voyager 1:s fart i dag 16,66 km/s, slungan vid Jupiter
-+10,8 km/s, sexton ben, Mars-fönstren på samma datum till samma kostnad
-(3,12 / 3,09 / 3,00 / 2,93 / 3,30 km/s) och månfärden fortfarande exakt.
+Everything else is unchanged: Voyager 1's speed today 16.66 km/s, the assist at
+Jupiter +10.8 km/s, sixteen legs, the Mars windows on the same dates at the same
+cost (3.12 / 3.09 / 3.00 / 2.93 / 3.30 km/s) and the lunar journey still exact.
 
-**Två anteckningar från etapp 10 stämmer inte.** Där står att Mars-fönstren
-kostar "2,90–3,20 km/s"; fönstret 2035 kostar 3,30, både före och efter den här
-ändringen. Där står också att alla elva passager träffar inom "74–602 km". Det
-går inte att återskapa: med koden som den såg ut före ändringen mäter jag
-610 till 39 984 km vid passagedatumet, och 610 till 34 214 km om man i stället
-tar närmaste punkt längs banan. Vilken metod som gav de gamla talen vet jag inte,
-så de får stå som oreproducerade snarare än rättade till något jag gissat.
+**Two notes from stage 10 are wrong.** It says there that the Mars windows cost
+"2.90–3.20 km/s"; the 2035 window costs 3.30, both before and after this change.
+It also says there that all eleven flybys hit within "74–602 km". That cannot be
+reproduced: with the code as it looked before the change I measure 610 to
+39,984 km at the flyby date, and 610 to 34,214 km if you instead take the nearest
+point along the orbit. Which method gave the old numbers I do not know, so they
+stand as unreproduced rather than corrected to something I have guessed.
 
-### R4 – "Verklig storlek" går inte att zooma in i ✔
+### R4 – "Real size" cannot be zoomed into ✔
 
-Kameran kom inte närmare än 1,5 enheter, och `SuggestedFocusDistance` hade
-dessutom ett golv på 8. I verklig skala är jordens radie 0,0026 enheter, så när
-man valde en planet i fokusväljaren eller följde med farkosten ner vid ankomsten
-hamnade man alldeles för långt bort för att se något. Lägena var riktiga – det
-var bara kameran som inte räckte till.
+The camera came no closer than 1.5 units, and `SuggestedFocusDistance` also had a
+floor of 8. At real scale Earth's radius is 0.0026 units, so when you selected a
+planet in the focus picker or followed the spacecraft down on arrival you ended up
+far too far away to see anything. The positions were correct – it was only the
+camera that fell short.
 
-- [x] Låt både golvet och minimiavståndet bero på den valda kroppens visuella
-      radie i stället för att vara fasta tal.
+- [x] Let both the floor and the minimum distance depend on the selected body's
+      visual radius instead of being fixed numbers.
 
-`OrbitCamera.MinDistance` är inte längre en konstant utan en egenskap som sätts
-varje bildruta ur den kropp kameran tittar på: dess ritade radie gånger 1,15, så
-att man kommer nära utan att hamna inuti. Avståndet kläms om direkt när gränsen
-ändras, så ett byte mellan lägena aldrig lämnar kameran inne i en planet. Golvet
-i `SuggestedFocusDistance` följer också kroppen. En farkost eller sond är en
-punkt utan utsträckning och får komma hur nära som helst.
+`OrbitCamera.MinDistance` is no longer a constant but a property set every frame
+from the body the camera is looking at: its drawn radius times 1.15, so that you
+get close without ending up inside. The distance is clamped immediately when the
+limit changes, so a switch between the modes never leaves the camera inside a
+planet. The floor in `SuggestedFocusDistance` follows the body too. A spacecraft or
+probe is a point without extent and may come as close as it likes.
 
-Kvar finns bara ett absolut golv på 0,001 enheter, och det är inte satt av någon
-kropp utan av flyttalen: världskoordinaterna är enkel precision och når 2 400
-enheter ute vid Neptunus, där steget mellan två närliggande tal är ett par
-tiotusendels enhet.
+All that remains is an absolute floor of 0.001 units, and that is set not by any
+body but by the floating-point numbers: the world coordinates are single precision
+and reach 2,400 units out at Neptune, where the step between two adjacent numbers
+is a couple of ten-thousandths of a unit.
 
-**Verifiera:** I "Verklig storlek", välj en planet och zooma in – ytan ska gå att
-se. Väx mellan lägena medan man är inzoomad och se att kameran inte hamnar inuti.
+**Verify:** In "Real size", select a planet and zoom in – the surface should be
+visible. Switch between the modes while zoomed in and see that the camera does not
+end up inside.
 
-Kontrollerat utanför appen, 33 kontroller utan fel:
+Checked outside the app, 33 checks without a single failure:
 
-- **Verklig skala fungerar nu.** Väljer man Merkurius går den från 0,1 pixlar
-  till 80. Jorden ger 5,9 pixlar vid valet – vyn ramar in månbanan, som den ska –
-  och går att zooma till 839. Förut var 2 pixlar det närmaste man kom, oavsett
-  hur mycket man skrollade.
-- **Alla kroppar med ytkarta går att zooma till en glob i båda lägena**, mot
-  tröskeln på 14 pixlar. Vid minsta avstånd fyller klotet 839 pixlar oberoende av
-  både läge och kropp, eftersom gränsen är proportionell mot radien.
-- **Förstorat läge är oförändrat** för åtta av nio planeter. Pluto kommer
-  närmare, 57 pixlar blir 80: den var den enda planet som golvet på åtta enheter
-  faktiskt höll tillbaka.
-- **En bugg till föll ut på köpet.** Det gamla golvet på 1,5 enheter låg *innanför*
-  flera kroppar i förstorat läge – jorden ritas med radien 2,6, Jupiter 28,0 och
-  solen 8,4 – så man kunde zooma in i dem och se dem inifrån. Nu ligger gränsen
-  alltid utanför ytan.
+- **Real scale now works.** If you select Mercury it goes from 0.1 pixels to 80.
+  Earth gives 5.9 pixels on selection – the view frames the lunar orbit, as it
+  should – and can be zoomed to 839. Before, 2 pixels was the closest you could
+  get, however much you scrolled.
+- **All bodies with a surface map can be zoomed to a globe in both modes**,
+  against the threshold of 14 pixels. At the minimum distance the sphere fills
+  839 pixels regardless of both mode and body, since the limit is proportional to
+  the radius.
+- **Magnified mode is unchanged** for eight of nine planets. Pluto comes closer,
+  57 pixels becoming 80: it was the only planet the floor of eight units actually
+  held back.
+- **One more bug fell out into the bargain.** The old floor of 1.5 units lay
+  *inside* several bodies in magnified mode – Earth is drawn with a radius of 2.6,
+  Jupiter 28.0 and the Sun 8.4 – so you could zoom into them and see them from the
+  inside. Now the limit always lies outside the surface.
 
-De minsta kropparna i verklig skala – Pluto, månen, Io – möter det absoluta
-golvet innan de möter sitt eget och stannar på 460 till 705 pixlar i stället för
-839. Långt över vad som behövs.
+The smallest bodies at real scale – Pluto, the Moon, Io – meet the absolute floor
+before they meet their own and stop at 460 to 705 pixels instead of 839. Far more
+than is needed.
 
-### R5 – Ett olösbart sondben hoppas över under tystnad ✔
+### R5 – An unsolvable probe leg is skipped in silence ✔
 
-`Probe.Build` hoppade över ett ben som Lambert inte klarar och byggde sonden av
-resten. Alla ben går att lösa i dag, och det kontrolleras utanför appen, men lade
-någon in ett omöjligt datumpar skulle sonden tyst få en lucka i banan i stället
-för att felet syntes.
+`Probe.Build` skipped a leg that Lambert cannot handle and built the probe from
+the rest. All the legs can be solved today, and that is checked outside the app,
+but if someone entered an impossible pair of dates the probe would silently get a
+gap in its orbit instead of the error being visible.
 
-- [x] Låt ett olösbart ben märkas – returnera null från `Build`, eller åtminstone
-      skriv till samma logg som ritfel går till.
+- [x] Let an unsolvable leg be noticed – return null from `Build`, or at least
+      write to the same log that drawing errors go to.
 
-Valet blev det senare, av två skäl. `Build` anropas ur statiska fält i
-`ProbeData`, så null hade tvingat null-kontroller genom hela kedjan – och ett
-undantag där hade fällt hela appen vid start för ett fel i data. Dessutom är en
-sond med en lucka mer användbar än ingen sond alls. Men felet passerar inte
-längre obemärkt: överhoppade ben skrivs till loggen och samlas i
-`Probe.SkippedLegs`, så att provprogrammen utanför appen kan kräva att listan är
-tom. Meddelandet säger vilken sond, vilka två passager, hur många dygn och varför.
+The choice fell on the latter, for two reasons. `Build` is called from static
+fields in `ProbeData`, so null would have forced null checks through the whole
+chain – and an exception there would have brought down the whole app at start-up
+over an error in the data. Besides, a probe with a gap is more useful than no
+probe at all. But the error no longer passes unnoticed: skipped legs are written
+to the log and collected in `Probe.SkippedLegs`, so that the test programs outside
+the app can require the list to be empty. The message says which probe, which two
+flybys, how many days and why.
 
-Loggsökvägen låg inbakad i ritkoden. Den ligger nu i `Simulation/Diagnostics`,
-som båda använder – det var förutsättningen för att alls kunna skriva "till samma
-logg".
+The log path was baked into the drawing code. It now lives in
+`Simulation/Diagnostics`, which both use – that was the precondition for being
+able to write "to the same log" at all.
 
-**Rättat i texten ovan:** här stod "alla tretton ben". Det är fel, och det syntes
-när provet räknade dem: sonderna har **sexton** ben. Voyager 1 har tre, Voyager 2
-fem, Pioneer 10 två, Pioneer 11 tre och New Horizons tre. Tretton var antagligen
-en räkning som missade de avslutande benen ut mot dagens läge.
+**Corrected in the text above:** it said here "all thirteen legs". That is wrong,
+and it showed when the test counted them: the probes have **sixteen** legs.
+Voyager 1 has three, Voyager 2 five, Pioneer 10 two, Pioneer 11 three and New
+Horizons three. Thirteen was probably a count that missed the closing legs out to
+today's positions.
 
-**Verifiera:** Riktig sonddata ska ge en tom lista och ingen logg alls.
+**Verify:** Real probe data should give an empty list and no log at all.
 
-Kontrollerat utanför appen, 12 kontroller utan fel:
+Checked outside the app, 12 checks without a single failure:
 
-- **Riktig data går ren.** Fem sonder, sexton ben, tom lista, ingen loggfil ens
-  skapad. Voyager 1:s fart i dag är oförändrad 16,66 km/s och de elva
-  planetpassagerna finns kvar.
-- **Båda felgrenarna är faktiskt utlösta**, inte bara lästa. Passager i fel
-  ordning ger "hoppades över (−365 dygn) – passagerna kommer inte i tidsordning",
-  och sonden får noll ben och existerar därmed inte. Två punkter rakt emot
-  varandra sett från solen – där banplanet är obestämt och varje plan duger lika
-  bra – får Lambert att gå bet på riktigt, och det märks likadant.
-- **Raderna hamnar i loggen**, i samma fil som ritfel.
+- **Real data comes through clean.** Five probes, sixteen legs, an empty list, not
+  even a log file created. Voyager 1's speed today is an unchanged 16.66 km/s and
+  the eleven planetary flybys are still there.
+- **Both error branches have actually been triggered**, not merely read. Flybys in
+  the wrong order give "skipped (−365 days) – the flybys do not come in
+  chronological order", and the probe gets zero legs and therefore does not exist.
+  Two points directly opposite each other as seen from the Sun – where the orbital
+  plane is undefined and every plane will do equally well – make Lambert genuinely
+  fail, and it is noticed the same way.
+- **The lines end up in the log**, in the same file as drawing errors.
 
-**Vad vakten inte fångar.** Ett ben som är orimligt men matematiskt lösbart går
-igenom: Jupiter till Saturnus på ett dygn ger en bana i 9 147 km/s, och Lambert
-löser den utan att klaga. Vakten letar efter olösliga ben, inte efter orimliga.
-Att sålla på rimlighet vore ett annat prov – en övre gräns för farten skulle
-duga – men det är inte det den här punkten handlade om, och en gräns satt på
-måfå riskerar att sålla bort riktig data.
+**What the guard does not catch.** A leg that is implausible but mathematically
+solvable gets through: Jupiter to Saturn in one day gives an orbit at 9,147 km/s,
+and Lambert solves it without complaint. The guard looks for unsolvable legs, not
+for implausible ones. Sifting on plausibility would be a different test – an upper
+limit on the speed would do – but that is not what this item was about, and a
+limit set at random risks sifting away real data.
