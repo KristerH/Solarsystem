@@ -52,6 +52,10 @@ public partial class MainPage : ContentPage
     SkyEvent.Choice? _meetingChoice;
     SkyEvent.Meeting? _meeting;
 
+    // The launch-window tooltip as it currently stands, so it can be left
+    // alone when it hasn't changed. See SetLaunchWindowTip.
+    string? _launchWindowTip;
+
     /// <summary>Moons are indented one step in the focus selector so they read as belonging to their planet.</summary>
     const string MoonEntry = "\u00b7 ";
 
@@ -540,6 +544,16 @@ public partial class MainPage : ContentPage
     /// </remarks>
     void SetLaunchWindowTip(string? text)
     {
+        // Writing the property again dismisses a tooltip that is on its way
+        // up, and the status is rewritten about twice a second while time
+        // runs – so without this check it would only ever be readable with
+        // the app paused, which is exactly how the bug showed itself. The
+        // text only really changes once per simulated day.
+        if (text == _launchWindowTip)
+            return;
+
+        _launchWindowTip = text;
+
         SetTip(MissionTitleLabel, text);
         SetTip(LaunchButton, text);
         SetTip(NextWindowButton, text);

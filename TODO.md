@@ -2312,6 +2312,26 @@ The control panel:
       under the date is gone, and that it comes back if a launch cannot be
       planned at all.
 
+      **Corrected afterwards: it only appeared with the app paused.** Writing
+      the tooltip property again dismisses one that is on its way up, and the
+      status was rewritten roughly twice a second while time ran – it never
+      survived its own hover delay. Paused, the date stops moving,
+      `UpdateLaunchWindow` returns early and nothing rewrites it, which is why
+      it worked there and only there. The text is now left alone unless it has
+      actually changed, which is about once per simulated day.
+
+      **Decided: paused is enough.** Wound forward fast the countdown still
+      changes quicker than the hover delay, so the tooltip stays out of reach
+      there. Chasing that would mean holding the text still while the number
+      underneath moves, and the moment anybody wants to read a launch window
+      is the moment they have stopped to look. Left as it is.
+
+      Still unanswered, and now of little consequence: whether Windows shows
+      the tooltip on a *disabled* control. Measured against the screenshot it
+      came from "Next launch window", which is the enabled one. Until someone
+      hovers a greyed-out "Launch to Mars" the status stays on all three
+      controls, the row's label included, so it is reachable either way.
+
 **Outcome: all of it seen in the app.** Every item above has now been run in the
 running window, which is what the section was written for – the numbers were
 never in doubt, only what they looked like. That matters most for the four items
