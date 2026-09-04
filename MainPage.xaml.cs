@@ -89,6 +89,13 @@ public partial class MainPage : ContentPage
         {
             _drawable.Suspended = true;
             _resizeQuietUntil = _clock.Elapsed.TotalSeconds + 0.3;
+
+            // The probe selector is anchored to the bottom of the view and
+            // grows upward. Seven probes are taller than a short window, and
+            // without a ceiling the rows past the edge are simply cut off –
+            // Cassini and Juno were unreachable. Capped to the view, the
+            // scroll view inside it takes over.
+            ProbeMenu.MaximumHeightRequest = Math.Max(120, SpaceView.Height - 24);
         };
 
         BuildProbeMenu();

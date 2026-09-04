@@ -585,6 +585,18 @@ because the text stack where the panels sit lets clicks through and the
 checkboxes would then have been impossible to hit. The rows are built from probe
 data, so a new probe turns up in the picker by itself.
 
+**Corrected afterwards: there was no room for all seven.** The claim above –
+that a new probe turns up by itself – held for the rows but not for the box
+around them. The selector is anchored to the bottom of the view and grows
+upward, so in a short window the rows past the top edge were simply cut off
+rather than making the box scroll, and Cassini and Juno sat below the separator
+where they could not be reached at all. The count on the button said 7 while the
+list showed five and a half, which is what gave it away. The box is now capped
+to the height of the view and the rows scroll inside it, so the number of probes
+no longer has to fit the window. The list had to become a grid with a star row
+for that: a stack hands every child its full desired height and would let the
+list run off the edge again instead of scrolling.
+
 The two orbiting probes from 10.5 came along into the same picker – they are
 probes too, and the old checkbox controlled them as well. They are not in the
 focus picker, however, since you look at them by selecting their planet.

@@ -90,8 +90,14 @@
                 Stroke="#33445A"
                 StrokeThickness="1"
                 StrokeShape="RoundRectangle 8">
-            <VerticalStackLayout Spacing="5">
-                <HorizontalStackLayout Spacing="6" Margin="0,0,0,4">
+            <!-- A grid and not a stack, because the list below has to be able to
+                 scroll. The selector grows upward from the bottom of the view and
+                 with seven probes it is taller than a short window can show; a
+                 stack hands every child its full desired height and the last rows
+                 run off the edge instead. The star row gives the scroll view a
+                 bounded height, and MainPage caps the whole box to the view. -->
+            <Grid RowDefinitions="Auto,*" RowSpacing="5">
+                <HorizontalStackLayout Grid.Row="0" Spacing="6" Margin="0,0,0,4">
                     <Label x:Name="ProbeMenuTitleLabel" TextColor="#E8F4FF" FontSize="14"
                            FontAttributes="Bold" VerticalOptions="Center"
                            Margin="0,0,8,0" />
@@ -102,8 +108,10 @@
                             BackgroundColor="#26303C" TextColor="White"
                             FontSize="12" Padding="10,2" HeightRequest="30" />
                 </HorizontalStackLayout>
-                <VerticalStackLayout x:Name="ProbeMenuItems" Spacing="2" />
-            </VerticalStackLayout>
+                <ScrollView Grid.Row="1" VerticalScrollBarVisibility="Default">
+                    <VerticalStackLayout x:Name="ProbeMenuItems" Spacing="2" />
+                </ScrollView>
+            </Grid>
         </Border>
 
         <!-- Control panel. The rows sit in a horizontal ScrollView instead of a
