@@ -1947,6 +1947,32 @@ anything at all is published – it cannot be taken back.
       translation work (TODO.md is itself over 2,000 lines, comparable to the
       comments' 2,056).
 
+- [ ] **Flip the repository from private to public.** Everything above is
+      preparation for this, and it was never written down as a step of its own.
+      It is also the one action here that cannot be taken back quietly: once it
+      is public, anything in it has been public.
+
+      Do these first, in this order:
+
+      1. **Check whether the old history is still on GitHub.** The force-push
+         made those commits unreachable but did not delete them – GitHub keeps
+         unreachable objects and still serves them by SHA until a garbage
+         collection that does not happen on its own. Private, that is
+         harmless. Public, anyone holding the SHA can read them, and the old
+         tip `e548cb9` is signed `krister.hellsing@swedavia.se`, which is the
+         whole thing the rewrite was for. Open
+         `https://github.com/KristerH/Solarsystem/commit/e548cb9` – if the page
+         loads, they are still there. The clean answer is then to delete the
+         repository on GitHub and push again, since the local `main` is already
+         the corrected history; asking GitHub Support to run a collection is
+         the slower alternative. Nothing is lost by deleting: 48 tracked files,
+         no issues and no pull requests.
+      2. **Run the verification below while it is still private.** Finding out
+         that the README is missing a step is cheaper before strangers try it.
+      3. Keep `backup-before-email-rewrite` until the rest is settled. It is
+         local only, so it never leaves the machine, but it is also the only
+         way back to the original history.
+
 **Verify:** Clone the repository into an empty directory on another machine and
 build it using only the instructions in the README. If that does not work, the
 README is not finished.
@@ -2049,6 +2075,29 @@ The state of the repository, checked rather than assumed:
       Worth weighing against the audience: this is a teaching app, and the
       people who most need an installer are the ones least likely to click
       past a security warning.
+
+- [ ] **Decide where the file is downloaded from.** A public repository answers
+      this almost by itself: GitHub Releases is free, versioned, and ties the
+      download to the tag it was built from, so there is nothing to host and
+      nothing to keep in sync by hand. It also strengthens the simplest of the
+      three routes above – a zip of a self-contained publish – because the part
+      that route lacks is distribution, and Releases is exactly that.
+
+- [ ] **Keep the signing key out of the repository.** If the certificate route
+      is chosen, the `.pfx` and its password must never be committed. In a
+      public repository a slip is not an internal mistake but an immediate
+      disclosure of a key that then has to be revoked and replaced. The
+      mechanism is GitHub Actions secrets, with the certificate held there
+      rather than in the tree. The history is clean of such files today –
+      searched for `.pfx`, `.snk`, `.p12`, `.pem`, `.key`, `.cer` and `.env`
+      across every commit, nothing found – but `.gitignore` covers build output
+      only, so it should be extended before the first certificate is ever put
+      on the machine, not after.
+
+      Note that going public changes the weight of the signing decision above
+      without changing any of its facts. Private, the only person downloading
+      the app is the person who built it. Public, strangers do, and an unsigned
+      executable from an unfamiliar account gets SmartScreen's full treatment.
 
 - [ ] **Fill in or delete the manifest placeholders**, depending on the route
       chosen above. Deleting is a real option – `Package.appxmanifest` is
