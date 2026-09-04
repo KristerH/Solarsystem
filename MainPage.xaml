@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Solarsystem.MainPage"
@@ -24,7 +24,12 @@
                              InputTransparent="True">
             <Label x:Name="DateLabel" TextColor="White" FontSize="20" FontAttributes="Bold" />
             <Label x:Name="ElapsedLabel" TextColor="#9EC1E8" FontSize="14" />
-            <Label x:Name="MissionLabel" TextColor="#8FD3B6" FontSize="14" Margin="0,4,0,0" />
+            <!-- Only shown when a launch can't be planned at all. The launch-window
+                 status used to live here too, but it concerns the trip to Mars alone
+                 and read as if it applied to the whole view; it's a tooltip on the
+                 mission row now. -->
+            <Label x:Name="MissionLabel" TextColor="#8FD3B6" FontSize="14" Margin="0,4,0,0"
+                   IsVisible="False" />
             <!-- The texts are set from the code, see ApplyLanguage in MainPage.xaml.cs.
                  That's why every label and button has a name but no Text here:
                  the language can be switched while the app runs, and everything

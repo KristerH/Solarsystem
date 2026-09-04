@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Globalization;
 using System.Numerics;
 using Solarsystem.Rendering;
@@ -44,6 +44,13 @@ public partial class MainPage : ContentPage
 
     double _panLastX, _panLastY;
     int _focusIndex;                       // 0 = the Sun, then bodies, then probes
+
+    // The last meeting searched for. Kept so the line can be written again in
+    // a new language: it's the one text built from a past click rather than
+    // from the current state, and without this it would be left standing in
+    // the language it was found in.
+    SkyEvent.Choice? _meetingChoice;
+    SkyEvent.Meeting? _meeting;
 
     /// <summary>Moons are indented one step in the focus selector so they read as belonging to their planet.</summary>
     const string MoonEntry = "\u00b7 ";
@@ -198,6 +205,7 @@ public partial class MainPage : ContentPage
         LanguageTitleLabel.Text = Strings.Language;
         PanelToggleButton.Text = PanelBody.IsVisible ? Strings.HidePanel : Strings.ShowPanel;
 
+        StartStopButton.Text = _running ? Strings.Pause : Strings.Start;
         SpeedTitleLabel.Text = Strings.Speed;
         OrbitsLabel.Text = Strings.ShowOrbits;
         MoonsLabel.Text = Strings.ShowMoons;
@@ -253,6 +261,7 @@ public partial class MainPage : ContentPage
 
         // The texts built from state get rewritten from their own places.
         UpdateSpeedFromSlider();
+        UpdateMeetingLabel();
         UpdateProbeMenuButton();
         UpdateMissionUi((CurrentDate - SolarSystemData.EpochJ2000).TotalDays);
         RebuildFocusPicker(CurrentFocus());
@@ -478,7 +487,8 @@ public partial class MainPage : ContentPage
             NextWindowButton.BackgroundColor = StepClosed;
 
             // Travel time, distance and speed are shown in the mission panel instead.
-            MissionLabel.Text = string.Empty;
+            ShowMissionError(null);
+            SetLaunchWindowTip(null);
             return;
         }
 
@@ -495,22 +505,65 @@ public partial class MainPage : ContentPage
         NextWindowButton.IsEnabled = _nextWindowDay is not null;
         NextWindowButton.BackgroundColor = _nextWindowDay is not null ? StepReady : StepClosed;
 
+        ShowMissionError(null);
+
         if (_inLaunchWindow)
         {
             // The speed relative to Earth is the measure of how big a rocket
             // is needed, and it's what decides whether the window counts as
             // open.
-            MissionLabel.Text = Strings.Format("msg.windowOpen", _departureSpeedKmS);
+            SetLaunchWindowTip(Strings.Format("msg.windowOpen", _departureSpeedKmS));
         }
         else if (_nextWindowDay is double next)
         {
             var date = SolarSystemData.EpochJ2000.AddDays(next);
-            MissionLabel.Text = Strings.Format("msg.windowClosedNext", next - day, date);
+            SetLaunchWindowTip(Strings.Format("msg.windowClosedNext", next - day, date));
         }
         else
         {
-            MissionLabel.Text = Strings.WindowClosed;
+            SetLaunchWindowTip(Strings.WindowClosed);
         }
+    }
+
+    /// <summary>
+    /// The launch-window status, put on the controls it's actually about.
+    /// It used to stand under the date in the corner of the view, where it
+    /// read as a statement about everything on screen when it only ever
+    /// concerned the trip to Mars.
+    /// </summary>
+    /// <remarks>
+    /// All three carry the same text on purpose. The two buttons take turns
+    /// being the enabled one – "Launch to Mars" while the window is open,
+    /// "Next launch window" while it's shut – and a disabled control gets no
+    /// pointer events on Windows, so neither can carry the status on its own.
+    /// The row's label is never disabled and is the fallback.
+    /// </remarks>
+    void SetLaunchWindowTip(string? text)
+    {
+        SetTip(MissionTitleLabel, text);
+        SetTip(LaunchButton, text);
+        SetTip(NextWindowButton, text);
+
+        // Null means no tooltip at all, which is a cleared property rather
+        // than an empty string – an empty one would still open a blank box.
+        static void SetTip(BindableObject control, string? text)
+        {
+            if (text is null)
+                control.ClearValue(ToolTipProperties.TextProperty);
+            else
+                ToolTipProperties.SetText(control, text);
+        }
+    }
+
+    /// <summary>
+    /// Shows the one mission message that has to be seen rather than hovered
+    /// for: that no trip could be planned at all. Hidden when empty, so the
+    /// line doesn't take up room under the date the rest of the time.
+    /// </summary>
+    void ShowMissionError(string? text)
+    {
+        MissionLabel.Text = text ?? string.Empty;
+        MissionLabel.IsVisible = !string.IsNullOrEmpty(text);
     }
 
     // The camera should follow the craft down to the target when it
@@ -759,7 +812,7 @@ public partial class MainPage : ContentPage
         var mission = Mission.Plan("craft", EarthBody, MarsBody, launchDay);
         if (mission is null)
         {
-            MissionLabel.Text = Strings.CraftNoPath;
+            ShowMissionError(Strings.CraftNoPath);
             return;
         }
 
@@ -786,7 +839,7 @@ public partial class MainPage : ContentPage
         var mission = Mission.PlanToMoon("craft", EarthBody, MoonBody, launchDay);
         if (mission is null)
         {
-            MissionLabel.Text = Strings.CraftNoPath;
+            ShowMissionError(Strings.CraftNoPath);
             return;
         }
 
@@ -1135,14 +1188,54 @@ public partial class MainPage : ContentPage
         var choice = SkyEvent.Choices[index];
         double day = (CurrentDate - SolarSystemData.EpochJ2000).TotalDays;
 
-        if (SkyEvent.Next(choice.Kind, choice.A, choice.B, day) is not { } meeting)
+        _meetingChoice = choice;
+        _meeting = SkyEvent.Next(choice.Kind, choice.A, choice.B, day);
+        UpdateMeetingLabel();
+
+        if (_meeting is not { } meeting)
+            return;
+
+        GoToDate(SolarSystemData.EpochJ2000.AddDays(meeting.Day));
+
+        // For an eclipse, the explanation is worth more than the date. Set
+        // up the view so it's visible: the Moon's orbit shown and the camera
+        // at Earth, where you can see the Sun standing on the node line that
+        // very day and so being able to get in the way.
+        if (choice.Kind is SkyEvent.Kind.SolarEclipse or SkyEvent.Kind.LunarEclipse)
+        {
+            MoonOrbitCheck.IsChecked = true;
+            MoonsCheck.IsChecked = true;
+            FocusOn(EarthBody);
+        }
+
+        // Jumping to Halley's perihelion without lighting up the comet would
+        // be travelling to an empty date. The camera, though, is left where
+        // it stands: it's in the overview that you see what actually
+        // happens, the comet diving in through the whole planetary system.
+        // To get close, it's in the focus selector.
+        if (choice.Kind is SkyEvent.Kind.Perihelion)
+            HalleyCheck.IsChecked = true;
+    }
+
+    /// <summary>
+    /// Writes the line about the last meeting searched for. Separate from the
+    /// button so the language selector can call it too – the date, the numbers
+    /// and the wording all follow the language, and the search doesn't need
+    /// running again to say the same thing in another one.
+    /// </summary>
+    void UpdateMeetingLabel()
+    {
+        // Nothing searched for yet, so there's nothing to say.
+        if (_meetingChoice is not { } choice)
+            return;
+
+        if (_meeting is not { } meeting)
         {
             MeetingLabel.Text = Strings.NoMeeting;
             return;
         }
 
         var date = SolarSystemData.EpochJ2000.AddDays(meeting.Day);
-        GoToDate(date);
 
         // The whole sentence, not just the number: what was found, when, and how close.
         string detail = choice.Kind switch
@@ -1164,25 +1257,6 @@ public partial class MainPage : ContentPage
             _ => Strings.Format("msg.meetingConjunction", meeting.SeparationDeg),
         };
         MeetingLabel.Text = Strings.Format("msg.meetingLine", ChoiceLabel(choice), date, detail);
-
-        // For an eclipse, the explanation is worth more than the date. Set
-        // up the view so it's visible: the Moon's orbit shown and the camera
-        // at Earth, where you can see the Sun standing on the node line that
-        // very day and so being able to get in the way.
-        if (choice.Kind is SkyEvent.Kind.SolarEclipse or SkyEvent.Kind.LunarEclipse)
-        {
-            MoonOrbitCheck.IsChecked = true;
-            MoonsCheck.IsChecked = true;
-            FocusOn(EarthBody);
-        }
-
-        // Jumping to Halley's perihelion without lighting up the comet would
-        // be travelling to an empty date. The camera, though, is left where
-        // it stands: it's in the overview that you see what actually
-        // happens, the comet diving in through the whole planetary system.
-        // To get close, it's in the focus selector.
-        if (choice.Kind is SkyEvent.Kind.Perihelion)
-            HalleyCheck.IsChecked = true;
     }
 
     void OnMoonOrbitChanged(object? sender, CheckedChangedEventArgs e)

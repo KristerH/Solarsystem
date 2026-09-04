@@ -1965,6 +1965,80 @@ unchanged, so every cross-reference in the document still points where it did.
 
 ---
 
+### 13.4 – An installer, and signing it
+
+Publishing the source was 13.2. This is the other half of a public release:
+that somebody who does not build things themselves can install and run it.
+Today there is no answer to "where do I get the app" other than "install the
+.NET SDK and the MAUI workload, then build it".
+
+The state of the repository, checked rather than assumed:
+
+- `<WindowsPackageType>None</WindowsPackageType>` in `Solarsystem.csproj`, so
+  the build produces a loose folder of files and no installer at all.
+- `Platforms/Windows/Package.appxmanifest` is still there and still holds the
+  template's placeholders – `Identity Name="maui-package-name-placeholder"`,
+  `Publisher="CN=User Name"`, `<DisplayName>$placeholder$</DisplayName>`,
+  `<PublisherDisplayName>User Name</PublisherDisplayName>`. It is dead while
+  the package type is `None`, but it is the same kind of template leftover
+  that 13.2 went through the project for, and it comes alive the moment MSIX
+  is chosen.
+- `ApplicationDisplayVersion` is `1.0` and `ApplicationVersion` is `1`, both
+  untouched since the project was created. A release needs a version that
+  means something and a rule for when it moves.
+
+- [ ] **Decide the form of distribution.** Three routes, and the choice
+      decides everything below it:
+      1. A zip of a self-contained publish. Simplest by far, no manifest and
+         no installer to maintain, but the user unpacks it themselves and
+         there is no uninstall entry.
+      2. MSIX. The manifest above becomes real, the app gets a proper install
+         and uninstall, and it is what the MAUI project is set up for. It also
+         requires a certificate the machine trusts before it will install at
+         all, which is the catch for anyone downloading from GitHub.
+      3. A conventional installer (Inno Setup, WiX) around an unpackaged
+         publish. Familiar to users, no store machinery, but a third-party
+         tool in the build.
+
+- [ ] **Decide about signing, honestly.** This is the part that costs money
+      rather than time, so it is worth being clear about what each level
+      actually buys:
+      - Unsigned: SmartScreen warns on first run, with a "More info" step
+        before the app will start. It does work, and for a school laptop it
+        may be enough.
+      - Self-signed: does nothing for SmartScreen. It is only useful for MSIX,
+        where the user first has to install the certificate by hand – which
+        is a worse experience than the warning it replaces.
+      - A real code-signing certificate (OV): removes the publisher warning
+        and builds SmartScreen reputation over time. It costs a few hundred
+        euro a year and now requires the key to live on hardware or in a
+        signing service, which is the part that makes it awkward for a
+        hobby project.
+
+      Worth weighing against the audience: this is a teaching app, and the
+      people who most need an installer are the ones least likely to click
+      past a security warning.
+
+- [ ] **Fill in or delete the manifest placeholders**, depending on the route
+      chosen above. Deleting is a real option – `Package.appxmanifest` is
+      unused with `WindowsPackageType` set to `None`, and leaving a file full
+      of `$placeholder$` in a public repository is the same untidiness 13.2
+      cleaned up elsewhere.
+
+- [ ] **Give the version a meaning.** Decide what 1.0 is, and whether the
+      number moves per release or per commit.
+
+- [ ] **Write down how a release is built**, in the README next to the build
+      instructions. A release nobody remembers how to make is made once.
+
+**Verify:** Take the built artifact to a machine that has never had the .NET
+SDK on it – that is the whole point, and a developer machine cannot tell you
+whether it works. Install, run, check that the app icon and name from 13.2
+show up in the Start menu and in Add/Remove Programs, then uninstall and check
+that it leaves nothing behind.
+
+---
+
 ## Stage 14 – Separating logic from user interface
 
 The goal is for the same solar system to be drivable by more than one user
