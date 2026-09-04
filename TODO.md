@@ -2159,7 +2159,7 @@ Things that are known, deliberately left and not urgent, but that should be deal
 with at some point. Every project has a little technical debt – the point of the
 list is that it is written down instead of forgotten.
 
-### R1 – Try the user interface for real
+### R1 – Try the user interface for real ✔
 
 Stages 9 and 10 are verified with numbers: orbits, speeds, travel times,
 milestones, hits on the planets and the index logic in the probe picker have all
@@ -2311,6 +2311,18 @@ The control panel:
       states: inside a launch window, and outside one. Check also that the line
       under the date is gone, and that it comes back if a launch cannot be
       planned at all.
+
+**Outcome: all of it seen in the app.** Every item above has now been run in the
+running window, which is what the section was written for – the numbers were
+never in doubt, only what they looked like. That matters most for the four items
+that were colour judgements rather than function tests: the lunar orbit against
+the ecliptic ring, the heliopause circle, Halley's two tails and the sunspots.
+Their geometry had been verified outside the app, but the colours, sizes and
+thresholds were guesses that only the eye could settle.
+
+The two items added last – the pause button's text at start-up and the
+launch-window tooltip on the mission row – were both fixes made without being
+able to see them, and they hold.
 
 ### R2 – Confirm Juno's end date ✔
 
