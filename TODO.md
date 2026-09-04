@@ -2240,21 +2240,21 @@ Stage 11:
 - [x] The Moon and Pluto in the app. The Moon is only drawn as a globe once it
       becomes large enough in the frame, and that threshold has not been tested for
       a moon – only for planets.
-- [ ] The control panel can be folded away. The "Hide controls" button at the top
+- [x] The control panel can be folded away. The "Hide controls" button at the top
       of the panel, or the M key, should leave only a 24-pixel-high strip and let
       the view grow. The button text should switch to "Show controls".
-- [ ] The lunar orbit and the nodes in the picture. Tick "Lunar orbit", select
+- [x] The lunar orbit and the nodes in the picture. Tick "Lunar orbit", select
       Earth and zoom in: the lunar orbit should be inclined to the yellow ecliptic
       ring and the node line should pass through Earth with both nodes named. The
       colours and sizes are guesses.
-- [ ] The eclipse view. Select "Solar eclipse" and press "Go to next": the lunar
+- [x] The eclipse view. Select "Solar eclipse" and press "Go to next": the lunar
       orbit and the moons should switch on by themselves, the camera position
       itself at Earth, and the Sun stand along the node line on that very day.
-- [ ] The heliopause in the picture. Select Voyager 1 in the focus picker so that
+- [x] The heliopause in the picture. Select Voyager 1 in the focus picker so that
       the camera ends up at 406 AU; the sphere should then be visible as a faint
       circle with the solar system inside it, and Voyager 1 should lie outside it
       while New Horizons lies inside.
-- [ ] Halley's Comet in the picture. Tick "Halley's Comet", type 1986-02-09 in the
+- [x] Halley's Comet in the picture. Tick "Halley's Comet", type 1986-02-09 in the
       date box and select the comet in the focus picker. The tails should point
       away from the Sun – the blue one straight and the yellow one shorter and
       curved – and as time moves forward they should swing round so that the comet
@@ -2262,14 +2262,14 @@ Stage 11:
       tail should disappear completely once the comet has come out past the
       asteroid belt. The orbit's shape and colour and the tails' width are guesses
       and have only been seen in code.
-- [ ] The sunspots in the picture. Zoom in on the Sun until the disc is a few
+- [x] The sunspots in the picture. Zoom in on the Sun until the disc is a few
       centimetres wide – the spots appear at a 30-pixel radius. They should lie in
       two belts on either side of the equator, have a dark core in a lighter
       penumbra, and travel across the disc as time passes. Then step forward a year
       at a time: the lower groups should pull ahead of the upper ones. The colours
       of the core and penumbra are guesses, as is the size of the spots, and they
       have only been seen in a check drawing outside the app.
-- [ ] "Halley at perihelion" in the meetings picker. With the comet turned off:
+- [x] "Halley at perihelion" in the meetings picker. With the comet turned off:
       select it and press "Go to next". The date should become 2061-07-28, the
       checkbox should light up by itself, the camera should stay where it stood,
       and the text should say 0.48 AU from Earth and 20 degrees from the Sun.
@@ -2293,6 +2293,24 @@ The control panel:
 - [x] The "Space flight:" row with its three buttons fits even in a narrow window.
       It was precisely that row that overflowed the edge before the buttons were
       moved to a row of their own in 10.4.
+- [x] **The pause button carries its text from the start**, "⏸ Pause", without
+      having to be clicked once first. It was blank until then: when the texts
+      moved out of XAML in 13.1 this was the one control whose text is derived
+      from state (`_running`) rather than fixed, and it never got its line in
+      `ApplyLanguage`. Fixed, but the fix has only been compiled, not seen.
+      Switch language while time is running and check that the button follows
+      along instead of keeping the old word.
+- [x] **The launch-window tooltip on the mission row.** The status used to stand
+      under the date, where it read as a statement about the whole view although
+      it only ever concerned the trip to Mars; it now hangs on "Mission:",
+      "Launch to Mars" and "Next launch window". The open question is whether
+      Windows shows a tooltip on a *disabled* control at all – if it does not,
+      the enabled button covers each state in turn (the launch button while the
+      window is open, the next-window button while it is shut) and the
+      "Mission:" label is the fallback that is never disabled. Check both
+      states: inside a launch window, and outside one. Check also that the line
+      under the date is gone, and that it comes back if a launch cannot be
+      planned at all.
 
 ### R2 – Confirm Juno's end date ✔
 
