@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Resources;
 
 namespace Solarsystem;
@@ -129,6 +129,10 @@ public static class Strings
     public static string MoonOrbit => Get("ui.moonOrbit");
     /// <summary>Show probes</summary>
     public static string ShowProbes => Get("ui.showProbes");
+    /// <summary>Title of the Solar System drop-down</summary>
+    public static string ShowSystem => Get("ui.showSystem");
+    /// <summary>Title of the sky drop-down</summary>
+    public static string ShowSky => Get("ui.showSky");
     /// <summary>All</summary>
     public static string All => Get("ui.all");
     /// <summary>None</summary>

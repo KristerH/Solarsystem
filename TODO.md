@@ -597,6 +597,12 @@ no longer has to fit the window. The list had to become a grid with a star row
 for that: a stack hands every child its full desired height and would let the
 list run off the edge again instead of scrolling.
 
+The scroll view brought one thing of its own: the box stretched to the full
+width of the window instead of hugging its rows, because a scroll view measures
+itself to the width it is offered. Anchoring it and its grid to the start fixes
+that. It applies to all three drop-downs, the selector's two younger siblings
+from the control panel included.
+
 The two orbiting probes from 10.5 came along into the same picker – they are
 probes too, and the old checkbox controlled them as well. They are not in the
 focus picker, however, since you look at them by selecting their planet.
@@ -1763,6 +1769,19 @@ code before the stage began – verified against commit 5493e48),
 - The probes' and spacecraft's own names (Voyager 1, Cassini, "Farkost"/"craft")
   are not translated – they are proper names, exactly like the stars'.
 
+**Corrected afterwards: the star selector opened on the wrong entry.** It said
+"None" at start-up while the sky was drawn with stars. The setting was never
+wrong, only the label: refilling a selector resets its selection, so
+`ApplyLanguage` saves the index aside and puts it back afterwards – but at
+start-up there is nothing to save. The selector has no items that early, an
+index set before then never takes, and reading it back gives -1, which clamped
+to the first entry. The star density is the only one of the selectors whose
+default is not the first entry (`StarSky.Density` starts at `Medium`), which is
+why it was the only one that showed. It now reads its selection from the
+drawable instead of from its own index, so the setting has one home rather than
+two. The others are correct, but for the weaker reason that their default
+happens to be zero.
+
 **Tested but not inspected in the app.** The test above links the compiled
 `Solarsystem.dll` and the satellite resource `sv/Solarsystem.resources.dll` –
 exactly the files the app actually uses – but runs as a standalone console
@@ -2154,6 +2173,33 @@ feel.
 - **New texts up until the language support:** written in Swedish as today for the
   time being, but preferably collected in a few places in the code so that stage
   13.1 (language support) is simple to carry out.
+- **The control panel is grouped into drop-downs, not spread across rows.**
+  It had grown to five rows and nine checkboxes, and the second row alone held
+  nine controls of four different kinds. The checkboxes now live in two
+  drop-downs built the same way as the probe selector from 10.6 – a button that
+  unfolds a bordered box over the view – grouped by subject rather than by
+  type: "Solar System" (orbits, moons, the two belts, Halley, the Moon's orbit,
+  real size) and "Sky" (constellations, star names, star density). The panel is
+  four rows instead of five, and its top row is now the whole of what the view
+  shows.
+
+  Two rules follow for anything added later. Each button carries a count of
+  what is ticked, so a shut menu still says what is on – that is what made the
+  clipped probe list noticeable in the first place. And only one menu is open
+  at a time: all three are anchored to the same corner of the view, so two open
+  at once would cover each other. Every drop-down is also capped to the height
+  of the view and scrolls inside it, which is what 10.6's correction is about.
+
+  **The top row has a width budget, and it is nearly spent.** Merging two rows
+  into one pushed "Reset view" off the right edge of the window. Four controls
+  there held 640 fixed pixels between them; the speed slider and its readout
+  were the generous ones and gave back 90. The panel also shows its horizontal
+  scrollbar now instead of hiding it – a row that outgrows the window should
+  say so rather than quietly cut off whatever is last. Anything added to that
+  row from here needs something else taken out of it, and the next thing to
+  move would be the focus selector and its reset button, the two that are about
+  the camera rather than about what is drawn.
+
 - **The app may remain made for Swedish pupils.** That question came up ahead of
   stage 13.2: should the Swedish slant be toned down when the code is published
   openly? No. Open source solves that in its own way – whoever wants a variant for

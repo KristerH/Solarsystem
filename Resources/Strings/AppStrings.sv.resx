@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
@@ -345,6 +345,18 @@
   </data>
   <data name="ui.probesButton">
     <value>Rymdsonder {0}/{1} ▾</value>
+  </data>
+  <data name="ui.systemButton" xml:space="preserve">
+    <value>Solsystemet {0}/{1} ▾</value>
+  </data>
+  <data name="ui.skyButton" xml:space="preserve">
+    <value>Himlen {0}/{1} ▾</value>
+  </data>
+  <data name="ui.showSystem" xml:space="preserve">
+    <value>Visa i solsystemet</value>
+  </data>
+  <data name="ui.showSky" xml:space="preserve">
+    <value>Visa på himlen</value>
   </data>
   <data name="ui.showProbes">
     <value>Visa sonder</value>

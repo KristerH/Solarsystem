@@ -56,6 +56,11 @@ public partial class MainPage : ContentPage
     // alone when it hasn't changed. See SetLaunchWindowTip.
     string? _launchWindowTip;
 
+    // The checkboxes behind each drop-down, so the count on its button can be
+    // worked out without naming them all over again in three places.
+    CheckBox[] _systemChecks = [];
+    CheckBox[] _skyChecks = [];
+
     /// <summary>Moons are indented one step in the focus selector so they read as belonging to their planet.</summary>
     const string MoonEntry = "\u00b7 ";
 
@@ -95,14 +100,28 @@ public partial class MainPage : ContentPage
             // without a ceiling the rows past the edge are simply cut off –
             // Cassini and Juno were unreachable. Capped to the view, the
             // scroll view inside it takes over.
-            ProbeMenu.MaximumHeightRequest = Math.Max(120, SpaceView.Height - 24);
+            double ceiling = Math.Max(120, SpaceView.Height - 24);
+            ProbeMenu.MaximumHeightRequest = ceiling;
+            SystemMenu.MaximumHeightRequest = ceiling;
+            SkyMenu.MaximumHeightRequest = ceiling;
         };
 
         BuildProbeMenu();
 
+        // The two drop-downs hold checkboxes written in XAML rather than built
+        // from data, so the groups are listed once here and the counts follow
+        // from them. Each box keeps its own handler; this only adds the count.
+        _systemChecks = [OrbitsCheck, MoonsCheck, AsteroidsCheck, KuiperCheck,
+                         HalleyCheck, MoonOrbitCheck, RealScaleCheck];
+        _skyChecks = [ConstellationsCheck, StarNamesCheck];
+
+        foreach (var check in _systemChecks)
+            check.CheckedChanged += (_, _) => UpdateSystemMenuButton();
+        foreach (var check in _skyChecks)
+            check.CheckedChanged += (_, _) => UpdateSkyMenuButton();
+
         // Follow the computer's language until someone picks something else.
         Strings.Use(SystemCulture);
-        StarDensityPicker.SelectedIndex = (int)_drawable.StarDensity;
         LanguagePicker.SelectedIndex = 0;
         ApplyLanguage();
 
@@ -250,6 +269,8 @@ public partial class MainPage : ContentPage
         MoonOrbitLabel.Text = Strings.MoonOrbit;
 
         ProbeMenuTitleLabel.Text = Strings.ShowProbes;
+        SystemMenuTitleLabel.Text = Strings.ShowSystem;
+        SkyMenuTitleLabel.Text = Strings.ShowSky;
         AllProbesButton.Text = Strings.All;
         NoProbesButton.Text = Strings.None;
 
@@ -261,10 +282,14 @@ public partial class MainPage : ContentPage
             { Strings.FollowSystem, "Svenska", "English" };
         LanguagePicker.SelectedIndex = language;
 
-        int density = Math.Max(0, StarDensityPicker.SelectedIndex);
+        // This one reads its selection from the drawable and not from its own
+        // index, unlike the selectors above. At start-up it has no items yet,
+        // so an index set before this point never takes, and reading it back
+        // gives -1 – which clamped to "None" while the sky was being drawn at
+        // Medium. The setting lives in StarSky; the selector only shows it.
         StarDensityPicker.ItemsSource = new List<string>
             { Strings.StarsNone, Strings.StarsFew, Strings.StarsNormal, Strings.StarsMany };
-        StarDensityPicker.SelectedIndex = density;
+        StarDensityPicker.SelectedIndex = (int)_drawable.StarDensity;
 
         int meeting = Math.Max(0, MeetingPicker.SelectedIndex);
         MeetingPicker.ItemsSource = SkyEvent.Choices.Select(ChoiceLabel).ToList();
@@ -274,6 +299,8 @@ public partial class MainPage : ContentPage
         UpdateSpeedFromSlider();
         UpdateMeetingLabel();
         UpdateProbeMenuButton();
+        UpdateSystemMenuButton();
+        UpdateSkyMenuButton();
         UpdateMissionUi((CurrentDate - SolarSystemData.EpochJ2000).TotalDays);
         RebuildFocusPicker(CurrentFocus());
 
@@ -1003,8 +1030,31 @@ public partial class MainPage : ContentPage
         };
     }
 
-    void OnProbeMenuClicked(object? sender, EventArgs e)
-        => ProbeMenu.IsVisible = !ProbeMenu.IsVisible;
+    void OnProbeMenuClicked(object? sender, EventArgs e) => ToggleMenu(ProbeMenu);
+
+    void OnSystemMenuClicked(object? sender, EventArgs e) => ToggleMenu(SystemMenu);
+
+    void OnSkyMenuClicked(object? sender, EventArgs e) => ToggleMenu(SkyMenu);
+
+    /// <summary>
+    /// Opens one drop-down and shuts the others. All three sit in the same
+    /// corner over the view, so two open at once would cover each other.
+    /// </summary>
+    void ToggleMenu(Border menu)
+    {
+        bool show = !menu.IsVisible;
+        ProbeMenu.IsVisible = SystemMenu.IsVisible = SkyMenu.IsVisible = false;
+        menu.IsVisible = show;
+    }
+
+    /// <summary>How many of a group are ticked, for the count on its button.</summary>
+    void UpdateSystemMenuButton()
+        => SystemMenuButton.Text = Strings.Format("ui.systemButton",
+            _systemChecks.Count(c => c.IsChecked), _systemChecks.Length);
+
+    void UpdateSkyMenuButton()
+        => SkyMenuButton.Text = Strings.Format("ui.skyButton",
+            _skyChecks.Count(c => c.IsChecked), _skyChecks.Length);
 
     void OnAllProbesClicked(object? sender, EventArgs e) => SetAllProbes(true);
 

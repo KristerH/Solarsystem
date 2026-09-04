@@ -96,7 +96,7 @@
                  stack hands every child its full desired height and the last rows
                  run off the edge instead. The star row gives the scroll view a
                  bounded height, and MainPage caps the whole box to the view. -->
-            <Grid RowDefinitions="Auto,*" RowSpacing="5">
+            <Grid RowDefinitions="Auto,*" RowSpacing="5" HorizontalOptions="Start">
                 <HorizontalStackLayout Grid.Row="0" Spacing="6" Margin="0,0,0,4">
                     <Label x:Name="ProbeMenuTitleLabel" TextColor="#E8F4FF" FontSize="14"
                            FontAttributes="Bold" VerticalOptions="Center"
@@ -108,8 +108,97 @@
                             BackgroundColor="#26303C" TextColor="White"
                             FontSize="12" Padding="10,2" HeightRequest="30" />
                 </HorizontalStackLayout>
-                <ScrollView Grid.Row="1" VerticalScrollBarVisibility="Default">
+                <ScrollView Grid.Row="1" VerticalScrollBarVisibility="Default"
+                            HorizontalOptions="Start">
                     <VerticalStackLayout x:Name="ProbeMenuItems" Spacing="2" />
+                </ScrollView>
+            </Grid>
+        </Border>
+
+        <Border x:Name="SystemMenu"
+                Grid.Row="0"
+                IsVisible="False"
+                HorizontalOptions="Start"
+                VerticalOptions="End"
+                Margin="14,0,0,12"
+                Padding="14,10"
+                BackgroundColor="#F2121820"
+                Stroke="#33445A"
+                StrokeThickness="1"
+                StrokeShape="RoundRectangle 8">
+            <Grid RowDefinitions="Auto,*" RowSpacing="5" HorizontalOptions="Start">
+                <Label x:Name="SystemMenuTitleLabel" Grid.Row="0" TextColor="#E8F4FF" FontSize="14"
+                       FontAttributes="Bold" Margin="0,0,0,4" />
+                <ScrollView Grid.Row="1" VerticalScrollBarVisibility="Default"
+                            HorizontalOptions="Start">
+                    <VerticalStackLayout Spacing="2">
+                        <HorizontalStackLayout Spacing="2">
+                            <CheckBox x:Name="OrbitsCheck" IsChecked="True" CheckedChanged="OnOrbitsChanged" Color="#6FA8DC" />
+                            <Label x:Name="OrbitsLabel" TextColor="#C8D4E0" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout Spacing="2">
+                            <CheckBox x:Name="MoonsCheck" IsChecked="True" CheckedChanged="OnMoonsChanged" Color="#6FA8DC" />
+                            <Label x:Name="MoonsLabel" TextColor="#C8D4E0" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout Spacing="2">
+                            <CheckBox x:Name="AsteroidsCheck" IsChecked="False" CheckedChanged="OnAsteroidsChanged" Color="#6FA8DC" />
+                            <Label x:Name="AsteroidsLabel" TextColor="#C8D4E0" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout Spacing="2">
+                            <CheckBox x:Name="KuiperCheck" IsChecked="False" CheckedChanged="OnKuiperChanged" Color="#6FA8DC" />
+                            <Label x:Name="KuiperLabel" TextColor="#C8D4E0" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout Spacing="2">
+                            <CheckBox x:Name="HalleyCheck" IsChecked="False" CheckedChanged="OnHalleyChanged" Color="#6FA8DC" />
+                            <Label x:Name="HalleyLabel" TextColor="#C8D4E0" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout Spacing="2">
+                            <CheckBox x:Name="MoonOrbitCheck" IsChecked="False" CheckedChanged="OnMoonOrbitChanged" Color="#6FA8DC" />
+                            <Label x:Name="MoonOrbitLabel" TextColor="#C8D4E0" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout Spacing="2">
+                            <CheckBox x:Name="RealScaleCheck" IsChecked="False" CheckedChanged="OnRealScaleChanged" Color="#6FA8DC" />
+                            <Label x:Name="RealScaleLabel" TextColor="#C8D4E0" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </ScrollView>
+            </Grid>
+        </Border>
+
+        <Border x:Name="SkyMenu"
+                Grid.Row="0"
+                IsVisible="False"
+                HorizontalOptions="Start"
+                VerticalOptions="End"
+                Margin="14,0,0,12"
+                Padding="14,10"
+                BackgroundColor="#F2121820"
+                Stroke="#33445A"
+                StrokeThickness="1"
+                StrokeShape="RoundRectangle 8">
+            <Grid RowDefinitions="Auto,*" RowSpacing="5" HorizontalOptions="Start">
+                <Label x:Name="SkyMenuTitleLabel" Grid.Row="0" TextColor="#E8F4FF" FontSize="14"
+                       FontAttributes="Bold" Margin="0,0,0,4" />
+                <ScrollView Grid.Row="1" VerticalScrollBarVisibility="Default"
+                            HorizontalOptions="Start">
+                    <VerticalStackLayout Spacing="2">
+                        <HorizontalStackLayout Spacing="2">
+                            <CheckBox x:Name="ConstellationsCheck" IsChecked="True" CheckedChanged="OnConstellationsChanged" Color="#6FA8DC" />
+                            <Label x:Name="ConstellationsLabel" TextColor="#C8D4E0" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout Spacing="2">
+                            <CheckBox x:Name="StarNamesCheck" IsChecked="False" CheckedChanged="OnStarNamesChanged" Color="#6FA8DC" />
+                            <Label x:Name="StarNamesLabel" TextColor="#C8D4E0" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout Spacing="6" Margin="0,4,0,0">
+                            <Label x:Name="StarsTitleLabel" TextColor="#C8D4E0" VerticalOptions="Center" />
+                            <Picker x:Name="StarDensityPicker"
+                                    TextColor="White"
+                                    BackgroundColor="#1C2430"
+                                    WidthRequest="110"
+                                    SelectedIndexChanged="OnStarDensityChanged" />
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
                 </ScrollView>
             </Grid>
         </Border>
@@ -154,7 +243,7 @@
             <ScrollView x:Name="PanelBody"
                         Grid.Row="1"
                         Orientation="Horizontal"
-                        HorizontalScrollBarVisibility="Never"
+                        HorizontalScrollBarVisibility="Default"
                         VerticalScrollBarVisibility="Never"
                         BackgroundColor="#12161C">
                 <VerticalStackLayout Padding="12,8" Spacing="6">
@@ -172,56 +261,32 @@
                              left half plays time backward. 0.25 = 1 day/second forward. -->
                         <Slider x:Name="SpeedSlider"
                                 Minimum="-1" Maximum="1" Value="0.25"
-                                WidthRequest="220"
+                                WidthRequest="175"
                                 VerticalOptions="Center"
                                 ValueChanged="OnSpeedChanged" />
-                        <Label x:Name="SpeedLabel" TextColor="#C8D4E0" WidthRequest="150"
+                        <Label x:Name="SpeedLabel" TextColor="#C8D4E0" WidthRequest="115"
                                VerticalOptions="Center" Margin="0,0,10,0" />
 
-                        <CheckBox x:Name="OrbitsCheck" IsChecked="True" CheckedChanged="OnOrbitsChanged" Color="#6FA8DC" />
-                        <Label x:Name="OrbitsLabel" TextColor="#C8D4E0" VerticalOptions="Center" Margin="0,0,10,0" />
+                        <Button x:Name="SystemMenuButton"
+                                Clicked="OnSystemMenuClicked"
+                                BackgroundColor="#26303C" TextColor="White"
+                                Margin="0,0,10,0" />
 
-                        <CheckBox x:Name="MoonsCheck" IsChecked="True" CheckedChanged="OnMoonsChanged" Color="#6FA8DC" />
-                        <Label x:Name="MoonsLabel" TextColor="#C8D4E0" VerticalOptions="Center" Margin="0,0,10,0" />
-
-                        <CheckBox x:Name="RealScaleCheck" IsChecked="False" CheckedChanged="OnRealScaleChanged" Color="#6FA8DC" />
-                        <Label x:Name="RealScaleLabel" TextColor="#C8D4E0" VerticalOptions="Center" />
-                    </HorizontalStackLayout>
-
-                    <HorizontalStackLayout Spacing="6">
-                        <CheckBox x:Name="AsteroidsCheck" IsChecked="False" CheckedChanged="OnAsteroidsChanged" Color="#6FA8DC" />
-                        <Label x:Name="AsteroidsLabel" TextColor="#C8D4E0" VerticalOptions="Center" Margin="0,0,10,0" />
-
-                        <CheckBox x:Name="KuiperCheck" IsChecked="False" CheckedChanged="OnKuiperChanged" Color="#6FA8DC" />
-                        <Label x:Name="KuiperLabel" TextColor="#C8D4E0" VerticalOptions="Center" Margin="0,0,10,0" />
-
-                        <CheckBox x:Name="HalleyCheck" IsChecked="False" CheckedChanged="OnHalleyChanged" Color="#6FA8DC" />
-                        <Label x:Name="HalleyLabel" TextColor="#C8D4E0" VerticalOptions="Center" Margin="0,0,10,0" />
+                        <Button x:Name="SkyMenuButton"
+                                Clicked="OnSkyMenuClicked"
+                                BackgroundColor="#26303C" TextColor="White"
+                                Margin="0,0,10,0" />
 
                         <Button x:Name="ProbeMenuButton"
                                 Clicked="OnProbeMenuClicked"
                                 BackgroundColor="#26303C" TextColor="White"
                                 Margin="0,0,10,0" />
 
-                        <CheckBox x:Name="ConstellationsCheck" IsChecked="True" CheckedChanged="OnConstellationsChanged" Color="#6FA8DC" />
-                        <Label x:Name="ConstellationsLabel" TextColor="#C8D4E0" VerticalOptions="Center" Margin="0,0,10,0" />
-
-                        <CheckBox x:Name="StarNamesCheck" IsChecked="False" CheckedChanged="OnStarNamesChanged" Color="#6FA8DC" />
-                        <Label x:Name="StarNamesLabel" TextColor="#C8D4E0" VerticalOptions="Center" Margin="0,0,10,0" />
-
-                        <Label x:Name="StarsTitleLabel" TextColor="#C8D4E0" VerticalOptions="Center" />
-                        <Picker x:Name="StarDensityPicker"
-                                TextColor="White"
-                                BackgroundColor="#1C2430"
-                                WidthRequest="110"
-                                SelectedIndexChanged="OnStarDensityChanged"
-                                Margin="0,0,10,0" />
-
                         <Label x:Name="FocusTitleLabel" TextColor="#C8D4E0" VerticalOptions="Center" />
                         <Picker x:Name="FocusPicker"
                                 TextColor="White"
                                 BackgroundColor="#1C2430"
-                                WidthRequest="150"
+                                WidthRequest="140"
                                 SelectedIndexChanged="OnFocusChanged"
                                 Margin="0,0,10,0" />
 
@@ -286,12 +351,6 @@
                         <Button x:Name="MeetingButton"
                                 Clicked="OnNextMeetingClicked"
                                 BackgroundColor="#26303C" TextColor="White" Margin="6,0,0,0" />
-                        <CheckBox x:Name="MoonOrbitCheck"
-                                  Color="#7FB4E8"
-                                  CheckedChanged="OnMoonOrbitChanged"
-                                  Margin="10,0,0,0" />
-                        <Label x:Name="MoonOrbitLabel" TextColor="#C8D4E0" VerticalOptions="Center" />
-
                         <Label x:Name="MeetingLabel"
                                TextColor="#9FB4C8" VerticalOptions="Center" Margin="8,0,0,0" />
                     </HorizontalStackLayout>
