@@ -471,8 +471,12 @@ nothing behind.
 ## Making a release
 
 Two commands from the repository root, on Windows, with
-[Inno Setup 6](https://jrsoftware.org/isdl.php) installed and `iscc` on the
-path:
+[Inno Setup 6](https://jrsoftware.org/isdl.php) installed. Note that its
+compiler is not added to the path by either installer: the official one puts
+`ISCC.exe` in `C:\Program Files (x86)\Inno Setup 6\`, and
+`winget install JRSoftware.InnoSetup` puts it in
+`%LOCALAPPDATA%\Programs\Inno Setup 6\`. Call it by full path, or add the
+directory to your path first.
 
 ```
 dotnet publish Solarsystem.csproj -f net10.0-windows10.0.19041.0 -c Release -p:RuntimeIdentifier=win-x64 --self-contained true
@@ -482,8 +486,9 @@ iscc Installer\Solarsystem.iss
 The first produces about 230 MB across some 600 files in
 `bin\Release\net10.0-windows10.0.19041.0\win-x64\publish\` -- large because
 the whole runtime is in there, which is the point. The second compresses that
-into a single `Installer\Output\Solarsystem-<version>-setup.exe`. Neither
-output is committed; both are gitignored.
+into a single `Installer\Output\Solarsystem-<version>-setup.exe` of about
+58 MB, which is the file people download. Neither output is committed; both
+are gitignored.
 
 The version comes from `ApplicationDisplayVersion` in `Solarsystem.csproj` and
 nowhere else -- the installer reads it back out of the built executable, so the

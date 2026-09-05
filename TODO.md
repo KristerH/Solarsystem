@@ -2213,11 +2213,33 @@ files and the executable reports 1.0.0.0, confirming the version change reaches
 the artifact. Large, and unavoidably so – the whole .NET runtime is in there,
 which is the entire reason the target machine needs nothing installed.
 
-**Two things are not verified, and neither is a decision.** Inno Setup is not
-installed on the build machine, so the script has been written but never
-compiled; the first `iscc` run may well turn up a typo. And the Verify step
-above – a machine that has never had the SDK on it – is by definition not
-something this machine can answer.
+**The installer has now been built.** Inno Setup was installed and the script
+compiled on the first run, without a single warning, producing
+`Installer/Output/Solarsystem-1.0.0-setup.exe`. Two things that were only
+intended before are now measured:
+
+- **58 MB, down from the publish folder's 232.** LZMA2/max earns its place –
+  three quarters of the download disappears, and this is the file strangers
+  actually fetch.
+- **The version handling works end to end.** `1.0.0` is written in
+  `Solarsystem.csproj` alone; the executable reports `1.0.0.0`; the script
+  trims the fourth component; the file comes out named
+  `Solarsystem-1.0.0-setup.exe`, matching the tag `v1.0.0`. Nothing repeats the
+  number, so nothing can disagree about it.
+
+`.gitignore` was confirmed to catch the output: `git status` stays clean with a
+58 MB executable sitting in the tree.
+
+**One correction to the README came out of it.** It said `iscc` would be on the
+path, and it is not – neither installer adds it. `winget` puts it under
+`%LOCALAPPDATA%\Programs\Inno Setup 6\` rather than in Program Files, since
+without administrator rights it installs per user. The README now names both
+locations.
+
+**What is still unverified is the Verify step itself** – a machine that has
+never had the .NET SDK on it. That is by definition not something the build
+machine can answer, and it is the one claim the installer makes that has not
+been tested: that the target needs nothing installed first.
 
 ---
 
