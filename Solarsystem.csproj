@@ -31,8 +31,10 @@
 		<!-- App Identifier -->
 		<ApplicationId>com.kristerhellsing.solarsystem</ApplicationId>
 
-		<!-- Versions -->
-		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+		<!-- Versions. Moved by hand when a release is cut, and the git tag
+		     follows: 1.0.0 is tagged v1.0.0. ApplicationVersion is the build
+		     number Windows compares releases with and only ever counts up. -->
+		<ApplicationDisplayVersion>1.0.0</ApplicationDisplayVersion>
 		<ApplicationVersion>1</ApplicationVersion>
 
 		<!-- To develop, package, and publish an app to the Microsoft Store, see: https://aka.ms/MauiTemplateUnpackaged -->

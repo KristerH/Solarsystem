@@ -439,6 +439,59 @@ dotnet build Solarsystem.csproj
 dotnet run --project Solarsystem.csproj -f net10.0-windows10.0.19041.0
 ```
 
+## Downloading a ready-made copy
+
+Under [Releases](https://github.com/KristerH/Solarsystem/releases) there is an
+installer, `Solarsystem-<version>-setup.exe`. It contains everything the app
+needs, including the .NET runtime, so nothing has to be installed first. It
+installs for the current user by default and therefore does not ask for an
+administrator password; an administrator can choose to install it for everyone
+in the first dialog.
+
+**Windows will warn you the first time you run it.** A blue box appears saying
+"Windows protected your PC"; click *More info* and then *Run anyway*. The
+warning is not about the app misbehaving. It appears because the installer is
+not signed with a code-signing certificate, and those cost a few hundred euro a
+year and now require the key to be held on hardware or in a signing service --
+which is more than a teaching app written in spare time can carry. The
+alternative would have been a self-signed certificate, but that produces exactly
+the same warning while looking as though something had been done about it. So it
+is unsigned, and this paragraph is here instead.
+
+If you would rather not click past a security warning -- which is a reasonable
+position, and the same one this app tries to teach -- build it from source
+instead, as described above. That is the same program, assembled on your own
+machine.
+
+Uninstall from Settings > Apps, or from the Start menu group. The app writes no
+settings and touches no registry keys of its own, and its only file outside the
+install folder is an error log in the temp directory, so the uninstall leaves
+nothing behind.
+
+## Making a release
+
+Two commands from the repository root, on Windows, with
+[Inno Setup 6](https://jrsoftware.org/isdl.php) installed and `iscc` on the
+path:
+
+```
+dotnet publish Solarsystem.csproj -f net10.0-windows10.0.19041.0 -c Release -p:RuntimeIdentifier=win-x64 --self-contained true
+iscc Installer\Solarsystem.iss
+```
+
+The first produces about 230 MB across some 600 files in
+`bin\Release\net10.0-windows10.0.19041.0\win-x64\publish\` -- large because
+the whole runtime is in there, which is the point. The second compresses that
+into a single `Installer\Output\Solarsystem-<version>-setup.exe`. Neither
+output is committed; both are gitignored.
+
+The version comes from `ApplicationDisplayVersion` in `Solarsystem.csproj` and
+nowhere else -- the installer reads it back out of the built executable, so the
+two cannot disagree. To cut a release: raise that number and
+`ApplicationVersion` beside it, commit, tag it to match (`git tag v1.0.0`), push
+the tag, run the two commands above, and attach the resulting `.exe` to a new
+GitHub Release on that tag.
+
 ## Platform
 
 Windows only, for now. The project is a .NET MAUI app, which is normally

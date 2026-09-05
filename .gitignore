@@ -60,3 +60,18 @@ desktop.ini
 
 # Local config overrides
 appsettings.*.local.json
+
+# Installer output (Inno Setup writes the .exe here)
+Installer/Output/
+
+# Signing keys and certificates. The app is not signed today, but this is here
+# before any certificate ever reaches the machine rather than after: in a public
+# repository a committed key is disclosed the moment it is pushed, and the only
+# remedy left is to revoke it.
+*.pfx
+*.p12
+*.snk
+*.pem
+*.key
+*.cer
+*.crt

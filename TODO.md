@@ -1967,8 +1967,45 @@ anything at all is published – it cannot be taken back.
          the corrected history; asking GitHub Support to run a collection is
          the slower alternative. Nothing is lost by deleting: 48 tracked files,
          no issues and no pull requests.
+
+         **Checked, and it was the bad case.** The page loaded. The name shown
+         there was the git *author name*, `krister.hellsing`, which GitHub
+         displays instead of the address and which made it look at first as
+         though the commit belonged to the current account – the grey default
+         avatar was the tell that GitHub could link it to no account at all.
+         Read out of the local backup branch, that commit carries
+         `krister.hellsing@swedavia.se` in both the author and the committer
+         field, and every commit in the old history carries it while every
+         commit in the rewritten `main` carries the gmail address. So the
+         rewrite had worked; it simply had not removed anything from GitHub's
+         storage. `git ls-remote` showed the remote holding only
+         `refs/heads/main`, so nothing referenced the old commits – they were
+         dangling objects, unreachable and undeleted, fetchable by anyone with
+         the SHA.
+
+         The repository was deleted and pushed again, and the commit URL now
+         returns 404. Two things made that safe to do: the remote had no
+         issues, pull requests, stars, forks or tags to lose, and
+         `backup-before-email-rewrite` still holds the original history
+         locally, so nothing was destroyed that could not be put back.
       2. **Run the verification below while it is still private.** Finding out
          that the README is missing a step is cheaper before strangers try it.
+
+         **Half-checked so far.** The repository was cloned into an empty
+         directory, the pending 13.4 changes laid over it, and built with
+         nothing but the README's own `dotnet build Solarsystem.csproj` –
+         succeeded, with no errors and no warnings. That rules out the failure
+         that a fresh clone is actually prone to: a file the build needs that
+         was never tracked, and which therefore exists only on the machine it
+         was written on. All four relative links in the README resolve too
+         (LICENSE, THIRD-PARTY-NOTICES.md, TODO.md and the screenshot), which
+         is the other thing a visitor meets first.
+
+         What this does **not** answer is the half the verify was written for:
+         it ran on the machine that has the .NET SDK and the MAUI workload
+         already installed, so it cannot tell whether the requirements list is
+         complete or whether the workload instruction actually works. That
+         still needs a machine that has never built this.
       3. Keep `backup-before-email-rewrite` until the rest is settled. It is
          local only, so it never leaves the machine, but it is also the only
          way back to the original history.
@@ -2044,7 +2081,7 @@ The state of the repository, checked rather than assumed:
   untouched since the project was created. A release needs a version that
   means something and a rule for when it moves.
 
-- [ ] **Decide the form of distribution.** Three routes, and the choice
+- [x] **Decide the form of distribution.** Three routes, and the choice
       decides everything below it:
       1. A zip of a self-contained publish. Simplest by far, no manifest and
          no installer to maintain, but the user unpacks it themselves and
@@ -2057,7 +2094,7 @@ The state of the repository, checked rather than assumed:
          publish. Familiar to users, no store machinery, but a third-party
          tool in the build.
 
-- [ ] **Decide about signing, honestly.** This is the part that costs money
+- [x] **Decide about signing, honestly.** This is the part that costs money
       rather than time, so it is worth being clear about what each level
       actually buys:
       - Unsigned: SmartScreen warns on first run, with a "More info" step
@@ -2076,14 +2113,14 @@ The state of the repository, checked rather than assumed:
       people who most need an installer are the ones least likely to click
       past a security warning.
 
-- [ ] **Decide where the file is downloaded from.** A public repository answers
+- [x] **Decide where the file is downloaded from.** A public repository answers
       this almost by itself: GitHub Releases is free, versioned, and ties the
       download to the tag it was built from, so there is nothing to host and
       nothing to keep in sync by hand. It also strengthens the simplest of the
       three routes above – a zip of a self-contained publish – because the part
       that route lacks is distribution, and Releases is exactly that.
 
-- [ ] **Keep the signing key out of the repository.** If the certificate route
+- [x] **Keep the signing key out of the repository.** If the certificate route
       is chosen, the `.pfx` and its password must never be committed. In a
       public repository a slip is not an internal mistake but an immediate
       disclosure of a key that then has to be revoked and replaced. The
@@ -2099,16 +2136,16 @@ The state of the repository, checked rather than assumed:
       the app is the person who built it. Public, strangers do, and an unsigned
       executable from an unfamiliar account gets SmartScreen's full treatment.
 
-- [ ] **Fill in or delete the manifest placeholders**, depending on the route
+- [x] **Fill in or delete the manifest placeholders**, depending on the route
       chosen above. Deleting is a real option – `Package.appxmanifest` is
       unused with `WindowsPackageType` set to `None`, and leaving a file full
       of `$placeholder$` in a public repository is the same untidiness 13.2
       cleaned up elsewhere.
 
-- [ ] **Give the version a meaning.** Decide what 1.0 is, and whether the
+- [x] **Give the version a meaning.** Decide what 1.0 is, and whether the
       number moves per release or per commit.
 
-- [ ] **Write down how a release is built**, in the README next to the build
+- [x] **Write down how a release is built**, in the README next to the build
       instructions. A release nobody remembers how to make is made once.
 
 **Verify:** Take the built artifact to a machine that has never had the .NET
@@ -2116,6 +2153,71 @@ SDK on it – that is the whole point, and a developer machine cannot tell you
 whether it works. Install, run, check that the app icon and name from 13.2
 show up in the Start menu and in Add/Remove Programs, then uninstall and check
 that it leaves nothing behind.
+
+**Outcome:** All three decisions went the same way – towards the plainest thing
+that works for someone who is not a developer.
+
+**Inno Setup, around an unpackaged publish.** MSIX was rejected on the one fact
+that decides it: an MSIX package will not install at all until the machine
+already trusts the signing certificate, so a stranger downloading from GitHub
+would have to install a certificate by hand before they could install the app.
+That is a worse first meeting than any warning. A plain zip was the other
+candidate and would have been less work, but it gives no Start-menu entry and no
+uninstall, and the audience here is the one least likely to know what to do with
+a folder of six hundred files. `WindowsPackageType` therefore stays `None`.
+
+**Unsigned, and said so in the README.** A self-signed certificate produces
+exactly the same SmartScreen warning as no certificate at all, while looking as
+though something had been done – it was rejected for that rather than on cost. A
+real OV certificate is a few hundred euro a year and the key may no longer live
+on the machine that builds, which is more machinery than this project can carry.
+So the README explains the warning, what it means and how to click past it, and
+says outright that anyone unwilling to do so should build from source instead.
+An honest paragraph is worth more than an unexplained blue box, and the decision
+is reversible: adding a certificate later changes nothing else.
+
+**1.0.0, moved by hand.** `ApplicationDisplayVersion` is now `1.0.0` and is the
+only place a release version is written down. The installer reads the version
+back out of the built executable rather than repeating it, so the two cannot
+drift apart – and since Windows file versions always carry four parts, the
+script trims the trailing `.0` so the filename matches the git tag.
+
+What was actually done:
+
+- `Installer/Solarsystem.iss`, an Inno Setup script over the self-contained
+  publish. Per-user install by default, so there is no administrator prompt on
+  top of the SmartScreen one; an administrator can still choose all-users in the
+  first dialog. `ArchitecturesAllowed=x64compatible`, matching the `win-x64`
+  publish, so the installer refuses a machine where the app could not start
+  rather than installing something broken. English and Swedish, matching the app.
+- A fixed `AppId` GUID, with a comment saying never to change it. That is what
+  Windows recognises an existing installation by, and a new one would leave the
+  old version standing as a second entry in Add/Remove Programs.
+- **`Platforms/Windows/Package.appxmanifest` deleted.** It was dead – nothing in
+  the build references it and it is only read when the package type is MSIX –
+  and it still held the template's `maui-package-name-placeholder`,
+  `CN=User Name` and `$placeholder$`. Exactly the leftover 13.2 went through the
+  project for. `Platforms/Windows/app.manifest` is a different file and stays: it
+  is the one the unpackaged build does use, for DPI awareness.
+- `.gitignore` extended with `.pfx`, `.p12`, `.snk`, `.pem`, `.key`, `.cer`,
+  `.crt` and the installer's output folder. The certificate patterns are there
+  despite the unsigned decision, and deliberately so: they cost nothing now and
+  they have to exist *before* a certificate first reaches the machine, not after.
+  In a public repository a committed key is disclosed the moment it is pushed.
+- README got two sections: *Downloading a ready-made copy* (with the SmartScreen
+  paragraph) and *Making a release* (the two commands, and the rule that the
+  version is raised, tagged and pushed before the Release is made).
+
+**Measured, not estimated:** the self-contained publish is 232 MB across 600
+files and the executable reports 1.0.0.0, confirming the version change reaches
+the artifact. Large, and unavoidably so – the whole .NET runtime is in there,
+which is the entire reason the target machine needs nothing installed.
+
+**Two things are not verified, and neither is a decision.** Inno Setup is not
+installed on the build machine, so the script has been written but never
+compiled; the first `iscc` run may well turn up a typo. And the Verify step
+above – a machine that has never had the SDK on it – is by definition not
+something this machine can answer.
 
 ---
 
