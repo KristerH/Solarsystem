@@ -1947,7 +1947,7 @@ anything at all is published – it cannot be taken back.
       translation work (TODO.md is itself over 2,000 lines, comparable to the
       comments' 2,056).
 
-- [ ] **Flip the repository from private to public.** Everything above is
+- [x] **Flip the repository from private to public.** Everything above is
       preparation for this, and it was never written down as a step of its own.
       It is also the one action here that cannot be taken back quietly: once it
       is public, anything in it has been public.
@@ -2009,6 +2009,17 @@ anything at all is published – it cannot be taken back.
       3. Keep `backup-before-email-rewrite` until the rest is settled. It is
          local only, so it never leaves the machine, but it is also the only
          way back to the original history.
+
+      **Done, in that order.** The repository is public. The About description
+      and topics were filled in first, since they are what a visitor reads
+      before anything else and an empty About box was the state it would
+      otherwise have gone public in.
+
+      The backup branch is deliberately still here. It has no remaining job now
+      that the old history is off GitHub, but deleting it costs nothing to
+      postpone and it is the only copy of what the repository looked like
+      before the rewrite. Worth keeping at least until the clean-machine test in
+      13.4 has passed and nothing about the release needs revisiting.
 
 **Verify:** Clone the repository into an empty directory on another machine and
 build it using only the instructions in the README. If that does not work, the
@@ -2236,10 +2247,41 @@ path, and it is not – neither installer adds it. `winget` puts it under
 without administrator rights it installs per user. The README now names both
 locations.
 
+**Released.** `v1.0.0` is tagged, pushed and published as a GitHub Release with
+the installer attached. The repository went public first, after the old history
+was confirmed gone (see 13.2).
+
 **What is still unverified is the Verify step itself** – a machine that has
 never had the .NET SDK on it. That is by definition not something the build
 machine can answer, and it is the one claim the installer makes that has not
-been tested: that the target needs nothing installed first.
+been tested: that the target needs nothing installed first. Planned for Monday
+7 September 2026, on another computer. What to check there, in order:
+
+- [ ] **Download from the Releases page**, not from a USB stick. The download
+      path is part of what is being tested – SmartScreen treats a file fetched
+      from the web differently from one copied across, because the browser marks
+      it with a zone flag that a file copy does not carry.
+- [ ] **The SmartScreen warning appears and can be got past** by *More info* →
+      *Run anyway*, exactly as the README describes it. If the wording on screen
+      differs from the README's, the README is the thing that is wrong.
+- [ ] **It installs without asking for an administrator password.** That is the
+      per-user default doing its job, and it is the whole reason for choosing it
+      – on a school laptop the user is often not an administrator.
+- [ ] **The app starts, and the 3D view draws.** This is the real test of
+      self-contained: a machine without the .NET runtime either runs it or fails
+      at the first line, with nothing in between.
+- [ ] **The icon and name from 13.2 appear** in the Start menu and in
+      Add/Remove Programs – not the .NET template's purple default.
+- [ ] **The interface comes up in the machine's own language.** If that machine
+      is Swedish, this also tests 13.1's operating-system default on a computer
+      that was never used to develop it.
+- [ ] **Uninstall leaves nothing behind.** Check that the install folder is gone
+      afterwards. Nothing else should need cleaning: the app writes no settings
+      and no registry keys of its own, and its only file outside the install
+      folder is the error log in the temp directory.
+
+If any of these fail it is a README or script fix, not a decision to revisit –
+the three decisions above stand on their own reasoning regardless.
 
 ---
 
